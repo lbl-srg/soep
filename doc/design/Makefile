@@ -52,6 +52,7 @@ clean:
 
 html:   
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
+	./fixHtml.py
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 

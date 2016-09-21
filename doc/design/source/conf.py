@@ -20,9 +20,14 @@ sys.path.append(os.path.abspath('.'))
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 #extensions = ['sphinx.ext.autodoc', 'sphinx.ext.pngmath']
-extensions = ['sphinx.ext.autodoc', 'mathjax', 'sphinxcontrib.bibtex', 'numfig']
+extensions = ['sphinx.ext.autodoc', 'mathjax', 'sphinxcontrib.bibtex', 'numfig', 'sphinxcontrib.plantuml']
+
 # mathjax_path is based on http://www.mathjax.org/docs/2.0/start.html
 mathjax_path = "http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
+
+plantuml = 'java -jar plantuml.jar'
+plantuml_output_format = 'svg'
+plantuml_latex_output_format = 'pdf'
 
 # 'sphinxcontrib.bibtex' is based on http://sphinxcontrib-bibtex.readthedocs.org/en/latest/quickstart.html
 # which may be installed using
@@ -102,7 +107,7 @@ import sphinx_bootstrap_theme
 html_theme = 'bootstrap'
 html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
 print "*********** {}".format(html_theme_path)
-html_logo = '_static/lbl-logo.png'
+html_logo = '_static/soep-logo.png'
 # Theme options are theme-specific and customize the look and feel of a
 # theme further.
 html_theme_options = {
@@ -120,8 +125,7 @@ html_theme_options = {
     # Note the "1" or "True" value above as the third argument to indicate
     # an arbitrary url.
     'navbar_links': [
-        ("Home", "http://simulationresearch.lbl.gov/modelica", True),
-        ("User Guide", "index"),
+        ("Index", "index"),
 #        ("Download", "download"),
 #        ("Python", "http://simulationresearch.lbl.gov/modelica/buildingspy", True),
 #        ("Development", "https://github.com/lbl-srg/modelica-buildings", True),
@@ -284,7 +288,7 @@ latex_elements = {'classoptions': ', openany',         # remove blank pages in P
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
-latex_logo = '_static/lbl-logo.png'
+latex_logo = '_static/soep-logo.png'
 
 # For "manual" documents, if this is true, then toplevel headings are parts,
 # not chapters.

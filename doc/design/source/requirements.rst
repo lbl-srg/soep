@@ -16,8 +16,7 @@ dynamics to satisfy certain smootheness properties in order for solutions to exi
 These smoothness properties are also required for convergence and
 computational efficiency of the iterative solution methods.
 The next sections describe these mathematical properties that
-need to be satisfied by the equations that are implemented in the
-FMUs.
+need to be satisfied by the model equations.
 
 
 Differentiability

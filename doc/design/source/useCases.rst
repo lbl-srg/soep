@@ -6,20 +6,28 @@ Use Cases
 This section describes use cases for end-users that interact with SOEP
 through OpenStudio, and use cases for developers of SOEP.
 
-Use Cases for OpenStudio Integration
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OpenStudio Integration
+^^^^^^^^^^^^^^^^^^^^^^
 
-Use Case for OpenStudio Measures
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Measures
+~~~~~~~~
 
 This use case describes how measures are processed between OpenStudio and
 the Modelica model. We distinguish two types of measures, these who do a simple
 parameter assignment, and these who require changes to multiple parts of the model.
 
 
-An example which requires changes to a single parameters of the model is as
-follows: Consider that a top-level parameter for the boiler efficiency `eta`
-needs to be set to ``0.9``.
+An example which requires changes to a single parameters of the model is to
+set in a Modelica model of the form
+
+.. code-block:: modelica
+
+   ...
+   parameter Real eta(min=0) = 0.8 "Boiler efficiency";
+   ...
+
+the top-level parameter for the boiler efficiency :math:`\eta = 0.9`.
+
 
 The use case description is as follows:
 
@@ -77,6 +85,29 @@ Trigger                      A ruby script is executed.
                              ``parameter Real eta(min=0) = 0.9 "Efficiency";``
 ===========================  ===================================================
 
+The sequence diagram for this as shown in :numref:`fig_use_case_os_single_par`.
+
+.. _fig_use_case_os_single_par:
+
+.. uml::
+   :caption: Applying an OS measure to a single parameter.
+
+   title Apply OS measure to a single parameter
+
+   Measure -> "Model Editor": getInstanceAST()
+   "Model Editor" -> JModelica: getInstanceAST()
+   "Model Editor" <- JModelica
+   Measure <- "Model Editor"
+   |||
+   Measure -> Measure: searchParameter()
+   Measure -> Measure: validate()
+   alt found parameter
+     Measure -> "Model Editor": setValue()
+   else
+     Measure -> Measure: reportError()
+   end
+
+
 
 An example which requires changes to multiple parts of the model is the following
 measure.
@@ -124,15 +155,12 @@ Trigger                      A ruby script is executed.
 ---------------------------  ---------------------------------------------------
 1                            The ruby script is invoked.
 ---------------------------  ---------------------------------------------------
-2                            A JSON file that lists all components that are
-                             lighting power densities is being red,
-                             and a code snippet that
-                             shows how to change the lighting power density
-                             parameter or the data record that contains the
-                             lighting power density is returned.
+2                            The instance AST is obtained.
 ---------------------------  ---------------------------------------------------
 3                            The script searches for all model instances that
-                             are lighting power densities, and returns two lists
+                             are thermal zones, and within them, it searches for
+                             all lighting power densities.
+                             It returns two lists
                              of model names, one list (``l1``) containing only
                              the parameters (or records) that are not final, and
                              one list (``l2``) that contains the parameters
@@ -142,9 +170,16 @@ Trigger                      A ruby script is executed.
                              and stops.
 ---------------------------  ---------------------------------------------------
 5                            If ``l2`` is non-empty, the script triggers a
-                             warning.
+                             warning and continues.
 ---------------------------  ---------------------------------------------------
-6                            The ruby script makes a new model of the form
+6                            A JSON file that lists all components
+                             that are lighting power densities is being red,
+                             and a code snippet that
+                             shows how to change the lighting power density
+                             parameter or the data record that contains the
+                             lighting power density is returned.
+---------------------------  ---------------------------------------------------
+7                            The ruby script makes a new model of the form
                              ``model modifiedModel extends
                              buiding(zone1(pLig=0.8), zone2(pLig=0.8));
                              end modifiedModel;``
@@ -152,14 +187,51 @@ Trigger                      A ruby script is executed.
                              Modelica ``record``).
 ===========================  ===================================================
 
+The sequence diagram for this as shown in :numref:`fig_use_case_os_zones`.
+
+.. _fig_use_case_os_zones:
+
+.. uml::
+   :caption: Applying an OS measure to a set of models.
+
+   title Apply OS measure to set of models.
+
+   Measure -> "Model Editor": getInstanceAST()
+   "Model Editor" -> JModelica: getInstanceAST()
+   "Model Editor" <- JModelica 
+   Measure <- "Model Editor"
+   |||
+   Measure -> Measure: searchParameter()
+   Measure -> Measure: validate()
+
+   alt no non-final parameter found
+
+       Measure -> Measure: reportError()
+       Measure -> Measure: stop
+
+   else
+
+       alt found final parameter
+
+         Measure -> Measure: reportWarning()
+         note right: This alerts users that not all parameters have been set.
+
+       end
+ 
+       Measure -> Measure: getCodeSnippet()
+       Measure -> "Model Editor": setValue()
+
+   end
 
 
-Use Case for Modelica Buildings Library Integration in OpenStudio
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Modelica Buildings Library Integration in OpenStudio
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This use case describes how to synchronize the Modelica library with its
 OpenStudio representation. The OpenStudio representation will be used
-for integration OpenStudio measures, and other OpenStudio code
+for integrating OpenStudio measures, and other OpenStudio code
 that interacts with the Modelica representation such as the graphical
 editor. The problem being addressed is that the Modelica library is frequently
 updated, and we want to have *one* representation of the model connectors,
@@ -178,7 +250,7 @@ Goal in Context              Updating an OpenStudio HVAC and controls library
 Preconditions                The Modelica library passes the regression tests
                              and an AST of the OpenStudio object representation
                              for the library already exists (otherwise
-                             it will be generated.)
+                             it will be generated).
 ---------------------------  ---------------------------------------------------
 Successful End Condition     An HVAC and controls library for use in OpenStudio.
 ---------------------------  ---------------------------------------------------
@@ -188,7 +260,9 @@ Failed End Condition         Library creation failed due to incompatible
 ---------------------------  ---------------------------------------------------
 Primary Actors               A software developer.
 ---------------------------  ---------------------------------------------------
-Secondary Actors             The OpenStudio HVAC and controls library.
+Secondary Actors             The Modelica Buildings library.
+
+                             The OpenStudio HVAC and controls library.
 ---------------------------  ---------------------------------------------------
 Trigger                      The software developer executes an update script.
 ---------------------------  ---------------------------------------------------
@@ -220,38 +294,31 @@ Trigger                      The software developer executes an update script.
 5.1                          OpenStudio integration tests are run.
 ===========================  ===================================================
 
-Template is below
+The sequence diagram for this as shown in :numref:`fig_use_case_loading_modelica_lib`.
 
-===========================  ===================================================
-**Use case name**            **Loading a Modelica library into OpenStudio**
-===========================  ===================================================
-Related Requirements
----------------------------  ---------------------------------------------------
-Goal in Context
----------------------------  ---------------------------------------------------
-Preconditions
----------------------------  ---------------------------------------------------
-Successful End Condition
----------------------------  ---------------------------------------------------
-Failed End Condition
----------------------------  ---------------------------------------------------
-Primary Actors
----------------------------  ---------------------------------------------------
-Secondary Actors
----------------------------  ---------------------------------------------------
-Trigger
----------------------------  ---------------------------------------------------
-**Main Flow**                **Action**
----------------------------  ---------------------------------------------------
-1                            xxxx
----------------------------  ---------------------------------------------------
-2                            xxxx
----------------------------  ---------------------------------------------------
-3                            xxxx
----------------------------  ---------------------------------------------------
-**Extensions**
----------------------------  ---------------------------------------------------
-1                            xxxx
----------------------------  ---------------------------------------------------
-2                            xxxx
-===========================  ===================================================
+.. _fig_use_case_loading_modelica_lib:
+
+.. uml::
+   :caption: Loading a Modelica library into OpenStudio.
+
+   title Apply OS measure to set of models.
+
+   "Update Script" -> JModelica: getInstanceAST()
+   JModelica -> "Modelica Library": getInstanceAST()
+   JModelica <- "Modelica Library"
+   "Update Script" <- JModelica 
+   |||
+   "Update Script" -> "OpenStudio Library": getInstanceAST()
+   "Update Script" <- "OpenStudio Library" 
+
+   alt no OpenStudio Library has been populated
+     "Update Script" -> "OpenStudio Library": createLibrary()
+   else Update the existing library
+     "Update Script" -> "Update Script" : validate()
+     alt incompatible changes exist
+       "Update Script" -> "Update Script" : reportIncompatibilities()
+       alt accept incompatible changes
+         "Update Script" -> "OpenStudio Library": createLibrary()
+       end
+     end
+   end
