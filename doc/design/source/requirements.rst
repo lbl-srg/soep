@@ -323,7 +323,8 @@ Open question: Shall we use OpenMP or some other system?
 Master Algorithm
 ^^^^^^^^^^^^^^^^
 
-[** This section should probably be deleted **]
+**This section should probably be deleted**
+
 The master algorithm must satisfy the following requirements:
 
 #. The master algorithm must be using the BSD license. Hence,
