@@ -8,7 +8,11 @@ through OpenStudio, and use cases for developers of SOEP.
 
 .. note::
 
-  I think OpenStudio components which map to Modelica models will need to be annotated somehow so that OpenStudio knows how to handle them automatically. The reasoning is because I believe we should still be able to support the old way OpenStudio deals with HVAC. We need a way to let OpenStudio knows whether we are doing SOEP or the old way. 
+   I think OpenStudio components which map to Modelica models will need to be
+   annotated somehow so that OpenStudio knows how to handle them automatically.
+   The reasoning is because I believe we should still be able to support the
+   old way OpenStudio deals with HVAC. We need a way to let OpenStudio knows
+   whether we are doing SOEP or the old way.
 
 OpenStudio Integration
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -202,7 +206,7 @@ The sequence diagram for this as shown in :numref:`fig_use_case_os_zones`.
 
    Measure -> "Model Editor": getInstanceAST()
    "Model Editor" -> JModelica: getInstanceAST()
-   "Model Editor" <- JModelica 
+   "Model Editor" <- JModelica
    Measure <- "Model Editor"
    |||
    Measure -> Measure: searchParameter()
@@ -221,7 +225,7 @@ The sequence diagram for this as shown in :numref:`fig_use_case_os_zones`.
          note right: This alerts users that not all parameters have been set.
 
        end
- 
+
        Measure -> Measure: getCodeSnippet()
        Measure -> "Model Editor": setValue()
 
@@ -310,10 +314,10 @@ The sequence diagram for this as shown in :numref:`fig_use_case_loading_modelica
    "Update Script" -> JModelica: getInstanceAST()
    JModelica -> "Modelica Library": getInstanceAST()
    JModelica <- "Modelica Library"
-   "Update Script" <- JModelica 
+   "Update Script" <- JModelica
    |||
    "Update Script" -> "OpenStudio Library": getInstanceAST()
-   "Update Script" <- "OpenStudio Library" 
+   "Update Script" <- "OpenStudio Library"
 
    alt no OpenStudio Library has been populated
      "Update Script" -> "OpenStudio Library": createLibrary()
@@ -329,29 +333,33 @@ The sequence diagram for this as shown in :numref:`fig_use_case_loading_modelica
 
 
 
-HVAC System Modelling in OpenStudio
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+HVAC System Modeling in OpenStudio
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This use case describes how to build an HVAC system in OpenStudio
 which uses component models of the Modelica Buildings library.
 
 
 ===========================  ===================================================
-**Use case name**            **Modelling an AHU in OpenStudio**
+**Use case name**            **Modeling a boiler plant in OpenStudio**
 ===========================  ===================================================
 Related Requirements         n/a
 ---------------------------  ---------------------------------------------------
-Goal in Context              A user wants to model an AHU in OpenStudio
-                             using component models of the Buildings library.
+Goal in Context              A user wants to model a boiler plant in OpenStudio
+                             using component models of the Buildings library,
+                             and optionally connect it to pre-configured
+                             air handler unit from the OpenStudio library.
 ---------------------------  ---------------------------------------------------
-Preconditions                Component models of the AHU exist as OpenStudio
-                             and Modelica models. Measures for converting 
+Preconditions                Component models of the boiler pant
+                             exist as OpenStudio and Modelica models.
+
+                             Measures for converting
                              the OpenStudio models to Modelica models exist.
 ---------------------------  ---------------------------------------------------
 Successful End Condition     An AHU for use in OpenStudio.
 ---------------------------  ---------------------------------------------------
-Failed End Condition         Conversion from OpenStudio component model to 
-                             Modelica model failed because of non-existence 
+Failed End Condition         Conversion from OpenStudio component model to
+                             Modelica model failed because of non-existence
                              of corresponding Modelica model.
 ---------------------------  ---------------------------------------------------
 Primary Actors               An end user.
@@ -360,27 +368,59 @@ Secondary Actors             The Modelica Buildings library.
 
                              The OpenStudio HVAC and controls library.
 ---------------------------  ---------------------------------------------------
-Trigger                      The user drags and drops component models of an HVAC 
-                             system.
+Trigger                      The user drags and drops component models of an
+                             HVAC system.
 ---------------------------  ---------------------------------------------------
 **Main Flow**                **Action**
 ---------------------------  ---------------------------------------------------
-1                            The user drags and drops OpenStudio component 
-                             models for an AHU (fan, heating and cooling coils, 
-                             dampers, e.t.c.) into OpenStudio.
+1                            The user open the OpenStudio GUI and selects the
+                             SOEP mode.
 ---------------------------  ---------------------------------------------------
-2                            The user applies a measure to each OpenStudio   
-                             component model to convert it into a Modelica model
-                             (The set-up could be so that when an OpenStudio
-                             is dragged and dropped, it automatically writes 
-                             Modelica code). The measure returns with an error
-                             if a corresponding Modelica model cannot be found.
+2                            The OpenStudio GUI shows an HVAC and controls
+                             library for which Modelica components exist.
 ---------------------------  ---------------------------------------------------
-3                            The user connects the component models in 
-                             OpenStudio to build the AHU ( how? by applying
-                             a measure?)
+3                            The user drags and drops OpenStudio component
+                             models for an AHU (fan, heating and cooling coils,
+                             dampers, etc.) from the OpenStudio HVAC library
+                             into the schematic editor.
 ---------------------------  ---------------------------------------------------
-4                            OpenStudio generates Modelica code of the AHU
-                             (how? by applying a measure?).
+4                            As a component is dropped into the editor,
+                             code is generated that specifies the component
+                             location. For example, dropping a boiler generates
+                             code such
+                             as ``Buildings.Fluid.Boilers.BoilerPolynomial
+                             boi "Boiler"
+                             annotation (Placement(
+                             transformation(extent={{-10,0},{10,20}})));``
+---------------------------  ---------------------------------------------------
+5                            The user sets the efficiency of the boiler by
+                             double-clicking on its icon, which changes the
+                             above declaration
+                             to ``Buildings.Fluid.Boilers.BoilerPolynomial boi(
+                             eta = 0.9) "Boiler"
+                             annotation (Placement(
+                             transformation(extent={{-10,0},{10,20}})));``
+---------------------------  ---------------------------------------------------
+6                            The user connects the inlet to a boiler to a
+                             temperature sensor (which has previously been placed
+                             and given the name `temSen`) by drawing a line
+                             between its ports. This generates the
+                             code ``connect(senTem.port_b, boi.port_a)
+                             annotation (Line(points={{-10,0},{0,0},{0,10}}));``
+---------------------------  ---------------------------------------------------
+**Extensions**
+---------------------------  ---------------------------------------------------
+7                            To connect the boiler to the air handler unit,
+                             the user drags a complete air handler unit
+                             into the schematic editor.
+---------------------------  ---------------------------------------------------
+8                            The editor asks whether the components should be
+                             instantiated as a component (displaying
+                             its Modelica icon and hence its structure can only
+                             be changed by changing the library), or
+                             exploded so that all its top-level components are
+                             instantiated and hence can be modified.
+---------------------------  ---------------------------------------------------
+9                            The user connects the boiler output to the
+                             air handler heating coil inlets as in Step 6
 ===========================  ===================================================
-
