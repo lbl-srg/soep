@@ -372,9 +372,9 @@ Trigger                      The user drags and drops component models of an HVA
 2                            The user applies a measure to each OpenStudio   
                              component model to convert it into a Modelica model
                              (The set-up could be so that when an OpenStudio
-                              is dragged and dropped, it automatically writes 
-                              Modelica code). The measure returns with an error
-                              if a corresponding Modelica model cannot be found.
+                             is dragged and dropped, it automatically writes 
+                             Modelica code). The measure returns with an error
+                             if a corresponding Modelica model cannot be found.
 ---------------------------  ---------------------------------------------------
 3                            The user connects the component models in 
                              OpenStudio to build the AHU ( how? by applying
