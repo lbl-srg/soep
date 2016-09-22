@@ -6,6 +6,10 @@ Use Cases
 This section describes use cases for end-users that interact with SOEP
 through OpenStudio, and use cases for developers of SOEP.
 
+.. note::
+
+  I think OpenStudio components which map to Modelica models will need to be annotated somehow so that OpenStudio knows how to handle them automatically. The reasoning is because I believe we should still be able to support the old way OpenStudio deals with HVAC. We need a way to let OpenStudio knows whether we are doing SOEP or the old way. 
+
 OpenStudio Integration
 ^^^^^^^^^^^^^^^^^^^^^^
 
@@ -322,3 +326,61 @@ The sequence diagram for this as shown in :numref:`fig_use_case_loading_modelica
        end
      end
    end
+
+
+
+HVAC System Modelling in OpenStudio
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This use case describes how to build an HVAC system in OpenStudio
+which uses component models of the Modelica Buildings library.
+
+
+===========================  ===================================================
+**Use case name**            **Modelling an AHU in OpenStudio**
+===========================  ===================================================
+Related Requirements         n/a
+---------------------------  ---------------------------------------------------
+Goal in Context              A user wants to model an AHU in OpenStudio
+                             using component models of the Buildings library.
+---------------------------  ---------------------------------------------------
+Preconditions                Component models of the AHU exist as OpenStudio
+                             and Modelica models. Measures for converting 
+                             the OpenStudio models to Modelica models exist.
+---------------------------  ---------------------------------------------------
+Successful End Condition     An AHU for use in OpenStudio.
+---------------------------  ---------------------------------------------------
+Failed End Condition         Conversion from OpenStudio component model to 
+                             Modelica model failed because of non-existence 
+                             of corresponding Modelica model.
+---------------------------  ---------------------------------------------------
+Primary Actors               An end user.
+---------------------------  ---------------------------------------------------
+Secondary Actors             The Modelica Buildings library.
+
+                             The OpenStudio HVAC and controls library.
+---------------------------  ---------------------------------------------------
+Trigger                      The user drags and drops component models of an HVAC 
+                             system.
+---------------------------  ---------------------------------------------------
+**Main Flow**                **Action**
+---------------------------  ---------------------------------------------------
+1                            The user drags and drops OpenStudio component 
+                             models for an AHU (fan, heating and cooling coils, 
+                             dampers, e.t.c.) into OpenStudio.
+---------------------------  ---------------------------------------------------
+2                            The user applies a measure to each OpenStudio   
+                             component model to convert it into a Modelica model
+                             (The set-up could be so that when an OpenStudio
+                              is dragged and dropped, it automatically writes 
+                              Modelica code). The measure returns with an error
+                              if a corresponding Modelica model cannot be found.
+---------------------------  ---------------------------------------------------
+3                            The user connects the component models in 
+                             OpenStudio to build the AHU ( how? by applying
+                             a measure?)
+---------------------------  ---------------------------------------------------
+4                            OpenStudio generates Modelica code of the AHU
+                             (how? by applying a measure?).
+===========================  ===================================================
+
