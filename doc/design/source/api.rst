@@ -10,15 +10,23 @@ Generating OpenStudio Models
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The purpose of this section is to design how to keep the OpenStudio
-Model API and the Modelica section synchronized, while requiring
-only one place where information is declared.
+Model API and the Modelica models synchronized.
+As there are currently more than 600 Modelica models and function,
+we intent to design it such that there is only
+one place where information is declared.
 
-A solution for this is to use so-called
+Also, users should be able to provide their own Modelica
+models or libraries and integrate them in an OpenStudio
+graphical model editor.
+
+A solution for declaring information that is needed to
+integrate Modelica models with the OpenStudio Model library
+this is to use so-called
 vendor annotations [#ven_ann]_ in the Modelica code,
 and encode in these vendor annotations the information required
 to generate the OpenStudio Model API that corresponds to the
 library. [#os_mod_api]_
-For a boiler, model, vendor annotation in the ``EnergyPlus``
+For example, for a boiler, model, vendor annotation in the ``EnergyPlus``
 namespace may look as shown below.
 
 

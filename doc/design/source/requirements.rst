@@ -282,7 +282,7 @@ Interface Variables of FMU
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The parameters, inputs, outputs and state variables of FMUs
-need to provide the following information
+shall provide the following information:
 
 #. A descriptive text that can be used in a user interface.
 #. Units of the variable.
@@ -295,6 +295,8 @@ need to provide the following information
 #. Optionally, minimum and maximum values that the variable
    is allowed to attain.
 
+Note that a container for exporting HVAC components as an FMU is described
+in :cite:`WetterFuchsNouidui:2015`.
 
 QSS Implementation
 ^^^^^^^^^^^^^^^^^^
