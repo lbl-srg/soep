@@ -20,3 +20,6 @@ replace('\maketitle',
 replace('\\begin{thebibliography}{1}',
         '''\\chapter{References}
 \\begin{thebibliography}{1}''')
+
+replace('\\begin{tabular}', '\\begin{longtable}')
+replace('\\end{tabular}', '\\end{longtable}')
