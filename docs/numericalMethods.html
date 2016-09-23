@@ -1,0 +1,441 @@
+
+
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>6. Numerical Methods of the Master Algorithm &mdash; Spawn of EnergyPlus</title>
+    
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootswatch-3.3.6/united/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap_custom.css" type="text/css" />
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    <link rel="stylesheet" href="_static/custom-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="shortcut icon" href="_static/lbl-icon.ico"/>
+    <link rel="top" title="Spawn of EnergyPlus" href="index.html" />
+    <link rel="next" title="7. Application Programming Interface" href="api.html" />
+    <link rel="prev" title="5. Software Architecture" href="softwareArchitecture.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+
+  <div id="navbar" class="navbar navbar-default ">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html"><img src="_static/soep-logo.png">
+           </a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="index.html">Index</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="preample.html">1. Preample</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="preample.html#purpose-of-the-document">1.1. Purpose of the Document</a></li>
+<li class="toctree-l2"><a class="reference internal" href="preample.html#contributors">1.2. Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">2. Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="useCases.html">3. Use Cases</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="useCases.html#openstudio-integration">3.1. OpenStudio Integration</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="requirements.html">4. Requirements</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="requirements.html#mathematical-requirements">4.1. Mathematical requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="requirements.html#fmu-requirements">4.2. FMU Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="requirements.html#qss-implementation">4.3. QSS Implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="requirements.html#master-algorithm">4.4. Master Algorithm</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="softwareArchitecture.html">5. Software Architecture</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">6. Numerical Methods of the Master Algorithm</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#time-integration">6.1. Time Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#algebraic-loops">6.2. Algebraic Loops</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">7. Application Programming Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api.html#generating-openstudio-models">7.1. Generating OpenStudio Models</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">8. Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgments.html">9. Acknowledgments</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">6. Numerical Methods of the Master Algorithm</a><ul>
+<li><a class="reference internal" href="#time-integration">6.1. Time Integration</a><ul>
+<li><a class="reference internal" href="#qss1">6.1.1. QSS1</a></li>
+<li><a class="reference internal" href="#qss2">6.1.2. QSS2</a></li>
+<li><a class="reference internal" href="#qss3">6.1.3. QSS3</a></li>
+<li><a class="reference internal" href="#discussion-of-qss">6.1.4. Discussion of QSS</a></li>
+<li><a class="reference internal" href="#liqss">6.1.5. LIQSS</a></li>
+<li><a class="reference internal" href="#discussion-of-liqss">6.1.6. Discussion of LIQSS</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#algebraic-loops">6.2. Algebraic Loops</a><ul>
+<li><a class="reference internal" href="#software-requirements-for-efficient-implementation-of-newton-raphson-method-for-algebraic-loops">6.2.1. Software Requirements for Efficient Implementation of Newton-Raphson Method for Algebraic Loops</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="softwareArchitecture.html" title="Previous Chapter: 5. Software Architecture"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; 5. Software A...</span>
+    </a>
+  </li>
+  <li>
+    <a href="api.html" title="Next Chapter: 7. Application Programming Interface"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">7. Applicatio... &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+          </ul>
+
+<!--
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+-->
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 content">
+      
+  <div class="section" id="numerical-methods-of-the-master-algorithm">
+<h1>6. Numerical Methods of the Master Algorithm<a class="headerlink" href="#numerical-methods-of-the-master-algorithm" title="Permalink to this headline">¶</a></h1>
+<p>This section describes the numerical methods that are used by the master algorithm.</p>
+<p>First, we note that conventional continuous time integration algorithms have the following fundamental properties in common <a class="reference internal" href="index.html#cellierkofman2006" id="id1">[CK06]</a>: Given a time <span class="math">\(t_{k+1}\)</span>, a polynomial approximation is performed to determine the values
+of all state variables at that time instant. If an error estimate is too large, the computation is repeated with a shorter time step. If an event happened, an iteration takes place across
+all states to determine when the event occurred. At the event, the approximations of the higher-order derivatives, which are the basis for multi-step methods, become invalid.
+Hence multi-step methods need to be restarted with a low-order method. This is very expensive as it involves a global event iteration followed by an integrator reset to a low order method.
+As event iteration is computationally expensive, and as our models will have a large number of state events, we will use a different integration method based on the <em>Quantized State System (QSS)</em> representation.</p>
+<div class="section" id="time-integration">
+<h2>6.1. Time Integration<a class="headerlink" href="#time-integration" title="Permalink to this headline">¶</a></h2>
+<p>QSS methods follow entirely different approach:
+Let <span class="math">\(t_k\)</span> be the current time. We ask each state individually at what time <span class="math">\(t_{k+1}\)</span> it will deviate more than a quantum <span class="math">\(\Delta q&gt; 0\)</span> from its current value.
+This is a fundamentally different approach as the state space is discretized, rather than time, and all communication occurs through discrete events.
+Furthermore, when a state variable changes to a new quantization level, the change need only be communicated to other components whose derivatives depend on that state,
+hence communication is local. We thus selected for the SOEP QSS as our integration methods.</p>
+<p>QSS algorithms are new methods that are fundamentally different from standard DAE or ODE solvers.
+The volume of literature about QSS methods is today where ODE solvers were about 30 years ago.
+QSS methods have interesting properties as they naturally lead to asynchronous integration with minimal communication among state variables.
+They also handle state events explicitly without requiring an iteration in time to solve zero-crossing functions.</p>
+<p>The first order QSS method, QSS1, first appeared in the literature in 1998 <a class="reference internal" href="index.html#zeiglerlee1998" id="id2">[ZL98]</a>. QSS1 methods have been extended to second and third order methods (QSS2, QSS3).
+On non-stiff problems, QSS3 has been shown to be significantly faster than QSS, and in some cases were faster than DASSL in Dymola <a class="reference internal" href="index.html#florosetal2011-1" id="id3">[FBCK11]</a>.
+To address performance issues observed in QSS, the class of Linear Implicit QSS methods (LIQSS) have been developed for stiff systems <a class="reference internal" href="index.html#kofman2006-1" id="id4">[Kof06]</a> <a class="reference internal" href="index.html#migonibortolottokofmancellier2013-1" id="id5">[MBKC13]</a>.
+For stiff systems, the 3rd order implementation of LIQSS seems to perform best as shown in <a class="pageref" href="#fig-liqss-migoni">Figure  1</a>, which is from <a class="reference internal" href="index.html#migonibortolottokofmancellier2013-1" id="id6">[MBKC13]</a>.</p>
+<div class="figure" id="id14">
+<span id="fig-liqss-migoni"></span><a class="reference internal image-reference" href="_images/liqss.png"><img alt="_images/liqss.png" src="_images/liqss.png" style="width: 1396.8px; height: 728.8px;" /></a>
+<p class="caption"><span class="caption-number">Fig. 6.1 </span><span class="caption-text">Figure 1: LIQSS method have linear growth of computing time, whereas ode15 (MATLAB) and esdirk23a (Dymola) have cubic growth.</span></p>
+</div>
+<p>Over the past years, different classes of QSS algorithms have been implemented. The next section describes how these algorithms differ from one another.
+We also give insights into which algorithms appear to be suitable for the SOEP.</p>
+<div class="section" id="qss1">
+<h3>6.1.1. QSS1<a class="headerlink" href="#qss1" title="Permalink to this headline">¶</a></h3>
+<p>We will first discuss QSS1 and then show how it has been extended to higher order and implicit QSS methods.
+Consider the following ODE</p>
+<div class="math" id="equation-eq_ode">
+<span class="eqno">(1)</span>\[\dot x(t) = f (x(t), u(t)),\]</div>
+<p>with <span class="math">\(t \in [t_0, \, t_f]\)</span>, and initial conditions <span class="math">\(x(t_0) = x_0\)</span>,
+where <span class="math">\(x(t) \in \Re^n\)</span> is the state vector and <span class="math">\(u(t) \in \Re^m\)</span> is the input vector. For simplicity, suppose <span class="math">\(u(\cdot)\)</span> is piece-wise constant.
+The QSS1 method solves analytically an approximate ODE, which is called QSS, of the form</p>
+<div class="math" id="equation-eq_odeQSS">
+<span class="eqno">(2)</span>\[\dot x(t) = f (q(t), u(t)),\]</div>
+<p>where <span class="math">\(q(t)\)</span> is a vector of quantized values of the state <span class="math">\(x(t)\)</span>. Each component <span class="math">\(q_i(t)\)</span>
+of <span class="math">\(q(t)\)</span> follows a piecewise constant trajectory, related with the corresponding component <span class="math">\(x_i(t)\)</span> by a hysteretic
+quantization function. The hysteretic
+quantization function is defined as follows:
+For some <span class="math">\(K \in \Na_+\)</span>,
+let <span class="math">\(j \in \{0, \ldots, K-1\}\)</span> denote the counter for the time intervals.
+Then, for <span class="math">\(t_j \le t &lt; t_{j+1}\)</span>,
+the hysteretic quantization function is defined as</p>
+<div class="math" id="equation-eq_hysQua1stOrd">
+<span class="eqno">(3)</span>\[\begin{split}     q_i (t) =
+     \begin{cases}
+     x_i(t), &amp; \text{if } |x_i (t)-q_i(t^{-})| = \Delta q_i, \\
+     q_i(t_j), &amp; \text{otherwise},
+     \end{cases}\end{split}\]</div>
+<p>with initial condition <span class="math">\(q_i(t_0) = x_i(t_0)\)</span>,
+where the sequence <span class="math">\(\{t_{j}\}_{j=0}^{K-1}\)</span> is constructed as</p>
+<div class="math">
+\[\begin{split}t_{j+1} = \min \{t \in \Re \, | \, t &gt; t_j, \,  |x_i(t_j) - x_i(t)| = \Delta q_i \}.\end{split}\]</div>
+<p>Thus, the component <span class="math">\(q_i(t)\)</span> changes its state when it differs from <span class="math">\(x_i(t)\)</span> by <span class="math">\(\pm\Delta q_i\)</span>.
+<a class="pageref" href="#fig-qss1-example">Figure  2</a> shows an example of a quantization function for QSS1.</p>
+<div class="figure" id="id15">
+<span id="fig-qss1-example"></span><a class="reference internal image-reference" href="_images/qss1.png"><img alt="_images/qss1.png" src="_images/qss1.png" style="width: 900.0px; height: 551.4px;" /></a>
+<p class="caption"><span class="caption-number">Fig. 6.2 </span><span class="caption-text">Figure 2: Example of quantization function for QSS1.</span></p>
+</div>
+<p><strong>Example</strong></p>
+<p>For illustration, consider the following differential equation where on the left,
+we have the original form, and on the right, we have its QSS form. Here, we took the simplest quantization function,
+e.g, the ceiling function <span class="math">\(q(x)=\lceil{x}\rceil = \arg \min_{z \in \mathbb Z} \{ x \le z \}\)</span>, but in practice,
+finer spacing with hysteresis is used for higher accuracy and to avoid chattering. Consider</p>
+<div class="math">
+\[\begin{split}\begin{aligned}[c]
+\dot x_1(t) &amp; = - x_1(t) \\
+\dot x_2(t) &amp; = - 2 \, x_1(t) \\
+\dot x_3(t) &amp; = - 2 \, \left( 2 \, x_2(t) + x_3(t) \right) \\
+x(0) &amp; = (10, 10, 10)
+\end{aligned}
+\qquad\xrightarrow{\text{QSS1}}\qquad
+\begin{aligned}[c]
+\dot \chi_1(t) &amp; = - \lceil{\chi_1(t)}\rceil \\
+\dot \chi_2(t) &amp; = - 2 \, \lceil{\chi_1(t)}\rceil \\
+\dot \chi_3(t) &amp; = - 2 \, \left(  2 \, \lceil{\chi_2(t)}\rceil + \lceil{\chi_3(t)}\rceil \right) \\
+\chi(0) &amp; = (10, 10, 10)
+\end{aligned}\end{split}\]</div>
+<p><a class="pageref" href="#fig-qss-ceil-example">Figure  3</a> shows the time series of the solution of the differential equation computed by QSS1.</p>
+<div class="figure" id="id16">
+<span id="fig-qss-ceil-example"></span><a class="reference internal image-reference" href="_images/qssCeil.png"><img alt="_images/qssCeil.png" src="_images/qssCeil.png" style="width: 1100.0px; height: 400.0px;" /></a>
+<p class="caption"><span class="caption-number">Fig. 6.3 </span><span class="caption-text">Figure 3: Time series computed by QSS1 for <span class="math">\(t \in [0, 0.1]\)</span>.</span></p>
+</div>
+<p>The computation is as follows:
+In QSS, each state can be integrated asynchronously until its right-hand side changes.
+Therefore, we can compute directly the first transitions as <span class="math">\(\chi_1(0.1) = 9\)</span>, <span class="math">\(\chi_2(0.05) = 9\)</span>, <span class="math">\(\chi_3(0.01667) = 9\)</span>. We can keep integrating <span class="math">\(\chi_3(\cdot)\)</span> until its input <span class="math">\(\chi_2(\cdot)\)</span> changes, which will be at <span class="math">\(t=0.05\)</span>. Thus, we compute <span class="math">\(\chi_3(0.0339) = 8\)</span>. The next transition of <span class="math">\(\chi_3(\cdot)\)</span> would be at <span class="math">\(t=0.0518\)</span>. But <span class="math">\(\chi_2(\cdot)\)</span> transitions from <span class="math">\(10\)</span> to <span class="math">\(9\)</span> at <span class="math">\(t=0.05\)</span> so we can not integrate beyond that. Hence, we compute the next potential transition of <span class="math">\(\chi_3(\cdot)\)</span> (from <span class="math">\(8\)</span> to <span class="math">\(7\)</span>) as <span class="math">\(t = 0.05190 = \arg \min \{\Delta \in \Re_0^+ \, | 7 = 8 + \int_{0.0339}^{0.05} (-2 \, (2 \cdot 10 + 8) \, ds + \int_{0.05}^{\Delta} (-2 \, (2 \cdot 9+8)) \, ds\}\)</span>. Hence, <span class="math">\(\chi_3(\cdot)\)</span> will transition next at <span class="math">\(t=0.05190\)</span> provided that its input does not change within this time. The input won&#8217;t change because the next transition of <span class="math">\(\chi_2(\cdot)\)</span> will be <span class="math">\(\chi_2(0.1) = 8\)</span>. Therefore, we integrate <span class="math">\(\chi_3(\cdot)\)</span> until <span class="math">\(t=0.1\)</span>, at which time <span class="math">\(\chi_1(\cdot)\)</span> and <span class="math">\(\chi_2(\cdot)\)</span> transition.</p>
+</div>
+<div class="section" id="qss2">
+<h3>6.1.2. QSS2<a class="headerlink" href="#qss2" title="Permalink to this headline">¶</a></h3>
+<p>We will now describe the second order QSS2 method.
+This method replaces the simple hysteretic quantization function of QSS1
+<a href="#equation-eq_hysQua1stOrd">(3)</a> with a first order-quantizer. This leads,
+for <span class="math">\(t_j \leq t &lt; t_{j+1}\)</span>, to</p>
+<div class="math">
+\[\begin{split}q_i(t) =
+\begin{cases}
+x_i(t), &amp; \text{if } |x_i(t)-q_i(t^{-})| = \Delta q_i, \\
+q_i(t_j) + m_{ij} (t-t_j), &amp; \text{otherwise},
+\end{cases}\end{split}\]</div>
+<p>with initial condition <span class="math">\(q_i(t_0) = x_i(t_0)\)</span>,
+where the sequence <span class="math">\(\{t_{j}\}_{j=0}^{K-1}\)</span> is constructed as</p>
+<div class="math">
+\[\begin{split}t_{j+1} = \min \{t \in \Re \, | \, t &gt; t_j, \,  |x_i(t_j) + m_{ij} (t-t_j) - x_i(t)| = \Delta q_i \},\end{split}\]</div>
+<p>with the slope <span class="math">\(m_{ij}\)</span> defined as <span class="math">\(m_{i0}=0\)</span> and <span class="math">\(m_{ij}= \dot x_i(t_j^-)\)</span> for <span class="math">\(j \in \{1, \ldots, K-1\}\)</span>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For <span class="math">\(m_{ij}\)</span>, the limit from below <span class="math">\(\dot x_i(t_j^-)\)</span> is used.</p>
+</div>
+<p>The figure below shows an example of a quantization function for QSS2.</p>
+<div class="figure" id="id17">
+<a class="reference internal image-reference" href="_images/qss2.png"><img alt="_images/qss2.png" src="_images/qss2.png" style="width: 870.0px; height: 551.4px;" /></a>
+<p class="caption"><span class="caption-number">Fig. 6.4 </span><span class="caption-text">Figure 4: Example of quantization function for QSS2.</span></p>
+</div>
+</div>
+<div class="section" id="qss3">
+<h3>6.1.3. QSS3<a class="headerlink" href="#qss3" title="Permalink to this headline">¶</a></h3>
+<p>In QSS3, the trajectories of <span class="math">\(x_i(t)\)</span> and <span class="math">\(q_i(t)\)</span> are related by a second order quantization function.
+This leads, for <span class="math">\(t_j \leq t &lt; t_{j+1}\)</span>, to</p>
+<div class="math">
+\[\begin{split}q_i(t) =
+\begin{cases}
+x_i(t), &amp; \text{if } |x_i(t)-q_i(t^{-})| = \Delta q_i, \\
+q_i(t_j) + m_{ij} (t-t_j) + p_{ij} (t-t_j)^2, &amp; \text{otherwise},
+\end{cases}\end{split}\]</div>
+<p>with initial condition <span class="math">\(q_i(t_0) = x_i(t_0)\)</span>,
+where the sequence <span class="math">\(\{t_{j}\}_{j=0}^{K-1}\)</span> is constructed as</p>
+<div class="math">
+\[\begin{split}t_{j+1} = \min \{t \in \Re \, | \, t &gt; t_j, \,  |x_i(t_j) + m_{ij} (t-t_j) + p_{ij} (t-t_j)^2 - x_i(t)| = \Delta q_i \},\end{split}\]</div>
+<p>with the slopes defined as
+<span class="math">\(m_{i0}=0\)</span> and <span class="math">\(m_{ij}= \dot x_i(t_j^-)\)</span>,
+for <span class="math">\(j \in \{1, \ldots, K-1\}\)</span>, for the first order term, and
+<span class="math">\(p_{i0}=0\)</span> and <span class="math">\(p_{ij}= \dot m_{ij}\)</span> for the second order term.</p>
+</div>
+<div class="section" id="discussion-of-qss">
+<h3>6.1.4. Discussion of QSS<a class="headerlink" href="#discussion-of-qss" title="Permalink to this headline">¶</a></h3>
+<p>QSS1, QSS2, and QSS3 are efficient for the simulation of non-stiff ODEs.</p>
+<p>The number of integration steps of QSS1 is inversely proportional
+to the quantum. For QSS2, it is inversely proportional to the square root of the quantum. For QSS3, it is inversely proportional to the cubic root of the quantum. See <a class="reference internal" href="index.html#kofman2006-1" id="id7">[Kof06]</a> for a derivation.</p>
+<p>However, they have been shown to exhibit oscillatory behavior, with high computing time, if applied to stiff ODEs <a class="reference internal" href="index.html#migonibortolottokofmancellier2013-1" id="id8">[MBKC13]</a>.
+In <a class="reference internal" href="index.html#migonibortolottokofmancellier2013-1" id="id9">[MBKC13]</a>, they were extended to LIQSS methods.
+As building simulation models can be stiff, we will now present these methods.</p>
+</div>
+<div class="section" id="liqss">
+<h3>6.1.5. LIQSS<a class="headerlink" href="#liqss" title="Permalink to this headline">¶</a></h3>
+<p>We will now focus our discussion on LIQSS methods, which seem to be the most applicable classes of QSS methods for building simulation.
+We will start our discussion with the first order LIQSS (LIQSS1) and expand the discussion to higher order LIQSS methods. The basic idea of LIQSS1 is to select the value of <span class="math">\(q_i(t)\)</span> so that <span class="math">\(x_i(t)\)</span> approaches <span class="math">\(q_i(t)\)</span>.
+This implies that <span class="math">\((q_i(t)-x_i(t)) \, \dot {x}_i(t) \geq 0\)</span> for <span class="math">\(t_j \leq t &lt; t_{j+1}\)</span>.
+Given the ODE defined in <a href="#equation-eq_ode">(1)</a>, LIQSS1 approximates it by <a href="#equation-eq_odeQSS">(2)</a>, where each <span class="math">\(q_i(t)\)</span> is defined in <a class="reference internal" href="index.html#migonikofman2007-1" id="id10">[MK07]</a> as</p>
+<div class="math">
+\[\begin{split}q_i(t) =
+\begin{cases}
+\underline{q}_i(t), &amp; \text{if } f_{i}(q(t), u(t)) \,(\underline{q}_i(t) - x_{i}(t)) \geq 0, \\
+\bar{q}_i(t), &amp; \text{if } f_{i}(q(t), u(t)) \,(\bar{q}_i(t) - x_{i}(t)) \geq 0 \land f_{i}(q(t), u(t)) \,(\underline{q}_i(t) - x_{i}(t)) &lt; 0, \\
+\tilde{q}_i(t), &amp; \text{otherwise},
+\end{cases}\end{split}\]</div>
+<p>with</p>
+<div class="math">
+\[\begin{split}\underline{q}_i(t) &amp; =
+    \begin{cases}
+       \underline{q}_i(t^-) - \Delta q_i, &amp; \text{if } x_i(t) - \underline{q}_i(t^-) \le 0, \\
+       \underline{q}_i(t^-) + \Delta q_i, &amp; \text{if } x_i(t) - \underline{q}_i(t^-) \ge 2 \, \Delta q_i, \\
+       \underline{q}_i(t^-),              &amp; \text{otherwise,}\\
+    \end{cases}\\
+\bar q_i(t) &amp; = \underline{q}_i(t) + 2 \, \Delta q_i, \\
+\tilde q_i(t) &amp; = \begin{cases}
+                \bar q_i(t) - \frac{1}{A_{i,i}} f_i(\bar {q}^i(t), u(t)), &amp; \text{if } A_{i,i} \not = 0,\\
+                     q_i(t^-),                                              &amp; \text{otherwise,}\\
+                  \end{cases}\end{split}\]</div>
+<p>where <span class="math">\(A_{i,i}\)</span> is an estimate of the <span class="math">\(i\)</span>-th diagonal element of the Jacobian.
+For its computation, and for how to compute
+<span class="math">\(\bar {q}^i(t)\)</span>, we refer to <a class="reference internal" href="index.html#migonikofman2007-1" id="id11">[MK07]</a>.</p>
+<p>Higher order LIQSS methods (e.g. LIQSS2, LIQSS3) combine the ideas of higher order QSS methods and LIQSS. Reference <a class="reference internal" href="index.html#migonibortolottokofmancellier2013-1" id="id12">[MBKC13]</a> gives a detailed formal definition of such methods.
+Rather than using the first order condition, the <span class="math">\(N\)</span>-th order method LIQSSN uses <span class="math">\((q_i(t)-x_i(t)) \, x_i^{(N)}(t) \geq 0\)</span>, where <span class="math">\(x_i^{(N)}: \Re \rightarrow \Re\)</span> is the <span class="math">\(N\)</span>-th order derivative of <span class="math">\(x_i( \cdot)\)</span> with respect to time.</p>
+</div>
+<div class="section" id="discussion-of-liqss">
+<h3>6.1.6. Discussion of LIQSS<a class="headerlink" href="#discussion-of-liqss" title="Permalink to this headline">¶</a></h3>
+<p>LIQSS methods are efficient for stiff systems where the stiffness is reflected in large diagonal elements of the Jacobian matrix. This is due to the fact that LIQSS solvers avoid fast oscillations by using information derived from the diagonal of the Jacobian matrix. When stiffness is not due to the diagonal elements of the Jacobian matrix, then LIQSS can also exhibit oscillatory behavior <a class="reference internal" href="index.html#migonibortolottokofmancellier2013-1" id="id13">[MBKC13]</a>.</p>
+</div>
+</div>
+<div class="section" id="algebraic-loops">
+<span id="sec-alg-loops"></span><h2>6.2. Algebraic Loops<a class="headerlink" href="#algebraic-loops" title="Permalink to this headline">¶</a></h2>
+<p>This section discusses algebraic loops which can occur when modeling systems with feedback. In block diagrams, algebraic loops occur when the input of a block with direct feedthrough
+is connected to the output of the same block, either directly, or by a feedback path through other blocks which all have direct feedthrough.</p>
+<p>Algebraic loops are generally introduced when the dynamics of a component is approximated by its steady-state solution. For the SOEP,
+subsystems that form algebraic loops include:</p>
+<ol class="arabic simple">
+<li>The infrared radiation network within a thermal zone.
+This is not a problem as this system of equations is likely to be
+contained inside an FMU. Hence, an FMU can output the solution to
+this system of algebraic equations.</li>
+<li>Flow networks such as a water loop. Algebraic loops can be formed
+for the energy balance, mass balance and the pressure network. For
+the energy and mass balance, these loops can be eliminated by
+adding a transport delay that approximates the travel time of the
+fluid inside the pipe. For the pressure network, an approximation
+through the speed of sound is not suited as this would lead to very
+fast transients. Therefore, we will need a means to solve systems
+of algebraic equations that are formed by coupling multiple FMUs
+with direct feedthrough.</li>
+</ol>
+<p>Such algebraic loops are generally solved using Newton-Raphson type
+algorithms. In the next section, we describe the requirements
+of these methods.</p>
+<div class="section" id="software-requirements-for-efficient-implementation-of-newton-raphson-method-for-algebraic-loops">
+<h3>6.2.1. Software Requirements for Efficient Implementation of Newton-Raphson Method for Algebraic Loops<a class="headerlink" href="#software-requirements-for-efficient-implementation-of-newton-raphson-method-for-algebraic-loops" title="Permalink to this headline">¶</a></h3>
+<p>The following requirements are needed by SOEP FMUs to ensure that they can be efficiently solved using the Newton-Raphson method:</p>
+<ol class="arabic simple">
+<li>FMUs need to provide information about their input dependencies.
+This information is stored in the model description file of the FMU
+as output dependency under the element <code class="docutils literal"><span class="pre">&lt;ModelStructure&gt;</span></code>. In
+FMI 2.0, this data is specified as optional.
+For SOEP, we require the output dependency to be declared as the
+master requires it to determine the existence and location of
+algebraic loops.
+Note that a connection between input and output only causes an
+algebraic loop if the output depends algebraically on the input.
+Integrators, however, break algebraic loops.</li>
+<li>FMUs need to provide derivatives of their outputs with respect to
+their inputs. This information is needed by the Newton-Raphson
+method. The Newton-Raphson
+method finds the root of the residual function <span class="math">\(f(x) = y-x\)</span>.
+The root of this function is calculated iteratively as
+<span class="math">\(x_{k+1}=x_k -{y_k}/{f'(x_k)}\)</span> with
+<span class="math">\(f'(x) = {df(x)}/{dx}\)</span>. If the derivative with respect to the
+input cannot be provided, then the derivative would need to be
+approximated numerically. This is computationally costly and
+less robust than providing derivative functions.</li>
+</ol>
+</div>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+  
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+      
+    </p>
+    <p>
+        &copy; Copyright (c) All rights reserved.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.<br/>
+    </p>
+  </div>
+</footer>
+
+  </body>
+</html>

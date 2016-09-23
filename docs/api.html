@@ -1,0 +1,276 @@
+
+
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>7. Application Programming Interface &mdash; Spawn of EnergyPlus</title>
+    
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootswatch-3.3.6/united/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap_custom.css" type="text/css" />
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    <link rel="stylesheet" href="_static/custom-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="shortcut icon" href="_static/lbl-icon.ico"/>
+    <link rel="top" title="Spawn of EnergyPlus" href="index.html" />
+    <link rel="next" title="8. Benchmarks" href="benchmarks.html" />
+    <link rel="prev" title="6. Numerical Methods of the Master Algorithm" href="numericalMethods.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+
+  <div id="navbar" class="navbar navbar-default ">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html"><img src="_static/soep-logo.png">
+           </a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="index.html">Index</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="preample.html">1. Preample</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="preample.html#purpose-of-the-document">1.1. Purpose of the Document</a></li>
+<li class="toctree-l2"><a class="reference internal" href="preample.html#contributors">1.2. Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">2. Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="useCases.html">3. Use Cases</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="useCases.html#openstudio-integration">3.1. OpenStudio Integration</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="requirements.html">4. Requirements</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="requirements.html#mathematical-requirements">4.1. Mathematical requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="requirements.html#fmu-requirements">4.2. FMU Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="requirements.html#qss-implementation">4.3. QSS Implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="requirements.html#master-algorithm">4.4. Master Algorithm</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="softwareArchitecture.html">5. Software Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numericalMethods.html">6. Numerical Methods of the Master Algorithm</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="numericalMethods.html#time-integration">6.1. Time Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="numericalMethods.html#algebraic-loops">6.2. Algebraic Loops</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">7. Application Programming Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#generating-openstudio-models">7.1. Generating OpenStudio Models</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">8. Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgments.html">9. Acknowledgments</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">7. Application Programming Interface</a><ul>
+<li><a class="reference internal" href="#generating-openstudio-models">7.1. Generating OpenStudio Models</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="numericalMethods.html" title="Previous Chapter: 6. Numerical Methods of the Master Algorithm"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; 6. Numerical ...</span>
+    </a>
+  </li>
+  <li>
+    <a href="benchmarks.html" title="Next Chapter: 8. Benchmarks"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">8. Benchmarks &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+          </ul>
+
+<!--
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+-->
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 content">
+      
+  <div class="section" id="application-programming-interface">
+<h1>7. Application Programming Interface<a class="headerlink" href="#application-programming-interface" title="Permalink to this headline">¶</a></h1>
+<p>This chapter defines the Application Programming Interface (API)
+for generating SOEP models, and for retrieving the outputs of simulations.</p>
+<p>It only contains rough initial ideas.</p>
+<div class="section" id="generating-openstudio-models">
+<h2>7.1. Generating OpenStudio Models<a class="headerlink" href="#generating-openstudio-models" title="Permalink to this headline">¶</a></h2>
+<p>The purpose of this section is to design how to keep the OpenStudio
+Model API and the Modelica models synchronized.
+As there are currently more than 600 Modelica models and function,
+we intent to design it such that there is only
+one place where information is declared.</p>
+<p>Also, users should be able to provide their own Modelica
+models or libraries and integrate them in an OpenStudio
+graphical model editor.</p>
+<p>A solution for declaring information that is needed to
+integrate Modelica models with the OpenStudio Model library
+this is to use so-called
+vendor annotations <a class="footnote-reference" href="#ven-ann" id="id1">[1]</a> in the Modelica code,
+and encode in these vendor annotations the information required
+to generate the OpenStudio Model API that corresponds to the
+library. <a class="footnote-reference" href="#os-mod-api" id="id2">[2]</a>
+For example, for a boiler, model, vendor annotation in the <code class="docutils literal"><span class="pre">EnergyPlus</span></code>
+namespace may look as shown below.</p>
+<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">Boiler</span> <span class="s2">&quot;Hot water boiler&quot;</span>
+  <span class="kr">extends</span> <span class="kr">extends</span> <span class="n">Interfaces</span><span class="o">.</span><span class="n">TwoPortHeatMassExchanger</span><span class="p">(</span><span class="o">...</span><span class="p">);</span>
+
+<span class="kr">parameter</span> <span class="n">Modelica</span><span class="o">.</span><span class="n">SIunits</span><span class="o">.</span><span class="n">Power</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="n">Q_flow_nominal</span>
+  <span class="s2">&quot;Nominal heating power&quot;</span><span class="p">;</span>
+  <span class="kr">annotation</span><span class="p">(</span><span class="n">__EnergyPlus</span><span class="p">(</span><span class="n">set_get_function</span><span class="p">(</span><span class="s2">&quot;Capacity&quot;</span><span class="p">)));</span>
+<span class="o">...</span>
+<span class="kr">equation</span>
+<span class="o">...</span>
+<span class="kr">annotation</span><span class="p">(</span><span class="n">__EnergyPlus</span><span class="p">(</span>
+             <span class="n">MODEL_API</span><span class="p">(</span>
+               <span class="kr">extends</span><span class="o">=</span><span class="s2">&quot;public StraightComponent&quot;</span><span class="p">)),</span>
+   <span class="n">documentation</span><span class="o">=...</span><span class="p">);</span>
+
+<span class="kr">end</span> <span class="nc">Boiler</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>From such a Modelica model, the OpenStudio model API below
+could be generated.</p>
+<div class="highlight-C++"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MODEL_API</span> <span class="nl">Boiler</span> <span class="p">:</span> <span class="k">public</span> <span class="n">StraightComponent</span> <span class="p">{</span>
+  <span class="k">public</span><span class="o">:</span>
+    <span class="kt">void</span> <span class="n">setCapacity</span><span class="p">(</span><span class="kt">double</span> <span class="n">Q_flow_nominal</span><span class="p">);</span> <span class="c1">/// Set nominal heating power</span>
+                                             <span class="c1">/// in Watts, and verify</span>
+                                             <span class="c1">/// that Q_flow_nominal &gt;= 0</span>
+    <span class="kt">double</span> <span class="nf">getCapacity</span><span class="p">(){</span>
+      <span class="k">return</span> <span class="n">get</span><span class="p">(</span><span class="s">&quot;BoilerHotWater&quot;</span><span class="p">).</span><span class="n">Q_flow_nominal</span><span class="p">;</span>
+  <span class="p">}</span> <span class="c1">/// Get nominal heating power in Watts</span>
+
+   <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">getCapacityDocumentation</span><span class="p">();</span> <span class="c1">/// Returns &quot;Nominal heating power&quot;</span>
+   <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">getCapacityUnit</span><span class="p">();</span>          <span class="c1">/// Returns &quot;W&quot;</span>
+   <span class="kt">double</span> <span class="nf">getCapacityMin</span><span class="p">();</span>                <span class="c1">/// Returns 0 (the value of</span>
+                                           <span class="c1">///   the &#39;min&#39; attribute)</span>
+   <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">getCapacityQuantity</span><span class="p">();</span>      <span class="c1">/// Returns &quot;Power&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p class="rubric">Footnotes</p>
+<table class="docutils footnote" frame="void" id="ven-ann" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>Vendor annotations are annotations in the Modelica code that are
+typically ignored by Modelica tools other than the tool from
+the vendor who introduced the vendor annotation.
+They allow augmenting the code with information
+that are processed by a particular tool,
+in our case by EnergyPlus and OpenStudio.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="os-mod-api" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td>For an example OpenStudio Model API, see
+<a class="reference external" href="https://github.com/NREL/OpenStudio/blob/develop/openstudiocore/src/model/BoilerHotWater.hpp">https://github.com/NREL/OpenStudio/blob/develop/openstudiocore/src/model/BoilerHotWater.hpp</a>
+and
+<a class="reference external" href="https://openstudio-sdk-documentation.s3.amazonaws.com/cpp/OpenStudio-1.12.3-doc/model/html/classopenstudio_1_1model_1_1_pipe_adiabatic.html">https://openstudio-sdk-documentation.s3.amazonaws.com/cpp/OpenStudio-1.12.3-doc/model/html/classopenstudio_1_1model_1_1_pipe_adiabatic.html</a>.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+  
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+      
+    </p>
+    <p>
+        &copy; Copyright (c) All rights reserved.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.<br/>
+    </p>
+  </div>
+</footer>
+
+  </body>
+</html>

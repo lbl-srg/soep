@@ -1,0 +1,496 @@
+
+
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>4. Requirements &mdash; Spawn of EnergyPlus</title>
+    
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootswatch-3.3.6/united/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap_custom.css" type="text/css" />
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    <link rel="stylesheet" href="_static/custom-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="shortcut icon" href="_static/lbl-icon.ico"/>
+    <link rel="top" title="Spawn of EnergyPlus" href="index.html" />
+    <link rel="next" title="5. Software Architecture" href="softwareArchitecture.html" />
+    <link rel="prev" title="3. Use Cases" href="useCases.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+
+  <div id="navbar" class="navbar navbar-default ">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html"><img src="_static/soep-logo.png">
+           </a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="index.html">Index</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="preample.html">1. Preample</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="preample.html#purpose-of-the-document">1.1. Purpose of the Document</a></li>
+<li class="toctree-l2"><a class="reference internal" href="preample.html#contributors">1.2. Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">2. Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="useCases.html">3. Use Cases</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="useCases.html#openstudio-integration">3.1. OpenStudio Integration</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">4. Requirements</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#mathematical-requirements">4.1. Mathematical requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fmu-requirements">4.2. FMU Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#qss-implementation">4.3. QSS Implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#master-algorithm">4.4. Master Algorithm</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="softwareArchitecture.html">5. Software Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numericalMethods.html">6. Numerical Methods of the Master Algorithm</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="numericalMethods.html#time-integration">6.1. Time Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="numericalMethods.html#algebraic-loops">6.2. Algebraic Loops</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">7. Application Programming Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api.html#generating-openstudio-models">7.1. Generating OpenStudio Models</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">8. Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgments.html">9. Acknowledgments</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">4. Requirements</a><ul>
+<li><a class="reference internal" href="#mathematical-requirements">4.1. Mathematical requirements</a><ul>
+<li><a class="reference internal" href="#differentiability">4.1.1. Differentiability</a></li>
+<li><a class="reference internal" href="#control-of-numerical-noise">4.1.2. Control of Numerical Noise</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#fmu-requirements">4.2. FMU Requirements</a><ul>
+<li><a class="reference internal" href="#fmu-capabilities">4.2.1. FMU Capabilities</a></li>
+<li><a class="reference internal" href="#interface-variables-of-fmu">4.2.2. Interface Variables of FMU</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#qss-implementation">4.3. QSS Implementation</a></li>
+<li><a class="reference internal" href="#master-algorithm">4.4. Master Algorithm</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="useCases.html" title="Previous Chapter: 3. Use Cases"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; 3. Use Cases</span>
+    </a>
+  </li>
+  <li>
+    <a href="softwareArchitecture.html" title="Next Chapter: 5. Software Architecture"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">5. Software A... &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+          </ul>
+
+<!--
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+-->
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 content">
+      
+  <div class="section" id="requirements">
+<span id="sec-requirements"></span><h1>4. Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h1>
+<p>This section describes the functional, mathematical and software requirements.</p>
+<div class="section" id="mathematical-requirements">
+<h2>4.1. Mathematical requirements<a class="headerlink" href="#mathematical-requirements" title="Permalink to this headline">¶</a></h2>
+<p>In SOEP, models are implemented in the form of Modelica models. These models
+may call FMUs or C-functions for certain algorithms.
+When connecting models, differential algebraic systems of equations may be formed.
+Solving the algebraic equations and integrating the differential equations in time requires the equations for the continuous time
+dynamics to satisfy certain smootheness properties in order for solutions to exist and to be unique.
+These smoothness properties are also required for convergence and
+computational efficiency of the iterative solution methods.
+The next sections describe these mathematical properties that
+need to be satisfied by the model equations.</p>
+<div class="section" id="differentiability">
+<h3>4.1.1. Differentiability<a class="headerlink" href="#differentiability" title="Permalink to this headline">¶</a></h3>
+<p>Building simulation problems can be formulated as a semi-explicit
+nonlinear DAE system with index one
+<a class="reference internal" href="index.html#brenancampbellpetzold1989" id="id1">[BCP89]</a>, coupled to the discrete variables
+<span class="math">\(x_d(\cdot)\)</span> and <span class="math">\(u_d(\cdot)\)</span>.
+The general form is <a class="reference internal" href="index.html#wetter2005-1" id="id2">[Wet05]</a></p>
+<div class="math" id="equation-eq_DAEPhy">
+<span class="eqno">(1)</span>\[\begin{split}[\dot x_c(t), x_d(t)] &amp; = f(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\end{split}\]\[\begin{split}[y_c(t), y_d(t)] &amp; = g(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\end{split}\]\[\begin{split}0 &amp; = \gamma\bigl(u_c(t), y_c(t), y_d(t) \bigr),\end{split}\]\[\begin{split}[x_c(t_0), x_d(t_0)] &amp; = [x_{c,0}, x_{d,0}].\end{split}\]</div>
+<p>Here, we simplified the notation by using the same symbols as
+in <a href="#equation-eq_FMUMoExOde">(?)</a> and <a href="#equation-eq_FMUMoExOdeOut">(?)</a>, but
+<span class="math">\(x_c(\cdot)\)</span>, <span class="math">\(u_c(\cdot)\)</span>,
+<span class="math">\(f(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)\)</span> etc. are to be understood
+as vectors formed by stacking the states, input and derivative functions
+of all connected FMUs. This notation is sufficient for the discussions but avoids a too cumbersome notation.</p>
+<p>In <a href="#equation-eq_DAEPhy">(1)</a>, we introduced the algebraic constraint
+<span class="math">\(0 = \gamma(\cdot, \cdot, \cdot)\)</span>.
+This represents algebraic loops that can be formed when connecting FMUs in a loop.</p>
+<p>We will now present requirements for
+existence of a unique smooth solution of the DAE System <a href="#equation-eq_DAEPhy">(1)</a>.
+For simplicity, we assume in the analysis
+<span class="math">\(x_d(\cdot)\)</span> and
+<span class="math">\(y_d(\cdot)\)</span> to only depend on time but not on
+<span class="math">\(x_c(\cdot)\)</span> or <span class="math">\(y_c(\cdot)\)</span>. Otherwise,
+the analysis would get considerably more involved.
+This allows us to simplify <a href="#equation-eq_DAEPhy">(1)</a> to</p>
+<div class="math" id="equation-eq_DAEPhyCon">
+<span class="eqno">(2)</span>\[\begin{split}\dot x(t) &amp; = f(x(t), \mu(t), p, t),\end{split}\]\[\begin{split}0 &amp; = \gamma(x(t), \mu(t)),\end{split}\]\[\begin{split}x(t_0) &amp; = x_{0},\end{split}\]</div>
+<p>where we omitted the subscript <span class="math">\(c\)</span> as all variables are continuous.</p>
+<p>First, we will state the requirement that allows to
+establish existence, uniqueness and differentiability of
+the solution <span class="math">\(x(t_f)\)</span> to <a href="#equation-eq_DAEPhyCon">(2)</a>.</p>
+<p><strong>Requirement:</strong>
+Let
+<span class="math">\(\gamma \colon \Re^n \times \Re^m \to \Re^m\)</span>
+be defined as in <a href="#equation-eq_DAEPhyCon">(2)</a>.
+We assume that
+<span class="math">\(\gamma(\cdot,\cdot)\)</span> is once continuously differentiable,
+and we assume that
+for all
+<span class="math">\(x \in \Re^n\)</span>,
+<span class="math">\(\gamma(x(t), \cdot)=0\)</span>
+has a unique solution
+<span class="math">\(\mu^*(x) \in \Re^m\)</span> and
+that the matrix with partial derivatives
+<span class="math">\(\partial \gamma(x, \mu^*(x))/ \partial \mu \in \Re^{m \times m}\)</span>
+is non-singular.</p>
+<p>With this assumption and the use of the
+Implicit Function Theorem <a class="reference internal" href="index.html#pol97-1" id="id3">[Pol97]</a>, one can show that
+the solution
+<span class="math">\(\mu^*(x)\)</span> that satisfies
+<span class="math">\(\gamma(x, \mu^*(x) )=0\)</span>,
+is unique and once continuously differentiable in
+<span class="math">\(x\)</span>.</p>
+<p>Therefore, to establish existence, uniqueness and differentiability
+of <span class="math">\(x(t_f)\)</span>, we can reduce the DAE system <a href="#equation-eq_DAEPhyCon">(2)</a>
+to an ordinary differential
+equation, which will allow us to use standard results from the
+theory of ordinary differential equations.
+To do so, we define for <span class="math">\(t \in [t_0, \, t_f]\)</span>
+the function</p>
+<div class="math" id="equation-eq_tilFDef">
+<span class="eqno">(3)</span>\[\begin{split}\widetilde f(x(t), p, t) &amp; \triangleq
+    f(x(t), \mu^*(x), p, t),\end{split}\]</div>
+<p>and write the DAE system <a href="#equation-eq_DAEPhyCon">(2)</a> in the form</p>
+<div class="math" id="equation-eq_tilFSys">
+<span class="eqno">(4)</span>\[\begin{split}\dot x(t) &amp; = \widetilde f(x(t), p, t),\end{split}\]\[\begin{split}x(t_0) &amp; = x_{0}.\end{split}\]</div>
+<p>We will use the notation
+<span class="math">\(\widetilde f_{x}(x(t), p, t)\)</span> and
+<span class="math">\(\widetilde f_{p}(x(t), p, t)\)</span>
+for the partial derivatives
+<span class="math">\((\partial/\partial x)(\widetilde f(x(t), p, t)\)</span> and
+<span class="math">\((\partial/\partial p)(\widetilde f(x(t), p, t)\)</span>, respectively.</p>
+<p><strong>Requirement:</strong>
+With <span class="math">\(\widetilde f(\cdot, \cdot, \cdot)\)</span>
+as in
+<a href="#equation-eq_tilFSys">(4)</a>, we require that</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p class="first">The initial condition <span class="math">\(x_{0}\)</span> is once continuously differentiable in <span class="math">\(p\)</span>.</p>
+</li>
+<li><p class="first">There exists a constant <span class="math">\(K \in [1, \, \infty)\)</span> such that for all
+<span class="math">\(x', x'' \in \Re^n\)</span>, for all <span class="math">\(p', p'' \in \Re^l\)</span> and for all <span class="math">\(t\)</span>, the following relations hold:</p>
+<div class="math">
+\[\begin{split}\| \widetilde f(x', p', t) - \widetilde f(x'', p'', t) \| &amp;
+\le K \, (\| x' - x'' \| + \| p' - p'' \| ),\end{split}\]\[\begin{split}\| \widetilde f_{x}(x', p', t) - \widetilde f_{x}(x'', p'', t) \| &amp;
+\le K \, (\| x' - x'' \| + \| p' - p'' \| ),\end{split}\]</div>
+<p>and</p>
+<div class="math">
+\[\begin{split}\| \widetilde f_p(x', p', t) - \widetilde f_p(x'', p'', t) \| &amp;
+\le K \, (\| x' - x'' \| + \| p' - p'' \| ).\end{split}\]</div>
+</li>
+</ol>
+</div></blockquote>
+<p>With these conditions, it follows as a special case of Corollary 5.6.9 in <a class="reference internal" href="index.html#pol97-1" id="id4">[Pol97]</a>,
+that the solution
+<span class="math">\(x(t_f)\)</span> to <a href="#equation-eq_DAEPhyCon">(2)</a> exists and is once continuously differentiable with
+respect to the parameter <span class="math">\(p\)</span> on bounded sets.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Differentiability with respect to <span class="math">\(p\)</span> is important
+if the HVAC system
+is sized by solving an optimization problem.</p>
+</div>
+</div>
+<div class="section" id="control-of-numerical-noise">
+<h3>4.1.2. Control of Numerical Noise<a class="headerlink" href="#control-of-numerical-noise" title="Permalink to this headline">¶</a></h3>
+<p>Evaluating the functions
+<span class="math">\(f(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)\)</span>,
+<span class="math">\(g(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)\)</span> and
+<span class="math">\(F(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot, \cdot)\)</span>
+may require iterations inside the component, which may be realized as an FMUs,
+that implement these functions.
+These iterations typically terminate when a convergence test is satisfied.
+In such cases, the state derivatives
+<span class="math">\(\dot x_c(t)\)</span> and
+the outputs
+<span class="math">\(y_c(t)\)</span> may not be computed exactly.
+For example, if <span class="math">\(z(t)\)</span> denotes a continuous state (or state derivative or output), one can only compute a numerical approximation
+<span class="math">\(z^*(t; \epsilon)\)</span>, where <span class="math">\(\epsilon\)</span> is the tolerance setting of the numerical solver.
+The precision of these inner iterations need to be controlled</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>when these FMUs are part of an algebraic loop, and</li>
+<li>when SOEP is used to evaluate the cost function of an optimization problem.</li>
+</ol>
+</div></blockquote>
+<p>We therefore impose the following requirement.</p>
+<p><strong>Requirement:</strong>
+We require that the FMUs allow controlling the numerical precision.
+Specifically, for any <span class="math">\(t \in [t_0, t_f]\)</span>, there need to exist
+an <span class="math">\(\epsilon' &gt; 0\)</span> and a strictly monotone increasing function
+<span class="math">\(\varphi \colon \Re \to \Re\)</span>, such that</p>
+<div class="math" id="equation-eq_errBouSol">
+<span class="eqno">(5)</span>\[\| z(t) - z^*(t, \epsilon) \| \le \varphi(\epsilon)\]</div>
+<p>for all <span class="math">\(0 &lt; \epsilon &lt; \epsilon'\)</span>.</p>
+<p>Note that this means that as the tolerance of the solver is decreased, the numerical error decreases.
+This requirement allows proving convergence to a first order
+optimal point for a class of derivative-free optimization
+algorithms <a class="reference internal" href="index.html#polakwetter2006" id="id5">[PW06]</a>.</p>
+</div>
+</div>
+<div class="section" id="fmu-requirements">
+<span id="sec-fmu-cap"></span><h2>4.2. FMU Requirements<a class="headerlink" href="#fmu-requirements" title="Permalink to this headline">¶</a></h2>
+<p>The FMI standard contains various properties that it declares optional to implement.</p>
+<div class="section" id="fmu-capabilities">
+<h3>4.2.1. FMU Capabilities<a class="headerlink" href="#fmu-capabilities" title="Permalink to this headline">¶</a></h3>
+<p>For computing efficiency, FMUs that are used in the SOEP must support
+the following optional properties of the FMI 2.0 standard.</p>
+<ol class="arabic simple">
+<li>The optional function <code class="docutils literal"><span class="pre">fmi2GetDirectionalDerivative</span></code> must be
+implemented. This is required in the following situations:<ol class="arabic">
+<li>To compute Jacobian matrices without requiring numerical
+differentiation.</li>
+<li>By numerical integrators for stiff differential equation,
+other than the LIQSS methods discussed below.</li>
+<li>If an FMU is part of an algebraic loop.</li>
+<li>If an FMU, or a composition of FMUs, shall be linearized,
+such as for controls design.</li>
+</ol>
+</li>
+<li>The optional output dependency must be provided in the section
+<code class="docutils literal"><span class="pre">&lt;ModelStructure&gt;&lt;Outputs&gt;</span></code> of the model description file.
+This is required to determine the existence of algebraic loops
+between FMUs.</li>
+<li>The optional derivative dependency must be provided in the section
+<code class="docutils literal"><span class="pre">&lt;ModelStructure&gt;&lt;Derivatives&gt;</span></code> of the model description file.
+This information declares the dependencies of the state derivatives
+on the knowns at the current time instant for model exchange and at
+the current communication point for co-simulation.
+This is required to create an incidence matrix which can be used by
+an integrator.</li>
+<li>The optional attribute <code class="docutils literal"><span class="pre">canGetAndSetFMUstate</span></code> must be <code class="docutils literal"><span class="pre">true</span></code>
+in the model description file. This implies that the
+functions <code class="docutils literal"><span class="pre">fmi2GetFMUstate</span></code>, <code class="docutils literal"><span class="pre">fmi2SetFMUstate</span></code> and
+<code class="docutils literal"><span class="pre">fmi2FreeFMUstate</span></code> must be implemented. This is required
+for the following situations:<ol class="arabic">
+<li>To implement rollback in time when an FMU was not able to
+complete the time step, maybe due to an event, or if the
+integration error was too large.</li>
+<li>To provide a state initialization when solving a
+model predictive control problem or when doing an
+input-output linearization.</li>
+</ol>
+</li>
+<li>If an FMU for co-simulation accepts a certain communication time
+step <span class="math">\(h\)</span> (i.e., it returns that it can simulate to
+<span class="math">\(h' = h\)</span> ), or at least makes partial progress until
+<span class="math">\(h' &lt; h\)</span>, then it must accept any time step
+<span class="math">\(h''\)</span> smaller than or equal to <span class="math">\(h'\)</span>,
+provided the FMU is started from the same state.
+This is required for proving termination of the master algorithm.
+See <a class="reference internal" href="index.html#broman2013" id="id6">[BBG+13]</a>.</li>
+<li>If an FMU for co-simulation is asked to integrate for some
+<span class="math">\(0 &lt; h\)</span>, but it returns that it can only integrate until some
+<span class="math">\(0 &lt; h' &lt; h\)</span>, then if it is asked to integrate
+to some <span class="math">\(h''&gt;h'\)</span>, it will again only integrate until
+<span class="math">\(h'\)</span>.
+This property is required for FMUs to make maximum progress
+in each time step. See <a class="reference internal" href="index.html#broman2013" id="id7">[BBG+13]</a>.</li>
+<li>The FMUs must run on Windows 32/64 bit, Linux 32/64 bit
+and Mac OS X 64 bit.</li>
+</ol>
+</div>
+<div class="section" id="interface-variables-of-fmu">
+<h3>4.2.2. Interface Variables of FMU<a class="headerlink" href="#interface-variables-of-fmu" title="Permalink to this headline">¶</a></h3>
+<p>The parameters, inputs, outputs and state variables of FMUs
+shall provide the following information:</p>
+<ol class="arabic simple">
+<li>A descriptive text that can be used in a user interface.</li>
+<li>Units of the variable.</li>
+<li>Optionally, a start value that may be used as a guess
+for a numerical solvers. If not specified, the default is <code class="docutils literal"><span class="pre">0</span></code>.</li>
+<li>Optionally, nominal values that indicate the magnitude of
+the variable.
+This is used to scale variables in convergence tests of
+numerical solvers. If not specified, the default is <code class="docutils literal"><span class="pre">1</span></code>.</li>
+<li>Optionally, minimum and maximum values that the variable
+is allowed to attain.</li>
+</ol>
+<p>Note that a container for exporting HVAC components as an FMU is described
+in <a class="reference internal" href="index.html#wetterfuchsnouidui-2015" id="id8">[WFN15]</a>.</p>
+</div>
+</div>
+<div class="section" id="qss-implementation">
+<h2>4.3. QSS Implementation<a class="headerlink" href="#qss-implementation" title="Permalink to this headline">¶</a></h2>
+<p>This section describes the requirements for the QSS solver implementation.
+The development code for QSS is at <a class="reference external" href="https://gitlab.com/ObjexxEP/QSS/tree/master">https://gitlab.com/ObjexxEP/QSS/tree/master</a>.</p>
+<ol class="arabic simple">
+<li>The implementation shall support the ability to mix traditional discrete time
+simulation of some subsystems with QSS solution of others.</li>
+<li>For different subsystems, it shall be possible to use different QSS solvers,
+such as QSS1, 2, 3, or LIQSS1, 2 or 3.</li>
+<li>It shall be possible to specify absolute and relative tolerances for the quantization.
+(Note: In Modelica, vendor annotations could be used to specify tolerances.)</li>
+<li>If multiple variables end up triggering the next advance with the exact same time,
+then these shall be handled simultaneously.
+An example are distributed discrete time controls.</li>
+<li>Near zero time steps shall be handled without modification.
+If these pose a problem, we may want to avoid them at a later stage in the solver.</li>
+<li>Algebraic loops shall be supported (without the use of micro-delays).</li>
+</ol>
+<p>Open question: Shall we use OpenMP or some other system?</p>
+</div>
+<div class="section" id="master-algorithm">
+<h2>4.4. Master Algorithm<a class="headerlink" href="#master-algorithm" title="Permalink to this headline">¶</a></h2>
+<p><strong>This section should probably be deleted</strong></p>
+<p>The master algorithm must satisfy the following requirements:</p>
+<ol class="arabic simple">
+<li>The master algorithm must be using the BSD license. Hence,
+it must not use any GPL or LGPL licensed code.
+However, calls to such licensed code may be permitted
+as long as it does not affect the license of the master
+algorithm.</li>
+<li>It must be possible to spawn simulations to a server farm
+in order to increase the parallelism. By default,
+the computations run locally.</li>
+<li>It must be possible to simulate very large buildings,
+such as high rise buildings with about 10,000 thermal zones.
+This is required to be able to simulate models that
+are received from a Building Information Model.
+We therefore expect to have models with 100,000 to 1,000,000
+state variables, or more if 2-dimensional heat transfer,
+dynamic moisture transfer, or computational fluid
+dynamics is used.</li>
+<li>If an FMU that computes some part of a building
+does not converge, then the master algorithm must
+be able to use some default output, log an appropriate
+warning, and proceed with the computation. This must be
+the default behavior. However, it must be possible
+to disable this error handling so that a completion of
+the simulation is only possible if all FMUs
+simulated without error.</li>
+<li>The master algorithm must run on Windows 32/64 bit,
+Linux 32/64 bit, and Mac OS X 64 bit.</li>
+</ol>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+  
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+      
+    </p>
+    <p>
+        &copy; Copyright (c) All rights reserved.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.<br/>
+    </p>
+  </div>
+</footer>
+
+  </body>
+</html>

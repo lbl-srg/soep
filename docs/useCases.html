@@ -1,0 +1,695 @@
+
+
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>3. Use Cases &mdash; Spawn of EnergyPlus</title>
+    
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootswatch-3.3.6/united/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap_custom.css" type="text/css" />
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    <link rel="stylesheet" href="_static/custom-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="shortcut icon" href="_static/lbl-icon.ico"/>
+    <link rel="top" title="Spawn of EnergyPlus" href="index.html" />
+    <link rel="next" title="4. Requirements" href="requirements.html" />
+    <link rel="prev" title="2. Conventions" href="conventions.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+
+  <div id="navbar" class="navbar navbar-default ">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html"><img src="_static/soep-logo.png">
+           </a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="index.html">Index</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="preample.html">1. Preample</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="preample.html#purpose-of-the-document">1.1. Purpose of the Document</a></li>
+<li class="toctree-l2"><a class="reference internal" href="preample.html#contributors">1.2. Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">2. Conventions</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">3. Use Cases</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#openstudio-integration">3.1. OpenStudio Integration</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="requirements.html">4. Requirements</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="requirements.html#mathematical-requirements">4.1. Mathematical requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="requirements.html#fmu-requirements">4.2. FMU Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="requirements.html#qss-implementation">4.3. QSS Implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="requirements.html#master-algorithm">4.4. Master Algorithm</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="softwareArchitecture.html">5. Software Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numericalMethods.html">6. Numerical Methods of the Master Algorithm</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="numericalMethods.html#time-integration">6.1. Time Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="numericalMethods.html#algebraic-loops">6.2. Algebraic Loops</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">7. Application Programming Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api.html#generating-openstudio-models">7.1. Generating OpenStudio Models</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">8. Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgments.html">9. Acknowledgments</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">3. Use Cases</a><ul>
+<li><a class="reference internal" href="#openstudio-integration">3.1. OpenStudio Integration</a><ul>
+<li><a class="reference internal" href="#measures">3.1.1. Measures</a></li>
+<li><a class="reference internal" href="#modelica-buildings-library-integration-in-openstudio">3.1.2. Modelica Buildings Library Integration in OpenStudio</a></li>
+<li><a class="reference internal" href="#hvac-system-modeling-in-openstudio">3.1.3. HVAC System Modeling in OpenStudio</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="conventions.html" title="Previous Chapter: 2. Conventions"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; 2. Conventions</span>
+    </a>
+  </li>
+  <li>
+    <a href="requirements.html" title="Next Chapter: 4. Requirements"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">4. Requirements &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+          </ul>
+
+<!--
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+-->
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 content">
+      
+  <div class="section" id="use-cases">
+<span id="sec-use-cases"></span><h1>3. Use Cases<a class="headerlink" href="#use-cases" title="Permalink to this headline">¶</a></h1>
+<p>This section describes use cases for end-users that interact with SOEP
+through OpenStudio, and use cases for developers of SOEP.</p>
+<div class="section" id="openstudio-integration">
+<h2>3.1. OpenStudio Integration<a class="headerlink" href="#openstudio-integration" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="measures">
+<h3>3.1.1. Measures<a class="headerlink" href="#measures" title="Permalink to this headline">¶</a></h3>
+<p>This use case describes how measures are processed between OpenStudio and
+the Modelica model. We distinguish two types of measures, these who do a simple
+parameter assignment, and these who require changes to multiple parts of the model.</p>
+<p>An example which requires changes to a single parameters of the model is to
+set in a Modelica model of the form</p>
+<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="o">...</span>
+<span class="kr">parameter</span> <span class="nb">Real</span> <span class="n">eta</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">=</span> <span class="mf">0.8</span> <span class="s2">&quot;Boiler efficiency&quot;</span><span class="p">;</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>the top-level parameter for the boiler efficiency <span class="math">\(\eta = 0.9\)</span>.</p>
+<p>The use case description is as follows:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="35%" />
+<col width="65%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Use case name</strong></th>
+<th class="head"><strong>Apply OS measure to a single parameter</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Related Requirements</td>
+<td>n/a</td>
+</tr>
+<tr class="row-odd"><td>Goal in Context</td>
+<td>A user wants to modify a parameter in a model
+from an OS measure.</td>
+</tr>
+<tr class="row-even"><td>Preconditions</td>
+<td>A Modelica model.</td>
+</tr>
+<tr class="row-odd"><td>Successful End Condition</td>
+<td>The parameter is set to its new value.</td>
+</tr>
+<tr class="row-even"><td>Failed End Condition</td>
+<td>The script returns with an error if no such
+parameter exist, or if the parameter is set to
+<code class="docutils literal"><span class="pre">final</span></code> (and hence cannot be modified).</td>
+</tr>
+<tr class="row-odd"><td>Primary Actors</td>
+<td>An end-user, or an application that is built on
+OpenStudio.</td>
+</tr>
+<tr class="row-even"><td>Secondary Actors</td>
+<td>A Modelica model that is loaded in OpenStudio.</td>
+</tr>
+<tr class="row-odd"><td>Trigger</td>
+<td>A ruby script is executed.</td>
+</tr>
+<tr class="row-even"><td><strong>Main Flow</strong></td>
+<td><strong>Action</strong></td>
+</tr>
+<tr class="row-odd"><td>1</td>
+<td>The ruby script is invoked.</td>
+</tr>
+<tr class="row-even"><td>2</td>
+<td>The script searches for the parameter value
+and returns a flag to show whether it
+has been found (return value <code class="docutils literal"><span class="pre">0</span></code>),
+it has been found but is final (return value
+<code class="docutils literal"><span class="pre">1</span></code>),
+or it has not been found (return value <code class="docutils literal"><span class="pre">2</span></code>).</td>
+</tr>
+<tr class="row-odd"><td>3</td>
+<td>If the return value is non-zero, the script
+terminates with an error.</td>
+</tr>
+<tr class="row-even"><td>4</td>
+<td>If the return value is zero, the ruby script
+makes a new model of the form
+<code class="docutils literal"><span class="pre">model</span> <span class="pre">modifiedModel</span> <span class="pre">extends</span>
+<span class="pre">buiding(eta=0.9);</span>
+<span class="pre">end</span> <span class="pre">modifiedModel;</span></code>
+(or similar if the efficiency is part of a
+Modelica <code class="docutils literal"><span class="pre">record</span></code>).</td>
+</tr>
+<tr class="row-odd"><td><strong>Extensions</strong></td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>4.1</td>
+<td>The parameter assignment could be done directly
+in the model <cite>building</cite>, as long as it is not
+part of a write-protected library. Then, the
+assignment looks like
+<code class="docutils literal"><span class="pre">parameter</span> <span class="pre">Real</span> <span class="pre">eta(min=0)</span> <span class="pre">=</span> <span class="pre">0.9</span> <span class="pre">&quot;Efficiency&quot;;</span></code></td>
+</tr>
+</tbody>
+</table>
+<p>The sequence diagram for this as shown in <a class="reference internal" href="#fig-use-case-os-single-par"><span class="std std-numref">Fig. 3.1</span></a>.</p>
+<div class="figure" id="id1">
+<span id="fig-use-case-os-single-par"></span><p class="plantuml">
+<object data="_images/plantuml-8238067e3dcb72fad6323ea7fa9de256aec97a86.svg" type="image/svg+xml" style="width:365px;height:428px;">
+<img src="_images/plantuml-8238067e3dcb72fad6323ea7fa9de256aec97a86.png" alt="title Apply OS measure to a single parameter
+
+Measure -&gt; &quot;Model Editor&quot;: getInstanceAST()
+&quot;Model Editor&quot; -&gt; JModelica: getInstanceAST()
+&quot;Model Editor&quot; &lt;- JModelica
+Measure &lt;- &quot;Model Editor&quot;
+|||
+Measure -&gt; Measure: searchParameter()
+Measure -&gt; Measure: validate()
+alt found parameter
+  Measure -&gt; &quot;Model Editor&quot;: setValue()
+else
+  Measure -&gt; Measure: reportError()
+end" />
+
+</object></p>
+<p class="caption"><span class="caption-number">Fig. 3.1 </span>: Applying an OS measure to a single parameter.<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</div>
+<p>An example which requires changes to multiple parts of the model is the following
+measure.</p>
+<div class="highlight-ruby"><div class="highlight"><pre><span></span><span class="n">new_lights_def</span> <span class="o">=</span> <span class="no">OpenStudio</span><span class="o">::</span><span class="no">Model</span><span class="o">::</span><span class="no">LightsDefinition</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="n">new_lights_def</span><span class="o">.</span><span class="n">setWattsperSpaceFloorArea</span><span class="p">(</span><span class="mi">10</span><span class="o">.</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">new_lights_def</span><span class="o">.</span><span class="n">setName</span><span class="p">(</span><span class="s2">&quot;10 W/m^2 Lights Definition&quot;</span><span class="p">)</span>
+
+<span class="n">space_types</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">getSpaceTypes</span>
+<span class="n">space_types</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">space_type</span><span class="o">|</span>
+  <span class="k">if</span> <span class="n">space_type</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;Enclosed Office&quot;</span><span class="p">)</span>
+    <span class="n">lights</span> <span class="o">=</span> <span class="n">space_type</span><span class="o">.</span><span class="n">lights</span>
+    <span class="n">lights</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">light</span><span class="o">|</span>
+      <span class="n">light</span><span class="o">.</span><span class="n">setLightsDefinition</span><span class="p">(</span><span class="n">new_lights_def</span><span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+<p>The use case description is as follows:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="35%" />
+<col width="65%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Use case name</strong></th>
+<th class="head"><strong>Apply OS measure to set of models</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Related Requirements</td>
+<td>n/a</td>
+</tr>
+<tr class="row-odd"><td>Goal in Context</td>
+<td>A user wants to modify a model.</td>
+</tr>
+<tr class="row-even"><td>Preconditions</td>
+<td>A Modelica model.</td>
+</tr>
+<tr class="row-odd"><td>Successful End Condition</td>
+<td>All thermal zones are updated.</td>
+</tr>
+<tr class="row-even"><td>Failed End Condition</td>
+<td>The script returns with an error if no thermal
+zone has been found.</td>
+</tr>
+<tr class="row-odd"><td>Primary Actors</td>
+<td>An end-user, or an application that is built on
+OpenStudio.</td>
+</tr>
+<tr class="row-even"><td>Secondary Actors</td>
+<td>A Modelica model that is loaded in OpenStudio.</td>
+</tr>
+<tr class="row-odd"><td>Trigger</td>
+<td>A ruby script is executed.</td>
+</tr>
+<tr class="row-even"><td><strong>Main Flow</strong></td>
+<td><strong>Action</strong></td>
+</tr>
+<tr class="row-odd"><td>1</td>
+<td>The ruby script is invoked.</td>
+</tr>
+<tr class="row-even"><td>2</td>
+<td>The instance AST is obtained.</td>
+</tr>
+<tr class="row-odd"><td>3</td>
+<td>The script searches for all model instances that
+are thermal zones, and within them, it searches for
+all lighting power densities.
+It returns two lists
+of model names, one list (<code class="docutils literal"><span class="pre">l1</span></code>) containing only
+the parameters (or records) that are not final, and
+one list (<code class="docutils literal"><span class="pre">l2</span></code>) that contains the parameters
+(or records) that are final.</td>
+</tr>
+<tr class="row-even"><td>4</td>
+<td>If <code class="docutils literal"><span class="pre">l1</span></code> is empty, the script triggers an error
+and stops.</td>
+</tr>
+<tr class="row-odd"><td>5</td>
+<td>If <code class="docutils literal"><span class="pre">l2</span></code> is non-empty, the script triggers a
+warning and continues.</td>
+</tr>
+<tr class="row-even"><td>6</td>
+<td>A JSON file that lists all components
+that are lighting power densities is being red,
+and a code snippet that
+shows how to change the lighting power density
+parameter or the data record that contains the
+lighting power density is returned.</td>
+</tr>
+<tr class="row-odd"><td>7</td>
+<td>The ruby script makes a new model of the form
+<code class="docutils literal"><span class="pre">model</span> <span class="pre">modifiedModel</span> <span class="pre">extends</span>
+<span class="pre">buiding(zone1(pLig=0.8),</span> <span class="pre">zone2(pLig=0.8));</span>
+<span class="pre">end</span> <span class="pre">modifiedModel;</span></code>
+(or similar if the efficiency is part of a
+Modelica <code class="docutils literal"><span class="pre">record</span></code>).</td>
+</tr>
+</tbody>
+</table>
+<p>The sequence diagram for this as shown in <a class="reference internal" href="#fig-use-case-os-zones"><span class="std std-numref">Fig. 3.2</span></a>.</p>
+<div class="figure" id="id2">
+<span id="fig-use-case-os-zones"></span><p class="plantuml">
+<object data="_images/plantuml-611fd7695a44296a0d2aec3c4500b0db1e2a9f67.svg" type="image/svg+xml" style="width:591px;height:586px;">
+<img src="_images/plantuml-611fd7695a44296a0d2aec3c4500b0db1e2a9f67.png" alt="title Apply OS measure to set of models.
+
+Measure -&gt; &quot;Model Editor&quot;: getInstanceAST()
+&quot;Model Editor&quot; -&gt; JModelica: getInstanceAST()
+&quot;Model Editor&quot; &lt;- JModelica
+Measure &lt;- &quot;Model Editor&quot;
+|||
+Measure -&gt; Measure: searchParameter()
+Measure -&gt; Measure: validate()
+
+alt no non-final parameter found
+
+    Measure -&gt; Measure: reportError()
+    Measure -&gt; Measure: stop
+
+else
+
+    alt found final parameter
+
+      Measure -&gt; Measure: reportWarning()
+      note right: This alerts users that not all parameters have been set.
+
+    end
+
+    Measure -&gt; Measure: getCodeSnippet()
+    Measure -&gt; &quot;Model Editor&quot;: setValue()
+
+end" />
+
+</object></p>
+<p class="caption"><span class="caption-number">Fig. 3.2 </span>: Applying an OS measure to a set of models.<a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+<div class="section" id="modelica-buildings-library-integration-in-openstudio">
+<h3>3.1.2. Modelica Buildings Library Integration in OpenStudio<a class="headerlink" href="#modelica-buildings-library-integration-in-openstudio" title="Permalink to this headline">¶</a></h3>
+<p>This use case describes how to synchronize the Modelica library with its
+OpenStudio representation. The OpenStudio representation will be used
+for integrating OpenStudio measures, and other OpenStudio code
+that interacts with the Modelica representation such as the graphical
+editor. The problem being addressed is that the Modelica library is frequently
+updated, and we want to have <em>one</em> representation of the model connectors,
+parameters, documenation and graphical layout.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="29%" />
+<col width="71%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Use case name</strong></th>
+<th class="head"><strong>Loading a Modelica library into OpenStudio</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Related Requirements</td>
+<td>n/a</td>
+</tr>
+<tr class="row-odd"><td>Goal in Context</td>
+<td>Updating an OpenStudio HVAC and controls library
+after changes have been made to the Modelica
+library.</td>
+</tr>
+<tr class="row-even"><td>Preconditions</td>
+<td>The Modelica library passes the regression tests
+and an AST of the OpenStudio object representation
+for the library already exists (otherwise
+it will be generated).</td>
+</tr>
+<tr class="row-odd"><td>Successful End Condition</td>
+<td>An HVAC and controls library for use in OpenStudio.</td>
+</tr>
+<tr class="row-even"><td>Failed End Condition</td>
+<td>Library creation failed due to incompatible
+changes in the Modelica library that have not
+been confirmed to be propagated to OpenStudio.</td>
+</tr>
+<tr class="row-odd"><td>Primary Actors</td>
+<td>A software developer.</td>
+</tr>
+<tr class="row-even"><td>Secondary Actors</td>
+<td><p class="first">The Modelica Buildings library.</p>
+<p class="last">The OpenStudio HVAC and controls library.</p>
+</td>
+</tr>
+<tr class="row-odd"><td>Trigger</td>
+<td>The software developer executes an update script.</td>
+</tr>
+<tr class="row-even"><td><strong>Main Flow</strong></td>
+<td><strong>Action</strong></td>
+</tr>
+<tr class="row-odd"><td>1</td>
+<td>The software developer runs an update script
+to initiate updating the OpenStudio HVAC
+and controls library.</td>
+</tr>
+<tr class="row-even"><td>2</td>
+<td>The Modelica library is parsed and an abstract
+syntax tree (AST) including the vendor annotations
+is created. (See also
+<a class="reference external" href="http://www.jmodelica.org/api-docs/usersguide/1.17.0/ch09s01.html">http://www.jmodelica.org/api-docs/usersguide/1.17.0/ch09s01.html</a>.)</td>
+</tr>
+<tr class="row-odd"><td>3</td>
+<td>If the AST representation of OpenStudio exists
+for this library, then the AST is compared
+with the previous AST
+representation to detect and report incompatible
+changes.</td>
+</tr>
+<tr class="row-even"><td>4</td>
+<td>If the AST representation of OpenStudio does
+not exist for this library, it is generated.</td>
+</tr>
+<tr class="row-odd"><td>5</td>
+<td>The AST is converted to OpenStudio object
+models.</td>
+</tr>
+<tr class="row-even"><td><strong>Extensions</strong></td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>5.1</td>
+<td>OpenStudio integration tests are run.</td>
+</tr>
+</tbody>
+</table>
+<p>The sequence diagram for this as shown in <a class="reference internal" href="#fig-use-case-loading-modelica-lib"><span class="std std-numref">Fig. 3.3</span></a>.</p>
+<div class="figure" id="id3">
+<span id="fig-use-case-loading-modelica-lib"></span><p class="plantuml">
+<object data="_images/plantuml-b0432a1f28c04c29f41e5949fa049d7f7f48979b.svg" type="image/svg+xml" style="width:657px;height:534px;">
+<img src="_images/plantuml-b0432a1f28c04c29f41e5949fa049d7f7f48979b.png" alt="title Apply OS measure to set of models.
+
+&quot;Update Script&quot; -&gt; JModelica: getInstanceAST()
+JModelica -&gt; &quot;Modelica Library&quot;: getInstanceAST()
+JModelica &lt;- &quot;Modelica Library&quot;
+&quot;Update Script&quot; &lt;- JModelica
+|||
+&quot;Update Script&quot; -&gt; &quot;OpenStudio Library&quot;: getInstanceAST()
+&quot;Update Script&quot; &lt;- &quot;OpenStudio Library&quot;
+
+alt no OpenStudio Library has been populated
+  &quot;Update Script&quot; -&gt; &quot;OpenStudio Library&quot;: createLibrary()
+else Update the existing library
+  &quot;Update Script&quot; -&gt; &quot;Update Script&quot; : validate()
+  alt incompatible changes exist
+    &quot;Update Script&quot; -&gt; &quot;Update Script&quot; : reportIncompatibilities()
+    alt accept incompatible changes
+      &quot;Update Script&quot; -&gt; &quot;OpenStudio Library&quot;: createLibrary()
+    end
+  end
+end" />
+
+</object></p>
+<p class="caption"><span class="caption-number">Fig. 3.3 </span>: Loading a Modelica library into OpenStudio.<a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+<div class="section" id="hvac-system-modeling-in-openstudio">
+<h3>3.1.3. HVAC System Modeling in OpenStudio<a class="headerlink" href="#hvac-system-modeling-in-openstudio" title="Permalink to this headline">¶</a></h3>
+<p>This use case describes how to build an HVAC system in OpenStudio
+which uses component models of the Modelica Buildings library.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Use case name</strong></th>
+<th class="head"><strong>Modeling a boiler plant in OpenStudio</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Related Requirements</td>
+<td>n/a</td>
+</tr>
+<tr class="row-odd"><td>Goal in Context</td>
+<td>A user wants to model a boiler plant in OpenStudio
+using component models of the Buildings library,
+and optionally connect it to pre-configured
+air handler unit from the OpenStudio library.</td>
+</tr>
+<tr class="row-even"><td>Preconditions</td>
+<td><p class="first">Component models of the boiler pant
+exist as OpenStudio and Modelica models.</p>
+<p class="last">Measures for converting
+the OpenStudio models to Modelica models exist.</p>
+</td>
+</tr>
+<tr class="row-odd"><td>Successful End Condition</td>
+<td>An AHU for use in OpenStudio.</td>
+</tr>
+<tr class="row-even"><td>Failed End Condition</td>
+<td>Conversion from OpenStudio component model to
+Modelica model failed because of non-existence
+of corresponding Modelica model.</td>
+</tr>
+<tr class="row-odd"><td>Primary Actors</td>
+<td>An end user.</td>
+</tr>
+<tr class="row-even"><td>Secondary Actors</td>
+<td><p class="first">The Modelica Buildings library.</p>
+<p class="last">The OpenStudio HVAC and controls library.</p>
+</td>
+</tr>
+<tr class="row-odd"><td>Trigger</td>
+<td>The user drags and drops component models of an
+HVAC system.</td>
+</tr>
+<tr class="row-even"><td><strong>Main Flow</strong></td>
+<td><strong>Action</strong></td>
+</tr>
+<tr class="row-odd"><td>1</td>
+<td>The user open the OpenStudio GUI and selects the
+SOEP mode.</td>
+</tr>
+<tr class="row-even"><td>2</td>
+<td>The OpenStudio GUI shows an HVAC and controls
+library for which Modelica components exist.</td>
+</tr>
+<tr class="row-odd"><td>3</td>
+<td>The user drags and drops OpenStudio component
+models for an AHU (fan, heating and cooling coils,
+dampers, etc.) from the OpenStudio HVAC library
+into the schematic editor.</td>
+</tr>
+<tr class="row-even"><td>4</td>
+<td>As a component is dropped into the editor,
+code is generated that specifies the component
+location. For example, dropping a boiler generates
+code such
+as <code class="docutils literal"><span class="pre">Buildings.Fluid.Boilers.BoilerPolynomial</span>
+<span class="pre">boi</span> <span class="pre">&quot;Boiler&quot;</span>
+<span class="pre">annotation</span> <span class="pre">(Placement(</span>
+<span class="pre">transformation(extent={{-10,0},{10,20}})));</span></code></td>
+</tr>
+<tr class="row-odd"><td>5</td>
+<td>The user sets the efficiency of the boiler by
+double-clicking on its icon, which changes the
+above declaration
+to <code class="docutils literal"><span class="pre">Buildings.Fluid.Boilers.BoilerPolynomial</span> <span class="pre">boi(</span>
+<span class="pre">eta</span> <span class="pre">=</span> <span class="pre">0.9)</span> <span class="pre">&quot;Boiler&quot;</span>
+<span class="pre">annotation</span> <span class="pre">(Placement(</span>
+<span class="pre">transformation(extent={{-10,0},{10,20}})));</span></code></td>
+</tr>
+<tr class="row-even"><td>6</td>
+<td>The user connects the inlet to a boiler to a
+temperature sensor (which has previously been placed
+and given the name <cite>temSen</cite>) by drawing a line
+between its ports. This generates the
+code <code class="docutils literal"><span class="pre">connect(senTem.port_b,</span> <span class="pre">boi.port_a)</span>
+<span class="pre">annotation</span> <span class="pre">(Line(points={{-10,0},{0,0},{0,10}}));</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Extensions</strong></td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>7</td>
+<td>To connect the boiler to the air handler unit,
+the user drags a complete air handler unit
+into the schematic editor.</td>
+</tr>
+<tr class="row-odd"><td>8</td>
+<td>The editor asks whether the components should be
+instantiated as a component (displaying
+its Modelica icon and hence its structure can only
+be changed by changing the library), or
+exploded so that all its top-level components are
+instantiated and hence can be modified.</td>
+</tr>
+<tr class="row-even"><td>9</td>
+<td>The user connects the boiler output to the
+air handler heating coil inlets as in Step 6</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+  
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+      
+    </p>
+    <p>
+        &copy; Copyright (c) All rights reserved.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.<br/>
+    </p>
+  </div>
+</footer>
+
+  </body>
+</html>
