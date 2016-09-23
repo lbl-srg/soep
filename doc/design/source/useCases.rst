@@ -6,13 +6,6 @@ Use Cases
 This section describes use cases for end-users that interact with SOEP
 through OpenStudio, and use cases for developers of SOEP.
 
-.. note::
-
-   I think OpenStudio components which map to Modelica models will need to be
-   annotated somehow so that OpenStudio knows how to handle them automatically.
-   The reasoning is because I believe we should still be able to support the
-   old way OpenStudio deals with HVAC. We need a way to let OpenStudio knows
-   whether we are doing SOEP or the old way.
 
 OpenStudio Integration
 ^^^^^^^^^^^^^^^^^^^^^^
