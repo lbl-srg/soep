@@ -63,7 +63,7 @@ where :math:`q(t)` is a vector of quantized values of the state :math:`x(t)`. Ea
 of :math:`q(t)` follows a piecewise constant trajectory, related with the corresponding component :math:`x_i(t)` by a hysteretic
 quantization function. The hysteretic
 quantization function is defined as follows:
-For some :math:`K \in \Na_+`,
+For some :math:`K \in \mathbb N_+`,
 let :math:`j \in \{0, \ldots, K-1\}` denote the counter for the time intervals.
 Then, for :math:`t_j \le t < t_{j+1}`,
 the hysteretic quantization function is defined as
