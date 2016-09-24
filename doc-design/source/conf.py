@@ -23,7 +23,7 @@ sys.path.append(os.path.abspath('.'))
 extensions = ['sphinx.ext.autodoc', 'mathjax', 'sphinxcontrib.bibtex', 'numfig', 'sphinxcontrib.plantuml']
 
 # mathjax_path is based on http://www.mathjax.org/docs/2.0/start.html
-mathjax_path = "http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
+mathjax_path = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
 
 plantuml = 'java -jar plantuml.jar'
 plantuml_output_format = 'svg'
