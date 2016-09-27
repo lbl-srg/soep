@@ -10,6 +10,31 @@ equipment sales tool that uses an open, or a proprietary,
 Modelica model library of their product line, which allows
 a sales person to test and size equipment for a particular customer.
 
+The `HVAC Systems Editor` allows drag and drop of components
+from the `Model Library`,
+similar to what can be done in today's OS schematic editor.
+In contrast, the `Schematic Editor` allows to freely place
+and graphically connect Modelica components.
+Once models have been manipulated in the
+`Schematic Editor`, OS can only simulate them, but not apply
+OS Measures to it, as models may have become incompatible
+with the OS Measures. (This could in the future be changed
+by iterating through a Modelica model instance.)
+
+In the `Schematic Editor`, user-provided Modelica libraries
+can be loaded (for example, if a company has their own
+control sequence library), manipulated and stored again
+in the user-provided Modelica library. This functionality is also
+needed for the OpenBuildingControl project.
+
+.. note::
+
+   Whether the `Conversion Script` and the `Schematic Editor`
+   access `JModelica` to get the AST, or whether they read
+   the AST from `Modelica Library AST` does not affect
+   the functionality.
+         
+
 .. _fig_overall_software_architecture:
 
 .. uml::
@@ -19,27 +44,41 @@ a sales person to test and size equipment for a particular customer.
 
    skinparam componentStyle uml2
 
-   package SOEP {
    package OpenStudio {
    API -- [Core]
    [Core] --> [Model Library]: integrates
-   [Core] --> [Schematic Editor]: integrates
+   [Core] --> [HVAC Systems Editor]: integrates
    [Core] --> [Simulator Interface]: integrates
    }
 
-   [Model Library] <.. [Conversion Script]: augments library
+   package SOEP {
+   [Schematic Editor] ..> [JModelica] : parses\nAST
+   [HVAC Systems Editor] ..> [Schematic Editor]: calls editor,\nwhich returns\n.mo file
+   [Model Library] <.. [Conversion Script]: augments library\nby generating C++ code
 
-   [Conversion Script] ..> [Modelica Library]: parses AST
-   [Simulator Interface] ..> [JModelica]
-   [Schematic Editor] ..> [JModelica]: accesses AST
-   [JModelica] --> [Modelica Buildings Library]: imports
+   [Conversion Script] ..> [JModelica]: parses\nAST
+   [Simulator Interface] ..> [JModelica] : runs simulation,\nreads outputs
+   [HVAC Systems Editor] ..> [Modelica Library AST]: reads AST
+   [Modelica Library AST] <.. [Conversion Script] : generates\nAST
+   [JModelica] --> [Modelica\nBuildings Library]: imports
    }
    [Application] ..> () API : uses
 
-   [JModelica] --> [User-Provided Modelica Library]: imports
-   [Conversion Script] ..> [User-Provided Modelica Library]: parses AST
+   [JModelica] --> [User-Provided\nModelica Library]: imports
 
-   note bottom of [User-Provided Modelica Library]
+   note left of [Schematic Editor]
+     Allows free graphical editing
+     of Modelica models. However,
+     after editing, many OS Measures
+     cannot be applied anymore
+     (as models may be incompatible
+     with the Measures).
+     However, OS can still simulate
+     these models and parse their
+     outputs.
+   end note
+
+   note bottom of [User-Provided\nModelica Library]
      Allows companies to use
      their own Modelica libraries
      with custom HVAC systems and
@@ -50,7 +89,7 @@ a sales person to test and size equipment for a particular customer.
      sales tool.
    end note
 
-   note right of OpenStudio
+   note left of OpenStudio
      Not yet shown is how
      to integrate building
      model

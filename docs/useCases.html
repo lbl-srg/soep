@@ -85,6 +85,7 @@
 <li class="toctree-l1"><a class="reference internal" href="conventions.html">2. Conventions</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">3. Use Cases</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#openstudio-integration">3.1. OpenStudio Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#measures">3.2. Measures</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="requirements.html">4. Requirements</a><ul>
@@ -121,9 +122,13 @@
       aria-labelledby="dLabelLocalToc"><ul>
 <li><a class="reference internal" href="#">3. Use Cases</a><ul>
 <li><a class="reference internal" href="#openstudio-integration">3.1. OpenStudio Integration</a><ul>
-<li><a class="reference internal" href="#measures">3.1.1. Measures</a></li>
-<li><a class="reference internal" href="#modelica-buildings-library-integration-in-openstudio">3.1.2. Modelica Buildings Library Integration in OpenStudio</a></li>
-<li><a class="reference internal" href="#hvac-system-modeling-in-openstudio">3.1.3. HVAC System Modeling in OpenStudio</a></li>
+<li><a class="reference internal" href="#modelica-buildings-library-integration-in-openstudio">3.1.1. Modelica Buildings library integration in OpenStudio</a></li>
+<li><a class="reference internal" href="#modeling-of-an-ahu-with-custom-control">3.1.2. Modeling of an AHU with custom control</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#measures">3.2. Measures</a><ul>
+<li><a class="reference internal" href="#simple-parameter-assignment">3.2.1. Simple parameter assignment</a></li>
+<li><a class="reference internal" href="#changes-to-multiple-parts-of-the-modelica-model">3.2.2. Changes to multiple parts of the Modelica model</a></li>
 </ul>
 </li>
 </ul>
@@ -175,13 +180,303 @@
 <span id="sec-use-cases"></span><h1>3. Use Cases<a class="headerlink" href="#use-cases" title="Permalink to this headline">¶</a></h1>
 <p>This section describes use cases for end-users that interact with SOEP
 through OpenStudio, and use cases for developers of SOEP.</p>
+<p>In the use cases, we call components the
+<cite>HVAC System Editor</cite>, the <cite>Schematic Editor</cite>.
+This terminology is the same as is used in the
+software architecture diagram
+<a class="reference internal" href="softwareArchitecture.html#fig-overall-software-architecture"><span class="std std-numref">Fig. 5.1</span></a>.</p>
 <div class="section" id="openstudio-integration">
 <h2>3.1. OpenStudio Integration<a class="headerlink" href="#openstudio-integration" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="modelica-buildings-library-integration-in-openstudio">
+<h3>3.1.1. Modelica Buildings library integration in OpenStudio<a class="headerlink" href="#modelica-buildings-library-integration-in-openstudio" title="Permalink to this headline">¶</a></h3>
+<p>This use case describes how to synchronize the Modelica library with its
+OpenStudio representation. The OpenStudio representation will be used
+for integrating OpenStudio measures, and other OpenStudio code
+that interacts with the Modelica representation such as the graphical
+editor. The problem being addressed is that the Modelica library is frequently
+updated, and we want to have <em>one</em> representation of the model connectors,
+parameters, documenation and graphical layout.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="29%" />
+<col width="71%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Use case name</strong></th>
+<th class="head"><strong>Updating an OpenStudio Model Library</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Related Requirements</td>
+<td>n/a</td>
+</tr>
+<tr class="row-odd"><td>Goal in Context</td>
+<td>Updating an OpenStudio HVAC and controls library
+after changes have been made to the Modelica
+library.</td>
+</tr>
+<tr class="row-even"><td>Preconditions</td>
+<td><p class="first">The Modelica library passes the regression tests.</p>
+<p class="last">An AST of the OpenStudio object representation
+for the library already exists (otherwise
+it will be generated).</p>
+</td>
+</tr>
+<tr class="row-odd"><td>Successful End Condition</td>
+<td>An HVAC and controls library for use in the
+OpenStudio <cite>HVAC System Editor</cite>.</td>
+</tr>
+<tr class="row-even"><td>Failed End Condition</td>
+<td>Library creation failed due to incompatible
+changes in the <cite>Modelica Buildings Library</cite>
+that have not
+been confirmed to be propagated to OpenStudio.</td>
+</tr>
+<tr class="row-odd"><td>Primary Actors</td>
+<td>A software developer.</td>
+</tr>
+<tr class="row-even"><td>Secondary Actors</td>
+<td><p class="first">The OpenStudio HVAC and controls <cite>Model Library</cite>.</p>
+<p>JModelica which returns the AST.</p>
+<p class="last">The <cite>Modelica Buildings Library</cite>.</p>
+</td>
+</tr>
+<tr class="row-odd"><td>Trigger</td>
+<td>The software developer executes a
+conversion script.</td>
+</tr>
+<tr class="row-even"><td><strong>Main Flow</strong></td>
+<td><strong>Action</strong></td>
+</tr>
+<tr class="row-odd"><td>1</td>
+<td>The software developer runs a conversion script
+to initiate updating the OpenStudio HVAC
+and controls <cite>Model Library</cite>.</td>
+</tr>
+<tr class="row-even"><td>2</td>
+<td><cite>JModelica</cite> loads the <cite>Modelica Buildings Library</cite>
+and returns its AST. (See also
+<a class="reference external" href="http://www.jmodelica.org/api-docs/usersguide/1.17.0/ch09s01.html">http://www.jmodelica.org/api-docs/usersguide/1.17.0/ch09s01.html</a>.)</td>
+</tr>
+<tr class="row-odd"><td>3</td>
+<td>If the AST representation of OpenStudio exists
+for this library, then the AST is compared
+with the previous AST
+representation to detect and report incompatible
+changes.</td>
+</tr>
+<tr class="row-even"><td>4</td>
+<td>If the AST representation of OpenStudio does
+not exist for this library, it is generated.</td>
+</tr>
+<tr class="row-odd"><td>5</td>
+<td>The AST is converted to OpenStudio object
+models.</td>
+</tr>
+<tr class="row-even"><td><strong>Extensions</strong></td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>5.1</td>
+<td>OpenStudio integration tests are run.</td>
+</tr>
+</tbody>
+</table>
+<p>The sequence diagram for this as shown in <a class="reference internal" href="#fig-use-case-loading-modelica-lib"><span class="std std-numref">Fig. 3.1</span></a>.</p>
+<div class="figure" id="id1">
+<span id="fig-use-case-loading-modelica-lib"></span><p class="plantuml">
+<object data="_images/plantuml-6a937a736e42d51510f4cb16a224f25736f18733.svg" type="image/svg+xml" style="width:772px;height:534px;">
+<img src="_images/plantuml-6a937a736e42d51510f4cb16a224f25736f18733.png" alt="title Updating an OpenStudio Model Library.
+
+&quot;Conversion Script&quot; -&gt; &quot;JModelica&quot;: getInstanceAST()
+&quot;JModelica&quot; -&gt; &quot;Modelica Buildings Library&quot;: loadLibrary()
+&quot;JModelica&quot; &lt;- &quot;Modelica Buildings Library&quot;
+&quot;Conversion Script&quot; &lt;- &quot;JModelica&quot;
+|||
+&quot;Conversion Script&quot; -&gt; &quot;OpenStudio Model Library&quot;: getInstanceAST()
+&quot;Conversion Script&quot; &lt;- &quot;OpenStudio Model Library&quot;
+
+alt no OpenStudio Model Library has been populated
+  &quot;Conversion Script&quot; -&gt; &quot;OpenStudio Model Library&quot;: createLibrary()
+else Update the existing library
+  &quot;Conversion Script&quot; -&gt; &quot;Conversion Script&quot; : validate()
+  alt incompatible changes exist
+    &quot;Conversion Script&quot; -&gt; &quot;Conversion Script&quot; : reportIncompatibilities()
+    alt accept incompatible changes
+      &quot;Conversion Script&quot; -&gt; &quot;OpenStudio Model Library&quot;: createLibrary()
+    end
+  end
+end" />
+
+</object></p>
+<p class="caption"><span class="caption-number">Fig. 3.1 </span>: Updating an OpenStudio Model Library.<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+<div class="section" id="modeling-of-an-ahu-with-custom-control">
+<h3>3.1.2. Modeling of an AHU with custom control<a class="headerlink" href="#modeling-of-an-ahu-with-custom-control" title="Permalink to this headline">¶</a></h3>
+<p>This use case describes how to instantiate an AHU with
+pre-configured control sequence in OpenStudio,
+and then customize the control sequence.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="35%" />
+<col width="65%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Use case name</strong></th>
+<th class="head"><strong>Modeling of an AHU with custom control</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Related Requirements</td>
+<td>n/a</td>
+</tr>
+<tr class="row-odd"><td>Goal in Context</td>
+<td>A user wants to model an AHU in OpenStudio
+using component models of OpenStudio Model library,
+and add custom control.</td>
+</tr>
+<tr class="row-even"><td>Preconditions</td>
+<td><p class="first">Preconfigured system model of the AHU
+exist in the OS Model Library.</p>
+<p class="last">Controls component exist in the Modelica Buildings
+library.</p>
+</td>
+</tr>
+<tr class="row-odd"><td>Successful End Condition</td>
+<td>Created an AHU with custom control.</td>
+</tr>
+<tr class="row-even"><td>Failed End Condition</td>
+<td>n/a</td>
+</tr>
+<tr class="row-odd"><td>Primary Actors</td>
+<td>An end user.</td>
+</tr>
+<tr class="row-even"><td>Secondary Actors</td>
+<td><p class="first">The OpenStudio HVAC and controls library.</p>
+<p class="last">The Modelica Buildings library.</p>
+</td>
+</tr>
+<tr class="row-odd"><td>Trigger</td>
+<td>The user drags and drops an AHU model with
+pre-configured control sequence.</td>
+</tr>
+<tr class="row-even"><td><strong>Main Flow</strong></td>
+<td><strong>Action</strong></td>
+</tr>
+<tr class="row-odd"><td>1</td>
+<td>The user opens the OpenStudio <cite>HVAC System Editor</cite>
+and selects the SOEP mode.</td>
+</tr>
+<tr class="row-even"><td>2</td>
+<td>The OpenStudio GUI shows an HVAC and controls
+library.</td>
+</tr>
+<tr class="row-odd"><td>3</td>
+<td>The user drags and drops the OpenStudio AHU
+model, which is connected to an OpenStudio
+control model, into the <cite>HVAC System Editor</cite>.</td>
+</tr>
+<tr class="row-even"><td>4</td>
+<td>As a component is dropped into the editor,
+code is generated that specifies the component
+location. For example, dropping the control
+sequence generates
+code such
+as <code class="docutils literal"><span class="pre">Buildings.Controls.AHU.VAV</span>
+<span class="pre">conVav</span> <span class="pre">&quot;VAV</span> <span class="pre">control&quot;</span>
+<span class="pre">annotation</span> <span class="pre">(Placement(</span>
+<span class="pre">transformation(extent={{-10,0},{10,20}})));</span></code></td>
+</tr>
+<tr class="row-odd"><td>5</td>
+<td>The user right-clicks on the <code class="docutils literal"><span class="pre">conVav</span></code> instance
+and selects &#8220;Edit in Modelica editor&#8221;.</td>
+</tr>
+<tr class="row-even"><td>6</td>
+<td>The <cite>Schematic Editor</cite> opens and the user
+customizes the controls.</td>
+</tr>
+<tr class="row-odd"><td>7</td>
+<td>The user saves the control model as the
+<code class="docutils literal"><span class="pre">Custom/ControlVAV.mo</span></code> Modelica model.</td>
+</tr>
+<tr class="row-even"><td>8</td>
+<td>The user switches to the <cite>HVAC System Editor</cite>,
+which changed the <cite>conVAV</cite> instance to a new
+Modelica class such as
+<code class="docutils literal"><span class="pre">Custom.ControlVAV</span>
+<span class="pre">conVav</span> <span class="pre">&quot;VAV</span> <span class="pre">control&quot;</span>
+<span class="pre">annotation</span> <span class="pre">(Placement(</span>
+<span class="pre">transformation(extent={{-10,0},{10,20}})));</span></code></td>
+</tr>
+<tr class="row-odd"><td>9</td>
+<td>As the <code class="docutils literal"><span class="pre">Custom.ControlVAV</span></code> has an additional
+sensor input, the user connects this sensor input
+in the <cite>HVAC Systems Editor</cite> to an output
+of a model.</td>
+</tr>
+<tr class="row-even"><td><strong>Extensions</strong></td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>5.1</td>
+<td>Rather than selecting a single component for
+editing in the <cite>Schematic Editor</cite>, a user
+could select multiple OS components (that are
+connected), and they would then be grouped
+to form one Modelica model. The grouping
+would essentially consist of writing <code class="docutils literal"><span class="pre">connect</span></code>
+statements between the ports of the components.</td>
+</tr>
+</tbody>
+</table>
+<p>The sequence diagram for this as shown in <a class="reference internal" href="#fig-use-case-custom-control"><span class="std std-numref">Fig. 3.2</span></a>.</p>
+<div class="figure" id="id2">
+<span id="fig-use-case-custom-control"></span><p class="plantuml">
+<object data="_images/plantuml-32c3dae6e74c4db3386eb0aa5d3636f4b5e19ddc.svg" type="image/svg+xml" style="width:783px;height:550px;">
+<img src="_images/plantuml-32c3dae6e74c4db3386eb0aa5d3636f4b5e19ddc.png" alt="title Modeling of an AHU with custom control
+
+&quot;User&quot; -&gt; &quot;HVAC System Editor&quot; : setSOEPMode()
+&quot;User&quot; &lt;- &quot;HVAC System Editor&quot;
+&quot;User&quot; -&gt; &quot;HVAC System Editor&quot; : drag &amp; drop AHU model
+|||
+&quot;HVAC System Editor&quot; -&gt; &quot;HVAC System Editor&quot; : instantiates model
+&quot;User&quot; &lt;- &quot;HVAC System Editor&quot;
+&quot;User&quot; -&gt; &quot;HVAC System Editor&quot; : select &quot;Edit in Modelica editor&quot;
+&quot;User&quot; &lt;- &quot;HVAC System Editor&quot;
+&quot;User&quot; -&gt; &quot;Schematic Editor&quot; : customize model
+&quot;Schematic Editor&quot; -&gt; &quot;Schematic Editor&quot; : write Custom/ControlVAV.mo file
+&quot;User&quot; &lt;- &quot;Schematic Editor&quot;
+|||
+&quot;User&quot; -&gt; &quot;Schematic Editor&quot; : switch to HVAC System Editor
+&quot;HVAC System Editor&quot; -&gt; &quot;HVAC System Editor&quot; : read Custom/ControlVAV.mo file to get new I/O
+&quot;User&quot; -&gt; &quot;HVAC System Editor&quot;: Connect new inputs &amp; outputs
+&quot;User&quot; &lt;- &quot;HVAC System Editor&quot;" />
+
+</object></p>
+<p class="caption"><span class="caption-number">Fig. 3.2 </span>: Modeling of an AHU with custom control.<a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Getting the new inputs and outputs of <code class="docutils literal"><span class="pre">Custom/ControlVAV.mo</span></code> requires
+parsing the file, which would be easiest if JModelica would be invoked
+to get the AST.</p>
+</div>
+</div>
+</div>
 <div class="section" id="measures">
-<h3>3.1.1. Measures<a class="headerlink" href="#measures" title="Permalink to this headline">¶</a></h3>
-<p>This use case describes how measures are processed between OpenStudio and
+<h2>3.2. Measures<a class="headerlink" href="#measures" title="Permalink to this headline">¶</a></h2>
+<p>These use cases describe how measures are processed between OpenStudio and
 the Modelica model. We distinguish two types of measures, these who do a simple
-parameter assignment, and these who require changes to multiple parts of the model.</p>
+parameter assignment on the Modelica model, and these who require changes
+to multiple parts of the Modelica model. We assume that users
+edited a model in the SOEP <cite>Schematic Editor</cite>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If users simply edit a model in the OpenStudio <cite>HVAC Systems Editor</cite>,
+then measures will work as they do now, because the <cite>HVAC System editor</cite>
+uses the OpenStudio <cite>Model Library</cite> only.</p>
+</div>
+<div class="section" id="simple-parameter-assignment">
+<h3>3.2.1. Simple parameter assignment<a class="headerlink" href="#simple-parameter-assignment" title="Permalink to this headline">¶</a></h3>
 <p>An example which requires changes to a single parameters of the model is to
 set in a Modelica model of the form</p>
 <div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="o">...</span>
@@ -210,7 +505,8 @@ set in a Modelica model of the form</p>
 from an OS measure.</td>
 </tr>
 <tr class="row-even"><td>Preconditions</td>
-<td>A Modelica model.</td>
+<td>A Modelica model that has been edited in the
+SOEP <cite>Schematic Editor</cite>.</td>
 </tr>
 <tr class="row-odd"><td>Successful End Condition</td>
 <td>The parameter is set to its new value.</td>
@@ -269,28 +565,31 @@ assignment looks like
 </tr>
 </tbody>
 </table>
-<p>The sequence diagram for this as shown in <a class="reference internal" href="#fig-use-case-os-single-par"><span class="std std-numref">Fig. 3.1</span></a>.</p>
-<div class="figure" id="id1">
+<p>The sequence diagram for this as shown in <a class="reference internal" href="#fig-use-case-os-single-par"><span class="std std-numref">Fig. 3.3</span></a>.</p>
+<div class="figure" id="id3">
 <span id="fig-use-case-os-single-par"></span><p class="plantuml">
-<object data="_images/plantuml-8238067e3dcb72fad6323ea7fa9de256aec97a86.svg" type="image/svg+xml" style="width:365px;height:428px;">
-<img src="_images/plantuml-8238067e3dcb72fad6323ea7fa9de256aec97a86.png" alt="title Apply OS measure to a single parameter
+<object data="_images/plantuml-7b9080ea7fee66d0d54a218e9767f090efa20933.svg" type="image/svg+xml" style="width:365px;height:428px;">
+<img src="_images/plantuml-7b9080ea7fee66d0d54a218e9767f090efa20933.png" alt="title Apply OS measure to a single parameter
 
-Measure -&gt; &quot;Model Editor&quot;: getInstanceAST()
-&quot;Model Editor&quot; -&gt; JModelica: getInstanceAST()
-&quot;Model Editor&quot; &lt;- JModelica
-Measure &lt;- &quot;Model Editor&quot;
+Measure -&gt; &quot;Schematic Editor&quot;: getInstanceAST()
+&quot;Schematic Editor&quot; -&gt; JModelica: getInstanceAST()
+&quot;Schematic Editor&quot; &lt;- JModelica
+Measure &lt;- &quot;Schematic Editor&quot;
 |||
 Measure -&gt; Measure: searchParameter()
 Measure -&gt; Measure: validate()
 alt found parameter
-  Measure -&gt; &quot;Model Editor&quot;: setValue()
+  Measure -&gt; &quot;Schematic Editor&quot;: setValue()
 else
   Measure -&gt; Measure: reportError()
 end" />
 
 </object></p>
-<p class="caption"><span class="caption-number">Fig. 3.1 </span>: Applying an OS measure to a single parameter.<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 3.3 </span>: Applying an OS measure to a single parameter.<a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
 </div>
+</div>
+<div class="section" id="changes-to-multiple-parts-of-the-modelica-model">
+<h3>3.2.2. Changes to multiple parts of the Modelica model<a class="headerlink" href="#changes-to-multiple-parts-of-the-modelica-model" title="Permalink to this headline">¶</a></h3>
 <p>An example which requires changes to multiple parts of the model is the following
 measure.</p>
 <div class="highlight-ruby"><div class="highlight"><pre><span></span><span class="n">new_lights_def</span> <span class="o">=</span> <span class="no">OpenStudio</span><span class="o">::</span><span class="no">Model</span><span class="o">::</span><span class="no">LightsDefinition</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
@@ -327,7 +626,8 @@ measure.</p>
 <td>A user wants to modify a model.</td>
 </tr>
 <tr class="row-even"><td>Preconditions</td>
-<td>A Modelica model.</td>
+<td>A Modelica model that has been edited in the
+SOEP <cite>Schematic Editor</cite>.</td>
 </tr>
 <tr class="row-odd"><td>Successful End Condition</td>
 <td>All thermal zones are updated.</td>
@@ -391,16 +691,16 @@ Modelica <code class="docutils literal"><span class="pre">record</span></code>).
 </tr>
 </tbody>
 </table>
-<p>The sequence diagram for this as shown in <a class="reference internal" href="#fig-use-case-os-zones"><span class="std std-numref">Fig. 3.2</span></a>.</p>
-<div class="figure" id="id2">
+<p>The sequence diagram for this as shown in <a class="reference internal" href="#fig-use-case-os-zones"><span class="std std-numref">Fig. 3.4</span></a>.</p>
+<div class="figure" id="id4">
 <span id="fig-use-case-os-zones"></span><p class="plantuml">
-<object data="_images/plantuml-611fd7695a44296a0d2aec3c4500b0db1e2a9f67.svg" type="image/svg+xml" style="width:591px;height:586px;">
-<img src="_images/plantuml-611fd7695a44296a0d2aec3c4500b0db1e2a9f67.png" alt="title Apply OS measure to set of models.
+<object data="_images/plantuml-8461171cba8a68ef391af319ed44aeed301a47c1.svg" type="image/svg+xml" style="width:591px;height:586px;">
+<img src="_images/plantuml-8461171cba8a68ef391af319ed44aeed301a47c1.png" alt="title Apply OS measure to set of models.
 
-Measure -&gt; &quot;Model Editor&quot;: getInstanceAST()
-&quot;Model Editor&quot; -&gt; JModelica: getInstanceAST()
-&quot;Model Editor&quot; &lt;- JModelica
-Measure &lt;- &quot;Model Editor&quot;
+Measure -&gt; &quot;Schematic Editor&quot;: getInstanceAST()
+&quot;Schematic Editor&quot; -&gt; JModelica: getInstanceAST()
+&quot;Schematic Editor&quot; &lt;- JModelica
+Measure &lt;- &quot;Schematic Editor&quot;
 |||
 Measure -&gt; Measure: searchParameter()
 Measure -&gt; Measure: validate()
@@ -420,251 +720,13 @@ else
     end
 
     Measure -&gt; Measure: getCodeSnippet()
-    Measure -&gt; &quot;Model Editor&quot;: setValue()
+    Measure -&gt; &quot;Schematic Editor&quot;: setValue()
 
 end" />
 
 </object></p>
-<p class="caption"><span class="caption-number">Fig. 3.2 </span>: Applying an OS measure to a set of models.<a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 3.4 </span>: Applying an OS measure to a set of models.<a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
 </div>
-</div>
-<div class="section" id="modelica-buildings-library-integration-in-openstudio">
-<h3>3.1.2. Modelica Buildings Library Integration in OpenStudio<a class="headerlink" href="#modelica-buildings-library-integration-in-openstudio" title="Permalink to this headline">¶</a></h3>
-<p>This use case describes how to synchronize the Modelica library with its
-OpenStudio representation. The OpenStudio representation will be used
-for integrating OpenStudio measures, and other OpenStudio code
-that interacts with the Modelica representation such as the graphical
-editor. The problem being addressed is that the Modelica library is frequently
-updated, and we want to have <em>one</em> representation of the model connectors,
-parameters, documenation and graphical layout.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="29%" />
-<col width="71%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head"><strong>Use case name</strong></th>
-<th class="head"><strong>Loading a Modelica library into OpenStudio</strong></th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td>Related Requirements</td>
-<td>n/a</td>
-</tr>
-<tr class="row-odd"><td>Goal in Context</td>
-<td>Updating an OpenStudio HVAC and controls library
-after changes have been made to the Modelica
-library.</td>
-</tr>
-<tr class="row-even"><td>Preconditions</td>
-<td>The Modelica library passes the regression tests
-and an AST of the OpenStudio object representation
-for the library already exists (otherwise
-it will be generated).</td>
-</tr>
-<tr class="row-odd"><td>Successful End Condition</td>
-<td>An HVAC and controls library for use in OpenStudio.</td>
-</tr>
-<tr class="row-even"><td>Failed End Condition</td>
-<td>Library creation failed due to incompatible
-changes in the Modelica library that have not
-been confirmed to be propagated to OpenStudio.</td>
-</tr>
-<tr class="row-odd"><td>Primary Actors</td>
-<td>A software developer.</td>
-</tr>
-<tr class="row-even"><td>Secondary Actors</td>
-<td><p class="first">The Modelica Buildings library.</p>
-<p class="last">The OpenStudio HVAC and controls library.</p>
-</td>
-</tr>
-<tr class="row-odd"><td>Trigger</td>
-<td>The software developer executes an update script.</td>
-</tr>
-<tr class="row-even"><td><strong>Main Flow</strong></td>
-<td><strong>Action</strong></td>
-</tr>
-<tr class="row-odd"><td>1</td>
-<td>The software developer runs an update script
-to initiate updating the OpenStudio HVAC
-and controls library.</td>
-</tr>
-<tr class="row-even"><td>2</td>
-<td>The Modelica library is parsed and an abstract
-syntax tree (AST) including the vendor annotations
-is created. (See also
-<a class="reference external" href="http://www.jmodelica.org/api-docs/usersguide/1.17.0/ch09s01.html">http://www.jmodelica.org/api-docs/usersguide/1.17.0/ch09s01.html</a>.)</td>
-</tr>
-<tr class="row-odd"><td>3</td>
-<td>If the AST representation of OpenStudio exists
-for this library, then the AST is compared
-with the previous AST
-representation to detect and report incompatible
-changes.</td>
-</tr>
-<tr class="row-even"><td>4</td>
-<td>If the AST representation of OpenStudio does
-not exist for this library, it is generated.</td>
-</tr>
-<tr class="row-odd"><td>5</td>
-<td>The AST is converted to OpenStudio object
-models.</td>
-</tr>
-<tr class="row-even"><td><strong>Extensions</strong></td>
-<td>&nbsp;</td>
-</tr>
-<tr class="row-odd"><td>5.1</td>
-<td>OpenStudio integration tests are run.</td>
-</tr>
-</tbody>
-</table>
-<p>The sequence diagram for this as shown in <a class="reference internal" href="#fig-use-case-loading-modelica-lib"><span class="std std-numref">Fig. 3.3</span></a>.</p>
-<div class="figure" id="id3">
-<span id="fig-use-case-loading-modelica-lib"></span><p class="plantuml">
-<object data="_images/plantuml-b0432a1f28c04c29f41e5949fa049d7f7f48979b.svg" type="image/svg+xml" style="width:657px;height:534px;">
-<img src="_images/plantuml-b0432a1f28c04c29f41e5949fa049d7f7f48979b.png" alt="title Apply OS measure to set of models.
-
-&quot;Update Script&quot; -&gt; JModelica: getInstanceAST()
-JModelica -&gt; &quot;Modelica Library&quot;: getInstanceAST()
-JModelica &lt;- &quot;Modelica Library&quot;
-&quot;Update Script&quot; &lt;- JModelica
-|||
-&quot;Update Script&quot; -&gt; &quot;OpenStudio Library&quot;: getInstanceAST()
-&quot;Update Script&quot; &lt;- &quot;OpenStudio Library&quot;
-
-alt no OpenStudio Library has been populated
-  &quot;Update Script&quot; -&gt; &quot;OpenStudio Library&quot;: createLibrary()
-else Update the existing library
-  &quot;Update Script&quot; -&gt; &quot;Update Script&quot; : validate()
-  alt incompatible changes exist
-    &quot;Update Script&quot; -&gt; &quot;Update Script&quot; : reportIncompatibilities()
-    alt accept incompatible changes
-      &quot;Update Script&quot; -&gt; &quot;OpenStudio Library&quot;: createLibrary()
-    end
-  end
-end" />
-
-</object></p>
-<p class="caption"><span class="caption-number">Fig. 3.3 </span>: Loading a Modelica library into OpenStudio.<a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
-</div>
-</div>
-<div class="section" id="hvac-system-modeling-in-openstudio">
-<h3>3.1.3. HVAC System Modeling in OpenStudio<a class="headerlink" href="#hvac-system-modeling-in-openstudio" title="Permalink to this headline">¶</a></h3>
-<p>This use case describes how to build an HVAC system in OpenStudio
-which uses component models of the Modelica Buildings library.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="34%" />
-<col width="66%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head"><strong>Use case name</strong></th>
-<th class="head"><strong>Modeling a boiler plant in OpenStudio</strong></th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td>Related Requirements</td>
-<td>n/a</td>
-</tr>
-<tr class="row-odd"><td>Goal in Context</td>
-<td>A user wants to model a boiler plant in OpenStudio
-using component models of the Buildings library,
-and optionally connect it to pre-configured
-air handler unit from the OpenStudio library.</td>
-</tr>
-<tr class="row-even"><td>Preconditions</td>
-<td><p class="first">Component models of the boiler pant
-exist as OpenStudio and Modelica models.</p>
-<p class="last">Measures for converting
-the OpenStudio models to Modelica models exist.</p>
-</td>
-</tr>
-<tr class="row-odd"><td>Successful End Condition</td>
-<td>An AHU for use in OpenStudio.</td>
-</tr>
-<tr class="row-even"><td>Failed End Condition</td>
-<td>Conversion from OpenStudio component model to
-Modelica model failed because of non-existence
-of corresponding Modelica model.</td>
-</tr>
-<tr class="row-odd"><td>Primary Actors</td>
-<td>An end user.</td>
-</tr>
-<tr class="row-even"><td>Secondary Actors</td>
-<td><p class="first">The Modelica Buildings library.</p>
-<p class="last">The OpenStudio HVAC and controls library.</p>
-</td>
-</tr>
-<tr class="row-odd"><td>Trigger</td>
-<td>The user drags and drops component models of an
-HVAC system.</td>
-</tr>
-<tr class="row-even"><td><strong>Main Flow</strong></td>
-<td><strong>Action</strong></td>
-</tr>
-<tr class="row-odd"><td>1</td>
-<td>The user open the OpenStudio GUI and selects the
-SOEP mode.</td>
-</tr>
-<tr class="row-even"><td>2</td>
-<td>The OpenStudio GUI shows an HVAC and controls
-library for which Modelica components exist.</td>
-</tr>
-<tr class="row-odd"><td>3</td>
-<td>The user drags and drops OpenStudio component
-models for an AHU (fan, heating and cooling coils,
-dampers, etc.) from the OpenStudio HVAC library
-into the schematic editor.</td>
-</tr>
-<tr class="row-even"><td>4</td>
-<td>As a component is dropped into the editor,
-code is generated that specifies the component
-location. For example, dropping a boiler generates
-code such
-as <code class="docutils literal"><span class="pre">Buildings.Fluid.Boilers.BoilerPolynomial</span>
-<span class="pre">boi</span> <span class="pre">&quot;Boiler&quot;</span>
-<span class="pre">annotation</span> <span class="pre">(Placement(</span>
-<span class="pre">transformation(extent={{-10,0},{10,20}})));</span></code></td>
-</tr>
-<tr class="row-odd"><td>5</td>
-<td>The user sets the efficiency of the boiler by
-double-clicking on its icon, which changes the
-above declaration
-to <code class="docutils literal"><span class="pre">Buildings.Fluid.Boilers.BoilerPolynomial</span> <span class="pre">boi(</span>
-<span class="pre">eta</span> <span class="pre">=</span> <span class="pre">0.9)</span> <span class="pre">&quot;Boiler&quot;</span>
-<span class="pre">annotation</span> <span class="pre">(Placement(</span>
-<span class="pre">transformation(extent={{-10,0},{10,20}})));</span></code></td>
-</tr>
-<tr class="row-even"><td>6</td>
-<td>The user connects the inlet to a boiler to a
-temperature sensor (which has previously been placed
-and given the name <cite>temSen</cite>) by drawing a line
-between its ports. This generates the
-code <code class="docutils literal"><span class="pre">connect(senTem.port_b,</span> <span class="pre">boi.port_a)</span>
-<span class="pre">annotation</span> <span class="pre">(Line(points={{-10,0},{0,0},{0,10}}));</span></code></td>
-</tr>
-<tr class="row-odd"><td><strong>Extensions</strong></td>
-<td>&nbsp;</td>
-</tr>
-<tr class="row-even"><td>7</td>
-<td>To connect the boiler to the air handler unit,
-the user drags a complete air handler unit
-into the schematic editor.</td>
-</tr>
-<tr class="row-odd"><td>8</td>
-<td>The editor asks whether the components should be
-instantiated as a component (displaying
-its Modelica icon and hence its structure can only
-be changed by changing the library), or
-exploded so that all its top-level components are
-instantiated and hence can be modified.</td>
-</tr>
-<tr class="row-even"><td>9</td>
-<td>The user connects the boiler output to the
-air handler heating coil inlets as in Step 6</td>
-</tr>
-</tbody>
-</table>
 </div>
 </div>
 </div>

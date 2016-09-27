@@ -6,17 +6,262 @@ Use Cases
 This section describes use cases for end-users that interact with SOEP
 through OpenStudio, and use cases for developers of SOEP.
 
+In the use cases, we call components the
+`HVAC System Editor`, the `Schematic Editor`.
+This terminology is the same as is used in the
+software architecture diagram
+:numref:`fig_overall_software_architecture`.
+
 
 OpenStudio Integration
 ^^^^^^^^^^^^^^^^^^^^^^
 
+
+Modelica Buildings library integration in OpenStudio
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This use case describes how to synchronize the Modelica library with its
+OpenStudio representation. The OpenStudio representation will be used
+for integrating OpenStudio measures, and other OpenStudio code
+that interacts with the Modelica representation such as the graphical
+editor. The problem being addressed is that the Modelica library is frequently
+updated, and we want to have *one* representation of the model connectors,
+parameters, documenation and graphical layout.
+
+
+===========================  ===================================================
+**Use case name**            **Updating an OpenStudio Model Library**
+===========================  ===================================================
+Related Requirements         n/a
+---------------------------  ---------------------------------------------------
+Goal in Context              Updating an OpenStudio HVAC and controls library
+                             after changes have been made to the Modelica
+                             library.
+---------------------------  ---------------------------------------------------
+Preconditions                The Modelica library passes the regression tests.
+
+                             An AST of the OpenStudio object representation
+                             for the library already exists (otherwise
+                             it will be generated).
+---------------------------  ---------------------------------------------------
+Successful End Condition     An HVAC and controls library for use in the
+                             OpenStudio `HVAC System Editor`.
+---------------------------  ---------------------------------------------------
+Failed End Condition         Library creation failed due to incompatible
+                             changes in the `Modelica Buildings Library`
+                             that have not
+                             been confirmed to be propagated to OpenStudio.
+---------------------------  ---------------------------------------------------
+Primary Actors               A software developer.
+---------------------------  ---------------------------------------------------
+Secondary Actors             The OpenStudio HVAC and controls `Model Library`.
+
+                             JModelica which returns the AST.
+
+                             The `Modelica Buildings Library`.
+---------------------------  ---------------------------------------------------
+Trigger                      The software developer executes a
+                             conversion script.
+---------------------------  ---------------------------------------------------
+**Main Flow**                **Action**
+---------------------------  ---------------------------------------------------
+1                            The software developer runs a conversion script
+                             to initiate updating the OpenStudio HVAC
+                             and controls `Model Library`.
+---------------------------  ---------------------------------------------------
+2                            `JModelica` loads the `Modelica Buildings Library`
+                             and returns its AST. (See also
+                             http://www.jmodelica.org/api-docs/usersguide/1.17.0/ch09s01.html.)
+---------------------------  ---------------------------------------------------
+3                            If the AST representation of OpenStudio exists
+                             for this library, then the AST is compared
+                             with the previous AST
+                             representation to detect and report incompatible
+                             changes.
+---------------------------  ---------------------------------------------------
+4                            If the AST representation of OpenStudio does
+                             not exist for this library, it is generated.
+---------------------------  ---------------------------------------------------
+5                            The AST is converted to OpenStudio object
+                             models.
+---------------------------  ---------------------------------------------------
+**Extensions**
+---------------------------  ---------------------------------------------------
+5.1                          OpenStudio integration tests are run.
+===========================  ===================================================
+
+The sequence diagram for this as shown in :numref:`fig_use_case_loading_modelica_lib`.
+
+.. _fig_use_case_loading_modelica_lib:
+
+.. uml::
+   :caption: Updating an OpenStudio Model Library.
+
+   title Updating an OpenStudio Model Library.
+
+   "Conversion Script" -> "JModelica": getInstanceAST()
+   "JModelica" -> "Modelica Buildings Library": loadLibrary()
+   "JModelica" <- "Modelica Buildings Library"
+   "Conversion Script" <- "JModelica"
+   |||
+   "Conversion Script" -> "OpenStudio Model Library": getInstanceAST()
+   "Conversion Script" <- "OpenStudio Model Library"
+
+   alt no OpenStudio Model Library has been populated
+     "Conversion Script" -> "OpenStudio Model Library": createLibrary()
+   else Update the existing library
+     "Conversion Script" -> "Conversion Script" : validate()
+     alt incompatible changes exist
+       "Conversion Script" -> "Conversion Script" : reportIncompatibilities()
+       alt accept incompatible changes
+         "Conversion Script" -> "OpenStudio Model Library": createLibrary()
+       end
+     end
+   end
+
+
+
+Modeling of an AHU with custom control
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This use case describes how to instantiate an AHU with
+pre-configured control sequence in OpenStudio,
+and then customize the control sequence.
+
+
+===========================  ===================================================
+**Use case name**            **Modeling of an AHU with custom control**
+===========================  ===================================================
+Related Requirements         n/a
+---------------------------  ---------------------------------------------------
+Goal in Context              A user wants to model an AHU in OpenStudio
+                             using component models of OpenStudio Model library,
+                             and add custom control.
+---------------------------  ---------------------------------------------------
+Preconditions                Preconfigured system model of the AHU
+                             exist in the OS Model Library.
+
+                             Controls component exist in the Modelica Buildings
+                             library.
+---------------------------  ---------------------------------------------------
+Successful End Condition     Created an AHU with custom control.
+---------------------------  ---------------------------------------------------
+Failed End Condition         n/a
+---------------------------  ---------------------------------------------------
+Primary Actors               An end user.
+---------------------------  ---------------------------------------------------
+Secondary Actors             The OpenStudio HVAC and controls library.
+
+                             The Modelica Buildings library.
+---------------------------  ---------------------------------------------------
+Trigger                      The user drags and drops an AHU model with
+                             pre-configured control sequence.
+---------------------------  ---------------------------------------------------
+**Main Flow**                **Action**
+---------------------------  ---------------------------------------------------
+1                            The user opens the OpenStudio `HVAC System Editor`
+                             and selects the SOEP mode.
+---------------------------  ---------------------------------------------------
+2                            The OpenStudio GUI shows an HVAC and controls
+                             library.
+---------------------------  ---------------------------------------------------
+3                            The user drags and drops the OpenStudio AHU
+                             model, which is connected to an OpenStudio
+                             control model, into the `HVAC System Editor`.
+---------------------------  ---------------------------------------------------
+4                            As a component is dropped into the editor,
+                             code is generated that specifies the component
+                             location. For example, dropping the control
+                             sequence generates
+                             code such
+                             as ``Buildings.Controls.AHU.VAV
+                             conVav "VAV control"
+                             annotation (Placement(
+                             transformation(extent={{-10,0},{10,20}})));``
+---------------------------  ---------------------------------------------------
+5                            The user right-clicks on the ``conVav`` instance
+                             and selects "Edit in Modelica editor".
+---------------------------  ---------------------------------------------------
+6                            The `Schematic Editor` opens and the user
+                             customizes the controls.
+---------------------------  ---------------------------------------------------
+7                            The user saves the control model as the
+                             ``Custom/ControlVAV.mo`` Modelica model.
+---------------------------  ---------------------------------------------------
+8                            The user switches to the `HVAC System Editor`,
+                             which changed the `conVAV` instance to a new
+                             Modelica class such as
+                             ``Custom.ControlVAV
+                             conVav "VAV control"
+                             annotation (Placement(
+                             transformation(extent={{-10,0},{10,20}})));``
+---------------------------  ---------------------------------------------------
+9                            As the ``Custom.ControlVAV`` has an additional
+                             sensor input, the user connects this sensor input
+                             in the `HVAC Systems Editor` to an output
+                             of a model.
+---------------------------  ---------------------------------------------------
+**Extensions**
+---------------------------  ---------------------------------------------------
+5.1                          Rather than selecting a single component for
+                             editing in the `Schematic Editor`, a user
+                             could select multiple OS components (that are
+                             connected), and they would then be grouped
+                             to form one Modelica model. The grouping
+                             would essentially consist of writing ``connect``
+                             statements between the ports of the components.
+===========================  ===================================================
+
+
+The sequence diagram for this as shown in :numref:`fig_use_case_custom_control`.
+
+.. _fig_use_case_custom_control:
+
+.. uml::
+   :caption: Modeling of an AHU with custom control.
+
+   title Modeling of an AHU with custom control
+
+   "User" -> "HVAC System Editor" : setSOEPMode()
+   "User" <- "HVAC System Editor"
+   "User" -> "HVAC System Editor" : drag & drop AHU model
+   |||
+   "HVAC System Editor" -> "HVAC System Editor" : instantiates model
+   "User" <- "HVAC System Editor"
+   "User" -> "HVAC System Editor" : select "Edit in Modelica editor"
+   "User" <- "HVAC System Editor"
+   "User" -> "Schematic Editor" : customize model
+   "Schematic Editor" -> "Schematic Editor" : write Custom/ControlVAV.mo file
+   "User" <- "Schematic Editor"
+   |||
+   "User" -> "Schematic Editor" : switch to HVAC System Editor
+   "HVAC System Editor" -> "HVAC System Editor" : read Custom/ControlVAV.mo file to get new I/O
+   "User" -> "HVAC System Editor": Connect new inputs & outputs
+   "User" <- "HVAC System Editor"
+
+.. note::
+
+   Getting the new inputs and outputs of ``Custom/ControlVAV.mo`` requires
+   parsing the file, which would be easiest if JModelica would be invoked
+   to get the AST.
+
 Measures
-~~~~~~~~
+^^^^^^^^
 
-This use case describes how measures are processed between OpenStudio and
+These use cases describe how measures are processed between OpenStudio and
 the Modelica model. We distinguish two types of measures, these who do a simple
-parameter assignment, and these who require changes to multiple parts of the model.
+parameter assignment on the Modelica model, and these who require changes
+to multiple parts of the Modelica model. We assume that users
+edited a model in the SOEP `Schematic Editor`.
 
+.. note::
+
+   If users simply edit a model in the OpenStudio `HVAC Systems Editor`,
+   then measures will work as they do now, because the `HVAC System editor`
+   uses the OpenStudio `Model Library` only.
+
+Simple parameter assignment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 An example which requires changes to a single parameters of the model is to
 set in a Modelica model of the form
@@ -40,7 +285,8 @@ Related Requirements         n/a
 Goal in Context              A user wants to modify a parameter in a model
                              from an OS measure.
 ---------------------------  ---------------------------------------------------
-Preconditions                A Modelica model.
+Preconditions                A Modelica model that has been edited in the
+                             SOEP `Schematic Editor`.
 ---------------------------  ---------------------------------------------------
 Successful End Condition     The parameter is set to its new value.
 ---------------------------  ---------------------------------------------------
@@ -95,20 +341,22 @@ The sequence diagram for this as shown in :numref:`fig_use_case_os_single_par`.
 
    title Apply OS measure to a single parameter
 
-   Measure -> "Model Editor": getInstanceAST()
-   "Model Editor" -> JModelica: getInstanceAST()
-   "Model Editor" <- JModelica
-   Measure <- "Model Editor"
+   Measure -> "Schematic Editor": getInstanceAST()
+   "Schematic Editor" -> JModelica: getInstanceAST()
+   "Schematic Editor" <- JModelica
+   Measure <- "Schematic Editor"
    |||
    Measure -> Measure: searchParameter()
    Measure -> Measure: validate()
    alt found parameter
-     Measure -> "Model Editor": setValue()
+     Measure -> "Schematic Editor": setValue()
    else
      Measure -> Measure: reportError()
    end
 
 
+Changes to multiple parts of the Modelica model
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 An example which requires changes to multiple parts of the model is the following
 measure.
@@ -138,7 +386,8 @@ Related Requirements         n/a
 ---------------------------  ---------------------------------------------------
 Goal in Context              A user wants to modify a model.
 ---------------------------  ---------------------------------------------------
-Preconditions                A Modelica model.
+Preconditions                A Modelica model that has been edited in the
+                             SOEP `Schematic Editor`.
 ---------------------------  ---------------------------------------------------
 Successful End Condition     All thermal zones are updated.
 ---------------------------  ---------------------------------------------------
@@ -197,10 +446,10 @@ The sequence diagram for this as shown in :numref:`fig_use_case_os_zones`.
 
    title Apply OS measure to set of models.
 
-   Measure -> "Model Editor": getInstanceAST()
-   "Model Editor" -> JModelica: getInstanceAST()
-   "Model Editor" <- JModelica
-   Measure <- "Model Editor"
+   Measure -> "Schematic Editor": getInstanceAST()
+   "Schematic Editor" -> JModelica: getInstanceAST()
+   "Schematic Editor" <- JModelica
+   Measure <- "Schematic Editor"
    |||
    Measure -> Measure: searchParameter()
    Measure -> Measure: validate()
@@ -220,200 +469,10 @@ The sequence diagram for this as shown in :numref:`fig_use_case_os_zones`.
        end
 
        Measure -> Measure: getCodeSnippet()
-       Measure -> "Model Editor": setValue()
+       Measure -> "Schematic Editor": setValue()
 
    end
 
 
 
 
-Modelica Buildings Library Integration in OpenStudio
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-This use case describes how to synchronize the Modelica library with its
-OpenStudio representation. The OpenStudio representation will be used
-for integrating OpenStudio measures, and other OpenStudio code
-that interacts with the Modelica representation such as the graphical
-editor. The problem being addressed is that the Modelica library is frequently
-updated, and we want to have *one* representation of the model connectors,
-parameters, documenation and graphical layout.
-
-
-===========================  ===================================================
-**Use case name**            **Loading a Modelica library into OpenStudio**
-===========================  ===================================================
-Related Requirements         n/a
----------------------------  ---------------------------------------------------
-Goal in Context              Updating an OpenStudio HVAC and controls library
-                             after changes have been made to the Modelica
-                             library.
----------------------------  ---------------------------------------------------
-Preconditions                The Modelica library passes the regression tests
-                             and an AST of the OpenStudio object representation
-                             for the library already exists (otherwise
-                             it will be generated).
----------------------------  ---------------------------------------------------
-Successful End Condition     An HVAC and controls library for use in OpenStudio.
----------------------------  ---------------------------------------------------
-Failed End Condition         Library creation failed due to incompatible
-                             changes in the Modelica library that have not
-                             been confirmed to be propagated to OpenStudio.
----------------------------  ---------------------------------------------------
-Primary Actors               A software developer.
----------------------------  ---------------------------------------------------
-Secondary Actors             The Modelica Buildings library.
-
-                             The OpenStudio HVAC and controls library.
----------------------------  ---------------------------------------------------
-Trigger                      The software developer executes an update script.
----------------------------  ---------------------------------------------------
-**Main Flow**                **Action**
----------------------------  ---------------------------------------------------
-1                            The software developer runs an update script
-                             to initiate updating the OpenStudio HVAC
-                             and controls library.
----------------------------  ---------------------------------------------------
-2                            The Modelica library is parsed and an abstract
-                             syntax tree (AST) including the vendor annotations
-                             is created. (See also
-                             http://www.jmodelica.org/api-docs/usersguide/1.17.0/ch09s01.html.)
----------------------------  ---------------------------------------------------
-3                            If the AST representation of OpenStudio exists
-                             for this library, then the AST is compared
-                             with the previous AST
-                             representation to detect and report incompatible
-                             changes.
----------------------------  ---------------------------------------------------
-4                            If the AST representation of OpenStudio does
-                             not exist for this library, it is generated.
----------------------------  ---------------------------------------------------
-5                            The AST is converted to OpenStudio object
-                             models.
----------------------------  ---------------------------------------------------
-**Extensions**
----------------------------  ---------------------------------------------------
-5.1                          OpenStudio integration tests are run.
-===========================  ===================================================
-
-The sequence diagram for this as shown in :numref:`fig_use_case_loading_modelica_lib`.
-
-.. _fig_use_case_loading_modelica_lib:
-
-.. uml::
-   :caption: Loading a Modelica library into OpenStudio.
-
-   title Apply OS measure to set of models.
-
-   "Update Script" -> JModelica: getInstanceAST()
-   JModelica -> "Modelica Library": getInstanceAST()
-   JModelica <- "Modelica Library"
-   "Update Script" <- JModelica
-   |||
-   "Update Script" -> "OpenStudio Library": getInstanceAST()
-   "Update Script" <- "OpenStudio Library"
-
-   alt no OpenStudio Library has been populated
-     "Update Script" -> "OpenStudio Library": createLibrary()
-   else Update the existing library
-     "Update Script" -> "Update Script" : validate()
-     alt incompatible changes exist
-       "Update Script" -> "Update Script" : reportIncompatibilities()
-       alt accept incompatible changes
-         "Update Script" -> "OpenStudio Library": createLibrary()
-       end
-     end
-   end
-
-
-
-HVAC System Modeling in OpenStudio
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-This use case describes how to build an HVAC system in OpenStudio
-which uses component models of the Modelica Buildings library.
-
-
-===========================  ===================================================
-**Use case name**            **Modeling a boiler plant in OpenStudio**
-===========================  ===================================================
-Related Requirements         n/a
----------------------------  ---------------------------------------------------
-Goal in Context              A user wants to model a boiler plant in OpenStudio
-                             using component models of the Buildings library,
-                             and optionally connect it to pre-configured
-                             air handler unit from the OpenStudio library.
----------------------------  ---------------------------------------------------
-Preconditions                Component models of the boiler pant
-                             exist as OpenStudio and Modelica models.
-
-                             Measures for converting
-                             the OpenStudio models to Modelica models exist.
----------------------------  ---------------------------------------------------
-Successful End Condition     An AHU for use in OpenStudio.
----------------------------  ---------------------------------------------------
-Failed End Condition         Conversion from OpenStudio component model to
-                             Modelica model failed because of non-existence
-                             of corresponding Modelica model.
----------------------------  ---------------------------------------------------
-Primary Actors               An end user.
----------------------------  ---------------------------------------------------
-Secondary Actors             The Modelica Buildings library.
-
-                             The OpenStudio HVAC and controls library.
----------------------------  ---------------------------------------------------
-Trigger                      The user drags and drops component models of an
-                             HVAC system.
----------------------------  ---------------------------------------------------
-**Main Flow**                **Action**
----------------------------  ---------------------------------------------------
-1                            The user open the OpenStudio GUI and selects the
-                             SOEP mode.
----------------------------  ---------------------------------------------------
-2                            The OpenStudio GUI shows an HVAC and controls
-                             library for which Modelica components exist.
----------------------------  ---------------------------------------------------
-3                            The user drags and drops OpenStudio component
-                             models for an AHU (fan, heating and cooling coils,
-                             dampers, etc.) from the OpenStudio HVAC library
-                             into the schematic editor.
----------------------------  ---------------------------------------------------
-4                            As a component is dropped into the editor,
-                             code is generated that specifies the component
-                             location. For example, dropping a boiler generates
-                             code such
-                             as ``Buildings.Fluid.Boilers.BoilerPolynomial
-                             boi "Boiler"
-                             annotation (Placement(
-                             transformation(extent={{-10,0},{10,20}})));``
----------------------------  ---------------------------------------------------
-5                            The user sets the efficiency of the boiler by
-                             double-clicking on its icon, which changes the
-                             above declaration
-                             to ``Buildings.Fluid.Boilers.BoilerPolynomial boi(
-                             eta = 0.9) "Boiler"
-                             annotation (Placement(
-                             transformation(extent={{-10,0},{10,20}})));``
----------------------------  ---------------------------------------------------
-6                            The user connects the inlet to a boiler to a
-                             temperature sensor (which has previously been placed
-                             and given the name `temSen`) by drawing a line
-                             between its ports. This generates the
-                             code ``connect(senTem.port_b, boi.port_a)
-                             annotation (Line(points={{-10,0},{0,0},{0,10}}));``
----------------------------  ---------------------------------------------------
-**Extensions**
----------------------------  ---------------------------------------------------
-7                            To connect the boiler to the air handler unit,
-                             the user drags a complete air handler unit
-                             into the schematic editor.
----------------------------  ---------------------------------------------------
-8                            The editor asks whether the components should be
-                             instantiated as a component (displaying
-                             its Modelica icon and hence its structure can only
-                             be changed by changing the library), or
-                             exploded so that all its top-level components are
-                             instantiated and hence can be modified.
----------------------------  ---------------------------------------------------
-9                            The user connects the boiler output to the
-                             air handler heating coil inlets as in Step 6
-===========================  ===================================================

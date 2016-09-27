@@ -85,6 +85,7 @@
 <li class="toctree-l1"><a class="reference internal" href="conventions.html">2. Conventions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="useCases.html">3. Use Cases</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="useCases.html#openstudio-integration">3.1. OpenStudio Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="useCases.html#measures">3.2. Measures</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="requirements.html">4. Requirements</a><ul>
@@ -171,34 +172,70 @@ The figure indicates an application which may be an
 equipment sales tool that uses an open, or a proprietary,
 Modelica model library of their product line, which allows
 a sales person to test and size equipment for a particular customer.</p>
+<p>The <cite>HVAC Systems Editor</cite> allows drag and drop of components
+from the <cite>Model Library</cite>,
+similar to what can be done in today&#8217;s OS schematic editor.
+In contrast, the <cite>Schematic Editor</cite> allows to freely place
+and graphically connect Modelica components.
+Once models have been manipulated in the
+<cite>Schematic Editor</cite>, OS can only simulate them, but not apply
+OS Measures to it, as models may have become incompatible
+with the OS Measures. (This could in the future be changed
+by iterating through a Modelica model instance.)</p>
+<p>In the <cite>Schematic Editor</cite>, user-provided Modelica libraries
+can be loaded (for example, if a company has their own
+control sequence library), manipulated and stored again
+in the user-provided Modelica library. This functionality is also
+needed for the OpenBuildingControl project.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Whether the <cite>Conversion Script</cite> and the <cite>Schematic Editor</cite>
+access <cite>JModelica</cite> to get the AST, or whether they read
+the AST from <cite>Modelica Library AST</cite> does not affect
+the functionality.</p>
+</div>
 <div class="figure" id="id1">
 <span id="fig-overall-software-architecture"></span><p class="plantuml">
-<object data="_images/plantuml-888db26805df5dd790f362e2b9bc7bf9b035361e.svg" type="image/svg+xml" style="width:950px;height:974px;">
-<img src="_images/plantuml-888db26805df5dd790f362e2b9bc7bf9b035361e.png" alt="title Overall software architecture
+<object data="_images/plantuml-170df2715f54f4e8cd55df0e46baa107ed4b561d.svg" type="image/svg+xml" style="width:991px;height:1326px;">
+<img src="_images/plantuml-170df2715f54f4e8cd55df0e46baa107ed4b561d.png" alt="title Overall software architecture
 
 skinparam componentStyle uml2
 
-package SOEP {
 package OpenStudio {
 API -- [Core]
 [Core] --&gt; [Model Library]: integrates
-[Core] --&gt; [Schematic Editor]: integrates
+[Core] --&gt; [HVAC Systems Editor]: integrates
 [Core] --&gt; [Simulator Interface]: integrates
 }
 
-[Model Library] &lt;.. [Conversion Script]: augments library
+package SOEP {
+[Schematic Editor] ..&gt; [JModelica] : parses\nAST
+[HVAC Systems Editor] ..&gt; [Schematic Editor]: calls editor,\nwhich returns\n.mo file
+[Model Library] &lt;.. [Conversion Script]: augments library\nby generating C++ code
 
-[Conversion Script] ..&gt; [Modelica Library]: parses AST
-[Simulator Interface] ..&gt; [JModelica]
-[Schematic Editor] ..&gt; [JModelica]: accesses AST
-[JModelica] --&gt; [Modelica Buildings Library]: imports
+[Conversion Script] ..&gt; [JModelica]: parses\nAST
+[Simulator Interface] ..&gt; [JModelica] : runs simulation,\nreads outputs
+[HVAC Systems Editor] ..&gt; [Modelica Library AST]: reads AST
+[Modelica Library AST] &lt;.. [Conversion Script] : generates\nAST
+[JModelica] --&gt; [Modelica\nBuildings Library]: imports
 }
 [Application] ..&gt; () API : uses
 
-[JModelica] --&gt; [User-Provided Modelica Library]: imports
-[Conversion Script] ..&gt; [User-Provided Modelica Library]: parses AST
+[JModelica] --&gt; [User-Provided\nModelica Library]: imports
 
-note bottom of [User-Provided Modelica Library]
+note left of [Schematic Editor]
+  Allows free graphical editing
+  of Modelica models. However,
+  after editing, many OS Measures
+  cannot be applied anymore
+  (as models may be incompatible
+  with the Measures).
+  However, OS can still simulate
+  these models and parse their
+  outputs.
+end note
+
+note bottom of [User-Provided\nModelica Library]
   Allows companies to use
   their own Modelica libraries
   with custom HVAC systems and
@@ -209,7 +246,7 @@ note bottom of [User-Provided Modelica Library]
   sales tool.
 end note
 
-note right of OpenStudio
+note left of OpenStudio
   Not yet shown is how
   to integrate building
   model
