@@ -196,12 +196,13 @@ the functionality.</p>
 </div>
 <div class="figure" id="id1">
 <span id="fig-overall-software-architecture"></span><p class="plantuml">
-<object data="_images/plantuml-170df2715f54f4e8cd55df0e46baa107ed4b561d.svg" type="image/svg+xml" style="width:991px;height:1326px;">
-<img src="_images/plantuml-170df2715f54f4e8cd55df0e46baa107ed4b561d.png" alt="title Overall software architecture
+<object data="_images/plantuml-17ed5a30b522b5a3f723537d0c35404a08c0caf8.svg" type="image/svg+xml" style="width:897px;height:1321px;">
+<img src="_images/plantuml-17ed5a30b522b5a3f723537d0c35404a08c0caf8.png" alt="title Overall software architecture
 
 skinparam componentStyle uml2
 
 package OpenStudio {
+database &quot;Model Library&quot;
 API -- [Core]
 [Core] --&gt; [Model Library]: integrates
 [Core] --&gt; [HVAC Systems Editor]: integrates
@@ -215,12 +216,15 @@ package SOEP {
 
 [Conversion Script] ..&gt; [JModelica]: parses\nAST
 [Simulator Interface] ..&gt; [JModelica] : runs simulation,\nreads outputs
-[HVAC Systems Editor] ..&gt; [Modelica Library AST]: reads AST
-[Modelica Library AST] &lt;.. [Conversion Script] : generates\nAST
+database &quot;Modelica\nLibrary AST&quot;
+database &quot;Modelica\nBuildings Library&quot;
+[HVAC Systems Editor] ..&gt; [Modelica\nLibrary AST]: reads AST
+[Modelica\nLibrary AST] &lt;.. [Conversion Script] : generates\nAST
 [JModelica] --&gt; [Modelica\nBuildings Library]: imports
 }
 [Application] ..&gt; () API : uses
 
+database &quot;User-Provided\nModelica Library&quot;
 [JModelica] --&gt; [User-Provided\nModelica Library]: imports
 
 note left of [Schematic Editor]
