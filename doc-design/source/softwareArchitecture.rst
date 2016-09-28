@@ -45,6 +45,7 @@ needed for the OpenBuildingControl project.
    skinparam componentStyle uml2
 
    package OpenStudio {
+   database "Model Library"
    API -- [Core]
    [Core] --> [Model Library]: integrates
    [Core] --> [HVAC Systems Editor]: integrates
@@ -58,12 +59,15 @@ needed for the OpenBuildingControl project.
 
    [Conversion Script] ..> [JModelica]: parses\nAST
    [Simulator Interface] ..> [JModelica] : runs simulation,\nreads outputs
-   [HVAC Systems Editor] ..> [Modelica Library AST]: reads AST
-   [Modelica Library AST] <.. [Conversion Script] : generates\nAST
+   database "Modelica\nLibrary AST"
+   database "Modelica\nBuildings Library"
+   [HVAC Systems Editor] ..> [Modelica\nLibrary AST]: reads AST
+   [Modelica\nLibrary AST] <.. [Conversion Script] : generates\nAST
    [JModelica] --> [Modelica\nBuildings Library]: imports
    }
    [Application] ..> () API : uses
 
+   database "User-Provided\nModelica Library"
    [JModelica] --> [User-Provided\nModelica Library]: imports
 
    note left of [Schematic Editor]
