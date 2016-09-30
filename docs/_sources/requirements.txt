@@ -5,8 +5,58 @@ Requirements
 
 This section describes the functional, mathematical and software requirements.
 
-Mathematical requirements
-^^^^^^^^^^^^^^^^^^^^^^^^^
+OpenStudio integration
+^^^^^^^^^^^^^^^^^^^^^^
+
+Below is an initial list of requirements for the OpenStudio integration.
+
+#. *Measures*: OpenStudio measures and the OpenStudio editor shall work,
+   after some extensions or adaptions,
+   with models that are authored in Modelica and subsequently
+   integrated in OpenStudio.
+
+   A use case is that a design firm creates a Modelica library
+   of HVAC systems and control sequences they frequently use,
+   and want to use them with Measures and with a schematic editor
+   to adapt them for a particular project.
+
+   Another use case is that an equipment vendor makes an OpenStudio
+   application for equipment selection and sizing.
+
+#. *Opening and saving a model*:
+   It shall be possible to open in the editor a model that is declared in Modelica
+   syntax, manipulate it, and safe it again in Modelica syntax. Only items
+   that have been changed should be updated in the Modelica syntax.
+
+   A use case is that a design firm builds custom models of air handler units,
+   improves them during a project, and wants to safe the improvements in the
+   library for use in the next project. As the custom library is stored in
+   git, only the items of the model that have been manipuated shall be changed.
+
+#. *Hierarchical modeling*: The editor shall support hierarchical modeling.
+
+   A use case is that a user builds a VAV system with 50 terminal units
+   with custom control by creating a composite model of a VAV box plus
+   its controller, instantiates it 50 times, and later wants to change the
+   VAV controller once and propagate these changes to all instances.
+
+#. *Adding model inputs, outputs and ports*:
+   The editor shall allow enabling a conditional input to a model and connect
+   it to the output of another model.
+
+   A use case is that a user instantiates a weather data reader, sets
+   a parameter that enables an input signal port for the dry bulb temperature,
+   and connects this input to a temperature signal to model heat island effects.
+
+   Another use case is that a user instantiates a room controller that has
+   the measured room temperature as an input, and then
+   adds a demand response signal as an input to reset the temperature
+   setpoint based on the demand response signal.
+
+
+
+Mathematics
+^^^^^^^^^^^
 
 In SOEP, models are implemented in the form of Modelica models. These models
 may call FMUs or C-functions for certain algorithms.

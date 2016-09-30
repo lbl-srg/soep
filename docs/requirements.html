@@ -89,10 +89,11 @@
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">4. Requirements</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#mathematical-requirements">4.1. Mathematical requirements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#fmu-requirements">4.2. FMU Requirements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#qss-implementation">4.3. QSS Implementation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#master-algorithm">4.4. Master Algorithm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#openstudio-integration">4.1. OpenStudio integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mathematics">4.2. Mathematics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fmu-requirements">4.3. FMU Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#qss-implementation">4.4. QSS Implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#master-algorithm">4.5. Master Algorithm</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="softwareArchitecture.html">5. Software Architecture</a></li>
@@ -121,18 +122,19 @@
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
 <li><a class="reference internal" href="#">4. Requirements</a><ul>
-<li><a class="reference internal" href="#mathematical-requirements">4.1. Mathematical requirements</a><ul>
-<li><a class="reference internal" href="#differentiability">4.1.1. Differentiability</a></li>
-<li><a class="reference internal" href="#control-of-numerical-noise">4.1.2. Control of Numerical Noise</a></li>
+<li><a class="reference internal" href="#openstudio-integration">4.1. OpenStudio integration</a></li>
+<li><a class="reference internal" href="#mathematics">4.2. Mathematics</a><ul>
+<li><a class="reference internal" href="#differentiability">4.2.1. Differentiability</a></li>
+<li><a class="reference internal" href="#control-of-numerical-noise">4.2.2. Control of Numerical Noise</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#fmu-requirements">4.2. FMU Requirements</a><ul>
-<li><a class="reference internal" href="#fmu-capabilities">4.2.1. FMU Capabilities</a></li>
-<li><a class="reference internal" href="#interface-variables-of-fmu">4.2.2. Interface Variables of FMU</a></li>
+<li><a class="reference internal" href="#fmu-requirements">4.3. FMU Requirements</a><ul>
+<li><a class="reference internal" href="#fmu-capabilities">4.3.1. FMU Capabilities</a></li>
+<li><a class="reference internal" href="#interface-variables-of-fmu">4.3.2. Interface Variables of FMU</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#qss-implementation">4.3. QSS Implementation</a></li>
-<li><a class="reference internal" href="#master-algorithm">4.4. Master Algorithm</a></li>
+<li><a class="reference internal" href="#qss-implementation">4.4. QSS Implementation</a></li>
+<li><a class="reference internal" href="#master-algorithm">4.5. Master Algorithm</a></li>
 </ul>
 </li>
 </ul>
@@ -181,8 +183,51 @@
   <div class="section" id="requirements">
 <span id="sec-requirements"></span><h1>4. Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h1>
 <p>This section describes the functional, mathematical and software requirements.</p>
-<div class="section" id="mathematical-requirements">
-<h2>4.1. Mathematical requirements<a class="headerlink" href="#mathematical-requirements" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="openstudio-integration">
+<h2>4.1. OpenStudio integration<a class="headerlink" href="#openstudio-integration" title="Permalink to this headline">¶</a></h2>
+<p>Below is an initial list of requirements for the OpenStudio integration.</p>
+<ol class="arabic">
+<li><p class="first"><em>Measures</em>: OpenStudio measures and the OpenStudio editor shall work,
+after some extensions or adaptions,
+with models that are authored in Modelica and subsequently
+integrated in OpenStudio.</p>
+<p>A use case is that a design firm creates a Modelica library
+of HVAC systems and control sequences they frequently use,
+and want to use them with Measures and with a schematic editor
+to adapt them for a particular project.</p>
+<p>Another use case is that an equipment vendor makes an OpenStudio
+application for equipment selection and sizing.</p>
+</li>
+<li><p class="first"><em>Opening and saving a model</em>:
+It shall be possible to open in the editor a model that is declared in Modelica
+syntax, manipulate it, and safe it again in Modelica syntax. Only items
+that have been changed should be updated in the Modelica syntax.</p>
+<p>A use case is that a design firm builds custom models of air handler units,
+improves them during a project, and wants to safe the improvements in the
+library for use in the next project. As the custom library is stored in
+git, only the items of the model that have been manipuated shall be changed.</p>
+</li>
+<li><p class="first"><em>Hierarchical modeling</em>: The editor shall support hierarchical modeling.</p>
+<p>A use case is that a user builds a VAV system with 50 terminal units
+with custom control by creating a composite model of a VAV box plus
+its controller, instantiates it 50 times, and later wants to change the
+VAV controller once and propagate these changes to all instances.</p>
+</li>
+<li><p class="first"><em>Adding model inputs, outputs and ports</em>:
+The editor shall allow enabling a conditional input to a model and connect
+it to the output of another model.</p>
+<p>A use case is that a user instantiates a weather data reader, sets
+a parameter that enables an input signal port for the dry bulb temperature,
+and connects this input to a temperature signal to model heat island effects.</p>
+<p>Another use case is that a user instantiates a room controller that has
+the measured room temperature as an input, and then
+adds a demand response signal as an input to reset the temperature
+setpoint based on the demand response signal.</p>
+</li>
+</ol>
+</div>
+<div class="section" id="mathematics">
+<h2>4.2. Mathematics<a class="headerlink" href="#mathematics" title="Permalink to this headline">¶</a></h2>
 <p>In SOEP, models are implemented in the form of Modelica models. These models
 may call FMUs or C-functions for certain algorithms.
 When connecting models, differential algebraic systems of equations may be formed.
@@ -193,7 +238,7 @@ computational efficiency of the iterative solution methods.
 The next sections describe these mathematical properties that
 need to be satisfied by the model equations.</p>
 <div class="section" id="differentiability">
-<h3>4.1.1. Differentiability<a class="headerlink" href="#differentiability" title="Permalink to this headline">¶</a></h3>
+<h3>4.2.1. Differentiability<a class="headerlink" href="#differentiability" title="Permalink to this headline">¶</a></h3>
 <p>Building simulation problems can be formulated as a semi-explicit
 nonlinear DAE system with index one
 <a class="reference internal" href="index.html#brenancampbellpetzold1989" id="id1">[BCP89]</a>, coupled to the discrete variables
@@ -298,7 +343,7 @@ is sized by solving an optimization problem.</p>
 </div>
 </div>
 <div class="section" id="control-of-numerical-noise">
-<h3>4.1.2. Control of Numerical Noise<a class="headerlink" href="#control-of-numerical-noise" title="Permalink to this headline">¶</a></h3>
+<h3>4.2.2. Control of Numerical Noise<a class="headerlink" href="#control-of-numerical-noise" title="Permalink to this headline">¶</a></h3>
 <p>Evaluating the functions
 <span class="math">\(f(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)\)</span>,
 <span class="math">\(g(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)\)</span> and
@@ -335,10 +380,10 @@ algorithms <a class="reference internal" href="index.html#polakwetter2006" id="i
 </div>
 </div>
 <div class="section" id="fmu-requirements">
-<span id="sec-fmu-cap"></span><h2>4.2. FMU Requirements<a class="headerlink" href="#fmu-requirements" title="Permalink to this headline">¶</a></h2>
+<span id="sec-fmu-cap"></span><h2>4.3. FMU Requirements<a class="headerlink" href="#fmu-requirements" title="Permalink to this headline">¶</a></h2>
 <p>The FMI standard contains various properties that it declares optional to implement.</p>
 <div class="section" id="fmu-capabilities">
-<h3>4.2.1. FMU Capabilities<a class="headerlink" href="#fmu-capabilities" title="Permalink to this headline">¶</a></h3>
+<h3>4.3.1. FMU Capabilities<a class="headerlink" href="#fmu-capabilities" title="Permalink to this headline">¶</a></h3>
 <p>For computing efficiency, FMUs that are used in the SOEP must support
 the following optional properties of the FMI 2.0 standard.</p>
 <ol class="arabic simple">
@@ -397,7 +442,7 @@ and Mac OS X 64 bit.</li>
 </ol>
 </div>
 <div class="section" id="interface-variables-of-fmu">
-<h3>4.2.2. Interface Variables of FMU<a class="headerlink" href="#interface-variables-of-fmu" title="Permalink to this headline">¶</a></h3>
+<h3>4.3.2. Interface Variables of FMU<a class="headerlink" href="#interface-variables-of-fmu" title="Permalink to this headline">¶</a></h3>
 <p>The parameters, inputs, outputs and state variables of FMUs
 shall provide the following information:</p>
 <ol class="arabic simple">
@@ -417,7 +462,7 @@ in <a class="reference internal" href="index.html#wetterfuchsnouidui-2015" id="i
 </div>
 </div>
 <div class="section" id="qss-implementation">
-<h2>4.3. QSS Implementation<a class="headerlink" href="#qss-implementation" title="Permalink to this headline">¶</a></h2>
+<h2>4.4. QSS Implementation<a class="headerlink" href="#qss-implementation" title="Permalink to this headline">¶</a></h2>
 <p>This section describes the requirements for the QSS solver implementation.
 The development code for QSS is at <a class="reference external" href="https://gitlab.com/ObjexxEP/QSS/tree/master">https://gitlab.com/ObjexxEP/QSS/tree/master</a>.</p>
 <ol class="arabic simple">
@@ -437,7 +482,7 @@ If these pose a problem, we may want to avoid them at a later stage in the solve
 <p>Open question: Shall we use OpenMP or some other system?</p>
 </div>
 <div class="section" id="master-algorithm">
-<h2>4.4. Master Algorithm<a class="headerlink" href="#master-algorithm" title="Permalink to this headline">¶</a></h2>
+<h2>4.5. Master Algorithm<a class="headerlink" href="#master-algorithm" title="Permalink to this headline">¶</a></h2>
 <p><strong>This section should probably be deleted</strong></p>
 <p>The master algorithm must satisfy the following requirements:</p>
 <ol class="arabic simple">
