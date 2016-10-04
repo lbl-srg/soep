@@ -88,7 +88,7 @@
 <li class="toctree-l2"><a class="reference internal" href="useCases.html#measures">3.2. Measures</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">4. Requirements</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="">4. Requirements</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#openstudio-integration">4.1. OpenStudio integration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mathematics">4.2. Mathematics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#fmu-requirements">4.3. FMU Requirements</a></li>
@@ -187,6 +187,12 @@
 <h2>4.1. OpenStudio integration<a class="headerlink" href="#openstudio-integration" title="Permalink to this headline">¶</a></h2>
 <p>Below is an initial list of requirements for the OpenStudio integration.</p>
 <ol class="arabic">
+<li><p class="first"><em>Translation of legacy models</em>: It need not be possible to translate
+legacy OpenStudio HVAC models to SOEP.</p>
+<p>The reason is that the control semantics is too different between the
+load-based control of EnergyPlus and the control of Modelica that
+is based on measurable states such as a room temperature.</p>
+</li>
 <li><p class="first"><em>Measures</em>: OpenStudio measures and the OpenStudio editor shall work,
 after some extensions or adaptions,
 with models that are authored in Modelica and subsequently
@@ -195,7 +201,7 @@ integrated in OpenStudio.</p>
 of HVAC systems and control sequences they frequently use,
 and want to use them with Measures and with a schematic editor
 to adapt them for a particular project.</p>
-<p>Another use case is that an equipment vendor makes an OpenStudio
+<p>Another use case is that an equipment vendor creates an OpenStudio
 application for equipment selection and sizing.</p>
 </li>
 <li><p class="first"><em>Opening and saving a model</em>:
@@ -205,7 +211,7 @@ that have been changed should be updated in the Modelica syntax.</p>
 <p>A use case is that a design firm builds custom models of air handler units,
 improves them during a project, and wants to safe the improvements in the
 library for use in the next project. As the custom library is stored in
-git, only the items of the model that have been manipuated shall be changed.</p>
+git, only the items of the model that have been manipulated should be changed.</p>
 </li>
 <li><p class="first"><em>Hierarchical modeling</em>: The editor shall support hierarchical modeling.</p>
 <p>A use case is that a user builds a VAV system with 50 terminal units
@@ -223,6 +229,13 @@ and connects this input to a temperature signal to model heat island effects.</p
 the measured room temperature as an input, and then
 adds a demand response signal as an input to reset the temperature
 setpoint based on the demand response signal.</p>
+</li>
+<li><p class="first"><em>Typed ports</em>:
+To support Modelica-type connections such as Real, Integer or Boolean
+control signals, and fluid ports, the OpenStudio HVAC editor
+shall have typed ports.</p>
+<p>A use case is that connecting a control output to a fluid port
+shall be rejected by the OpenStudio model and the graphical editor.</p>
 </li>
 </ol>
 </div>
@@ -533,7 +546,7 @@ Linux 32/64 bit, and Mac OS X 64 bit.</li>
     </p>
     <p>
         &copy; Copyright (c) All rights reserved.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.3.<br/>
     </p>
   </div>
 </footer>

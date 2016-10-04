@@ -10,6 +10,13 @@ OpenStudio integration
 
 Below is an initial list of requirements for the OpenStudio integration.
 
+#. *Translation of legacy models*: It need not be possible to translate
+   legacy OpenStudio HVAC models to SOEP.
+
+   The reason is that the control semantics is too different between the
+   load-based control of EnergyPlus and the control of Modelica that
+   is based on measurable states such as a room temperature.
+
 #. *Measures*: OpenStudio measures and the OpenStudio editor shall work,
    after some extensions or adaptions,
    with models that are authored in Modelica and subsequently
@@ -20,7 +27,7 @@ Below is an initial list of requirements for the OpenStudio integration.
    and want to use them with Measures and with a schematic editor
    to adapt them for a particular project.
 
-   Another use case is that an equipment vendor makes an OpenStudio
+   Another use case is that an equipment vendor creates an OpenStudio
    application for equipment selection and sizing.
 
 #. *Opening and saving a model*:
@@ -31,7 +38,7 @@ Below is an initial list of requirements for the OpenStudio integration.
    A use case is that a design firm builds custom models of air handler units,
    improves them during a project, and wants to safe the improvements in the
    library for use in the next project. As the custom library is stored in
-   git, only the items of the model that have been manipuated shall be changed.
+   git, only the items of the model that have been manipulated should be changed.
 
 #. *Hierarchical modeling*: The editor shall support hierarchical modeling.
 
@@ -53,6 +60,13 @@ Below is an initial list of requirements for the OpenStudio integration.
    adds a demand response signal as an input to reset the temperature
    setpoint based on the demand response signal.
 
+#. *Typed ports*:
+   To support Modelica-type connections such as Real, Integer or Boolean
+   control signals, and fluid ports, the OpenStudio HVAC editor
+   shall have typed ports.
+
+   A use case is that connecting a control output to a fluid port
+   shall be rejected by the OpenStudio model and the graphical editor.
 
 
 Mathematics

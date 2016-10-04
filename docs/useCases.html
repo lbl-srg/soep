@@ -83,16 +83,17 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="conventions.html">2. Conventions</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">3. Use Cases</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="">3. Use Cases</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#openstudio-integration">3.1. OpenStudio Integration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#measures">3.2. Measures</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="requirements.html">4. Requirements</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="requirements.html#mathematical-requirements">4.1. Mathematical requirements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="requirements.html#fmu-requirements">4.2. FMU Requirements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="requirements.html#qss-implementation">4.3. QSS Implementation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="requirements.html#master-algorithm">4.4. Master Algorithm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="requirements.html#openstudio-integration">4.1. OpenStudio integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="requirements.html#mathematics">4.2. Mathematics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="requirements.html#fmu-requirements">4.3. FMU Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="requirements.html#qss-implementation">4.4. QSS Implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="requirements.html#master-algorithm">4.5. Master Algorithm</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="softwareArchitecture.html">5. Software Architecture</a></li>
@@ -184,18 +185,21 @@ through OpenStudio, and use cases for developers of SOEP.</p>
 <cite>HVAC System Editor</cite>, the <cite>Schematic Editor</cite>.
 This terminology is the same as is used in the
 software architecture diagram
-<a class="reference internal" href="softwareArchitecture.html#fig-overall-software-architecture"><span class="std std-numref">Fig. 5.1</span></a>.</p>
+<code class="xref std std-numref docutils literal"><span class="pre">fig_overall_software_architecture</span></code>.</p>
 <div class="section" id="openstudio-integration">
 <h2>3.1. OpenStudio Integration<a class="headerlink" href="#openstudio-integration" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="modelica-buildings-library-integration-in-openstudio">
 <h3>3.1.1. Modelica Buildings library integration in OpenStudio<a class="headerlink" href="#modelica-buildings-library-integration-in-openstudio" title="Permalink to this headline">¶</a></h3>
-<p>This use case describes how to synchronize the Modelica library with its
-OpenStudio representation. The OpenStudio representation will be used
+<p>This use case describes how to synchronize the Modelica library with
+the data structure used by the OpenStudio Model Library.
+The OpenStudio Model Library will be used
 for integrating OpenStudio measures, and other OpenStudio code
-that interacts with the Modelica representation such as the graphical
-editor. The problem being addressed is that the Modelica library is frequently
-updated, and we want to have <em>one</em> representation of the model connectors,
-parameters, documenation and graphical layout.</p>
+such as its graphical editor that interacts with the Modelica models.
+The problem being addressed is that the Modelica library is frequently
+updated, and we want to have <em>one</em> representation of the connectors,
+parameters, documenation and graphical layout of the models, and
+also check for potential incompatible model changes during the development
+of the Modelica Library.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="29%" />
@@ -281,10 +285,10 @@ models.</td>
 </tr>
 </tbody>
 </table>
-<p>The sequence diagram for this as shown in <a class="reference internal" href="#fig-use-case-loading-modelica-lib"><span class="std std-numref">Fig. 3.1</span></a>.</p>
+<p>The sequence diagram for this as shown in <a class="reference internal" href="#fig-use-case-loading-modelica-lib"><span>Fig. 3.1</span></a>.</p>
 <div class="figure" id="id1">
 <span id="fig-use-case-loading-modelica-lib"></span><p class="plantuml">
-<object data="_images/plantuml-6a937a736e42d51510f4cb16a224f25736f18733.svg" type="image/svg+xml" style="width:772px;height:534px;">
+<object data="_images/plantuml-6a937a736e42d51510f4cb16a224f25736f18733.svg" type="image/svg+xml" style="width:766px;height:532px;">
 <img src="_images/plantuml-6a937a736e42d51510f4cb16a224f25736f18733.png" alt="title Updating an OpenStudio Model Library.
 
 &quot;Conversion Script&quot; -&gt; &quot;JModelica&quot;: getInstanceAST()
@@ -316,6 +320,13 @@ end" />
 <p>This use case describes how to instantiate an AHU with
 pre-configured control sequence in OpenStudio,
 and then customize the control sequence.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The use case assumes two graphical editors for HVAC systems.
+Ideally, we would combine them into one graphical editor. Whether this
+is feasible will depend on the modeling support that the refactored
+OpenStudio <cite>HVAC System Editor</cite> will provide.</p>
+</div>
 <table border="1" class="docutils">
 <colgroup>
 <col width="35%" />
@@ -332,12 +343,12 @@ and then customize the control sequence.</p>
 </tr>
 <tr class="row-odd"><td>Goal in Context</td>
 <td>A user wants to model an AHU in OpenStudio
-using component models of OpenStudio Model library,
-and add custom control.</td>
+using component models of the
+OpenStudio Model Library, and add custom control.</td>
 </tr>
 <tr class="row-even"><td>Preconditions</td>
 <td><p class="first">Preconfigured system model of the AHU
-exist in the OS Model Library.</p>
+exist in the OpenStudio Model Library.</p>
 <p class="last">Controls component exist in the Modelica Buildings
 library.</p>
 </td>
@@ -409,29 +420,35 @@ Modelica class such as
 <span class="pre">transformation(extent={{-10,0},{10,20}})));</span></code></td>
 </tr>
 <tr class="row-odd"><td>9</td>
+<td>The user adds a new control sensor input, changes
+a control input/output block, and connects
+the new control sensor input to the new control
+input/output block.</td>
+</tr>
+<tr class="row-even"><td>10</td>
 <td>As the <code class="docutils literal"><span class="pre">Custom.ControlVAV</span></code> has an additional
 sensor input, the user connects this sensor input
 in the <cite>HVAC Systems Editor</cite> to an output
 of a model.</td>
 </tr>
-<tr class="row-even"><td><strong>Extensions</strong></td>
+<tr class="row-odd"><td><strong>Extensions</strong></td>
 <td>&nbsp;</td>
 </tr>
-<tr class="row-odd"><td>5.1</td>
+<tr class="row-even"><td>5.1</td>
 <td>Rather than selecting a single component for
 editing in the <cite>Schematic Editor</cite>, a user
-could select multiple OS components (that are
-connected), and they would then be grouped
-to form one Modelica model. The grouping
+could select multiple OpenStudio components
+(that are connected), and they would then
+be grouped to form one Modelica model. The grouping
 would essentially consist of writing <code class="docutils literal"><span class="pre">connect</span></code>
 statements between the ports of the components.</td>
 </tr>
 </tbody>
 </table>
-<p>The sequence diagram for this as shown in <a class="reference internal" href="#fig-use-case-custom-control"><span class="std std-numref">Fig. 3.2</span></a>.</p>
+<p>The sequence diagram for this as shown in <a class="reference internal" href="#fig-use-case-custom-control"><span>Fig. 3.2</span></a>.</p>
 <div class="figure" id="id2">
 <span id="fig-use-case-custom-control"></span><p class="plantuml">
-<object data="_images/plantuml-32c3dae6e74c4db3386eb0aa5d3636f4b5e19ddc.svg" type="image/svg+xml" style="width:783px;height:550px;">
+<object data="_images/plantuml-32c3dae6e74c4db3386eb0aa5d3636f4b5e19ddc.svg" type="image/svg+xml" style="width:779px;height:548px;">
 <img src="_images/plantuml-32c3dae6e74c4db3386eb0aa5d3636f4b5e19ddc.png" alt="title Modeling of an AHU with custom control
 
 &quot;User&quot; -&gt; &quot;HVAC System Editor&quot; : setSOEPMode()
@@ -457,7 +474,7 @@ statements between the ports of the components.</td>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Getting the new inputs and outputs of <code class="docutils literal"><span class="pre">Custom/ControlVAV.mo</span></code> requires
-parsing the file, which would be easiest if JModelica would be invoked
+parsing its AST, which would be easiest if JModelica would be invoked
 to get the AST.</p>
 </div>
 </div>
@@ -479,7 +496,7 @@ uses the OpenStudio <cite>Model Library</cite> only.</p>
 <h3>3.2.1. Simple parameter assignment<a class="headerlink" href="#simple-parameter-assignment" title="Permalink to this headline">¶</a></h3>
 <p>An example which requires changes to a single parameters of the model is to
 set in a Modelica model of the form</p>
-<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="o">...</span>
+<div class="highlight-modelica"><div class="highlight"><pre><span class="o">...</span>
 <span class="kr">parameter</span> <span class="nb">Real</span> <span class="n">eta</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">=</span> <span class="mf">0.8</span> <span class="s2">&quot;Boiler efficiency&quot;</span><span class="p">;</span>
 <span class="o">...</span>
 </pre></div>
@@ -493,7 +510,7 @@ set in a Modelica model of the form</p>
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head"><strong>Use case name</strong></th>
-<th class="head"><strong>Apply OS measure to a single parameter</strong></th>
+<th class="head"><strong>Apply OpenStudio measure to a single parameter</strong></th>
 </tr>
 </thead>
 <tbody valign="top">
@@ -502,7 +519,7 @@ set in a Modelica model of the form</p>
 </tr>
 <tr class="row-odd"><td>Goal in Context</td>
 <td>A user wants to modify a parameter in a model
-from an OS measure.</td>
+from an OpenStudio measure.</td>
 </tr>
 <tr class="row-even"><td>Preconditions</td>
 <td>A Modelica model that has been edited in the
@@ -565,34 +582,34 @@ assignment looks like
 </tr>
 </tbody>
 </table>
-<p>The sequence diagram for this as shown in <a class="reference internal" href="#fig-use-case-os-single-par"><span class="std std-numref">Fig. 3.3</span></a>.</p>
+<p>The sequence diagram for this as shown in <a class="reference internal" href="#fig-use-case-os-single-par"><span>Fig. 3.3</span></a>.</p>
 <div class="figure" id="id3">
 <span id="fig-use-case-os-single-par"></span><p class="plantuml">
-<object data="_images/plantuml-7b9080ea7fee66d0d54a218e9767f090efa20933.svg" type="image/svg+xml" style="width:365px;height:428px;">
-<img src="_images/plantuml-7b9080ea7fee66d0d54a218e9767f090efa20933.png" alt="title Apply OS measure to a single parameter
+<object data="_images/plantuml-02f22226618f80a29bf1c769b07c552da92eba3d.svg" type="image/svg+xml" style="width:409px;height:426px;">
+<img src="_images/plantuml-02f22226618f80a29bf1c769b07c552da92eba3d.png" alt="title Apply OpenStudio measure to a single parameter
 
-Measure -&gt; &quot;Schematic Editor&quot;: getInstanceAST()
-&quot;Schematic Editor&quot; -&gt; JModelica: getInstanceAST()
-&quot;Schematic Editor&quot; &lt;- JModelica
-Measure &lt;- &quot;Schematic Editor&quot;
+Measure -&gt; &quot;OpenStudio Model Library&quot;: getInstanceAST()
+&quot;OpenStudio Model Library&quot; -&gt; JModelica: getInstanceAST()
+&quot;OpenStudio Model Library&quot; &lt;- JModelica
+Measure &lt;- &quot;OpenStudio Model Library&quot;
 |||
 Measure -&gt; Measure: searchParameter()
 Measure -&gt; Measure: validate()
 alt found parameter
-  Measure -&gt; &quot;Schematic Editor&quot;: setValue()
+  Measure -&gt; &quot;OpenStudio Model Library&quot;: setValue()
 else
   Measure -&gt; Measure: reportError()
 end" />
 
 </object></p>
-<p class="caption"><span class="caption-number">Fig. 3.3 </span>: Applying an OS measure to a single parameter.<a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 3.3 </span>: Applying an OpenStudio measure to a single parameter.<a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
 </div>
 </div>
 <div class="section" id="changes-to-multiple-parts-of-the-modelica-model">
 <h3>3.2.2. Changes to multiple parts of the Modelica model<a class="headerlink" href="#changes-to-multiple-parts-of-the-modelica-model" title="Permalink to this headline">¶</a></h3>
 <p>An example which requires changes to multiple parts of the model is the following
 measure.</p>
-<div class="highlight-ruby"><div class="highlight"><pre><span></span><span class="n">new_lights_def</span> <span class="o">=</span> <span class="no">OpenStudio</span><span class="o">::</span><span class="no">Model</span><span class="o">::</span><span class="no">LightsDefinition</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<div class="highlight-ruby"><div class="highlight"><pre><span class="n">new_lights_def</span> <span class="o">=</span> <span class="no">OpenStudio</span><span class="o">::</span><span class="no">Model</span><span class="o">::</span><span class="no">LightsDefinition</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
 <span class="n">new_lights_def</span><span class="o">.</span><span class="n">setWattsperSpaceFloorArea</span><span class="p">(</span><span class="mi">10</span><span class="o">.</span><span class="mi">0</span><span class="p">)</span>
 <span class="n">new_lights_def</span><span class="o">.</span><span class="n">setName</span><span class="p">(</span><span class="s2">&quot;10 W/m^2 Lights Definition&quot;</span><span class="p">)</span>
 
@@ -615,7 +632,7 @@ measure.</p>
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head"><strong>Use case name</strong></th>
-<th class="head"><strong>Apply OS measure to set of models</strong></th>
+<th class="head"><strong>Apply OpenStudio measure to set of models</strong></th>
 </tr>
 </thead>
 <tbody valign="top">
@@ -691,16 +708,16 @@ Modelica <code class="docutils literal"><span class="pre">record</span></code>).
 </tr>
 </tbody>
 </table>
-<p>The sequence diagram for this as shown in <a class="reference internal" href="#fig-use-case-os-zones"><span class="std std-numref">Fig. 3.4</span></a>.</p>
+<p>The sequence diagram for this as shown in <a class="reference internal" href="#fig-use-case-os-zones"><span>Fig. 3.4</span></a>.</p>
 <div class="figure" id="id4">
 <span id="fig-use-case-os-zones"></span><p class="plantuml">
-<object data="_images/plantuml-8461171cba8a68ef391af319ed44aeed301a47c1.svg" type="image/svg+xml" style="width:591px;height:586px;">
-<img src="_images/plantuml-8461171cba8a68ef391af319ed44aeed301a47c1.png" alt="title Apply OS measure to set of models.
+<object data="_images/plantuml-e8d39531bc5d098b2f65a8ea507b08db5dbe89e3.svg" type="image/svg+xml" style="width:605px;height:584px;">
+<img src="_images/plantuml-e8d39531bc5d098b2f65a8ea507b08db5dbe89e3.png" alt="title Apply OpenStudio measure to set of models.
 
-Measure -&gt; &quot;Schematic Editor&quot;: getInstanceAST()
-&quot;Schematic Editor&quot; -&gt; JModelica: getInstanceAST()
-&quot;Schematic Editor&quot; &lt;- JModelica
-Measure &lt;- &quot;Schematic Editor&quot;
+Measure -&gt; &quot;OpenStudio Model Library&quot;: getInstanceAST()
+&quot;OpenStudio Model Library&quot; -&gt; JModelica: getInstanceAST()
+&quot;OpenStudio Model Library&quot; &lt;- JModelica
+Measure &lt;- &quot;OpenStudio Model Library&quot;
 |||
 Measure -&gt; Measure: searchParameter()
 Measure -&gt; Measure: validate()
@@ -720,12 +737,12 @@ else
     end
 
     Measure -&gt; Measure: getCodeSnippet()
-    Measure -&gt; &quot;Schematic Editor&quot;: setValue()
+    Measure -&gt; &quot;OpenStudio Model Library&quot;: setValue()
 
 end" />
 
 </object></p>
-<p class="caption"><span class="caption-number">Fig. 3.4 </span>: Applying an OS measure to a set of models.<a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 3.4 </span>: Applying an OpenStudio measure to a set of models.<a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
 </div>
 </div>
 </div>
@@ -748,7 +765,7 @@ end" />
     </p>
     <p>
         &copy; Copyright (c) All rights reserved.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.3.<br/>
     </p>
   </div>
 </footer>

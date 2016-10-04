@@ -89,13 +89,14 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="requirements.html">4. Requirements</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="requirements.html#mathematical-requirements">4.1. Mathematical requirements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="requirements.html#fmu-requirements">4.2. FMU Requirements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="requirements.html#qss-implementation">4.3. QSS Implementation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="requirements.html#master-algorithm">4.4. Master Algorithm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="requirements.html#openstudio-integration">4.1. OpenStudio integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="requirements.html#mathematics">4.2. Mathematics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="requirements.html#fmu-requirements">4.3. FMU Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="requirements.html#qss-implementation">4.4. QSS Implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="requirements.html#master-algorithm">4.5. Master Algorithm</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">5. Software Architecture</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">5. Software Architecture</a></li>
 <li class="toctree-l1"><a class="reference internal" href="numericalMethods.html">6. Numerical Methods of the Master Algorithm</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="numericalMethods.html#time-integration">6.1. Time Integration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="numericalMethods.html#algebraic-loops">6.2. Algebraic Loops</a></li>
@@ -166,9 +167,12 @@
       
   <div class="section" id="software-architecture">
 <span id="sec-soft-arch"></span><h1>5. Software Architecture<a class="headerlink" href="#software-architecture" title="Permalink to this headline">¶</a></h1>
-<p><a class="reference internal" href="#fig-overall-software-architecture"><span class="std std-numref">Fig. 5.1</span></a> shows the overall
-software architecture of SOEP.
-The figure indicates an application which may be an
+<p><a class="reference internal" href="#fig-overall-software-architecture-one-editor"><span>Fig. 5.2</span></a>
+and
+<a class="reference internal" href="#fig-overall-software-architecture-two-editors"><span>Fig. 5.1</span></a> show the overall
+software architecture of SOEP, either with one or with two
+HVAC and control editors.</p>
+<p>The <cite>Application</cite> on top of the figure may be an
 equipment sales tool that uses an open, or a proprietary,
 Modelica model library of their product line, which allows
 a sales person to test and size equipment for a particular customer.</p>
@@ -181,53 +185,101 @@ Once models have been manipulated in the
 <cite>Schematic Editor</cite>, OS can only simulate them, but not apply
 OS Measures to it, as models may have become incompatible
 with the OS Measures. (This could in the future be changed
-by iterating through a Modelica model instance.)</p>
+by parsing the AST of the model.)</p>
 <p>In the <cite>Schematic Editor</cite>, user-provided Modelica libraries
 can be loaded (for example, if a company has their own
 control sequence library), manipulated and stored again
 in the user-provided Modelica library. This functionality is also
 needed for the OpenBuildingControl project.</p>
+<p>Currently, the OpenStudio Model Library is compiled C++ code.
+Our integration either generates C++ code that would need to
+compiled which a C++ compiler, or the OpenStudio Model Library
+could be changed to allow dynamic loading of models for
+the SOEP mode.
+Note that the JModelica distribution includes a C++ compiler.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Whether the <cite>Conversion Script</cite> and the <cite>Schematic Editor</cite>
+<ol class="last arabic simple">
+<li>Whether the <cite>Conversion Script</cite> and the <cite>Schematic Editor</cite>
 access <cite>JModelica</cite> to get the AST, or whether they read
 the AST from <cite>Modelica Library AST</cite> does not affect
-the functionality.</p>
+the functionality, but it affects the architecture.
+In <a class="reference internal" href="#fig-overall-software-architecture-two-editors"><span>Fig. 5.1</span></a>
+we show the architecture if the <cite>Modelica Library AST</cite> is parsed
+directly using JModelica rather than storing it in a file.</li>
+<li>The architecture shows two graphical editors for HVAC systems.
+Ideally, we would combine them into one graphical editor. Whether this
+is feasible will depend on the modeling support that the refactored
+OpenStudio <cite>HVAC System Editor</cite> will provide.</li>
+</ol>
 </div>
 <div class="figure" id="id1">
-<span id="fig-overall-software-architecture"></span><p class="plantuml">
-<object data="_images/plantuml-17ed5a30b522b5a3f723537d0c35404a08c0caf8.svg" type="image/svg+xml" style="width:897px;height:1321px;">
-<img src="_images/plantuml-17ed5a30b522b5a3f723537d0c35404a08c0caf8.png" alt="title Overall software architecture
+<span id="fig-overall-software-architecture-two-editors"></span><p class="plantuml">
+<object data="_images/plantuml-c8963f20cd7708a4bf970274d543e411bed62bfd.svg" type="image/svg+xml" style="width:2080px;height:1556px;">
+<img src="_images/plantuml-c8963f20cd7708a4bf970274d543e411bed62bfd.png" alt="title Overall software architecture (with two editors for the SOEP mode).
 
 skinparam componentStyle uml2
 
 package OpenStudio {
-database &quot;Model Library&quot;
+interface API
 API -- [Core]
-[Core] --&gt; [Model Library]: integrates
-[Core] --&gt; [HVAC Systems Editor]: integrates
-[Core] --&gt; [Simulator Interface]: integrates
+package Legacy-Mode {
+database &quot;Legacy\nModel Library&quot;
+[Core] --&gt; [Legacy\nModel Library]: integrates
+[Core] --&gt; [HVAC Systems Editor\n(Legacy Mode)]: integrates
+[Core] --&gt; [EnergyPlus\nSimulator Interface]: integrates
+}
+
+package SOEP-Mode {
+database &quot;SOEP\nModel Library&quot;
+[Core] --&gt; [SOEP\nModel Library]: integrates
+[Core] --&gt; [HVAC Systems Editor\n(SOEP Mode)]: integrates
+[Core] --&gt; [SOEP\nSimulator Interface]: integrates
+}
+}
+
+actor Developer as epdev
+[Legacy\nModel Library] &lt;.. epdev : updates
+
+EnergyPlus &lt;.. [EnergyPlus\nSimulator Interface]: writes inputs,\nruns simulation,\nreads outputs
+package EnergyPlus {
+  [in.idf] -&gt; [EnergyPlus.exe]
+  [EnergyPlus.exe] -&gt; [eplusout.sql]
 }
 
 package SOEP {
 [Schematic Editor] ..&gt; [JModelica] : parses\nAST
-[HVAC Systems Editor] ..&gt; [Schematic Editor]: calls editor,\nwhich returns\n.mo file
-[Model Library] &lt;.. [Conversion Script]: augments library\nby generating C++ code
+[HVAC Systems Editor\n(SOEP Mode)] ..&gt; [Schematic Editor]: calls editor,\nwhich returns\n.mo file
+[SOEP\nModel Library] &lt;.. [Conversion Script]: augments library\nby generating C++ code
 
 [Conversion Script] ..&gt; [JModelica]: parses\nAST
-[Simulator Interface] ..&gt; [JModelica] : runs simulation,\nreads outputs
+[SOEP\nSimulator Interface] ..&gt; [JModelica] : writes inputs,\nruns simulation,\nreads outputs
 database &quot;Modelica\nLibrary AST&quot;
 database &quot;Modelica\nBuildings Library&quot;
-[HVAC Systems Editor] ..&gt; [Modelica\nLibrary AST]: reads AST
+[HVAC Systems Editor\n(SOEP Mode)] ..&gt; [Modelica\nLibrary AST]: reads AST
 [Modelica\nLibrary AST] &lt;.. [Conversion Script] : generates\nAST
 [JModelica] --&gt; [Modelica\nBuildings Library]: imports
 }
+
+actor &quot;Developer or User&quot; as modev
+[Conversion Script] &lt;.. modev : invokes
+
+actor Developer as budev
+[Modelica\nBuildings Library] &lt;.. budev : adds annotations
+
+actor User as mouse
+[User-Provided\nModelica Library] &lt;.. mouse : adds annotations
+
+
 [Application] ..&gt; () API : uses
+[Measures] ..&gt; () API : uses
 
 database &quot;User-Provided\nModelica Library&quot;
 [JModelica] --&gt; [User-Provided\nModelica Library]: imports
 
-note left of [Schematic Editor]
+
+
+note right of [Schematic Editor]
   Allows free graphical editing
   of Modelica models. However,
   after editing, many OS Measures
@@ -251,9 +303,9 @@ note bottom of [User-Provided\nModelica Library]
 end note
 
 note left of OpenStudio
-  Not yet shown is how
-  to integrate building
-  model
+  Not yet shown is
+  how to integrate
+  the building model.
 end note
 
 note right of Application
@@ -262,7 +314,108 @@ note right of Application
 end note" />
 
 </object></p>
-<p class="caption"><span class="caption-number">Fig. 5.1 </span>: Overall software architecture.<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 5.1 </span>: Overall software architecture (with two editors for the SOEP mode).<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</div>
+<div class="figure" id="id2">
+<span id="fig-overall-software-architecture-one-editor"></span><p class="plantuml">
+<object data="_images/plantuml-b2d675841ab2353e60ec3b719497fffef00a2ee2.svg" type="image/svg+xml" style="width:2067px;height:1409px;">
+<img src="_images/plantuml-b2d675841ab2353e60ec3b719497fffef00a2ee2.png" alt="title Overall software architecture (with one editor for the SOEP mode).
+
+skinparam componentStyle uml2
+
+package OpenStudio {
+interface API
+API -- [Core]
+
+package Legacy-Mode {
+database &quot;Legacy\nModel Library&quot;
+[Core] --&gt; [Legacy\nModel Library]: integrates
+[Core] --&gt; [HVAC Systems Editor\n(Legacy Mode)]: integrates
+[Core] --&gt; [EnergyPlus\nSimulator Interface]: integrates
+}
+
+package SOEP-Mode {
+database &quot;SOEP\nModel Library&quot;
+[Core] --&gt; [SOEP\nModel Library]: integrates
+[Core] --&gt; [HVAC Systems Editor\n(SOEP Mode)]: integrates
+[Core] --&gt; [SOEP\nSimulator Interface]: integrates
+}
+}
+
+actor Developer as epdev
+[Legacy\nModel Library] &lt;.. epdev : updates
+
+EnergyPlus &lt;.. [EnergyPlus\nSimulator Interface]: writes inputs,\nruns simulation,\nreads outputs
+package EnergyPlus {
+  [in.idf] -&gt; [EnergyPlus.exe]
+  [EnergyPlus.exe] -&gt; [eplusout.sql]
+}
+
+package SOEP {
+[HVAC Systems Editor\n(SOEP Mode)] ..&gt; [JModelica] : parses\nAST
+[SOEP\nModel Library] &lt;.. [Conversion Script]: augments library\nby generating C++ code
+
+[Conversion Script] ..&gt; [JModelica]: parses\nAST
+[SOEP\nSimulator Interface] ..&gt; [JModelica] : writes inputs,\nruns simulation,\nreads outputs
+database &quot;Modelica\nLibrary AST&quot;
+database &quot;Modelica\nBuildings Library&quot;
+[JModelica] --&gt; [Modelica\nBuildings Library]: imports
+}
+
+actor &quot;Developer or User&quot; as modev
+[Conversion Script] &lt;.. modev : invokes
+
+actor Developer as budev
+[Modelica\nBuildings Library] &lt;.. budev : adds annotations
+
+actor User as mouse
+[User-Provided\nModelica Library] &lt;.. mouse : adds annotations
+
+
+[Application] ..&gt; () API : uses
+[Measures] ..&gt; () API : uses
+
+database &quot;User-Provided\nModelica Library&quot;
+[JModelica] --&gt; [User-Provided\nModelica Library]: imports
+
+
+
+note right of [HVAC Systems Editor\n(SOEP Mode)]
+  Allows free graphical editing
+  of Modelica models. However,
+  after editing, many OS Measures
+  cannot be applied anymore
+  (as models may be incompatible
+  with the Measures).
+  However, OS can still simulate
+  these models and parse their
+  outputs.
+end note
+
+note bottom of [User-Provided\nModelica Library]
+  Allows companies to use
+  their own Modelica libraries
+  with custom HVAC systems and
+  control sequences, or
+  to integrate an electronic
+  equipment catalog or a
+  library used for an equipment
+  sales tool.
+end note
+
+note left of OpenStudio
+  Not yet shown is
+  how to integrate
+  the building model.
+end note
+
+note right of Application
+  Application that uses
+  the OpenStudio SDK.
+end note" />
+
+</object></p>
+<p class="caption"><span class="caption-number">Fig. 5.2 </span>: Overall software architecture (with one editor for the SOEP mode).<a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </div>
 <p><strong>fixme: more design to be added</strong></p>
 </div>
@@ -284,7 +437,7 @@ end note" />
     </p>
     <p>
         &copy; Copyright (c) All rights reserved.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.3.<br/>
     </p>
   </div>
 </footer>

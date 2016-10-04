@@ -10,6 +10,8 @@ TMP          := $(shell mktemp -u /tmp/sphinx.XXXXXX)
 # Bitbucket user name
 BITUSR        = $(USER)
 
+found=${shell java -jar source/plantuml.jar -testdot | grep -c 'Installation seems OK. File generation OK'}
+
 #PYTHONPATH=`pwd`/..
 
 # Internal variables.
@@ -56,7 +58,7 @@ html:
 	@echo
 	@echo "Build finished. The HTML pages are in ../docs"
 
-latex: 
+latex:	test_installation 
 	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
 	@echo
 	@echo "Build finished; the LaTeX files are in $(BUILDDIR)/latex."
@@ -65,7 +67,11 @@ latex:
 	./fixLatex.py
 	(cd $(BUILDDIR)/latex; make all-pdf)
 
-
+test_installation:
+ifneq "$(found)" "1"
+	@echo "*** Error: plantuml does not pass configuration test. Run 'java -jar source/plantuml.jar -testdot'"
+	exit 1
+endif
 
 dirhtml:
 	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) $(BUILDDIR)/dirhtml

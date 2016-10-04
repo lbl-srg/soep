@@ -4,9 +4,9 @@ Preample
 Purpose of the Document
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-This document describes the software requirements for the Spawn of EnergyPlus (SOEP) software
-and its implementation.
-As of September 2016, the main requirements pertain to the software
+This document describes the software requirements 
+and implementation of the Spawn of EnergyPlus (SOEP).
+As of October 2016, the main requirements pertain to the software
 implementation and mathematical capabilities.
 Requirements for the physical and control models will be added later.
 

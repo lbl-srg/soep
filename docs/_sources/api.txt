@@ -20,7 +20,7 @@ models or libraries and integrate them in an OpenStudio
 graphical model editor.
 
 A solution for declaring information that is needed to
-integrate Modelica models with the OpenStudio Model library
+integrate Modelica models with the OpenStudio `Model Library`
 this is to use so-called
 vendor annotations [#ven_ann]_ in the Modelica code,
 and encode in these vendor annotations the information required
@@ -72,10 +72,10 @@ could be generated.
 
 .. rubric:: Footnotes
 
-.. [#ven_ann]    Vendor annotations are annotations in the Modelica code that are
+.. [#ven_ann]    A vendor annotation is an annotation in the Modelica code that is
                  typically ignored by Modelica tools other than the tool from
-                 the vendor who introduced the vendor annotation.
-                 They allow augmenting the code with information
+                 the vendor who introduced it.
+                 Vendor annotations allow augmenting the code with information
                  that are processed by a particular tool,
                  in our case by EnergyPlus and OpenStudio.
 

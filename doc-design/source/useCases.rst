@@ -20,13 +20,16 @@ OpenStudio Integration
 Modelica Buildings library integration in OpenStudio
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This use case describes how to synchronize the Modelica library with its
-OpenStudio representation. The OpenStudio representation will be used
+This use case describes how to synchronize the Modelica library with
+the data structure used by the OpenStudio Model Library.
+The OpenStudio Model Library will be used
 for integrating OpenStudio measures, and other OpenStudio code
-that interacts with the Modelica representation such as the graphical
-editor. The problem being addressed is that the Modelica library is frequently
-updated, and we want to have *one* representation of the model connectors,
-parameters, documenation and graphical layout.
+such as its graphical editor that interacts with the Modelica models.
+The problem being addressed is that the Modelica library is frequently
+updated, and we want to have *one* representation of the connectors,
+parameters, documenation and graphical layout of the models, and
+also check for potential incompatible model changes during the development
+of the Modelica Library.
 
 
 ===========================  ===================================================
@@ -128,6 +131,12 @@ This use case describes how to instantiate an AHU with
 pre-configured control sequence in OpenStudio,
 and then customize the control sequence.
 
+.. note::
+
+   The use case assumes two graphical editors for HVAC systems.
+   Ideally, we would combine them into one graphical editor. Whether this
+   is feasible will depend on the modeling support that the refactored
+   OpenStudio `HVAC System Editor` will provide.
 
 ===========================  ===================================================
 **Use case name**            **Modeling of an AHU with custom control**
@@ -135,11 +144,11 @@ and then customize the control sequence.
 Related Requirements         n/a
 ---------------------------  ---------------------------------------------------
 Goal in Context              A user wants to model an AHU in OpenStudio
-                             using component models of OpenStudio Model library,
-                             and add custom control.
+                             using component models of the
+                             OpenStudio Model Library, and add custom control.
 ---------------------------  ---------------------------------------------------
 Preconditions                Preconfigured system model of the AHU
-                             exist in the OS Model Library.
+                             exist in the OpenStudio Model Library.
 
                              Controls component exist in the Modelica Buildings
                              library.
@@ -196,7 +205,12 @@ Trigger                      The user drags and drops an AHU model with
                              annotation (Placement(
                              transformation(extent={{-10,0},{10,20}})));``
 ---------------------------  ---------------------------------------------------
-9                            As the ``Custom.ControlVAV`` has an additional
+9                            The user adds a new control sensor input, changes
+                             a control input/output block, and connects
+                             the new control sensor input to the new control
+                             input/output block.
+---------------------------  ---------------------------------------------------
+10                           As the ``Custom.ControlVAV`` has an additional
                              sensor input, the user connects this sensor input
                              in the `HVAC Systems Editor` to an output
                              of a model.
@@ -205,9 +219,9 @@ Trigger                      The user drags and drops an AHU model with
 ---------------------------  ---------------------------------------------------
 5.1                          Rather than selecting a single component for
                              editing in the `Schematic Editor`, a user
-                             could select multiple OS components (that are
-                             connected), and they would then be grouped
-                             to form one Modelica model. The grouping
+                             could select multiple OpenStudio components
+                             (that are connected), and they would then
+                             be grouped to form one Modelica model. The grouping
                              would essentially consist of writing ``connect``
                              statements between the ports of the components.
 ===========================  ===================================================
@@ -242,7 +256,7 @@ The sequence diagram for this as shown in :numref:`fig_use_case_custom_control`.
 .. note::
 
    Getting the new inputs and outputs of ``Custom/ControlVAV.mo`` requires
-   parsing the file, which would be easiest if JModelica would be invoked
+   parsing its AST, which would be easiest if JModelica would be invoked
    to get the AST.
 
 Measures
@@ -278,12 +292,12 @@ the top-level parameter for the boiler efficiency :math:`\eta = 0.9`.
 The use case description is as follows:
 
 ===========================  ===================================================
-**Use case name**            **Apply OS measure to a single parameter**
+**Use case name**            **Apply OpenStudio measure to a single parameter**
 ===========================  ===================================================
 Related Requirements         n/a
 ---------------------------  ---------------------------------------------------
 Goal in Context              A user wants to modify a parameter in a model
-                             from an OS measure.
+                             from an OpenStudio measure.
 ---------------------------  ---------------------------------------------------
 Preconditions                A Modelica model that has been edited in the
                              SOEP `Schematic Editor`.
@@ -337,19 +351,19 @@ The sequence diagram for this as shown in :numref:`fig_use_case_os_single_par`.
 .. _fig_use_case_os_single_par:
 
 .. uml::
-   :caption: Applying an OS measure to a single parameter.
+   :caption: Applying an OpenStudio measure to a single parameter.
 
-   title Apply OS measure to a single parameter
+   title Apply OpenStudio measure to a single parameter
 
-   Measure -> "Schematic Editor": getInstanceAST()
-   "Schematic Editor" -> JModelica: getInstanceAST()
-   "Schematic Editor" <- JModelica
-   Measure <- "Schematic Editor"
+   Measure -> "OpenStudio Model Library": getInstanceAST()
+   "OpenStudio Model Library" -> JModelica: getInstanceAST()
+   "OpenStudio Model Library" <- JModelica
+   Measure <- "OpenStudio Model Library"
    |||
    Measure -> Measure: searchParameter()
    Measure -> Measure: validate()
    alt found parameter
-     Measure -> "Schematic Editor": setValue()
+     Measure -> "OpenStudio Model Library": setValue()
    else
      Measure -> Measure: reportError()
    end
@@ -380,7 +394,7 @@ measure.
 The use case description is as follows:
 
 ===========================  ===================================================
-**Use case name**            **Apply OS measure to set of models**
+**Use case name**            **Apply OpenStudio measure to set of models**
 ===========================  ===================================================
 Related Requirements         n/a
 ---------------------------  ---------------------------------------------------
@@ -442,14 +456,14 @@ The sequence diagram for this as shown in :numref:`fig_use_case_os_zones`.
 .. _fig_use_case_os_zones:
 
 .. uml::
-   :caption: Applying an OS measure to a set of models.
+   :caption: Applying an OpenStudio measure to a set of models.
 
-   title Apply OS measure to set of models.
+   title Apply OpenStudio measure to set of models.
 
-   Measure -> "Schematic Editor": getInstanceAST()
-   "Schematic Editor" -> JModelica: getInstanceAST()
-   "Schematic Editor" <- JModelica
-   Measure <- "Schematic Editor"
+   Measure -> "OpenStudio Model Library": getInstanceAST()
+   "OpenStudio Model Library" -> JModelica: getInstanceAST()
+   "OpenStudio Model Library" <- JModelica
+   Measure <- "OpenStudio Model Library"
    |||
    Measure -> Measure: searchParameter()
    Measure -> Measure: validate()
@@ -469,7 +483,7 @@ The sequence diagram for this as shown in :numref:`fig_use_case_os_zones`.
        end
 
        Measure -> Measure: getCodeSnippet()
-       Measure -> "Schematic Editor": setValue()
+       Measure -> "OpenStudio Model Library": setValue()
 
    end
 
