@@ -360,7 +360,9 @@ shall provide the following information:
    is allowed to attain.
 
 Note that a container for exporting HVAC components as an FMU is described
-in :cite:`WetterFuchsNouidui:2015`.
+in :cite:`WetterFuchsNouidui:2015`, and the Modelica Buildings library
+development version contains a revised package `Buildings.Fluid.FMI` that
+allows exporting HVAC systems and thermal zones.
 
 QSS Implementation
 ^^^^^^^^^^^^^^^^^^
