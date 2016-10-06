@@ -3,6 +3,9 @@
 Software Architecture
 ---------------------
 
+OpenStudio integration
+^^^^^^^^^^^^^^^^^^^^^^
+
 :numref:`fig_overall_software_architecture_one_editor`
 and 
 :numref:`fig_overall_software_architecture_two_editors` show the overall
@@ -265,3 +268,107 @@ Note that the JModelica distribution includes a C++ compiler.
 
 
 **fixme: more design to be added**
+
+
+JModelica Integration
+^^^^^^^^^^^^^^^^^^^^^
+
+This section describes the integration of the QSS solver in JModelica.
+For this discussion, we consider a system of initial value ODEs of the form
+
+.. math::
+   :label: eqn_ini_val
+
+   \dot x(t) & = f(x(t), d(t), u(t), t), \\
+   y(t)      & = g(x(t), u(t), t), \\
+   0         & = z(x(t), u(t), t, d(t)), \\
+   x(0)      & = x(0),
+
+where :math:`x(\cdot)` is the vector of continuous state variables,
+:math:`d(\cdot)` is a discrete variable,
+:math:`u(\cdot)` is an external input,
+:math:`f(\cdot, \cdot, \cdot, \cdot)` is the derivative function,
+:math:`g(\cdot, \cdot, \cdot, \cdot)` is the output function,
+:math:`z(\cdot, \cdot, \cdot)` is the zero crossing function and
+:math:`d(t)` is a discrete state. For example, for a thermostat,
+:math:`d(t) \in \{0, \, 1\}` depending on the controlled temperature.
+
+Because we anticipate that the FMU can have
+direct feed-through from the input
+:math:`u(t)` to the output :math:`y(t)`, we use
+FMI for Model-Exchange (FMI-ME) version 2.0, because the Co-Simulation
+standard does not allow a zero time step size as needed for direct feed-through.
+
+
+The QSS solvers require the derivatives shown in :numref:`tab_qss_der`.
+
+.. _tab_qss_der:
+
+.. table:: Derivatives required by QSS algorithms. One asteriks indicates
+           that they are provided by FMI-ME 2.0, and two asteriks indicate
+           that they can optionally be computed exactly if directional
+           derivative are provided by the FMU. 
+           The others cannot be provided through the FMI API.
+           
+
+   +-------------+-----------------------------------------------------------+-----------------------------------------------------+
+   | Type of QSS | State derivative                                          | Zero crossing function derivative                   |
+   +=============+===========================================================+=====================================================+
+   | QSS1        | :math:`dx/dt` *                                           | :math:`dz/dt`                                       |
+   +-------------+-----------------------------------------------------------+-----------------------------------------------------+
+   | QSS2        | :math:`dx/dt` * , :math:`d^2x/dt^2` **                    | :math:`dz/dt` , :math:`d^2z/dt^2`                   |
+   +-------------+-----------------------------------------------------------+-----------------------------------------------------+
+   | QSS3        | :math:`dx/dt` * , :math:`d^2x/dt^2` ** , :math:`d^3x/dt^3`| :math:`dz/dt` , :math:`d^2z/dt^2`, :math:`d^3z/dt^3`|
+   +-------------+-----------------------------------------------------------+-----------------------------------------------------+
+
+
+Because the FMI API does not provide access to many required derivatives,
+and to avoid having to numerically approximate derivatives,
+we will implement the QSS solver with the generated C code
+when creating the FMU. This leads to the suggested software architecture
+shown in :numref:`fig_sof_arc_qss_jmod`. For simplicity the figure only
+shows single FMUs, but we anticipated having multiple interconnected FMUs.
+
+.. _fig_sof_arc_qss_jmod:
+
+.. uml::
+   :caption: Software architecture for QSS integration with JModelica.
+
+   title Software architecture for QSS integration with JModelica
+
+   skinparam componentStyle uml2
+
+   [FMU-ME] as FMU_QSS
+
+   package Optimica {
+   [QSS library] as qss_lib
+   qss_lib    --> [JModelica compiler]
+   }
+
+   [Modelica model] --> [JModelica compiler]
+
+   [JModelica compiler] -> FMU_QSS
+
+   package PyFMI {
+   [Master algorithm] -> FMU_QSS : "inputs, time"
+   [Master algorithm] <- FMU_QSS : "next event time"
+   [Master algorithm] -- [Sundials]
+   }
+
+   [Sundials] --> [FMU-ME] : "(x, t)"
+   [Sundials] <-- [FMU-ME] : "dx/dt"
+   [Master algorithm] --> [FMU-CS] : "hRequested"
+   [Master algorithm] <-- [FMU-CS] : "(x, hMax)"
+
+
+   note left of FMU_QSS
+      FMU-ME 2.0 API, sends
+      next event time, but
+      exposes no state derivatives
+   end note
+      
+.. note::
+
+   We still need to design how to handle algebraic loops inside the FMU
+   (see also Cellier's and Kofman's book) and algebraic loops that 
+   cross multiple FMUs.
