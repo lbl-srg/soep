@@ -455,8 +455,8 @@ standard does not allow a zero time step size as needed for direct feed-through.
 <table border="1" class="docutils" id="id3">
 <span id="tab-qss-der"></span><caption><span class="caption-number">Table 5.1 </span><span class="caption-text">Derivatives required by QSS algorithms. One asteriks indicates
         that they are provided by FMI-ME 2.0, and two asteriks indicate
-        that they can optionally be computed exactly if the attribute
-        <cite>providesDirectionalDerivative</cite> is <cite>true</cite>.
+        that they can optionally be computed exactly if directional
+        derivative are provided by the FMU.
         The others cannot be provided through the FMI API.</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col width="10%" />
@@ -489,11 +489,11 @@ and to avoid having to numerically approximate derivatives,
 we will implement the QSS solver with the generated C code
 when creating the FMU. This leads to the suggested software architecture
 shown in <a class="reference internal" href="#fig-sof-arc-qss-jmod"><span class="std std-numref">Fig. 5.3</span></a>. For simplicity the figure only
-shows single FMUs, but we anticipated having multiple FMUs.</p>
+shows single FMUs, but we anticipated having multiple interconnected FMUs.</p>
 <div class="figure" id="id4">
 <span id="fig-sof-arc-qss-jmod"></span><p class="plantuml">
-<object data="_images/plantuml-8546a5c74f94485de3a561ed0a0eec9bf4249f01.svg" type="image/svg+xml" style="width:878px;height:526px;">
-<img src="_images/plantuml-8546a5c74f94485de3a561ed0a0eec9bf4249f01.png" alt="title Software architecture for QSS integration with JModelica
+<object data="_images/plantuml-e4838197400c94eb25612e824cf5cca0721e246a.svg" type="image/svg+xml" style="width:830px;height:526px;">
+<img src="_images/plantuml-e4838197400c94eb25612e824cf5cca0721e246a.png" alt="title Software architecture for QSS integration with JModelica
 
 skinparam componentStyle uml2
 
@@ -509,7 +509,7 @@ qss_lib    --&gt; [JModelica compiler]
 [JModelica compiler] -&gt; FMU_QSS
 
 package PyFMI {
-[Master algorithm] -&gt; FMU_QSS : &quot;states, inputs, time&quot;
+[Master algorithm] -&gt; FMU_QSS : &quot;inputs, time&quot;
 [Master algorithm] &lt;- FMU_QSS : &quot;next event time&quot;
 [Master algorithm] -- [Sundials]
 }
