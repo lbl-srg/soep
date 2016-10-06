@@ -306,19 +306,20 @@ The QSS solvers require the derivatives shown in :numref:`tab_qss_der`.
 
 .. table:: Derivatives required by QSS algorithms. One asteriks indicates
            that they are provided by FMI-ME 2.0, and two asteriks indicate
-           that they can optionally be provided by FMI-ME 2.0. The others
-           cannot be provided through the FMI API.
+           that they can optionally be computed exactly if directional
+           derivative are provided by the FMU. 
+           The others cannot be provided through the FMI API.
            
 
-   +-------------+----------------------+-----------------------------------+
-   | Type of QSS | State derivative     | Zero crossing function derivative |
-   +=============+======================+===================================+
-   | QSS1        | :math:`dx/dt` *      | :math:`dz/dt`                     |
-   +-------------+----------------------+-----------------------------------+
-   | QSS2        | :math:`d^2x/dt^2` ** | :math:`d^2x/dt^2`                 |
-   +-------------+----------------------+-----------------------------------+
-   | QSS3        | :math:`d^3x/dt^3`    | :math:`d^3x/dt^3`                 |
-   +-------------+----------------------+-----------------------------------+
+   +-------------+-----------------------------------------------------------+-----------------------------------------------------+
+   | Type of QSS | State derivative                                          | Zero crossing function derivative                   |
+   +=============+===========================================================+=====================================================+
+   | QSS1        | :math:`dx/dt` *                                           | :math:`dz/dt`                                       |
+   +-------------+-----------------------------------------------------------+-----------------------------------------------------+
+   | QSS2        | :math:`dx/dt` * , :math:`d^2x/dt^2` **                    | :math:`dz/dt` , :math:`d^2z/dt^2`                   |
+   +-------------+-----------------------------------------------------------+-----------------------------------------------------+
+   | QSS3        | :math:`dx/dt` * , :math:`d^2x/dt^2` ** , :math:`d^3x/dt^3`| :math:`dz/dt` , :math:`d^2z/dt^2`, :math:`d^3z/dt^3`|
+   +-------------+-----------------------------------------------------------+-----------------------------------------------------+
 
 
 Because the FMI API does not provide access to many required derivatives,
