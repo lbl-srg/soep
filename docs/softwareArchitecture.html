@@ -96,7 +96,11 @@
 <li class="toctree-l2"><a class="reference internal" href="requirements.html#master-algorithm">4.5. Master Algorithm</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">5. Software Architecture</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">5. Software Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#openstudio-integration">5.1. OpenStudio integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#jmodelica-integration">5.2. JModelica Integration</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="numericalMethods.html">6. Numerical Methods of the Master Algorithm</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="numericalMethods.html#time-integration">6.1. Time Integration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="numericalMethods.html#algebraic-loops">6.2. Algebraic Loops</a></li>
@@ -121,7 +125,11 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">5. Software Architecture</a></li>
+<li><a class="reference internal" href="#">5. Software Architecture</a><ul>
+<li><a class="reference internal" href="#openstudio-integration">5.1. OpenStudio integration</a></li>
+<li><a class="reference internal" href="#jmodelica-integration">5.2. JModelica Integration</a></li>
+</ul>
+</li>
 </ul>
 </ul>
 </li>
@@ -167,6 +175,8 @@
       
   <div class="section" id="software-architecture">
 <span id="sec-soft-arch"></span><h1>5. Software Architecture<a class="headerlink" href="#software-architecture" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="openstudio-integration">
+<h2>5.1. OpenStudio integration<a class="headerlink" href="#openstudio-integration" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference internal" href="#fig-overall-software-architecture-one-editor"><span>Fig. 5.2</span></a>
 and
 <a class="reference internal" href="#fig-overall-software-architecture-two-editors"><span>Fig. 5.1</span></a> show the overall
@@ -418,6 +428,113 @@ end note" />
 <p class="caption"><span class="caption-number">Fig. 5.2 </span>: Overall software architecture (with one editor for the SOEP mode).<a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </div>
 <p><strong>fixme: more design to be added</strong></p>
+</div>
+<div class="section" id="jmodelica-integration">
+<h2>5.2. JModelica Integration<a class="headerlink" href="#jmodelica-integration" title="Permalink to this headline">¶</a></h2>
+<p>This section describes the integration of the QSS solver in JModelica.
+For this discussion, we consider a system of initial value ODEs of the form</p>
+<div class="math" id="equation-eqn_ini_val">
+<span class="eqno">(1)</span>\[\begin{split}\dot x(t) &amp; = f(x(t), d(t), u(t), t), \\
+y(t)      &amp; = g(x(t), u(t), t), \\
+0         &amp; = z(x(t), u(t), t, d(t)), \\
+x(0)      &amp; = x(0),\end{split}\]</div>
+<p>where <span class="math">\(x(\cdot)\)</span> is the vector of continuous state variables,
+<span class="math">\(d(\cdot)\)</span> is a discrete variable,
+<span class="math">\(u(\cdot)\)</span> is an external input,
+<span class="math">\(f(\cdot, \cdot, \cdot, \cdot)\)</span> is the derivative function,
+<span class="math">\(g(\cdot, \cdot, \cdot, \cdot)\)</span> is the output function,
+<span class="math">\(z(\cdot, \cdot, \cdot)\)</span> is the zero crossing function and
+<span class="math">\(d(t)\)</span> is a discrete state. For example, for a thermostat,
+<span class="math">\(d(t) \in \{0, \, 1\}\)</span> depending on the controlled temperature.</p>
+<p>Because we anticipate that the FMU can have
+direct feed-through from the input
+<span class="math">\(u(t)\)</span> to the output <span class="math">\(y(t)\)</span>, we use
+FMI for Model-Exchange (FMI-ME) version 2.0, because the Co-Simulation
+standard does not allow a zero time step size as needed for direct feed-through.</p>
+<p>The QSS solvers require the derivatives shown in <a class="reference internal" href="#tab-qss-der"><span>Table 5.1</span></a>.</p>
+<table border="1" class="docutils" id="id3">
+<span id="tab-qss-der"></span><caption><span class="caption-number">Table 5.1 </span><span class="caption-text">Derivatives required by QSS algorithms. One asteriks indicates
+        that they are provided by FMI-ME 2.0, and two asteriks indicate
+        that they can optionally be provided by FMI-ME 2.0. The others
+        cannot be provided through the FMI API.</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="19%" />
+<col width="31%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Type of QSS</th>
+<th class="head">State derivative</th>
+<th class="head">Zero crossing function derivative</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>QSS1</td>
+<td><span class="math">\(dx/dt\)</span> *</td>
+<td><span class="math">\(dz/dt\)</span></td>
+</tr>
+<tr class="row-odd"><td>QSS2</td>
+<td><span class="math">\(d^2x/dt^2\)</span> **</td>
+<td><span class="math">\(d^2x/dt^2\)</span></td>
+</tr>
+<tr class="row-even"><td>QSS3</td>
+<td><span class="math">\(d^3x/dt^3\)</span></td>
+<td><span class="math">\(d^3x/dt^3\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Because the FMI API does not provide access to many required derivatives,
+and to avoid having to numerically approximate derivatives,
+we will implement the QSS solver with the generated C code
+when creating the FMU. This leads to the suggested software architecture
+shown in <a class="reference internal" href="#fig-sof-arc-qss-jmod"><span>Fig. 5.3</span></a>. For simplicity the figure only
+shows single FMUs, but we anticipated having multiple FMUs.</p>
+<div class="figure" id="id4">
+<span id="fig-sof-arc-qss-jmod"></span><p class="plantuml">
+<object data="_images/plantuml-8546a5c74f94485de3a561ed0a0eec9bf4249f01.svg" type="image/svg+xml" style="width:878px;height:526px;">
+<img src="_images/plantuml-8546a5c74f94485de3a561ed0a0eec9bf4249f01.png" alt="title Software architecture for QSS integration with JModelica
+
+skinparam componentStyle uml2
+
+[FMU-ME] as FMU_QSS
+
+package Optimica {
+[QSS library] as qss_lib
+qss_lib    --&gt; [JModelica compiler]
+}
+
+[Modelica model] --&gt; [JModelica compiler]
+
+[JModelica compiler] -&gt; FMU_QSS
+
+package PyFMI {
+[Master algorithm] -&gt; FMU_QSS : &quot;states, inputs, time&quot;
+[Master algorithm] &lt;- FMU_QSS : &quot;next event time&quot;
+[Master algorithm] -- [Sundials]
+}
+
+[Sundials] --&gt; [FMU-ME] : &quot;(x, t)&quot;
+[Sundials] &lt;-- [FMU-ME] : &quot;dx/dt&quot;
+[Master algorithm] --&gt; [FMU-CS] : &quot;hRequested&quot;
+[Master algorithm] &lt;-- [FMU-CS] : &quot;(x, hMax)&quot;
+
+
+note left of FMU_QSS
+   FMU-ME 2.0 API, sends
+   next event time, but
+   exposes no state derivatives
+end note" />
+
+</object></p>
+<p class="caption"><span class="caption-number">Fig. 5.3 </span>: Software architecture for QSS integration with JModelica.<a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">We still need to design how to handle algebraic loops inside the FMU
+(see also Cellier&#8217;s and Kofman&#8217;s book) and algebraic loops that
+cross multiple FMUs.</p>
+</div>
+</div>
 </div>
 
 
