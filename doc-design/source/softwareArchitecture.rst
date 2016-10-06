@@ -327,7 +327,7 @@ and to avoid having to numerically approximate derivatives,
 we will implement the QSS solver with the generated C code
 when creating the FMU. This leads to the suggested software architecture
 shown in :numref:`fig_sof_arc_qss_jmod`. For simplicity the figure only
-shows single FMUs, but we anticipated having multiple FMUs.
+shows single FMUs, but we anticipated having multiple interconnected FMUs.
 
 .. _fig_sof_arc_qss_jmod:
 
@@ -350,7 +350,7 @@ shows single FMUs, but we anticipated having multiple FMUs.
    [JModelica compiler] -> FMU_QSS
 
    package PyFMI {
-   [Master algorithm] -> FMU_QSS : "states, inputs, time"
+   [Master algorithm] -> FMU_QSS : "inputs, time"
    [Master algorithm] <- FMU_QSS : "next event time"
    [Master algorithm] -- [Sundials]
    }
