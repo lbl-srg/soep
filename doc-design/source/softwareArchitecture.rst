@@ -282,7 +282,7 @@ For this discussion, we consider a system of initial value ODEs of the form
    \dot x(t) & = f(x(t), d(t), u(t), t), \\
    y(t)      & = g(x(t), u(t), t), \\
    0         & = z(x(t), u(t), t, d(t)), \\
-   x(0)      & = x(0),
+   x(0)      & = x_0,
 
 where :math:`x(\cdot)` is the vector of continuous state variables,
 :math:`d(\cdot)` is a discrete variable,
