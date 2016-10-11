@@ -96,7 +96,7 @@
 <li class="toctree-l2"><a class="reference internal" href="requirements.html#master-algorithm">4.5. Master Algorithm</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">5. Software Architecture</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="">5. Software Architecture</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#openstudio-integration">5.1. OpenStudio integration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#jmodelica-integration">5.2. JModelica Integration</a></li>
 </ul>
@@ -177,9 +177,9 @@
 <span id="sec-soft-arch"></span><h1>5. Software Architecture<a class="headerlink" href="#software-architecture" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="openstudio-integration">
 <h2>5.1. OpenStudio integration<a class="headerlink" href="#openstudio-integration" title="Permalink to this headline">¶</a></h2>
-<p><a class="reference internal" href="#fig-overall-software-architecture-one-editor"><span class="std std-numref">Fig. 5.2</span></a>
+<p><a class="reference internal" href="#fig-overall-software-architecture-one-editor"><span>Fig. 5.2</span></a>
 and
-<a class="reference internal" href="#fig-overall-software-architecture-two-editors"><span class="std std-numref">Fig. 5.1</span></a> show the overall
+<a class="reference internal" href="#fig-overall-software-architecture-two-editors"><span>Fig. 5.1</span></a> show the overall
 software architecture of SOEP, either with one or with two
 HVAC and control editors.</p>
 <p>The <cite>Application</cite> on top of the figure may be an
@@ -214,7 +214,7 @@ Note that the JModelica distribution includes a C++ compiler.</p>
 access <cite>JModelica</cite> to get the AST, or whether they read
 the AST from <cite>Modelica Library AST</cite> does not affect
 the functionality, but it affects the architecture.
-In <a class="reference internal" href="#fig-overall-software-architecture-two-editors"><span class="std std-numref">Fig. 5.1</span></a>
+In <a class="reference internal" href="#fig-overall-software-architecture-two-editors"><span>Fig. 5.1</span></a>
 we show the architecture if the <cite>Modelica Library AST</cite> is parsed
 directly using JModelica rather than storing it in a file.</li>
 <li>The architecture shows two graphical editors for HVAC systems.
@@ -451,7 +451,7 @@ direct feed-through from the input
 <span class="math">\(u(t)\)</span> to the output <span class="math">\(y(t)\)</span>, we use
 FMI for Model-Exchange (FMI-ME) version 2.0, because the Co-Simulation
 standard does not allow a zero time step size as needed for direct feed-through.</p>
-<p>The QSS solvers require the derivatives shown in <a class="reference internal" href="#tab-qss-der"><span class="std std-numref">Table 5.1</span></a>.</p>
+<p>The QSS solvers require the derivatives shown in <a class="reference internal" href="#tab-qss-der"><span>Table 5.1</span></a>.</p>
 <table border="1" class="docutils" id="id3">
 <span id="tab-qss-der"></span><caption><span class="caption-number">Table 5.1 </span><span class="caption-text">Derivatives required by QSS algorithms. One asteriks indicates
         that they are provided by FMI-ME 2.0, and two asteriks indicate
@@ -488,7 +488,7 @@ standard does not allow a zero time step size as needed for direct feed-through.
 and to avoid having to numerically approximate derivatives,
 we will implement the QSS solver with the generated C code
 when creating the FMU. This leads to the suggested software architecture
-shown in <a class="reference internal" href="#fig-sof-arc-qss-jmod"><span class="std std-numref">Fig. 5.3</span></a>. For simplicity the figure only
+shown in <a class="reference internal" href="#fig-sof-arc-qss-jmod"><span>Fig. 5.3</span></a>. For simplicity the figure only
 shows single FMUs, but we anticipated having multiple interconnected FMUs.</p>
 <div class="figure" id="id4">
 <span id="fig-sof-arc-qss-jmod"></span><p class="plantuml">
@@ -555,7 +555,7 @@ cross multiple FMUs.</p>
     </p>
     <p>
         &copy; Copyright (c) All rights reserved.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.3.<br/>
     </p>
   </div>
 </footer>

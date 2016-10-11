@@ -83,7 +83,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="conventions.html">2. Conventions</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">3. Use Cases</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="">3. Use Cases</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#openstudio-integration">3.1. OpenStudio Integration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#measures">3.2. Measures</a></li>
 </ul>
@@ -289,7 +289,7 @@ models.</td>
 </tr>
 </tbody>
 </table>
-<p>The sequence diagram for this as shown in <a class="reference internal" href="#fig-use-case-loading-modelica-lib"><span class="std std-numref">Fig. 3.1</span></a>.</p>
+<p>The sequence diagram for this as shown in <a class="reference internal" href="#fig-use-case-loading-modelica-lib"><span>Fig. 3.1</span></a>.</p>
 <div class="figure" id="id1">
 <span id="fig-use-case-loading-modelica-lib"></span><p class="plantuml">
 <object data="_images/plantuml-6a937a736e42d51510f4cb16a224f25736f18733.svg" type="image/svg+xml" style="width:766px;height:532px;">
@@ -449,7 +449,7 @@ statements between the ports of the components.</td>
 </tr>
 </tbody>
 </table>
-<p>The sequence diagram for this as shown in <a class="reference internal" href="#fig-use-case-custom-control"><span class="std std-numref">Fig. 3.2</span></a>.</p>
+<p>The sequence diagram for this as shown in <a class="reference internal" href="#fig-use-case-custom-control"><span>Fig. 3.2</span></a>.</p>
 <div class="figure" id="id2">
 <span id="fig-use-case-custom-control"></span><p class="plantuml">
 <object data="_images/plantuml-32c3dae6e74c4db3386eb0aa5d3636f4b5e19ddc.svg" type="image/svg+xml" style="width:779px;height:548px;">
@@ -500,7 +500,7 @@ uses the OpenStudio <cite>Model Library</cite> only.</p>
 <h3>3.2.1. Simple parameter assignment<a class="headerlink" href="#simple-parameter-assignment" title="Permalink to this headline">¶</a></h3>
 <p>An example which requires changes to a single parameters of the model is to
 set in a Modelica model of the form</p>
-<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="o">...</span>
+<div class="highlight-modelica"><div class="highlight"><pre><span class="o">...</span>
 <span class="kr">parameter</span> <span class="nb">Real</span> <span class="n">eta</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">=</span> <span class="mf">0.8</span> <span class="s2">&quot;Boiler efficiency&quot;</span><span class="p">;</span>
 <span class="o">...</span>
 </pre></div>
@@ -586,7 +586,7 @@ assignment looks like
 </tr>
 </tbody>
 </table>
-<p>The sequence diagram for this as shown in <a class="reference internal" href="#fig-use-case-os-single-par"><span class="std std-numref">Fig. 3.3</span></a>.</p>
+<p>The sequence diagram for this as shown in <a class="reference internal" href="#fig-use-case-os-single-par"><span>Fig. 3.3</span></a>.</p>
 <div class="figure" id="id3">
 <span id="fig-use-case-os-single-par"></span><p class="plantuml">
 <object data="_images/plantuml-02f22226618f80a29bf1c769b07c552da92eba3d.svg" type="image/svg+xml" style="width:409px;height:426px;">
@@ -613,7 +613,7 @@ end" />
 <h3>3.2.2. Changes to multiple parts of the Modelica model<a class="headerlink" href="#changes-to-multiple-parts-of-the-modelica-model" title="Permalink to this headline">¶</a></h3>
 <p>An example which requires changes to multiple parts of the model is the following
 measure.</p>
-<div class="highlight-ruby"><div class="highlight"><pre><span></span><span class="n">new_lights_def</span> <span class="o">=</span> <span class="no">OpenStudio</span><span class="o">::</span><span class="no">Model</span><span class="o">::</span><span class="no">LightsDefinition</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<div class="highlight-ruby"><div class="highlight"><pre><span class="n">new_lights_def</span> <span class="o">=</span> <span class="no">OpenStudio</span><span class="o">::</span><span class="no">Model</span><span class="o">::</span><span class="no">LightsDefinition</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
 <span class="n">new_lights_def</span><span class="o">.</span><span class="n">setWattsperSpaceFloorArea</span><span class="p">(</span><span class="mi">10</span><span class="o">.</span><span class="mi">0</span><span class="p">)</span>
 <span class="n">new_lights_def</span><span class="o">.</span><span class="n">setName</span><span class="p">(</span><span class="s2">&quot;10 W/m^2 Lights Definition&quot;</span><span class="p">)</span>
 
@@ -712,7 +712,7 @@ Modelica <code class="docutils literal"><span class="pre">record</span></code>).
 </tr>
 </tbody>
 </table>
-<p>The sequence diagram for this as shown in <a class="reference internal" href="#fig-use-case-os-zones"><span class="std std-numref">Fig. 3.4</span></a>.</p>
+<p>The sequence diagram for this as shown in <a class="reference internal" href="#fig-use-case-os-zones"><span>Fig. 3.4</span></a>.</p>
 <div class="figure" id="id4">
 <span id="fig-use-case-os-zones"></span><p class="plantuml">
 <object data="_images/plantuml-e8d39531bc5d098b2f65a8ea507b08db5dbe89e3.svg" type="image/svg+xml" style="width:605px;height:584px;">
@@ -769,7 +769,7 @@ end" />
     </p>
     <p>
         &copy; Copyright (c) All rights reserved.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.3.<br/>
     </p>
   </div>
 </footer>
