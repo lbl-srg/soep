@@ -321,6 +321,84 @@ The QSS solvers require the derivatives shown in :numref:`tab_qss_der`.
    | QSS3        | :math:`dx/dt` * , :math:`d^2x/dt^2` ** , :math:`d^3x/dt^3`| :math:`dz/dt` , :math:`d^2z/dt^2`, :math:`d^3z/dt^3`|
    +-------------+-----------------------------------------------------------+-----------------------------------------------------+
 
+This section introduces API of functions to be implenented in JModelica for an efficient implmentation of QSS.
+We introduced some ``types`` which are used in the functions definitions. These types are used in the FMI specification. 
+
+.. code:: c
+
+  typedef unsigned int fmi2ValueReference;
+  typedef int fmi2Integer; 
+  typedef double fmi2Real;
+  typedef void* fmi2Component;
+
+ 
+``fmi2Component`` is a pointer to an FMU
+specific data structure that contains the information needed to 
+process the model equations or to process the cosimulation of the respective slave.
+
+
+.. code:: c
+  
+  fmi2Status fmi2SetSpecificContinuousStates(fmi2 Component c, 
+                                             const fmi2Real x[], size_t nx);
+
+This function is similar to ``fmi2SetContinuousStates()``. The only difference
+is that it gets the value references of the states variables that need to be set.
+Argument ``nx`` is the length of vector ``x`` and is provided for checking purposes.
+Similar to ``fmi2SetContinuousStates()``, this function should re-initialize caching 
+of all variables which depend on the states set. 
+
+The FMI specification defines ``caching`` as a mechanism which requires 
+that the model evaluation can detect when the input arguments
+of a function have changed so the function can be updated. 
+
+.. note::
+  
+  We note that current ``fmi2SetContinuousStates()`` forces to set the entire
+  state vectors. It also triggers computation of all variables which depends on the state
+  variables. This is inefficient for QSS solvers. 
+
+.. code:: c
+
+  fmi2Status fmi2GetSpecificDerivatives(fmi2 Component c, 
+                                        fmi2Real value[][], 
+                                        const fmi2ValueReference vr[],
+                                        size_t nvr, const fmi2Integer ord);
+
+This function is similar to ``fmi2GetDerivatives()``. 
+The only difference is that it gets a vector of value references ``vr[]``, 
+the highest state derivative order ``ord`` to be retrieved, and returns an array of 
+derivatives ``value[nvr] [ord]``. 
+Argument ``nvr`` is the length of vector ``dx``.
+
+.. note::
+  
+  ``fmi2GetReal()`` could be used to retrieve specific state derivatives. But
+  The function will also need to include the order of the state derivative
+  to be retrieved. Since such information is only relevant for
+  state derivative, we recommend to use the new function ``fmi2GetSpecificDerivatives()``
+  instead.
+
+.. code:: c
+
+  fmi2Status fmi2GetExtendedEventIndicators(fmi2Component c, 
+                                    fmi2Real value[][], 
+                                    const fmi2Integer ord,
+                                    size_t ni);
+
+This function is similar to ``fmi2GetEventIndicators()``. 
+The only difference is that it gets the maximum derivative order of the event indicator,  
+and returns an array of event indicators with derivatives ``value[0:ni] [ord+1]``. 
+We noted here that the return values includes the vector of event indicators as well.
+Thus ``value[0:ni][0]`` is the vector of event indicators. ``value[0:ni][1]`` is the 
+vector of first derivative of the event indicators.
+
+.. note:: 
+
+  We noted that the event indicator functions do not provide information
+  about state variables which trigger the state events. Good will be to 
+  provide such information so that a QSS solver does not have to 
+  requantize all variables when such an event happens.
 
 Because the FMI API does not provide access to many required derivatives,
 and to avoid having to numerically approximate derivatives,
