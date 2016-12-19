@@ -376,9 +376,9 @@ of a function have changed so the function can be updated.
                                         size_t nvr, const fmi2Integer ord);
 
 This function is similar to ``fmi2GetDerivatives()``. 
-The only difference is that it gets a vector of value references ``vr[]``, 
+The only difference is that it gets a vector of value references ``vr``, 
 and the maximum order ``ord`` of the state derivatives to be retrieved. It returns 
-an ``ord x nvr`` array of state derivatives ``val[] []``. 
+an ``ord x nvr`` array of state derivatives ``val``. 
 Argument ``nvr`` is the length of the state derivative vector.
 
 If ``ord==2`` then, ``val[0]`` is the vector of first derivatives 
@@ -402,10 +402,10 @@ of the state vector, and ``val[1]`` is the vector of second derivatives.
 This function is similar to ``fmi2GetEventIndicators()``. 
 The only difference is that it gets the maximum derivative order ``ord`` 
 of the vector of event indicators,  and returns an ``ord+1 x ni``  array of 
-event indicators with their derivatives ``val[][]``.
+event indicators with their derivatives ``val``.
 Argument ``ni`` is the length of the vector of event indicators. 
 
-We note that the ``return`` value ``val[][]`` includes the vector of event indicators as well.
+We note that the ``return`` value ``val`` includes the vector of event indicators as well.
 
 If ``ord==2`` then, ``val[0]`` is the vector of event indicators, 
 ``val[1]`` is the vector of first derivatives of the vector of event indicators, 
@@ -433,7 +433,7 @@ and ``val[2]`` is the vector of second derivatives.
                                     );
 
 This function returns an ``ni x nx`` array of value 
-references ``vr[][]`` of state variables on which the event indicators depend on.
+references ``vr`` of state variables on which the event indicators depend on.
 Argument ``ni`` is the length of the vector of event indicators. 
 Argument ``nx`` is the length of the state vector. 
 
