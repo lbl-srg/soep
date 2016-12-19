@@ -414,8 +414,10 @@ Thus ``val[0:ni-1][0]`` is the vector of event indicators.
   We note that the event indicator functions do not provide information
   about state variables which trigger the state events. Good will be to 
   provide such information so that a QSS solver does not have to 
-  requantize all variables when such an event happens. We propose
-  to implemennt a function ``fmi2GetExtendedEventIndicators()`` 
+  requantize all variables when such an event happens. This information should be best
+  provided in the ``ModelStructure`` of the model description file of an FMU.
+  Since we do not want to change the model structure of the FMU at this time, 
+  we propose to implement a function ``fmi2GetExtendedEventIndicators()`` 
   which will be called at initialization once to provide 
   the dependencies information between event indicators and state variables on 
   which the event indicators depend on. 
