@@ -331,15 +331,16 @@ We introduced some ``types`` which are used in the functions definitions. These 
   typedef double fmi2Real;
   typedef void* fmi2Component;
 
- 
-``fmi2Component`` is a pointer to an FMU
-specific data structure that contains the information needed to 
-process the model equations or to process the cosimulation of the respective slave.
+.. note:: 
+
+  ``fmi2Component`` is a pointer to an FMU
+  specific data structure that contains the information needed to 
+  process the model equations or to process the cosimulation of the respective slave.
 
 
 .. code:: c
   
-  fmi2Status fmi2SetSpecificContinuousStates(fmi2 Component c, 
+  fmi2Status fmi2SetSpecificContinuousStates(fmi2Component c, 
                                              const fmi2Real x[], 
                                              const fmi2ValueReference vr[],
                                              size_t nx);
@@ -357,23 +358,23 @@ of a function have changed so the function can be updated.
 .. note::
   
   We note that current ``fmi2SetContinuousStates()`` forces to set the entire
-  state vectors. It also triggers computation of all variables which depend on the state
+  state vectors. This re-initializes caching of all variables which depend on the state
   variables. This is inefficient for QSS solvers. 
 
 .. code:: c
 
-  fmi2Status fmi2GetSpecificDerivatives(fmi2 Component c, 
-                                        fmi2Real value[][], 
+  fmi2Status fmi2GetSpecificDerivatives(fmi2Component c, 
+                                        fmi2Real val[][], 
                                         const fmi2ValueReference vr[],
                                         size_t nvr, const fmi2Integer ord);
 
 This function is similar to ``fmi2GetDerivatives()``. 
 The only difference is that it gets a vector of value references ``vr[]``, 
-and the maximum order ``ord`` of the state derivative to be retrieved. It returns 
-an ``nvr x ord`` array of derivatives ``value[] []``. 
+and the maximum order ``ord`` of the state derivatives to be retrieved. It returns 
+an ``nvr x ord`` array of state derivatives ``val[] []``. 
 Argument ``nvr`` is the length of the state derivative vector.
-``value[0:nvr-1] [0]`` is the first derivative of the state vector.
-``value[0:nvr-1] [1]`` is the second derivative of the state vector.
+``val[0:nvr-1] [0]`` is the first derivative of the state vector.
+``val[0:nvr-1] [1]`` is the second derivative of the state vector.
 
 .. note::
   
@@ -386,19 +387,20 @@ Argument ``nvr`` is the length of the state derivative vector.
 .. code:: c
 
   fmi2Status fmi2GetExtendedEventIndicators(fmi2Component c, 
-                                    fmi2Real value[][], 
+                                    fmi2Real val[][], 
                                     const fmi2Integer ord,
                                     size_t ni);
 
 This function is similar to ``fmi2GetEventIndicators()``. 
 The only difference is that it gets the maximum derivative order ``ord`` 
 of the event indicator vector,  and returns an ``ni x ord+1`` array of 
-event indicators with their derivatives ``value[][]``.
+event indicators with their derivatives ``val[][]``.
 Argument ``ni`` is the length of the event indicator vector. 
-We note that the return value includes the vector of event indicators as well.
-Thus ``value[0:ni-1][0]`` is the vector of event indicators. 
-``value[0:ni-1][1]`` is the vector of first derivative of the event indicators.
-``value[0:ni-1][2]`` is the vector of second derivative of the event indicators.
+
+We note that the ``return`` value includes the vector of event indicators as well.
+Thus ``val[0:ni-1][0]`` is the vector of event indicators. 
+``val[0:ni-1][1]`` is the vector of first derivative of the event indicators.
+``val[0:ni-1][2]`` is the vector of second derivative of the event indicators.
 
 .. note:: 
 
@@ -406,7 +408,8 @@ Thus ``value[0:ni-1][0]`` is the vector of event indicators.
   about state variables which trigger the state events. Good will be to 
   provide such information so that a QSS solver does not have to 
   requantize all variables when such an event happens. We propose
-  to implemennt a function which will be called at initialization once to provide 
+  to implemennt a function ``fmi2GetExtendedEventIndicators()`` 
+  which will be called at initialization once to provide 
   the dependencies information between event indicators and state variables on 
   which the event indicators depend on. 
 
@@ -429,12 +432,11 @@ returned in ``fmi2GetExtendedEventIndicators()``.
 Thus ``vr[0][0:nx-1]`` must be the vector of value references of 
 dependent state variables of the first event indicator. 
 
-  .. note:: 
+.. note:: 
 
-    Although we do not anticipate each event indicator to depend on 
-    all state variables, we used for simplicity
-    the maximum number of state variables in the array declaration. 
-
+   Although we do not anticipate each event indicator to depend on 
+   all state variables, we used for simplicity
+   the maximum number of state variables in the array declaration. 
 
 
 Because the FMI API does not provide access to many required derivatives,
