@@ -322,7 +322,8 @@ The QSS solvers require the derivatives shown in :numref:`tab_qss_der`.
    +-------------+-----------------------------------------------------------+-----------------------------------------------------+
 
 This section introduces API of functions to be provided by JModelica for an efficient implementation of QSS.
-We introduced some ``types`` which are used in the functions definitions. These ``types`` are used in the FMI specification. 
+We use the ``types`` which are used in the FMI specifications version 2.0 to define the functions. 
+Details about the ``types`` can be found in the FMI specification.
 
 .. code:: c
 
@@ -330,6 +331,12 @@ We introduced some ``types`` which are used in the functions definitions. These 
   typedef int fmi2Integer; 
   typedef double fmi2Real;
   typedef void* fmi2Component;
+  typedef enum{fmi2OK,
+	       fmi2Warning, 
+               fmi2Discard,
+               fmi2Error,
+               fmi2Fatal,
+               fmi2Pending}fmi2Status;
 
 .. note:: 
 
@@ -358,7 +365,7 @@ of a function have changed so the function can be updated.
 .. note::
   
   We note that current ``fmi2SetContinuousStates()`` forces to set the entire
-  state vectors. This re-initializes caching of all variables which depend on the state
+  state vectors. This re-initializes ``caching`` of all variables which depend on the state
   variables. This is inefficient for QSS solvers. 
 
 .. code:: c
@@ -422,7 +429,7 @@ Thus ``val[0:ni-1][0]`` is the vector of event indicators.
                                     );
 
 This function returns an ``ni x nx`` array of value 
-references of state variables on which the event indicators depend on.
+references ``vr[][]`` of state variables on which the event indicators depend on.
 Argument ``ni`` is the length of the event indicator vector. 
 Argument ``nx`` is the length of the state vector. 
 
@@ -436,7 +443,7 @@ dependent state variables of the first event indicator.
 
    Although we do not anticipate each event indicator to depend on 
    all state variables, we used for simplicity
-   the maximum number of state variables in the array declaration. 
+   the length of the state vector  ``nx`` in the array declaration. 
 
 
 Because the FMI API does not provide access to many required derivatives,
