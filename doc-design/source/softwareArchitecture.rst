@@ -380,8 +380,9 @@ The only difference is that it gets a vector of value references ``vr[]``,
 and the maximum order ``ord`` of the state derivatives to be retrieved. It returns 
 an ``nvr x ord`` array of state derivatives ``val[] []``. 
 Argument ``nvr`` is the length of the state derivative vector.
-``val[0:nvr-1] [0]`` is the first derivative of the state vector.
-``val[0:nvr-1] [1]`` is the second derivative of the state vector.
+
+If ``ord==2`` then, ``val[0:nvr-1] [0]`` is the vector of first derivatives 
+of the state vector, and ``val[0:nvr-1] [1]`` is the vector of second derivatives.
 
 .. note::
   
@@ -400,14 +401,15 @@ Argument ``nvr`` is the length of the state derivative vector.
 
 This function is similar to ``fmi2GetEventIndicators()``. 
 The only difference is that it gets the maximum derivative order ``ord`` 
-of the event indicator vector,  and returns an ``ni x ord+1`` array of 
+of the vector of event indicators,  and returns an ``ni x ord+1`` array of 
 event indicators with their derivatives ``val[][]``.
-Argument ``ni`` is the length of the event indicator vector. 
+Argument ``ni`` is the length of the vector of event indicators. 
 
-We note that the ``return`` value includes the vector of event indicators as well.
-Thus ``val[0:ni-1][0]`` is the vector of event indicators. 
-``val[0:ni-1][1]`` is the vector of first derivative of the event indicators.
-``val[0:ni-1][2]`` is the vector of second derivative of the event indicators.
+We note that the ``return`` value ``val[][]`` includes the vector of event indicators as well.
+
+If ``ord==2`` then, ``val[0:ni-1][0]`` is the vector of event indicators, 
+``val[0:ni-1][1]`` is the vector of first derivatives of the vector of event indicators, 
+and ``val[0:ni-1][2]`` is the vector of second derivatives.
 
 .. note:: 
 
@@ -432,11 +434,11 @@ Thus ``val[0:ni-1][0]`` is the vector of event indicators.
 
 This function returns an ``ni x nx`` array of value 
 references ``vr[][]`` of state variables on which the event indicators depend on.
-Argument ``ni`` is the length of the event indicator vector. 
+Argument ``ni`` is the length of the vector of event indicators. 
 Argument ``nx`` is the length of the state vector. 
 
 The ordering of the elements of the array of value references 
-must match the ordering of the event indicators 
+must match the ordering of the vector of event indicators 
 returned in ``fmi2GetExtendedEventIndicators()``.  
 Thus ``vr[0][0:nx-1]`` must be the vector of value references of 
 dependent state variables of the first event indicator. 
@@ -445,7 +447,7 @@ dependent state variables of the first event indicator.
 
    Although we do not anticipate each event indicator to depend on 
    all state variables, we used for simplicity
-   the length of the state vector  ``nx`` in the array declaration. 
+   the length of the state vector ``nx`` in the array declaration. 
 
 
 Because the FMI API does not provide access to many required derivatives,
