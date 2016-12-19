@@ -289,7 +289,7 @@ where :math:`x(\cdot)` is the vector of continuous state variables,
 :math:`u(\cdot)` is an external input,
 :math:`f(\cdot, \cdot, \cdot, \cdot)` is the derivative function,
 :math:`g(\cdot, \cdot, \cdot, \cdot)` is the output function,
-:math:`z(\cdot, \cdot, \cdot)` is the zero crossing function and
+:math:`z(\cdot, \cdot, \cdot)` is the event indicator function (sometimes called zero crossing function) and
 :math:`d(t)` is a discrete state. For example, for a thermostat,
 :math:`d(t) \in \{0, \, 1\}` depending on the controlled temperature.
 
@@ -312,7 +312,7 @@ The QSS solvers require the derivatives shown in :numref:`tab_qss_der`.
            
 
    +-------------+-----------------------------------------------------------+-----------------------------------------------------+
-   | Type of QSS | State derivative                                          | Zero crossing function derivative                   |
+   | Type of QSS | State derivative                                          | Event indicator function derivative                 |
    +=============+===========================================================+=====================================================+
    | QSS1        | :math:`dx/dt` *                                           | :math:`dz/dt`                                       |
    +-------------+-----------------------------------------------------------+-----------------------------------------------------+
