@@ -423,16 +423,19 @@ references of state variables on which the event indicators depend on.
 Argument ``ni`` is the length of the event indicator vector. 
 Argument ``nx`` is the length of the state vector. 
 
+The ordering of the elements of the array of value references 
+must match the ordering of the event indicators 
+returned in ``fmi2GetExtendedEventIndicators()``.  
+Thus ``vr[0][0:nx-1]`` must be the vector of value references of 
+dependent state variables of the first event indicator. 
+
   .. note:: 
 
     Although we do not anticipate each event indicator to depend on 
     all state variables, we used for simplicity
     the maximum number of state variables in the array declaration. 
 
-The ordering of the returned value must match the ordering 
-of the event indicators returned in ``fmi2GetExtendedEventIndicators()``.  
-Thus ``vr[0][0:nx-1]`` must be the vector of value references of 
-dependent state variables of the first event indicator. 
+
 
 Because the FMI API does not provide access to many required derivatives,
 and to avoid having to numerically approximate derivatives,
