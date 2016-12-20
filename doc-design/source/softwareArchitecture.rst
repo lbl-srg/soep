@@ -324,26 +324,11 @@ The QSS solvers require the derivatives shown in :numref:`tab_qss_der`.
 Because the FMI API does not provide access to the required derivatives,
 we will now propose functions to be added to the FMI API
 that are needed for an efficient implementation of QSS.
-We use the following ``types``, which are identical to the ones used in the FMI 2.0 specification:
-
-.. code:: c
-
-  typedef unsigned int fmi2ValueReference;
-  typedef int fmi2Integer;
-  typedef double fmi2Real;
-  typedef void* fmi2Component;
-  typedef enum{fmi2OK,
-	       fmi2Warning,
-               fmi2Discard,
-               fmi2Error,
-               fmi2Fatal,
-               fmi2Pending}fmi2Status;
-
 
 QSS generally requires to only update a subset of the state vector. We therefore
 introduce the following function:
 
-.. code:: c
+.. code-block:: c
 
   fmi2Status fmi2SetSpecificContinuousStates(fmi2Component c,
                                              const fmi2Real x[],
@@ -365,120 +350,52 @@ of all variables which depend on the *updated* states.
   the entire state vector. This re-initializes ``caching`` of all variables
   which depend on the state variables. This is inefficient for QSS solvers.
 
-To retrieve individual state derivatives, we introduce the following function:
+To retrieve individual state derivatives, we introduce the following extensions
+to the ``modelDescription.xml`` file. [In the code below, ``ScalarVariables``
+is given to provide context, it remains unchanged from the FMI 2.0 standard.]
+
+.. code-block:: xml
+
+          <ScalarVariables>
+            ...
+            <ScalarVariable name="x1",      ...> ... </ScalarVariable> <!—- index="5" -->
+            ...
+            <ScalarVariable name="der(x1)", ...> ... </ScalarVariable> <!-— index="8" -->
+           </ScalarVariables>
+
+          <Derivatives>
+            <!-- The ScalarVariable with index 8 is der(x) -->
+            <Unknown     index="8" dependencies="6" />
+            <HigherOrder index="5" order="2" value_reference="124" /> <!-- This is d^2 x/dt^2 -->
+            <HigherOrder index="5" order="3" value_reference="125" /><!-- This is d^3 x/dt^3 -->
+          </Derivatives>
+
+For efficiency, QSS requires to know what states trigger
+which element of the event indicator function. Also, it will need to
+have access to, or else apprximate numerically, the time derivatives of the
+event indicators. FMI 2.0 outputs an array of real-valued event indicators,
+but no variable dependencies.
+Therefore, we introduce the following xml section, which assumes we have
+three event indicator functions.
+
+.. code-block:: xml
+
+          <ModelStructure>
+            <EventIndicators>
+              <!-- This is z[0] which depends on ScalarVariable with index 2 and 3 -->
+              <Element index="1" order="0" dependencies="2 3" value_reference="200" />
+              <!-- This is z[1] which declares no dependencies, hence it may depend on everything -->
+              <Element index="2" order="0" value_reference="201" />
+               <!-- This is z[2] which declares that it depends only on time -->
+              <Element index="3" order="0" dependencies="" value_reference="202" />
+
+              <!-- With order > 0, higher order derivatives can be specified. -->
+              <!-- This is dz[0]/dt whch depends on scalar variable 2 -->
+              <Element index="1" order="1" dependencies="2" value_reference="210" />
+            </EventIndicators>
+          </ModelStructure>
 
 
-<Derivatives>
-  <Unknown index="8" dependencies="6" />
-  <!-- Second order derivative of the variable with
-       index="5", which is x, hence value_reference="123" is d^2 x/dt^2.
-  <HigherOrder index="5" order="2" value_reference="123" />
-  <!-- FMU provides d^3/dt^3 at value_reference="124"-->
-  <HigherOrder index="5" order="3" value_reference="124" />
-
-  <!-- EventIndicator with index="1" specifies the value reference
-       of the first time derivative
-       of the element "1" of vector of the event indicators -->
-  <EventIndicator index="1" order="1" value_reference="200" />
-  <!-- Second time derivative of the element "1" of the event indicator -->
-  <EventIndicator index="1" order="2" value_reference="201" />
-  <!--  If the element 2 of the vector of event indicators is not differentiable,
-        it will not show up here.
-        Hence, there may be a index="3" specification for the element "3"
-        of the vector of event indicators. -->
-  <EventIndicator index="3" order="1" value_reference="202" />
-
-</Derivatives>
-
-.. code:: c
-
-  fmi2Status fmi2GetSpecificDerivatives(fmi2Component c,
-                                        fmi2Real val[][],
-                                        const fmi2ValueReference vr[],
-                                        size_t nvr, const fmi2Integer ord);
-
-This function is similar to ``fmi2GetDerivatives()``.
-However, it takes as arguments
-
- * a 2-dimensional rather than a 1-dimensional arrary for the derivatives ``val``
- * a vector of value references ``vr``,
- * the maximum order ``ord`` of the state derivatives to be retrieved.
-   ``ord`` is allowed to be ``0``, ``1`` or ``2``.
-
-It returns an array of state derivatives ``val[ord][nvr]``, where
-``nvr`` is the length of the state derivative vector.
-
-**fixme**: How do you know that a tool provides higher order derivatives?
-Should the `modelDescription.xml` file prescribe this?
-
-If ``ord==2`` then, ``val[0]`` is the vector of first time derivatives
-of the state vector :math:`dx/dt`, and ``val[1]``
-is the vector of second time derivatives :math:`d^2x/dt^2`.
-
-.. note::
-
-  ``fmi2GetReal()`` could be used to retrieve specific state derivatives. But
-  the function will also need to include the order of the state derivative
-  to be retrieved (*fixme*, why could this not be added to the xml file?).
-  Since such information is only relevant for
-  state derivatives, we recommend to use the new function ``fmi2GetSpecificDerivatives()``
-  instead.
-
-.. code:: c
-
-  fmi2Status fmi2GetExtendedEventIndicators(fmi2Component c,
-                                    fmi2Real val[][],
-                                    const fmi2Integer ord,
-                                    size_t ni);
-
-This function is similar to ``fmi2GetEventIndicators()``.
-The only difference is that it gets the maximum derivative order ``ord``
-of the vector of event indicators,  and returns an ``ord+1 x ni``  array of
-event indicators with their derivatives ``val``.
-Argument ``ni`` is the length of the vector of event indicators.
-
-We note that the ``return`` value ``val`` includes the vector of event indicators as well.
-
-If ``ord==2`` then, ``val[0]`` is the vector of event indicators,
-``val[1]`` is the vector of first derivatives of the vector of event indicators,
-and ``val[2]`` is the vector of second derivatives.
-
-.. note::
-
-  We note that the event indicator functions do not provide information
-  about state variables which trigger the state events. Good will be to
-  provide such information so that a QSS solver does not have to
-  requantize all variables when such an event happens. This information should be best
-  provided in the ``ModelStructure`` of the model description file of an FMU.
-  Since we do not want to change the model structure of the FMU at this time,
-  we propose to implement a function ``fmi2GetExtendedEventIndicators()``
-  which will be called at initialization once to provide
-  the dependencies information between event indicators and state variables on
-  which the event indicators depend on.
-
-.. code:: c
-
-  fmi2Status fmi2GetDependentEventIndicators(fmi2Component c,
-                                    fmi2ValueReference vr[][],
-                                    size_t ni,
-                                    size_t nx);
-
-This function returns an ``ni x nx`` array of value
-references ``vr`` of state variables on which the event indicators depend on.
-Argument ``ni`` is the length of the vector of event indicators.
-Argument ``nx`` is the length of the state vector.
-
-The ordering of the elements of the array of value references
-must match the ordering of the vector of event indicators
-returned in ``fmi2GetExtendedEventIndicators()``.
-Thus ``vr[0]`` must be the vector of value references of
-dependent state variables of the first event indicator.
-
-.. note::
-
-   Although we do not anticipate each event indicator to depend on
-   all state variables, we used for simplicity
-   the length of the state vector ``nx`` in the array declaration.
 
 :numref:`fig_sof_arc_qss_jmod2` shows the software architecture
 with the extended FMI API.

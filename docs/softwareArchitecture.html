@@ -225,7 +225,7 @@ OpenStudio <cite>HVAC System Editor</cite> will provide.</li>
 </div>
 <div class="figure" id="id1">
 <span id="fig-overall-software-architecture-two-editors"></span><p class="plantuml">
-<object data="_images/plantuml-c8963f20cd7708a4bf970274d543e411bed62bfd.svg" type="image/svg+xml" style="width:2080px;height:1556px;">
+<object data="_images/plantuml-c8963f20cd7708a4bf970274d543e411bed62bfd.svg" type="image/svg+xml" style="width:2077px;height:1545px;">
 <img src="_images/plantuml-c8963f20cd7708a4bf970274d543e411bed62bfd.png" alt="title Overall software architecture (with two editors for the SOEP mode).
 
 skinparam componentStyle uml2
@@ -328,7 +328,7 @@ end note" />
 </div>
 <div class="figure" id="id2">
 <span id="fig-overall-software-architecture-one-editor"></span><p class="plantuml">
-<object data="_images/plantuml-b2d675841ab2353e60ec3b719497fffef00a2ee2.svg" type="image/svg+xml" style="width:2067px;height:1409px;">
+<object data="_images/plantuml-b2d675841ab2353e60ec3b719497fffef00a2ee2.svg" type="image/svg+xml" style="width:2066px;height:1398px;">
 <img src="_images/plantuml-b2d675841ab2353e60ec3b719497fffef00a2ee2.png" alt="title Overall software architecture (with one editor for the SOEP mode).
 
 skinparam componentStyle uml2
@@ -443,7 +443,7 @@ x(0)      &amp; = x_0,\end{split}\]</div>
 <span class="math">\(u(\cdot)\)</span> is an external input,
 <span class="math">\(f(\cdot, \cdot, \cdot, \cdot)\)</span> is the derivative function,
 <span class="math">\(g(\cdot, \cdot, \cdot, \cdot)\)</span> is the output function,
-<span class="math">\(z(\cdot, \cdot, \cdot)\)</span> is the zero crossing function and
+<span class="math">\(z(\cdot, \cdot, \cdot)\)</span> is the event indicator function (sometimes called zero crossing function) and
 <span class="math">\(d(t)\)</span> is a discrete state. For example, for a thermostat,
 <span class="math">\(d(t) \in \{0, \, 1\}\)</span> depending on the controlled temperature.</p>
 <p>Because we anticipate that the FMU can have
@@ -466,7 +466,7 @@ standard does not allow a zero time step size as needed for direct feed-through.
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Type of QSS</th>
 <th class="head">State derivative</th>
-<th class="head">Zero crossing function derivative</th>
+<th class="head">Event indicator function derivative</th>
 </tr>
 </thead>
 <tbody valign="top">
@@ -484,127 +484,124 @@ standard does not allow a zero time step size as needed for direct feed-through.
 </tr>
 </tbody>
 </table>
-<p>This section introduces API of functions to be provided by JModelica for an efficient implementation of QSS.
-We use the <code class="docutils literal"><span class="pre">types</span></code> which are used in the FMI specifications version 2.0 to define the functions.
-Details about the <code class="docutils literal"><span class="pre">types</span></code> can be found in the FMI specification.</p>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">typedef</span> <span class="n">unsigned</span> <span class="nb">int</span> <span class="n">fmi2ValueReference</span><span class="p">;</span>
-<span class="n">typedef</span> <span class="nb">int</span> <span class="n">fmi2Integer</span><span class="p">;</span>
-<span class="n">typedef</span> <span class="n">double</span> <span class="n">fmi2Real</span><span class="p">;</span>
-<span class="n">typedef</span> <span class="n">void</span><span class="o">*</span> <span class="n">fmi2Component</span><span class="p">;</span>
-<span class="n">typedef</span> <span class="n">enum</span><span class="p">{</span><span class="n">fmi2OK</span><span class="p">,</span>
-             <span class="n">fmi2Warning</span><span class="p">,</span>
-             <span class="n">fmi2Discard</span><span class="p">,</span>
-             <span class="n">fmi2Error</span><span class="p">,</span>
-             <span class="n">fmi2Fatal</span><span class="p">,</span>
-             <span class="n">fmi2Pending</span><span class="p">}</span><span class="n">fmi2Status</span><span class="p">;</span>
+<p>Because the FMI API does not provide access to the required derivatives,
+we will now propose functions to be added to the FMI API
+that are needed for an efficient implementation of QSS.</p>
+<p>QSS generally requires to only update a subset of the state vector. We therefore
+introduce the following function:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">fmi2Status</span> <span class="nf">fmi2SetSpecificContinuousStates</span><span class="p">(</span><span class="n">fmi2Component</span> <span class="n">c</span><span class="p">,</span>
+                                           <span class="k">const</span> <span class="n">fmi2Real</span> <span class="n">x</span><span class="p">[],</span>
+                                           <span class="k">const</span> <span class="n">fmi2ValueReference</span> <span class="n">vr</span><span class="p">[],</span>
+                                           <span class="kt">size_t</span> <span class="n">nx</span><span class="p">);</span>
 </pre></div>
 </div>
+<p>This function is similar to <code class="docutils literal"><span class="pre">fmi2SetContinuousStates()</span></code>. However, it takes
+as additional arguments</p>
+<blockquote>
+<div><ul class="simple">
+<li>the value references <code class="docutils literal"><span class="pre">vr</span></code> of the state variables that need to be updated, and</li>
+<li>the length <code class="docutils literal"><span class="pre">nx</span></code> of the state vector <code class="docutils literal"><span class="pre">x</span></code>.</li>
+</ul>
+</div></blockquote>
+<p>Similar to <code class="docutils literal"><span class="pre">fmi2SetContinuousStates()</span></code>, this function should re-initialize caching
+of all variables which depend on the <em>updated</em> states.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last"><code class="docutils literal"><span class="pre">fmi2Component</span></code> is a pointer to an FMU
-specific data structure that contains the information needed to
-process the model equations or to process the cosimulation of the respective slave.</p>
+<p class="last">The currently implemented function <code class="docutils literal"><span class="pre">fmi2SetContinuousStates()</span></code> forces to update
+the entire state vector. This re-initializes <code class="docutils literal"><span class="pre">caching</span></code> of all variables
+which depend on the state variables. This is inefficient for QSS solvers.</p>
 </div>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">fmi2Status</span> <span class="n">fmi2SetSpecificContinuousStates</span><span class="p">(</span><span class="n">fmi2Component</span> <span class="n">c</span><span class="p">,</span>
-                                           <span class="n">const</span> <span class="n">fmi2Real</span> <span class="n">x</span><span class="p">[],</span>
-                                           <span class="n">const</span> <span class="n">fmi2ValueReference</span> <span class="n">vr</span><span class="p">[],</span>
-                                           <span class="n">size_t</span> <span class="n">nx</span><span class="p">);</span>
+<p>To retrieve individual state derivatives, we introduce the following extensions
+to the <code class="docutils literal"><span class="pre">modelDescription.xml</span></code> file. [In the code below, <code class="docutils literal"><span class="pre">ScalarVariables</span></code>
+is given to provide context, it remains unchanged from the FMI 2.0 standard.]</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span>&lt;ScalarVariables&gt;
+  ...
+  &lt;ScalarVariable name=&quot;x1&quot;,      ...&gt; ... &lt;/ScalarVariable&gt; &lt;!—- index=&quot;5&quot; --&gt;
+  ...
+  &lt;ScalarVariable name=&quot;der(x1)&quot;, ...&gt; ... &lt;/ScalarVariable&gt; &lt;!-— index=&quot;8&quot; --&gt;
+ &lt;/ScalarVariables&gt;
+
+&lt;Derivatives&gt;
+  &lt;!-- The ScalarVariable with index 8 is der(x) --&gt;
+  &lt;Unknown     index=&quot;8&quot; dependencies=&quot;6&quot; /&gt;
+  &lt;HigherOrder index=&quot;5&quot; order=&quot;2&quot; value_reference=&quot;124&quot; /&gt; &lt;!-- This is d^2 x/dt^2 --&gt;
+  &lt;HigherOrder index=&quot;5&quot; order=&quot;3&quot; value_reference=&quot;125&quot; /&gt;&lt;!-- This is d^3 x/dt^3 --&gt;
+&lt;/Derivatives&gt;
 </pre></div>
 </div>
-<p>This function is similar to <code class="docutils literal"><span class="pre">fmi2SetContinuousStates()</span></code>. The only difference
-is that it gets the value references <code class="docutils literal"><span class="pre">vr</span></code> of the state variables that need to be set.
-Argument <code class="docutils literal"><span class="pre">nx</span></code> is the length of the state vector <code class="docutils literal"><span class="pre">x</span></code> and is provided for checking purposes.
-Similar to <code class="docutils literal"><span class="pre">fmi2SetContinuousStates()</span></code>, this function should re-initialize caching
-of all variables which depend on the states set.</p>
-<p>The FMI specification defines <code class="docutils literal"><span class="pre">caching</span></code> as a mechanism which requires
-that the model evaluation can detect when the input arguments
-of a function have changed so the function can be updated.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">We note that current <code class="docutils literal"><span class="pre">fmi2SetContinuousStates()</span></code> forces to set the entire
-state vectors. This re-initializes <code class="docutils literal"><span class="pre">caching</span></code> of all variables which depend on the state
-variables. This is inefficient for QSS solvers.</p>
-</div>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">fmi2Status</span> <span class="n">fmi2GetSpecificDerivatives</span><span class="p">(</span><span class="n">fmi2Component</span> <span class="n">c</span><span class="p">,</span>
-                                      <span class="n">fmi2Real</span> <span class="n">val</span><span class="p">[][],</span>
-                                      <span class="n">const</span> <span class="n">fmi2ValueReference</span> <span class="n">vr</span><span class="p">[],</span>
-                                      <span class="n">size_t</span> <span class="n">nvr</span><span class="p">,</span> <span class="n">const</span> <span class="n">fmi2Integer</span> <span class="nb">ord</span><span class="p">);</span>
+<p>For efficiency, QSS requires to know what states trigger
+which element of the event indicator function. Also, it will need to
+have access to, or else apprximate numerically, the time derivatives of the
+event indicators. FMI 2.0 outputs an array of real-valued event indicators,
+but no variable dependencies.
+Therefore, we introduce the following xml section, which assumes we have
+three event indicator functions.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;ModelStructure&gt;</span>
+  <span class="nt">&lt;EventIndicators&gt;</span>
+    <span class="c">&lt;!-- This is z[0] which depends on ScalarVariable with index 2 and 3 --&gt;</span>
+    <span class="nt">&lt;Element</span> <span class="na">index=</span><span class="s">&quot;1&quot;</span> <span class="na">order=</span><span class="s">&quot;0&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;2 3&quot;</span> <span class="na">value_reference=</span><span class="s">&quot;200&quot;</span> <span class="nt">/&gt;</span>
+    <span class="c">&lt;!-- This is z[1] which declares no dependencies, hence it may depend on everything --&gt;</span>
+    <span class="nt">&lt;Element</span> <span class="na">index=</span><span class="s">&quot;2&quot;</span> <span class="na">order=</span><span class="s">&quot;0&quot;</span> <span class="na">value_reference=</span><span class="s">&quot;201&quot;</span> <span class="nt">/&gt;</span>
+     <span class="c">&lt;!-- This is z[2] which declares that it depends only on time --&gt;</span>
+    <span class="nt">&lt;Element</span> <span class="na">index=</span><span class="s">&quot;3&quot;</span> <span class="na">order=</span><span class="s">&quot;0&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;&quot;</span> <span class="na">value_reference=</span><span class="s">&quot;202&quot;</span> <span class="nt">/&gt;</span>
+
+    <span class="c">&lt;!-- With order &gt; 0, higher order derivatives can be specified. --&gt;</span>
+    <span class="c">&lt;!-- This is dz[0]/dt whch depends on scalar variable 2 --&gt;</span>
+    <span class="nt">&lt;Element</span> <span class="na">index=</span><span class="s">&quot;1&quot;</span> <span class="na">order=</span><span class="s">&quot;1&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;2&quot;</span> <span class="na">value_reference=</span><span class="s">&quot;210&quot;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;/EventIndicators&gt;</span>
+<span class="nt">&lt;/ModelStructure&gt;</span>
 </pre></div>
 </div>
-<p>This function is similar to <code class="docutils literal"><span class="pre">fmi2GetDerivatives()</span></code>.
-The only difference is that it gets a vector of value references <code class="docutils literal"><span class="pre">vr[]</span></code>,
-and the maximum order <code class="docutils literal"><span class="pre">ord</span></code> of the state derivatives to be retrieved. It returns
-an <code class="docutils literal"><span class="pre">nvr</span> <span class="pre">x</span> <span class="pre">ord</span></code> array of state derivatives <code class="docutils literal"><span class="pre">val[]</span> <span class="pre">[]</span></code>.
-Argument <code class="docutils literal"><span class="pre">nvr</span></code> is the length of the state derivative vector.
-<code class="docutils literal"><span class="pre">val[0:nvr-1]</span> <span class="pre">[0]</span></code> is the first derivative of the state vector.
-<code class="docutils literal"><span class="pre">val[0:nvr-1]</span> <span class="pre">[1]</span></code> is the second derivative of the state vector.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last"><code class="docutils literal"><span class="pre">fmi2GetReal()</span></code> could be used to retrieve specific state derivatives. But
-The function will also need to include the order of the state derivative
-to be retrieved. Since such information is only relevant for
-state derivative, we recommend to use the new function <code class="docutils literal"><span class="pre">fmi2GetSpecificDerivatives()</span></code>
-instead.</p>
-</div>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">fmi2Status</span> <span class="n">fmi2GetExtendedEventIndicators</span><span class="p">(</span><span class="n">fmi2Component</span> <span class="n">c</span><span class="p">,</span>
-                                  <span class="n">fmi2Real</span> <span class="n">val</span><span class="p">[][],</span>
-                                  <span class="n">const</span> <span class="n">fmi2Integer</span> <span class="nb">ord</span><span class="p">,</span>
-                                  <span class="n">size_t</span> <span class="n">ni</span><span class="p">);</span>
-</pre></div>
-</div>
-<p>This function is similar to <code class="docutils literal"><span class="pre">fmi2GetEventIndicators()</span></code>.
-The only difference is that it gets the maximum derivative order <code class="docutils literal"><span class="pre">ord</span></code>
-of the event indicator vector,  and returns an <code class="docutils literal"><span class="pre">ni</span> <span class="pre">x</span> <span class="pre">ord+1</span></code> array of
-event indicators with their derivatives <code class="docutils literal"><span class="pre">val[][]</span></code>.
-Argument <code class="docutils literal"><span class="pre">ni</span></code> is the length of the event indicator vector.</p>
-<p>We note that the <code class="docutils literal"><span class="pre">return</span></code> value includes the vector of event indicators as well.
-Thus <code class="docutils literal"><span class="pre">val[0:ni-1][0]</span></code> is the vector of event indicators.
-<code class="docutils literal"><span class="pre">val[0:ni-1][1]</span></code> is the vector of first derivative of the event indicators.
-<code class="docutils literal"><span class="pre">val[0:ni-1][2]</span></code> is the vector of second derivative of the event indicators.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">We note that the event indicator functions do not provide information
-about state variables which trigger the state events. Good will be to
-provide such information so that a QSS solver does not have to
-requantize all variables when such an event happens. This information should be best
-provided in the <code class="docutils literal"><span class="pre">ModelStructure</span></code> of the model description file of an FMU.
-Since we do not want to change the model structure of the FMU at this time,
-we propose to implement a function <code class="docutils literal"><span class="pre">fmi2GetExtendedEventIndicators()</span></code>
-which will be called at initialization once to provide
-the dependencies information between event indicators and state variables on
-which the event indicators depend on.</p>
-</div>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">fmi2Status</span> <span class="n">fmi2GetDependentEventIndicators</span><span class="p">(</span><span class="n">fmi2Component</span> <span class="n">c</span><span class="p">,</span>
-                                  <span class="n">fmi2ValueReference</span> <span class="n">vr</span><span class="p">[][],</span>
-                                  <span class="n">size_t</span> <span class="n">ni</span><span class="p">,</span>
-                                  <span class="n">size_t</span> <span class="n">nx</span>
-                                  <span class="p">);</span>
-</pre></div>
-</div>
-<p>This function returns an <code class="docutils literal"><span class="pre">ni</span> <span class="pre">x</span> <span class="pre">nx</span></code> array of value
-references <code class="docutils literal"><span class="pre">vr[][]</span></code> of state variables on which the event indicators depend on.
-Argument <code class="docutils literal"><span class="pre">ni</span></code> is the length of the event indicator vector.
-Argument <code class="docutils literal"><span class="pre">nx</span></code> is the length of the state vector.</p>
-<p>The ordering of the elements of the array of value references
-must match the ordering of the event indicators
-returned in <code class="docutils literal"><span class="pre">fmi2GetExtendedEventIndicators()</span></code>.
-Thus <code class="docutils literal"><span class="pre">vr[0][0:nx-1]</span></code> must be the vector of value references of
-dependent state variables of the first event indicator.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Although we do not anticipate each event indicator to depend on
-all state variables, we used for simplicity
-the length of the state vector  <code class="docutils literal"><span class="pre">nx</span></code> in the array declaration.</p>
-</div>
-<p>Because the FMI API does not provide access to many required derivatives,
-and to avoid having to numerically approximate derivatives,
-we will implement the QSS solver with the generated C code
-when creating the FMU. This leads to the suggested software architecture
-shown in <a class="reference internal" href="#fig-sof-arc-qss-jmod"><span class="std std-numref">Fig. 5.3</span></a>. For simplicity the figure only
+<p><a class="reference internal" href="#fig-sof-arc-qss-jmod2"><span class="std std-numref">Fig. 5.3</span></a> shows the software architecture
+with the extended FMI API.
+For simplicity the figure only
 shows single FMUs, but we anticipated having multiple interconnected FMUs.</p>
 <div class="figure" id="id4">
+<span id="fig-sof-arc-qss-jmod2"></span><p class="plantuml">
+<object data="_images/plantuml-24defd2522bbfd79c38a6e8c59729bea024054bd.svg" type="image/svg+xml" style="width:708px;height:404px;">
+<img src="_images/plantuml-24defd2522bbfd79c38a6e8c59729bea024054bd.png" alt="title Software architecture for QSS integration with JModelica with extended FMI API
+
+skinparam componentStyle uml2
+
+[QSS solver] as qss_sol
+
+package PyFMI {
+[Master algorithm] -&gt; qss_sol : &quot;inputs, time&quot;
+[Master algorithm] &lt;- qss_sol : &quot;next event time, states&quot;
+[Master algorithm] -- [Sundials]
+}
+
+[Sundials] --&gt; [FMU-ME] : &quot;(x, t)&quot;
+[Sundials] &lt;-- [FMU-ME] : &quot;dx/dt&quot;
+[Master algorithm] --&gt; [FMU-CS] : &quot;hRequested&quot;
+[Master algorithm] &lt;-- [FMU-CS] : &quot;(x, hMax)&quot;
+
+
+[FMU-ME] as FMU_QSS
+
+package Optimica {
+[JModelica compiler] as jmc
+}
+
+jmc --&gt; FMU_QSS
+
+FMU_QSS --&gt; qss_sol : &quot;derivatives&quot;
+qss_sol --&gt; FMU_QSS : &quot;inputs, time, states&quot;" />
+
+</object></p>
+<p class="caption"><span class="caption-number">Fig. 5.3 </span>: Software architecture for QSS integration with JModelica
+with extended FMI API.<a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+</div>
+<p><a class="reference internal" href="#fig-sof-arc-qss-jmod"><span class="std std-numref">Fig. 5.4</span></a> shows the originally suggested software architecture
+for the case where the QSS solver is integrated into an FMU-ME.
+This original design would not require modifying the FMI API,
+but it would require some stability of the JModelica-generated model API
+(which is not standardized).
+For simplicity the figure only
+shows single FMUs, but we anticipated having multiple interconnected FMUs.</p>
+<div class="figure" id="id5">
 <span id="fig-sof-arc-qss-jmod"></span><p class="plantuml">
-<object data="_images/plantuml-e4838197400c94eb25612e824cf5cca0721e246a.svg" type="image/svg+xml" style="width:830px;height:526px;">
+<object data="_images/plantuml-e4838197400c94eb25612e824cf5cca0721e246a.svg" type="image/svg+xml" style="width:818px;height:521px;">
 <img src="_images/plantuml-e4838197400c94eb25612e824cf5cca0721e246a.png" alt="title Software architecture for QSS integration with JModelica
 
 skinparam componentStyle uml2
@@ -639,7 +636,7 @@ note left of FMU_QSS
 end note" />
 
 </object></p>
-<p class="caption"><span class="caption-number">Fig. 5.3 </span>: Software architecture for QSS integration with JModelica.<a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 5.4 </span>: Software architecture for QSS integration with JModelica.<a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
