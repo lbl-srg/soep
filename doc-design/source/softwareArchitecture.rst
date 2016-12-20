@@ -321,9 +321,10 @@ The QSS solvers require the derivatives shown in :numref:`tab_qss_der`.
    | QSS3        | :math:`dx/dt` * , :math:`d^2x/dt^2` ** , :math:`d^3x/dt^3`| :math:`dz/dt` , :math:`d^2z/dt^2`, :math:`d^3z/dt^3`|
    +-------------+-----------------------------------------------------------+-----------------------------------------------------+
 
-This section introduces API of functions to be provided by JModelica for an efficient implementation of QSS.
-We use the ``types`` which are used in the FMI specifications version 2.0 to define the functions.
-Details about the ``types`` can be found in the FMI specification.
+Because the FMI API does not provide access to the required derivatives,
+we will now propose functions to be added to the FMI API
+that are needed for an efficient implementation of QSS.
+We use the following ``types``, which are identical to the ones used in the FMI 2.0 specification:
 
 .. code:: c
 
@@ -338,12 +339,9 @@ Details about the ``types`` can be found in the FMI specification.
                fmi2Fatal,
                fmi2Pending}fmi2Status;
 
-.. note::
 
-  ``fmi2Component`` is a pointer to an FMU
-  specific data structure that contains the information needed to
-  process the model equations or to process the cosimulation of the respective slave.
-
+QSS generally requires to only update a subset of the state vector. We therefore
+introduce the following function:
 
 .. code:: c
 
@@ -352,21 +350,45 @@ Details about the ``types`` can be found in the FMI specification.
                                              const fmi2ValueReference vr[],
                                              size_t nx);
 
-This function is similar to ``fmi2SetContinuousStates()``. The only difference
-is that it gets the value references ``vr`` of the state variables that need to be set.
-Argument ``nx`` is the length of the state vector ``x`` and is provided for checking purposes.
-Similar to ``fmi2SetContinuousStates()``, this function should re-initialize caching
-of all variables which depend on the states set.
+This function is similar to ``fmi2SetContinuousStates()``. However, it takes
+as additional arguments
 
-The FMI specification defines ``caching`` as a mechanism which requires
-that the model evaluation can detect when the input arguments
-of a function have changed so the function can be updated.
+ * the value references ``vr`` of the state variables that need to be updated, and
+ * the length ``nx`` of the state vector ``x``.
+
+Similar to ``fmi2SetContinuousStates()``, this function should re-initialize caching
+of all variables which depend on the *updated* states.
 
 .. note::
 
-  We note that current ``fmi2SetContinuousStates()`` forces to set the entire
-  state vectors. This re-initializes ``caching`` of all variables which depend on the state
-  variables. This is inefficient for QSS solvers.
+  The currently implemented function ``fmi2SetContinuousStates()`` forces to update
+  the entire state vector. This re-initializes ``caching`` of all variables
+  which depend on the state variables. This is inefficient for QSS solvers.
+
+To retrieve individual state derivatives, we introduce the following function:
+
+
+<Derivatives>
+  <Unknown index="8" dependencies="6" />
+  <!-- Second order derivative of the variable with
+       index="5", which is x, hence value_reference="123" is d^2 x/dt^2.
+  <HigherOrder index="5" order="2" value_reference="123" />
+  <!-- FMU provides d^3/dt^3 at value_reference="124"-->
+  <HigherOrder index="5" order="3" value_reference="124" />
+
+  <!-- EventIndicator with index="1" specifies the value reference
+       of the first time derivative
+       of the element "1" of vector of the event indicators -->
+  <EventIndicator index="1" order="1" value_reference="200" />
+  <!-- Second time derivative of the element "1" of the event indicator -->
+  <EventIndicator index="1" order="2" value_reference="201" />
+  <!--  If the element 2 of the vector of event indicators is not differentiable,
+        it will not show up here.
+        Hence, there may be a index="3" specification for the element "3"
+        of the vector of event indicators. -->
+  <EventIndicator index="3" order="1" value_reference="202" />
+
+</Derivatives>
 
 .. code:: c
 
@@ -376,20 +398,30 @@ of a function have changed so the function can be updated.
                                         size_t nvr, const fmi2Integer ord);
 
 This function is similar to ``fmi2GetDerivatives()``.
-The only difference is that it gets a vector of value references ``vr``,
-and the maximum order ``ord`` of the state derivatives to be retrieved. It returns
-an ``ord x nvr`` array of state derivatives ``val``.
-Argument ``nvr`` is the length of the state derivative vector.
+However, it takes as arguments
 
-If ``ord==2`` then, ``val[0]`` is the vector of first derivatives
-of the state vector, and ``val[1]`` is the vector of second derivatives.
+ * a 2-dimensional rather than a 1-dimensional arrary for the derivatives ``val``
+ * a vector of value references ``vr``,
+ * the maximum order ``ord`` of the state derivatives to be retrieved.
+   ``ord`` is allowed to be ``0``, ``1`` or ``2``.
+
+It returns an array of state derivatives ``val[ord][nvr]``, where
+``nvr`` is the length of the state derivative vector.
+
+**fixme**: How do you know that a tool provides higher order derivatives?
+Should the `modelDescription.xml` file prescribe this?
+
+If ``ord==2`` then, ``val[0]`` is the vector of first time derivatives
+of the state vector :math:`dx/dt`, and ``val[1]``
+is the vector of second time derivatives :math:`d^2x/dt^2`.
 
 .. note::
 
   ``fmi2GetReal()`` could be used to retrieve specific state derivatives. But
-  The function will also need to include the order of the state derivative
-  to be retrieved. Since such information is only relevant for
-  state derivative, we recommend to use the new function ``fmi2GetSpecificDerivatives()``
+  the function will also need to include the order of the state derivative
+  to be retrieved (*fixme*, why could this not be added to the xml file?).
+  Since such information is only relevant for
+  state derivatives, we recommend to use the new function ``fmi2GetSpecificDerivatives()``
   instead.
 
 .. code:: c
@@ -429,8 +461,7 @@ and ``val[2]`` is the vector of second derivatives.
   fmi2Status fmi2GetDependentEventIndicators(fmi2Component c,
                                     fmi2ValueReference vr[][],
                                     size_t ni,
-                                    size_t nx
-                                    );
+                                    size_t nx);
 
 This function returns an ``ni x nx`` array of value
 references ``vr`` of state variables on which the event indicators depend on.
@@ -449,12 +480,54 @@ dependent state variables of the first event indicator.
    all state variables, we used for simplicity
    the length of the state vector ``nx`` in the array declaration.
 
+:numref:`fig_sof_arc_qss_jmod2` shows the software architecture
+with the extended FMI API.
+For simplicity the figure only
+shows single FMUs, but we anticipated having multiple interconnected FMUs.
 
-Because the FMI API does not provide access to many required derivatives,
-and to avoid having to numerically approximate derivatives,
-we will implement the QSS solver with the generated C code
-when creating the FMU. This leads to the suggested software architecture
-shown in :numref:`fig_sof_arc_qss_jmod`. For simplicity the figure only
+.. _fig_sof_arc_qss_jmod2:
+
+.. uml::
+   :caption: Software architecture for QSS integration with JModelica
+             with extended FMI API.
+
+   title Software architecture for QSS integration with JModelica with extended FMI API
+
+   skinparam componentStyle uml2
+
+   [QSS solver] as qss_sol
+
+   package PyFMI {
+   [Master algorithm] -> qss_sol : "inputs, time"
+   [Master algorithm] <- qss_sol : "next event time, states"
+   [Master algorithm] -- [Sundials]
+   }
+
+   [Sundials] --> [FMU-ME] : "(x, t)"
+   [Sundials] <-- [FMU-ME] : "dx/dt"
+   [Master algorithm] --> [FMU-CS] : "hRequested"
+   [Master algorithm] <-- [FMU-CS] : "(x, hMax)"
+
+
+   [FMU-ME] as FMU_QSS
+
+   package Optimica {
+   [JModelica compiler] as jmc
+   }
+
+   jmc --> FMU_QSS
+
+   FMU_QSS --> qss_sol : "derivatives"
+   qss_sol --> FMU_QSS : "inputs, time, states"
+
+
+
+:numref:`fig_sof_arc_qss_jmod` shows the originally suggested software architecture
+for the case where the QSS solver is integrated into an FMU-ME.
+This original design would not require modifying the FMI API,
+but it would require some stability of the JModelica-generated model API
+(which is not standardized).
+For simplicity the figure only
 shows single FMUs, but we anticipated having multiple interconnected FMUs.
 
 .. _fig_sof_arc_qss_jmod:
@@ -494,6 +567,9 @@ shows single FMUs, but we anticipated having multiple interconnected FMUs.
       next event time, but
       exposes no state derivatives
    end note
+
+
+
 
 .. note::
 
