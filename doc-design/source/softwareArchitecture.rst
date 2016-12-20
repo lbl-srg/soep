@@ -7,7 +7,7 @@ OpenStudio integration
 ^^^^^^^^^^^^^^^^^^^^^^
 
 :numref:`fig_overall_software_architecture_one_editor`
-and 
+and
 :numref:`fig_overall_software_architecture_two_editors` show the overall
 software architecture of SOEP, either with one or with two
 HVAC and control editors.
@@ -56,7 +56,7 @@ Note that the JModelica distribution includes a C++ compiler.
       Ideally, we would combine them into one graphical editor. Whether this
       is feasible will depend on the modeling support that the refactored
       OpenStudio `HVAC System Editor` will provide.
-         
+
 
 .. _fig_overall_software_architecture_two_editors:
 
@@ -307,9 +307,9 @@ The QSS solvers require the derivatives shown in :numref:`tab_qss_der`.
 .. table:: Derivatives required by QSS algorithms. One asteriks indicates
            that they are provided by FMI-ME 2.0, and two asteriks indicate
            that they can optionally be computed exactly if directional
-           derivative are provided by the FMU. 
+           derivative are provided by the FMU.
            The others cannot be provided through the FMI API.
-           
+
 
    +-------------+-----------------------------------------------------------+-----------------------------------------------------+
    | Type of QSS | State derivative                                          | Event indicator function derivative                 |
@@ -322,70 +322,70 @@ The QSS solvers require the derivatives shown in :numref:`tab_qss_der`.
    +-------------+-----------------------------------------------------------+-----------------------------------------------------+
 
 This section introduces API of functions to be provided by JModelica for an efficient implementation of QSS.
-We use the ``types`` which are used in the FMI specifications version 2.0 to define the functions. 
+We use the ``types`` which are used in the FMI specifications version 2.0 to define the functions.
 Details about the ``types`` can be found in the FMI specification.
 
 .. code:: c
 
   typedef unsigned int fmi2ValueReference;
-  typedef int fmi2Integer; 
+  typedef int fmi2Integer;
   typedef double fmi2Real;
   typedef void* fmi2Component;
   typedef enum{fmi2OK,
-	       fmi2Warning, 
+	       fmi2Warning,
                fmi2Discard,
                fmi2Error,
                fmi2Fatal,
                fmi2Pending}fmi2Status;
 
-.. note:: 
+.. note::
 
   ``fmi2Component`` is a pointer to an FMU
-  specific data structure that contains the information needed to 
+  specific data structure that contains the information needed to
   process the model equations or to process the cosimulation of the respective slave.
 
 
 .. code:: c
-  
-  fmi2Status fmi2SetSpecificContinuousStates(fmi2Component c, 
-                                             const fmi2Real x[], 
+
+  fmi2Status fmi2SetSpecificContinuousStates(fmi2Component c,
+                                             const fmi2Real x[],
                                              const fmi2ValueReference vr[],
                                              size_t nx);
 
 This function is similar to ``fmi2SetContinuousStates()``. The only difference
 is that it gets the value references ``vr`` of the state variables that need to be set.
 Argument ``nx`` is the length of the state vector ``x`` and is provided for checking purposes.
-Similar to ``fmi2SetContinuousStates()``, this function should re-initialize caching 
-of all variables which depend on the states set. 
+Similar to ``fmi2SetContinuousStates()``, this function should re-initialize caching
+of all variables which depend on the states set.
 
-The FMI specification defines ``caching`` as a mechanism which requires 
+The FMI specification defines ``caching`` as a mechanism which requires
 that the model evaluation can detect when the input arguments
-of a function have changed so the function can be updated. 
+of a function have changed so the function can be updated.
 
 .. note::
-  
+
   We note that current ``fmi2SetContinuousStates()`` forces to set the entire
   state vectors. This re-initializes ``caching`` of all variables which depend on the state
-  variables. This is inefficient for QSS solvers. 
+  variables. This is inefficient for QSS solvers.
 
 .. code:: c
 
-  fmi2Status fmi2GetSpecificDerivatives(fmi2Component c, 
-                                        fmi2Real val[][], 
+  fmi2Status fmi2GetSpecificDerivatives(fmi2Component c,
+                                        fmi2Real val[][],
                                         const fmi2ValueReference vr[],
                                         size_t nvr, const fmi2Integer ord);
 
-This function is similar to ``fmi2GetDerivatives()``. 
-The only difference is that it gets a vector of value references ``vr``, 
-and the maximum order ``ord`` of the state derivatives to be retrieved. It returns 
-an ``ord x nvr`` array of state derivatives ``val``. 
+This function is similar to ``fmi2GetDerivatives()``.
+The only difference is that it gets a vector of value references ``vr``,
+and the maximum order ``ord`` of the state derivatives to be retrieved. It returns
+an ``ord x nvr`` array of state derivatives ``val``.
 Argument ``nvr`` is the length of the state derivative vector.
 
-If ``ord==2`` then, ``val[0]`` is the vector of first derivatives 
+If ``ord==2`` then, ``val[0]`` is the vector of first derivatives
 of the state vector, and ``val[1]`` is the vector of second derivatives.
 
 .. note::
-  
+
   ``fmi2GetReal()`` could be used to retrieve specific state derivatives. But
   The function will also need to include the order of the state derivative
   to be retrieved. Since such information is only relevant for
@@ -394,60 +394,60 @@ of the state vector, and ``val[1]`` is the vector of second derivatives.
 
 .. code:: c
 
-  fmi2Status fmi2GetExtendedEventIndicators(fmi2Component c, 
-                                    fmi2Real val[][], 
+  fmi2Status fmi2GetExtendedEventIndicators(fmi2Component c,
+                                    fmi2Real val[][],
                                     const fmi2Integer ord,
                                     size_t ni);
 
-This function is similar to ``fmi2GetEventIndicators()``. 
-The only difference is that it gets the maximum derivative order ``ord`` 
-of the vector of event indicators,  and returns an ``ord+1 x ni``  array of 
+This function is similar to ``fmi2GetEventIndicators()``.
+The only difference is that it gets the maximum derivative order ``ord``
+of the vector of event indicators,  and returns an ``ord+1 x ni``  array of
 event indicators with their derivatives ``val``.
-Argument ``ni`` is the length of the vector of event indicators. 
+Argument ``ni`` is the length of the vector of event indicators.
 
 We note that the ``return`` value ``val`` includes the vector of event indicators as well.
 
-If ``ord==2`` then, ``val[0]`` is the vector of event indicators, 
-``val[1]`` is the vector of first derivatives of the vector of event indicators, 
+If ``ord==2`` then, ``val[0]`` is the vector of event indicators,
+``val[1]`` is the vector of first derivatives of the vector of event indicators,
 and ``val[2]`` is the vector of second derivatives.
 
-.. note:: 
+.. note::
 
   We note that the event indicator functions do not provide information
-  about state variables which trigger the state events. Good will be to 
-  provide such information so that a QSS solver does not have to 
+  about state variables which trigger the state events. Good will be to
+  provide such information so that a QSS solver does not have to
   requantize all variables when such an event happens. This information should be best
   provided in the ``ModelStructure`` of the model description file of an FMU.
-  Since we do not want to change the model structure of the FMU at this time, 
-  we propose to implement a function ``fmi2GetExtendedEventIndicators()`` 
-  which will be called at initialization once to provide 
-  the dependencies information between event indicators and state variables on 
-  which the event indicators depend on. 
+  Since we do not want to change the model structure of the FMU at this time,
+  we propose to implement a function ``fmi2GetExtendedEventIndicators()``
+  which will be called at initialization once to provide
+  the dependencies information between event indicators and state variables on
+  which the event indicators depend on.
 
 .. code:: c
 
-  fmi2Status fmi2GetDependentEventIndicators(fmi2Component c, 
-                                    fmi2ValueReference vr[][], 
+  fmi2Status fmi2GetDependentEventIndicators(fmi2Component c,
+                                    fmi2ValueReference vr[][],
                                     size_t ni,
                                     size_t nx
                                     );
 
-This function returns an ``ni x nx`` array of value 
+This function returns an ``ni x nx`` array of value
 references ``vr`` of state variables on which the event indicators depend on.
-Argument ``ni`` is the length of the vector of event indicators. 
-Argument ``nx`` is the length of the state vector. 
+Argument ``ni`` is the length of the vector of event indicators.
+Argument ``nx`` is the length of the state vector.
 
-The ordering of the elements of the array of value references 
-must match the ordering of the vector of event indicators 
-returned in ``fmi2GetExtendedEventIndicators()``.  
-Thus ``vr[0]`` must be the vector of value references of 
-dependent state variables of the first event indicator. 
+The ordering of the elements of the array of value references
+must match the ordering of the vector of event indicators
+returned in ``fmi2GetExtendedEventIndicators()``.
+Thus ``vr[0]`` must be the vector of value references of
+dependent state variables of the first event indicator.
 
-.. note:: 
+.. note::
 
-   Although we do not anticipate each event indicator to depend on 
+   Although we do not anticipate each event indicator to depend on
    all state variables, we used for simplicity
-   the length of the state vector ``nx`` in the array declaration. 
+   the length of the state vector ``nx`` in the array declaration.
 
 
 Because the FMI API does not provide access to many required derivatives,
@@ -494,9 +494,9 @@ shows single FMUs, but we anticipated having multiple interconnected FMUs.
       next event time, but
       exposes no state derivatives
    end note
-      
+
 .. note::
 
    We still need to design how to handle algebraic loops inside the FMU
-   (see also Cellier's and Kofman's book) and algebraic loops that 
+   (see also Cellier's and Kofman's book) and algebraic loops that
    cross multiple FMUs.
