@@ -27,7 +27,7 @@ for integrating OpenStudio measures, and other OpenStudio code
 such as its graphical editor that interacts with the Modelica models.
 The problem being addressed is that the Modelica library is frequently
 updated, and we want to have *one* representation of the connectors,
-parameters, documenation and graphical layout of the models, and
+parameters, documentation and graphical layout of the models, and
 also check for potential incompatible model changes during the development
 of the Modelica Library.
 
@@ -486,7 +486,3 @@ The sequence diagram for this as shown in :numref:`fig_use_case_os_zones`.
        Measure -> "OpenStudio Model Library": setValue()
 
    end
-
-
-
-

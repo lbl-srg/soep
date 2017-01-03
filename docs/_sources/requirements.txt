@@ -32,11 +32,11 @@ Below is an initial list of requirements for the OpenStudio integration.
 
 #. *Opening and saving a model*:
    It shall be possible to open in the editor a model that is declared in Modelica
-   syntax, manipulate it, and safe it again in Modelica syntax. Only items
+   syntax, manipulate it, and save it again in Modelica syntax. Only items
    that have been changed should be updated in the Modelica syntax.
 
    A use case is that a design firm builds custom models of air handler units,
-   improves them during a project, and wants to safe the improvements in the
+   improves them during a project, and wants to save the improvements in the
    library for use in the next project. As the custom library is stored in
    git, only the items of the model that have been manipulated should be changed.
 
@@ -391,7 +391,7 @@ Open question: Shall we use OpenMP or some other system?
 Master Algorithm
 ^^^^^^^^^^^^^^^^
 
-**This section should probably be deleted**
+**This section should probably be deleted.**
 
 The master algorithm must satisfy the following requirements:
 

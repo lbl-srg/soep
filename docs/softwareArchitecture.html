@@ -177,9 +177,10 @@
 <span id="sec-soft-arch"></span><h1>5. Software Architecture<a class="headerlink" href="#software-architecture" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="openstudio-integration">
 <h2>5.1. OpenStudio integration<a class="headerlink" href="#openstudio-integration" title="Permalink to this headline">¶</a></h2>
-<p><a class="reference internal" href="#fig-overall-software-architecture-one-editor"><span class="std std-numref">Fig. 5.2</span></a>
+<p><a class="reference internal" href="#fig-overall-software-architecture-two-editors"><span class="std std-numref">Fig. 5.1</span></a>
 and
-<a class="reference internal" href="#fig-overall-software-architecture-two-editors"><span class="std std-numref">Fig. 5.1</span></a> show the overall
+<a class="reference internal" href="#fig-overall-software-architecture-one-editor"><span class="std std-numref">Fig. 5.2</span></a>
+show the overall
 software architecture of SOEP, either with one or with two
 HVAC and control editors.</p>
 <p>The <cite>Application</cite> on top of the figure may be an
@@ -328,8 +329,8 @@ end note" />
 </div>
 <div class="figure" id="id2">
 <span id="fig-overall-software-architecture-one-editor"></span><p class="plantuml">
-<object data="_images/plantuml-b2d675841ab2353e60ec3b719497fffef00a2ee2.svg" type="image/svg+xml" style="width:2066px;height:1398px;">
-<img src="_images/plantuml-b2d675841ab2353e60ec3b719497fffef00a2ee2.png" alt="title Overall software architecture (with one editor for the SOEP mode).
+<object data="_images/plantuml-faf7e90568d800c9c01e6a6810d9223a6c0e8f2a.svg" type="image/svg+xml" style="width:2369px;height:1398px;">
+<img src="_images/plantuml-faf7e90568d800c9c01e6a6810d9223a6c0e8f2a.png" alt="title Overall software architecture (with one editor for the SOEP mode).
 
 skinparam componentStyle uml2
 
@@ -367,7 +368,8 @@ package SOEP {
 
 [Conversion Script] ..&gt; [JModelica]: parses\nAST
 [SOEP\nSimulator Interface] ..&gt; [JModelica] : writes inputs,\nruns simulation,\nreads outputs
-database &quot;Modelica\nLibrary AST&quot;
+database &quot;Modelica\nLibrary AST&quot; as mod_AST
+mod_AST &lt;- [Conversion Script] : generates
 database &quot;Modelica\nBuildings Library&quot;
 [JModelica] --&gt; [Modelica\nBuildings Library]: imports
 }
@@ -388,7 +390,10 @@ actor User as mouse
 database &quot;User-Provided\nModelica Library&quot;
 [JModelica] --&gt; [User-Provided\nModelica Library]: imports
 
-
+note left of mod_AST
+  Used as an intermediate format and
+  to verify incompatible changes.
+end note
 
 note right of [HVAC Systems Editor\n(SOEP Mode)]
   Allows free graphical editing

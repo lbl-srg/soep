@@ -6,9 +6,10 @@ Software Architecture
 OpenStudio integration
 ^^^^^^^^^^^^^^^^^^^^^^
 
-:numref:`fig_overall_software_architecture_one_editor`
+:numref:`fig_overall_software_architecture_two_editors`
 and
-:numref:`fig_overall_software_architecture_two_editors` show the overall
+:numref:`fig_overall_software_architecture_one_editor`
+show the overall
 software architecture of SOEP, either with one or with two
 HVAC and control editors.
 
@@ -207,7 +208,8 @@ Note that the JModelica distribution includes a C++ compiler.
 
    [Conversion Script] ..> [JModelica]: parses\nAST
    [SOEP\nSimulator Interface] ..> [JModelica] : writes inputs,\nruns simulation,\nreads outputs
-   database "Modelica\nLibrary AST"
+   database "Modelica\nLibrary AST" as mod_AST
+   mod_AST <- [Conversion Script] : generates
    database "Modelica\nBuildings Library"
    [JModelica] --> [Modelica\nBuildings Library]: imports
    }
@@ -228,7 +230,10 @@ Note that the JModelica distribution includes a C++ compiler.
    database "User-Provided\nModelica Library"
    [JModelica] --> [User-Provided\nModelica Library]: imports
 
-
+   note left of mod_AST
+     Used as an intermediate format and
+     to verify incompatible changes.
+   end note
 
    note right of [HVAC Systems Editor\n(SOEP Mode)]
      Allows free graphical editing

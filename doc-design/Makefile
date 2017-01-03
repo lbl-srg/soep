@@ -49,16 +49,21 @@ cleanModels:
 	-rm -f source/models/success.
 	-rm -rf source/models/Resources
 	-rm -rf source/models/binaries
+
 clean:
 	-rm -rf $(BUILDDIR)/*
+	-rm -rf ../docs/*.html
+	-rm -rf ../docs/_images
+	-rm -rf ../docs/_sources
+	-rm -rf ../docs/_static
 
-html:   
+html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) ../docs
 	./fixHtml.py
 	@echo
 	@echo "Build finished. The HTML pages are in ../docs"
 
-latex:	test_installation 
+latex:	test_installation
 	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
 	@echo
 	@echo "Build finished; the LaTeX files are in $(BUILDDIR)/latex."
@@ -120,4 +125,3 @@ doctest:
 	      "results in $(BUILDDIR)/doctest/output.txt."
 
 dist:	html, linkcheck
-
