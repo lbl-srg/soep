@@ -530,13 +530,13 @@ is given to provide context, it remains unchanged from the FMI 2.0 standard.]</p
   &lt;!-- The ScalarVariable with index 8 is der(x) --&gt;
   &lt;Unknown     index=&quot;8&quot; dependencies=&quot;6&quot; /&gt;
   &lt;HigherOrder index=&quot;5&quot; order=&quot;2&quot; value_reference=&quot;124&quot; /&gt; &lt;!-- This is d^2 x/dt^2 --&gt;
-  &lt;HigherOrder index=&quot;5&quot; order=&quot;3&quot; value_reference=&quot;125&quot; /&gt;&lt;!-- This is d^3 x/dt^3 --&gt;
+  &lt;HigherOrder index=&quot;5&quot; order=&quot;3&quot; value_reference=&quot;125&quot; /&gt; &lt;!-- This is d^3 x/dt^3 --&gt;
 &lt;/Derivatives&gt;
 </pre></div>
 </div>
 <p>For efficiency, QSS requires to know what states trigger
 which element of the event indicator function. Also, it will need to
-have access to, or else apprximate numerically, the time derivatives of the
+have access to, or else approximate numerically, the time derivatives of the
 event indicators. FMI 2.0 outputs an array of real-valued event indicators,
 but no variable dependencies.
 Therefore, we introduce the following xml section, which assumes we have
