@@ -30,11 +30,11 @@ OpenStudio::SOEP::connect(zone.airOutletPort(),oa_mixer.returnAirPort());
 
 # Perhaps some pre baked controllers
 controller = OpenStudio::SOEP::PackagedSingleZoneController.new();
-OpenStudio::SOEP::connect(zone,zone.temperaturePort(),controller.inputTemperaturePort());
-OpenStudio::SOEP::connect(controller,controller.fanControlSignalPort(),fan.controlPort());
-OpenStudio::SOEP::connect(controller,controller.coolingControlSignalPort(),cooling_coil.controlPort());
-OpenStudio::SOEP::connect(controller,controller.heatingControlSignalPort(),heating_coil.controlPort());
-OpenStudio::SOEP::connect(connect,controller.oaDamperPositionPort(),oa_mixer.damperPositionPort());
+OpenStudio::SOEP::connect(zone.temperaturePort(),controller.inputTemperaturePort());
+OpenStudio::SOEP::connect(controller.fanControlSignalPort(),fan.controlPort());
+OpenStudio::SOEP::connect(controller.coolingControlSignalPort(),cooling_coil.controlPort());
+OpenStudio::SOEP::connect(controller.heatingControlSignalPort(),heating_coil.controlPort());
+OpenStudio::SOEP::connect(controller.oaDamperPositionPort(),oa_mixer.damperPositionPort());
 
 # There should be a mechanism in the API to package a set of components into a new component.
 # Here is one way to do it.
