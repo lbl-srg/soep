@@ -9,7 +9,7 @@ The goal of this project is to make the `abstract syntax tree (AST)
 <https://en.wikipedia.org/wiki/Abstract_syntax_tree>`_ of the Modelica
 Buildings Library (MBL) [#fn_mbl]_ available to other tools. Specifically, this
 work should be of use to the OpenStudio team for discovering available models
-and their parameters and other metadata from the OpenStudio interface.
+and their parameters and other metadata for use from the OpenStudio interface.
 
 Background
 """"""""""
@@ -26,8 +26,9 @@ and other objects can be specified. Modelica Models also have a hierarchical
 structure of packages, models, and models can be composed of multiple (possibly
 replaceable) components. Much of this information will be required by the
 OpenStudio tool in order to understand which components are available, where
-they reside in the library structure, what parameters they have, how to display
-them, and what other meta-data are available (such as documentation).
+they reside in the library structure, what parameters they have, how they can
+be configured, how to display them, and what other meta-data are available
+(such as documentation).
 
 From initial discussion with Michael Wetter (LBNL) on this task, we've
 identified the main focus will be to make the AST of Modelica source files
@@ -43,12 +44,12 @@ connecting points, inputs/outputs, and parameters and related meta-data.
 Presumably, an OpenStudio application will consume some or all of the above
 information, use it to provide an interface to the user, and ultimately write
 out a Modelica file which connects the various library components, configures
-various components and packages (for example, setting the "media" for the
-working fluid in "air", "water", and refrigerant loops), and sets the various
+various components and packages (for example, setting the "media" or working
+fluid of fluid component models in various HVAC loops), and sets the various
 parameter values.
 
-Note: to create models, information from other libraries, most notably, the
-Modelica Standard Library (MSL) itself, may need to be made available. Typical
+To create models, information from other libraries, most notably, the Modelica
+Standard Library (MSL) itself, may need to be made available. Typical
 applications and examples from the Modelica Buildings Library (MBL) use
 component models from both the MSL and MBL. There is also interest in being
 able to support additional third party libraries over and above the MSL and
@@ -60,7 +61,7 @@ OpenStudio-specific metadata to the MBL files themselves. However, although
 this may be easy and feasible for MBL, it may not be practical to consider
 annotating the MSL or other third party libraries as we have no direct control
 over that library and any custom annotations would have to be re-applied with
-future MSL versions. Because of this, it may be better, to the extent possible,
+future MSL versions. Because of this, to the extent possible, it may be better
 to not rely upon custom vendor-specific annotations where possible.
 
 Proposed Workflow, Process, and Toolchain
@@ -81,14 +82,16 @@ well) into an XML document. The XML document will contain:
     - what configuration management options exist (ie, replaceable components
       and packages)
     - including meta-data and attributes for all the above such as graphics
-      annotations, html documentation, etc.
+      annotations, vendor annotations, html documentation, etc.
 
-We believe the JModelica tool suite will be able to provide the proper parsing
-tools for the AST we need. Specifically, we must ensure that the AST we derive
-from JModelica meets all of our needs -- most notably, we must ensure we have
-access to all annotations from a model. Thus, there are two key questions we
-must answer before deciding whether we can embrace the JModelica toolchain for
-the current effort:
+We believe the `JModelica
+<http://www.jmodelica.org/api-docs/usersguide/JModelicaUsersGuide-1.17.0.pdf>`_
+tool suite will be able to provide the proper parsing tools for the AST we
+need. Specifically, we must ensure that the AST we derive from JModelica meets
+all of our needs -- most notably, we must ensure we have access to all
+annotations from a model. Thus, there are two key questions we must answer
+before deciding whether we can embrace the JModelica toolchain for the current
+effort:
 
 1. Does the JModelica toolchain provide sufficient access to the full AST?
 2. Is that access available through the Python interface?
@@ -105,8 +108,8 @@ toolsuite at the moment. We have used and have demonstrated that the JModelica
 interface does indeed expose at least some of the main hooks into the compiler
 including, most notably, access to the AST including annotations (using version
 1.17). Python is well known and loved by many developers, most notably those in
-the engineering domain and offers quite a few tools and libraries that can be
-added if needed.
+the engineering domain and offers quite a few tools and libraries (including
+XML libraries) that can be used/added if needed.
 
 The signature of the batch program we will write will be::
 
@@ -158,15 +161,17 @@ we generally want all of the information from the source AST *except* equation
 and algorithm sections. All annotations should be made available.
 
 One consideration will be: which version of the AST should be used to represent
-packages, classes, models, etc. The JModelica User's Guide 1.17 in Chapter 9
-talks about three kinds of AST: source level, instance level, and flattened.
-The flattened AST is not relevant for us (it corresponds to a fully flattened
-model instance ready to be compiled; our interest is in browsing all objects
-for potential configuration).
+packages, classes, models, etc. The `JModelica User's Guide 1.17
+<http://www.jmodelica.org/api-docs/usersguide/JModelicaUsersGuide-1.17.0.pdf>`_
+in Chapter 9 talks about three kinds of AST: source level, instance level, and
+flattened.  The flattened AST is not relevant for us (it corresponds to a fully
+flattened model instance ready to be compiled; our interest is in browsing all
+objects for potential configuration).
 
 The source level AST corresponds 1:1 to the original files in both structure
 and content. Although the source AST is what we need, it does not expand out
-components and extended classes and thus may require additional transformation.
+components and extended classes and thus may require additional processing by
+consumers.
 
 An instance level AST, in contrast, represents the fully expanded instance of a
 given model or class, including configurations. Although this is tempting to
@@ -410,65 +415,10 @@ Summary of Questions and Next Steps
 References
 """"""""""
 
-Åkesson, Ekman, and Hedin 2008
-
-    J. Åkesson, T. Ekman, and G. Hedin. 2008. "Implementation of a
-    Modelica compiler using JastAdd attribute grammars". Science of
-    Computer Programming 75 (2010) 21-38. Available at:
-    http://www.sciencedirect.com/science/article/pii/S0167642309001087
-
 JModelica User Guide
 
     "JModelica.org User Guide: Version 1.17". Available at:
     http://www.jmodelica.org/api-docs/usersguide/JModelicaUsersGuide-1.17.0.pdf
-
-Franke 2014
-
-    R. Franke. 2014. "Client-side Modelica powered by Python or
-    JavaScript". Available at:
-    http://www.ep.liu.se/ecp/096/115/ecp14096115.pdf
-
-Schlegel and Finsterwalder 2011
-
-    C. Schlegel and R. Finsterwalder. 2011. "Automatic Generation of
-    Graphical User Interfaces for Simulation of Modelica Models".
-    Available at: http://www.ep.liu.se/ecp/063/090/ecp11063090.pdf
-
-Modelica Parser in OCaml
-
-    C. Höger. 2015. "modelica\_ml". License: BSD3. Available at:
-    https://opam.ocaml.org/packages/modelica\_ml/modelica\_ml.0.2.0/
-
-Free Modelica Parser in C
-
-    MathCore. "Free Modelica Parser". License: GPL. Available at:
-    https://www.modelica.org/tools/parser/Parser.shtml
-
-Modelica Parser in Python
-
-    D. Xie. 2017. "modparc: Modelica Parser Documentation". License:
-    GPL. Available at:
-    https://modparc.readthedocs.io/en/latest/index.html and
-    https://github.com/xie-dongping/modparc
-
-Modelica Parser in Haskell
-
-    H. Hördegen. 2014. "The modelicaparser package". License: BSD3.
-    Available at: https://hackage.haskell.org/package/modelicaparser
-
-Modelica Parser in JavaScript/Node.js
-
-    M. Tiller. 2015. "modelica-parser". License: MIT. Available at:
-    https://www.npmjs.com/package/modelica-parser
-
-    omuses. 2014. "moijs: Modelica in JavaScript". GitHub Repository.
-    License: MIT. Available at: https://github.com/omuses/moijs
-
-JModelica Parser in Java
-
-    JModelica. "ModelicaParser Class". License: GPL. Available at:
-    http://www.jmodelica.org/api-docs/modelica\_compiler/classorg\_1\_1jmodelica\_1\_1modelica\_1\_1parser\_1\_1\_modelica\_parser.html
-
 
 .. rubric:: Footnotes
 
