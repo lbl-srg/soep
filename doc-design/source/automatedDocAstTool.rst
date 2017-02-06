@@ -5,10 +5,10 @@ This section describes an agreed-upon workflow, toolchain and process to
 generate automated SOEP "documentation" and abstract syntax trees.
 
 The goal of this project is to make the `abstract syntax tree (AST)
-<https://en.wikipedia.org/wiki/Abstract_syntax_tree>` of the Modelica Buildings
-Library (MBL) [#fn_mbl]_ available to other tools, most notably, the OpenStudio
-team. Notably, the AST shall contain both the HTML documentation for the
-models, functions, and packages contained within.
+<https://en.wikipedia.org/wiki/Abstract_syntax_tree>`_ of the Modelica
+Buildings Library (MBL) [#fn_mbl]_ available to other tools, most notably, the
+OpenStudio team. Notably, the AST shall contain both the HTML documentation for
+the models, functions, and packages contained within.
 
 The AST output format shall be used to understand what models exist within the
 MBL, what their parameters are, what replaceable components exist, as well as
