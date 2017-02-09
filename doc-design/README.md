@@ -15,6 +15,7 @@ and a few contributions, which can be installed by running
 pip install Sphinx
 pip install sphinx_bootstrap_theme
 pip install sphinxcontrib-plantuml
+pip install sphinxcontrib_bibtex
 ```
 
 UML graphics are drawn using https://pypi.python.org/pypi/sphinxcontrib-plantuml

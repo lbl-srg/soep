@@ -274,6 +274,7 @@ Note that the JModelica distribution includes a C++ compiler.
 
 **fixme: more design to be added**
 
+.. include:: automatedDocAstTool.rst
 
 JModelica Integration
 ^^^^^^^^^^^^^^^^^^^^^
