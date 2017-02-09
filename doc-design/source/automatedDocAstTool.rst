@@ -79,7 +79,7 @@ well) into an XML document. The XML document will contain:
     - what connection "ports" are available
     - what control inputs/outputs are available
     - what parameters are available
-    - what configuration management options exist (ie, replaceable components
+    - what configuration management options exist (i.e., replaceable components
       and packages)
     - including meta-data and attributes for all the above such as graphics
       annotations, vendor annotations, html documentation, etc.
@@ -104,7 +104,7 @@ tool in Python.
 The Python interface to JModelica appears the most logical choice as it is the
 most developed, documented, and user-facing of the APIs for JModelica -- in
 fact, it is the only user-facing interface to the open-source JModelica
-toolsuite at the moment. We have used and have demonstrated that the JModelica
+tool suite at the moment. We have used and have demonstrated that the JModelica
 interface does indeed expose at least some of the main hooks into the compiler
 including, most notably, access to the AST including annotations (using version
 1.17). Python is well known and loved by many developers, most notably those in
@@ -410,7 +410,7 @@ Summary of Questions and Next Steps
 - Write a tool using the JModelica Python API to extract AST data from Modelica
   Models in a library and write that data out as XML
 - Design the XML end format
-- Create diff tool for comparing xml library dumps in a meaningful way
+- Create diff tool for comparing XML library dumps in a meaningful way
 
 References
 """"""""""
