@@ -148,7 +148,7 @@ some senses it is a perfect "glue" language for a JVM-based application. The
 downside is that JRuby requires an additional .jar file (in addition to the JVM
 which would already be present to support JModelica) which implements the Ruby
 language. The `jruby.jar` file is currently 13.5 MB as of release 9.1.7.0.
-Other JVM-based languages exist and are compelling as well [#clj]_.
+Other JVM-based languages exist and are compelling as well.
 
 We will continue to visit the question of implementation language but
 nominally, implementing the code in Java presents the least packaging
@@ -487,6 +487,3 @@ JModelica User Guide
 .. [#fn_mbl] Our main focus is to support the Modelica Buildings Library but
              the tool should also work for other Modelica file import/parsing
              tasks
-
-.. [#clj] For example, Clojure, another dynamic language with excellent Java
-          interop and a favorite of this author, has a jar size of only 1 MB
