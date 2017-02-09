@@ -5,11 +5,12 @@ This section describes an agreed-upon workflow, toolchain and process to
 generate automated SOEP "documentation" and abstract syntax trees from Modelica
 libraries; in particular, the Modelica Buildings Library (MBL).
 
-The goal of this project is to make the `abstract syntax tree (AST)
-<https://en.wikipedia.org/wiki/Abstract_syntax_tree>`_ of the Modelica
-Buildings Library (MBL) [#fn_mbl]_ available to other tools. Specifically, this
-work should be of use to the OpenStudio team for discovering available models
-and their parameters and other metadata for use from the OpenStudio interface.
+The goal of this effort is to build a computer program that makes the `abstract
+syntax tree (AST) <https://en.wikipedia.org/wiki/Abstract_syntax_tree>`_ of the
+Modelica Buildings Library (MBL) [#fn_mbl]_ available to other tools via an XML
+file.  Specifically, this work should be of use to the OpenStudio team for
+discovering available models and their parameters and other metadata for use
+from the OpenStudio interface for SOEP.
 
 Background
 """"""""""
@@ -22,13 +23,15 @@ model including html-documentation, vendor-specific data, and graphical
 annotations. Parameters, variables, equations, and models can contain
 documentation strings and annotations. Furthermore, packages can be documented
 and the display order of sub-packages, models, classes, functions, connectors
-and other objects can be specified. Modelica Models also have a hierarchical
-structure of packages, models, and models can be composed of multiple (possibly
+and other objects can be specified. Modelica libraries have a hierarchical
+structure consisting mainly of packages which contain models and other objects
+as well as sub-packages. Models themselves can be composed of multiple (possibly
 replaceable) components. Much of this information will be required by the
-OpenStudio tool in order to understand which components are available, where
-they reside in the library structure, what parameters they have, how they can
-be configured, how to display them, and what other meta-data are available
-(such as documentation).
+OpenStudio tool in order to understand which component models are available,
+where they reside in the library's package structure (i.e., their fully
+qualified name), what parameters they have, how they can be configured, how to
+display them, and what other meta-data are available (such as documentation
+strings and full-on HTML documentation).
 
 From initial discussion with Michael Wetter (LBNL) on this task, we've
 identified the main focus will be to make the AST of Modelica source files
@@ -57,12 +60,15 @@ MBL. Therefore, it will be important that this tool is not limited to just
 parsing/processing the MBL.
 
 Also, related to meta-data, it has been proposed that the MBL add any
-OpenStudio-specific metadata to the MBL files themselves. However, although
-this may be easy and feasible for MBL, it may not be practical to consider
-annotating the MSL or other third party libraries as we have no direct control
-over that library and any custom annotations would have to be re-applied with
-future MSL versions. Because of this, to the extent possible, it may be better
-to not rely upon custom vendor-specific annotations where possible.
+OpenStudio-specific metadata to the MBL files themselves. It was originally
+envisioned that Modelica's annotations should support just such a use-case.
+However, although it may be straight-forward to annotate the MBL (which we have
+control over), it may not be practical to consider annotating the MSL or other
+third party libraries as we have no direct control over those libraries and any
+custom annotations would have to be re-applied with future MSL version releases.
+Because of this, to the extent possible, it may be better to use custom
+annotations as a "last resort" or for something very specific to the
+MBL/OpenStudio/SOEP coupling.
 
 Proposed Workflow, Process, and Toolchain
 """""""""""""""""""""""""""""""""""""""""
@@ -80,36 +86,73 @@ well) into an XML document. The XML document will contain:
     - what control inputs/outputs are available
     - what parameters are available
     - what configuration management options exist (i.e., replaceable components
-      and packages)
+      and packages and which parameters belong to which component)
     - including meta-data and attributes for all the above such as graphics
       annotations, vendor annotations, html documentation, etc.
+
+Although we intend to build a stand-alone tool, there is interest from the
+OpenStudio team in using this tool directly and/or incorporating the algorithms
+into the OpenStudio interface to import new Modelica libraries and files. As
+such, there are some upstream constraints such as a desire to minimize
+dependencies. We will discuss this more below when we talk about programming
+language.
 
 We believe the `JModelica
 <http://www.jmodelica.org/api-docs/usersguide/JModelicaUsersGuide-1.17.0.pdf>`_
 tool suite will be able to provide the proper parsing tools for the AST we
 need. Specifically, we must ensure that the AST we derive from JModelica meets
 all of our needs -- most notably, we must ensure we have access to all
-annotations from a model. Thus, there are two key questions we must answer
-before deciding whether we can embrace the JModelica toolchain for the current
-effort:
+annotations from a model. Specifically, we are looking to JModelica for the
+following:
 
-1. Does the JModelica toolchain provide sufficient access to the full AST?
-2. Is that access available through the Python interface?
+1. Provide programmatic access to the full AST of Modelica libraries (packages)
+   and models
+2. Provide that access through the Java and/or Python API
 
-We have confirmed with preliminary work that we can walk a source AST using the
-Python API of JModelica 1.17. We have also determined that the AST information
-does include annotation data. As such, our recommendation would be to build the
-tool in Python.
+We have confirmed with preliminary work that we can walk a source AST of a
+single Modelica file using the Python API of JModelica 1.17. We have also
+determined that the AST information does include annotation data. However,
+preliminary feedback from the OpenStudio team has expressed a preference for
+using the Java API directly in hopes of reducing the dependencies required for
+packaging. Thus, it seems there are three possibilities for development
+language:
+
+- develop the application in Python using the Python API for JModelica 
+- develop the application in pure Java
+- develop the application in a JVM-based language such as JRuby
 
 The Python interface to JModelica appears the most logical choice as it is the
 most developed, documented, and user-facing of the APIs for JModelica -- in
-fact, it is the only user-facing interface to the open-source JModelica
-tool suite at the moment. We have used and have demonstrated that the JModelica
-interface does indeed expose at least some of the main hooks into the compiler
-including, most notably, access to the AST including annotations (using version
-1.17). Python is well known and loved by many developers, most notably those in
-the engineering domain and offers quite a few tools and libraries (including
-XML libraries) that can be used/added if needed.
+fact, it is the only user-facing interface to the open-source JModelica tool
+suite at the moment: "For user interaction JModelica.org relies on the Python
+language" (JModelica User's Guide page 1). We have used and have demonstrated
+that the JModelica interface does indeed expose at least some of the main hooks
+into the compiler including, most notably, access to the AST including
+annotations (using version 1.17). Python is well known and loved by many
+developers, most notably those in the engineering domain and offers quite a few
+tools and libraries (including XML libraries) that can be used/added if needed.
+
+Using Java is also straight-forward and has the advantage of being able to
+interface directly with the Java API of JModelica. The downside is that the
+Java API is less documented and more cumbersome to navigate when compared to
+the Python API. Also, Java as a developer language, tends to be less agile
+meaning that it takes more developer time to do the same things than a dynamic
+language like Python. However, the resulting program should run fast and
+require few dependencies over Java itself (and perhaps some XML libraries).
+
+A nice compromise might involve using a JVM-based language such as JRuby. JRuby
+is an implementation of the Ruby programming language on the JVM. The advantage
+of going with something like JRuby is that Ruby offers higher productivity
+than straight Java while also offering close integration with Java. Thus, in
+some senses it is a perfect "glue" language for a JVM-based application. The
+downside is that JRuby requires an additional .jar file (in addition to the JVM
+which would already be present to support JModelica) which implements the Ruby
+language. The `jruby.jar` file is currently 13.5 MB as of release 9.1.7.0.
+Other JVM-based languages exist and are compelling as well [#clj]_.
+
+We will continue to visit the question of implementation language but
+nominally, implementing the code in Java presents the least packaging
+challenges while providing direct access to the JModelica compiler package.
 
 The signature of the batch program we will write will be::
 
@@ -125,7 +168,11 @@ should only be one library documented per XML file. If additional library data
 is generated, (for example, the MSL), each library should get its own file.
 
 Options could include flags to allow turning off/on the reporting of various
-constructs in the source library.
+constructs in the source library and for selecting only certain packages to
+import. For example, the OpenStudio team may need to make the `Modelica.Block`
+package of the MSL available for use with the MBL but would not necessarily
+need to include other packages such as `Modelica.Magnetic`,
+`Modelica.Electrical`, or `Modelica.Mechanics`.
 
 An additional feature of the tool will be to perform a "diff" (i.e., logical
 differences) between two generated XML files. The signature for this
@@ -137,34 +184,38 @@ The data-flow diagram would be::
 
     (path1, path2) ==> xml-file
 
-The purpose of this tool would be to detect any non-trivial differences between
-two generated XML files that hold the AST of a Modelica library and report
-those changes out to another XML file. The content of this XML file would
-explicitly show the differences between the two input manifests. The options
-here would allow for tweaking the meaning of what it means to be "different".
-For example, depending on the context, the following types of changes may be
-ignored:
+The purpose of the `ast_doc_diff` tool would be to detect non-trivial
+differences between two generated XML files that hold the AST of a Modelica
+library and report those changes out to another XML file. The content of the
+"difference" XML file would explicitly show the differences between the two
+input manifests. The options here would allow for tweaking the meaning of what
+it means to be "different". For example, depending on the context, the
+following types of changes may be ignored:
 
 - changes to text in embedded HTML document
 - changes in ordering of classes/models in a package
 - addition of new functions (assuming functions would not be directly consumed
   by the OpenStudio tool)
 
+The `ast_doc_diff` tool would be of use in particular when new versions of the
+MBL are released and the OpenStudio team would like to check if there are
+non-trivial changes they need to integrate.
+
 Discussion and Details
 """"""""""""""""""""""
 
-A key area of agreement will need to be reached on what data gets put into the
-XML output. Specifically, we need to think through how to represent the
-models in the MBL in such a way that they can be consumed by the *OpenStudio*
-toolchain. At the planning meeting on February 1, 2017, it was discussed that
-we generally want all of the information from the source AST *except* equation
-and algorithm sections. All annotations should be made available.
+A key area of work will be on designing the data model of the XML output.
+Specifically, we need to think through how to represent the models in the MBL
+in such a way that they can be consumed by the *OpenStudio* toolchain. At the
+planning meeting on February 1, 2017, it was discussed that we generally want
+all of the information from the source AST *except* equation and algorithm
+sections. All annotations should be made available.
 
 One consideration will be: which version of the AST should be used to represent
 packages, classes, models, etc. The `JModelica User's Guide 1.17
 <http://www.jmodelica.org/api-docs/usersguide/JModelicaUsersGuide-1.17.0.pdf>`_
 in Chapter 9 talks about three kinds of AST: source level, instance level, and
-flattened.  The flattened AST is not relevant for us (it corresponds to a fully
+flattened. The flattened AST is not relevant for us (it corresponds to a fully
 flattened model instance ready to be compiled; our interest is in browsing all
 objects for potential configuration).
 
@@ -175,10 +226,15 @@ consumers.
 
 An instance level AST, in contrast, represents the fully expanded instance of a
 given model or class, including configurations. Although this is tempting to
-use, we are dealing with a library, not a model *instance*. It will be
-*OpenStudio*'s job to build and specify a model class to instantiate.
-Especially due to Modelica's configuration mechanism, it would be dangerous to
-treat object *classes* as *instances*.
+use, we must remember that we are dealing with a library, not a model
+*instance*. It will be *OpenStudio*'s job to build and specify a model class to
+instantiate. Especially due to Modelica's configuration mechanism, it would be
+dangerous to treat object *classes* as *instances*.
+
+Therefore, we will aim at delivering something closer to the source AST but
+with a mind to construct the data model such that it is easy to trace
+dependencies such as class extensions (i.e., inheritance) and replaceable
+components.
 
 For an example, consider the following model (adapted from `Modelica by
 Example: Electrical Components
@@ -359,8 +415,8 @@ In this (very simple) model described above, a possible XML representation might
       </package>
     </lib>
 
-Fortunately, there have been several attempts to represent or use XML in relation
-to Modelica in the past:
+There have been several attempts to represent or use XML in relation to
+Modelica in the past. A brief listing of key papers appears below:
 
 - `N. Landin. (2014). "XML export and import of Modelica Models"
   <https://gupea.ub.gu.se/bitstream/2077/38718/1/gupea_2077_38718_1.pdf>`_
@@ -384,12 +440,12 @@ case, the hierarchy must be preserved so that the OpenStudio team can
 
 The paper by Reisenbichler 2006 motivates the usage of XML in association with
 Modelica without getting into specifics. The remaining work by Pop and Fritzson
-is thus the only comprehensive proposals for an XML representation of Modelica
-*source* AST. The purpose of the XML work by Pop and Fritzson was to create a
-complete XML representation of the entire Modelica source. It is generally a good
-reference but we note that it is, perhaps unnecessarily, verbose for our
-current needs. As such, we plan to study this work but will not tie ourselves
-to it.
+is thus the only comprehensive work on an XML representation of Modelica
+*source* AST that appears in the literature. The purpose of the XML work by Pop
+and Fritzson was to create a complete XML representation of the entire Modelica
+source. It is generally a good reference but we note that it is, perhaps
+unnecessarily, verbose for our current needs. As such, although we will refer
+to this work, we do not plan to duplicate it.
 
 Summary of Questions and Next Steps
 """""""""""""""""""""""""""""""""""
@@ -400,17 +456,23 @@ Summary of Questions and Next Steps
   as an "open source" API (which is not guaranteed to be stable) for accessing
   the AST of JModelica. Can we get a better understanding of the differences
   between the two?
-- We have confirmed that JModelica 1.17 does support parsing AST of annotations
-  and models. We need to confirm that custom directives are supported as well.
-- The exact data design for XML output must to be determined. What data will
-  the OpenStudio need access to?
+- The exact data model for XML output must to be determined. What data will the
+  OpenStudio need access to?
+- What pre-processing on the extracted data would be useful?
 
 **Next Steps**:
 
-- Write a tool using the JModelica Python API to extract AST data from Modelica
-  Models in a library and write that data out as XML
-- Design the XML end format
-- Create diff tool for comparing XML library dumps in a meaningful way
+- Pick the implementation programming language. In particular, determine whether
+  Python or "JVM-based languages" are acceptable to use or if we need to stick
+  with Java.
+- Write the proposed programs using JModelica to extract AST data from Modelica
+  Models in a library and write that data out as XML.
+- We have confirmed that JModelica 1.17 does support parsing AST of annotations
+  and models. We need to confirm that custom directives are supported as well
+  and that we can parse all information needed from packages and other object
+  classes.
+- Solidify the XML data model
+- Create diff tool for comparing XML library output files in a meaningful way
 
 References
 """"""""""
@@ -425,3 +487,6 @@ JModelica User Guide
 .. [#fn_mbl] Our main focus is to support the Modelica Buildings Library but
              the tool should also work for other Modelica file import/parsing
              tasks
+
+.. [#clj] For example, Clojure, another dynamic language with excellent Java
+          interop and a favorite of this author, has a jar size of only 1 MB
