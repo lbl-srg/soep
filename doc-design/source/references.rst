@@ -1,4 +1,9 @@
+.. _References:
+
 References
 ==========
 
-.. bibliography:: refs.bib
+.. bibliography:: references.bib
+   :cited:
+   :style: alpha
+   :encoding: latex+latin

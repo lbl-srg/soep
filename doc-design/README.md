@@ -25,3 +25,7 @@ plantuml requires graphviz, which can be installed on OS X using
 ```
 brew install graphviz
 ```
+and on Linux using
+```
+sudo apt-get install graphviz
+```

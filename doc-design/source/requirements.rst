@@ -101,17 +101,16 @@ The general form is :cite:`Wetter2005:1`
 
    0 & = \gamma\bigl(u_c(t), y_c(t), y_d(t) \bigr),
 
-   [x_c(t_0), x_d(t_0)] & = [x_{c,0}, x_{d,0}].
+   [x_c(t_0), x_d(t_0)] & = [x_{c,0}, x_{d,0}],
 
-Here, we simplified the notation by using the same symbols as
-in :eq:`eq_FMUMoExOde` and :eq:`eq_FMUMoExOdeOut`, but
-:math:`x_c(\cdot)`, :math:`u_c(\cdot)`,
-:math:`f(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)` etc. are to be understood
-as vectors formed by stacking the states, input and derivative functions
-of all connected FMUs. This notation is sufficient for the discussions but avoids a too cumbersome notation.
-
-In :eq:`eq_DAEPhy`, we introduced the algebraic constraint
-:math:`0 = \gamma(\cdot, \cdot, \cdot)`.
+where
+:math:`x(\cdot)` is the state vector, with superscript
+:math:`c` denoting continuous and :math:`d` denoting discrete states,
+:math:`u(\cdot)` is the control input,
+:math:`p` are parameters,
+:math:`f(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)` is the state transitions,
+:math:`g(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)` is the output function and
+:math:`0 = \gamma(\cdot, \cdot, \cdot)` are the algebraic constraints.
 This represents algebraic loops that can be formed when connecting FMUs in a loop.
 
 We will now present requirements for
