@@ -6,12 +6,10 @@ Software Architecture
 OpenStudio integration
 ^^^^^^^^^^^^^^^^^^^^^^
 
-:numref:`fig_overall_software_architecture_two_editors`
-and
+
 :numref:`fig_overall_software_architecture_one_editor`
-show the overall
-software architecture of SOEP, either with one or with two
-HVAC and control editors.
+shows the overall
+software architecture of SOEP.
 
 The `Application` on top of the figure may be an
 equipment sales tool that uses an open, or a proprietary,
@@ -36,10 +34,9 @@ in the user-provided Modelica library. This functionality is also
 needed for the OpenBuildingControl project.
 
 Currently, the OpenStudio Model Library is compiled C++ code.
-Our integration either generates C++ code that would need to
-compiled which a C++ compiler, or the OpenStudio Model Library
-could be changed to allow dynamic loading of models for
-the SOEP mode.
+Our integration will generate a representation of the
+Modelica library that allows OpenStudio to
+dynamic load models for the SOEP mode.
 Note that the JModelica distribution includes a C++ compiler.
 
 .. note::
@@ -53,124 +50,12 @@ Note that the JModelica distribution includes a C++ compiler.
       directly using JModelica rather than storing it in a file.
 
 
-   #. The architecture shows two graphical editors for HVAC systems.
-      Ideally, we would combine them into one graphical editor. Whether this
-      is feasible will depend on the modeling support that the refactored
-      OpenStudio `HVAC System Editor` will provide.
-
-
-.. _fig_overall_software_architecture_two_editors:
-
-.. uml::
-   :caption: Overall software architecture (with two editors for the SOEP mode).
-
-   title Overall software architecture (with two editors for the SOEP mode).
-
-   skinparam componentStyle uml2
-
-   package OpenStudio {
-   interface API
-   API -- [Core]
-   package Legacy-Mode {
-   database "Legacy\nModel Library"
-   [Core] --> [Legacy\nModel Library]: integrates
-   [Core] --> [HVAC Systems Editor\n(Legacy Mode)]: integrates
-   [Core] --> [EnergyPlus\nSimulator Interface]: integrates
-   }
-
-   package SOEP-Mode {
-   database "SOEP\nModel Library"
-   [Core] --> [SOEP\nModel Library]: integrates
-   [Core] --> [HVAC Systems Editor\n(SOEP Mode)]: integrates
-   [Core] --> [SOEP\nSimulator Interface]: integrates
-   }
-   }
-
-   actor Developer as epdev
-   [Legacy\nModel Library] <.. epdev : updates
-
-   EnergyPlus <.. [EnergyPlus\nSimulator Interface]: writes inputs,\nruns simulation,\nreads outputs
-   package EnergyPlus {
-     [in.idf] -> [EnergyPlus.exe]
-     [EnergyPlus.exe] -> [eplusout.sql]
-   }
-
-   package SOEP {
-   [Schematic Editor] ..> [JModelica] : parses\nAST
-   [HVAC Systems Editor\n(SOEP Mode)] ..> [Schematic Editor]: calls editor,\nwhich returns\n.mo file
-   [SOEP\nModel Library] <.. [Conversion Script]: augments library\nby generating C++ code
-
-   [Conversion Script] ..> [JModelica]: parses\nAST
-   [SOEP\nSimulator Interface] ..> [JModelica] : writes inputs,\nruns simulation,\nreads outputs
-   database "Modelica\nLibrary AST"
-   database "Modelica\nBuildings Library"
-   [HVAC Systems Editor\n(SOEP Mode)] ..> [Modelica\nLibrary AST]: reads AST
-   [Modelica\nLibrary AST] <.. [Conversion Script] : generates\nAST
-   [JModelica] --> [Modelica\nBuildings Library]: imports
-   }
-
-   actor "Developer or User" as modev
-   [Conversion Script] <.. modev : invokes
-
-   actor Developer as budev
-   [Modelica\nBuildings Library] <.. budev : adds annotations
-
-   actor User as mouse
-   [User-Provided\nModelica Library] <.. mouse : adds annotations
-
-
-   [Application] ..> () API : uses
-   [Measures] ..> () API : uses
-
-   database "User-Provided\nModelica Library"
-   [JModelica] --> [User-Provided\nModelica Library]: imports
-
-
-
-   note right of [Schematic Editor]
-     Allows free graphical editing
-     of Modelica models. However,
-     after editing, many OS Measures
-     cannot be applied anymore
-     (as models may be incompatible
-     with the Measures).
-     However, OS can still simulate
-     these models and parse their
-     outputs.
-   end note
-
-   note bottom of [User-Provided\nModelica Library]
-     Allows companies to use
-     their own Modelica libraries
-     with custom HVAC systems and
-     control sequences, or
-     to integrate an electronic
-     equipment catalog or a
-     library used for an equipment
-     sales tool.
-   end note
-
-   note left of OpenStudio
-     Not yet shown is
-     how to integrate
-     the building model.
-   end note
-
-   note right of Application
-     Application that uses
-     the OpenStudio SDK.
-   end note
-
-
-
-
-
 .. _fig_overall_software_architecture_one_editor:
 
 .. uml::
-   :caption: Overall software architecture (with one editor for the SOEP mode).
+   :caption: Overall software architecture.
 
-   title Overall software architecture (with one editor for the SOEP mode).
+   title Overall software architecture
 
    skinparam componentStyle uml2
 
@@ -195,12 +80,6 @@ Note that the JModelica distribution includes a C++ compiler.
 
    actor Developer as epdev
    [Legacy\nModel Library] <.. epdev : updates
-
-   EnergyPlus <.. [EnergyPlus\nSimulator Interface]: writes inputs,\nruns simulation,\nreads outputs
-   package EnergyPlus {
-     [in.idf] -> [EnergyPlus.exe]
-     [EnergyPlus.exe] -> [eplusout.sql]
-   }
 
    package SOEP {
    [HVAC Systems Editor\n(SOEP Mode)] ..> [JModelica] : parses\nAST
@@ -230,21 +109,15 @@ Note that the JModelica distribution includes a C++ compiler.
    database "User-Provided\nModelica Library"
    [JModelica] --> [User-Provided\nModelica Library]: imports
 
+   EnergyPlus <.. [EnergyPlus\nSimulator Interface]: writes inputs,\nruns simulation,\nreads outputs
+   package EnergyPlus {
+     [in.idf] -> [EnergyPlus.exe]
+     [EnergyPlus.exe] -> [eplusout.sql]
+   }
+
    note left of mod_AST
      Used as an intermediate format and
      to verify incompatible changes.
-   end note
-
-   note right of [HVAC Systems Editor\n(SOEP Mode)]
-     Allows free graphical editing
-     of Modelica models. However,
-     after editing, many OS Measures
-     cannot be applied anymore
-     (as models may be incompatible
-     with the Measures).
-     However, OS can still simulate
-     these models and parse their
-     outputs.
    end note
 
    note bottom of [User-Provided\nModelica Library]
@@ -256,12 +129,6 @@ Note that the JModelica distribution includes a C++ compiler.
      equipment catalog or a
      library used for an equipment
      sales tool.
-   end note
-
-   note left of OpenStudio
-     Not yet shown is
-     how to integrate
-     the building model.
    end note
 
    note right of Application
@@ -418,7 +285,10 @@ shows single FMUs, but we anticipated having multiple interconnected FMUs.
 
    skinparam componentStyle uml2
 
-   [QSS solver] as qss_sol
+   package FMU-ME {
+     [QSS solver] as qss_sol
+     [FMU-ME] as FMU_QSS
+   }
 
    package PyFMI {
    [Master algorithm] -> qss_sol : "inputs, time"
@@ -431,9 +301,6 @@ shows single FMUs, but we anticipated having multiple interconnected FMUs.
    [Master algorithm] --> [FMU-CS] : "hRequested"
    [Master algorithm] <-- [FMU-CS] : "(x, hMax)"
 
-
-   [FMU-ME] as FMU_QSS
-
    package Optimica {
    [JModelica compiler] as jmc
    }
@@ -442,56 +309,6 @@ shows single FMUs, but we anticipated having multiple interconnected FMUs.
 
    FMU_QSS --> qss_sol : "derivatives"
    qss_sol --> FMU_QSS : "inputs, time, states"
-
-
-
-:numref:`fig_sof_arc_qss_jmod` shows the originally suggested software architecture
-for the case where the QSS solver is integrated into an FMU-ME.
-This original design would not require modifying the FMI API,
-but it would require some stability of the JModelica-generated model API
-(which is not standardized).
-For simplicity the figure only
-shows single FMUs, but we anticipated having multiple interconnected FMUs.
-
-.. _fig_sof_arc_qss_jmod:
-
-.. uml::
-   :caption: Software architecture for QSS integration with JModelica.
-
-   title Software architecture for QSS integration with JModelica
-
-   skinparam componentStyle uml2
-
-   [FMU-ME] as FMU_QSS
-
-   package Optimica {
-   [QSS library] as qss_lib
-   qss_lib    --> [JModelica compiler]
-   }
-
-   [Modelica model] --> [JModelica compiler]
-
-   [JModelica compiler] -> FMU_QSS
-
-   package PyFMI {
-   [Master algorithm] -> FMU_QSS : "inputs, time"
-   [Master algorithm] <- FMU_QSS : "next event time"
-   [Master algorithm] -- [Sundials]
-   }
-
-   [Sundials] --> [FMU-ME] : "(x, t)"
-   [Sundials] <-- [FMU-ME] : "dx/dt"
-   [Master algorithm] --> [FMU-CS] : "hRequested"
-   [Master algorithm] <-- [FMU-CS] : "(x, hMax)"
-
-
-   note left of FMU_QSS
-      FMU-ME 2.0 API, sends
-      next event time, but
-      exposes no state derivatives
-   end note
-
-
 
 
 .. note::
