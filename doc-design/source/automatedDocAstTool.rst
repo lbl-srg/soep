@@ -8,7 +8,7 @@ libraries; in particular, the Modelica Buildings Library (MBL).
 The goal of this effort is to build a computer program that makes the `abstract
 syntax tree (AST) <https://en.wikipedia.org/wiki/Abstract_syntax_tree>`_ of the
 Modelica Buildings Library (MBL) [#fn_mbl]_ available to other tools via an XML
-file.  Specifically, this work should be of use to the OpenStudio team for
+file. Specifically, this work should be of use to the OpenStudio team for
 discovering available models and their parameters and other metadata for use
 from the OpenStudio interface for SOEP.
 
@@ -72,16 +72,21 @@ MBL/OpenStudio/SOEP coupling.
 .. todo:: Let's discuss re custom annotation.
           I think they are only needed for the MBL, not the MSL.
 
+          MOK: sounds good. It might be good to walk through an example (as
+          specific as we can make it) of how we envision the XML data is to be
+          used/consumed. That might clarify the workflow a bit more in my mind.
+
 Proposed Workflow, Process, and Toolchain
 """""""""""""""""""""""""""""""""""""""""
 
 .. todo:: Let's discuss re custom annotation.
           I think we can remove the MSL from below.
 
+          MOK: OK.
+
 We propose to build a stand-alone batch-process program that will transform any
 Modelica input file or library (specifically, the Modelica Buildings Library in
-particular although we have identified the need to possibly parse the MSL as
-well) into an XML document. The XML document will contain:
+particular) into an XML document. The XML document will contain:
 
 - identification of which models, classes, connectors, functions, etc. exist
 - identification of the relative hierarchy of the above components within the
@@ -118,8 +123,9 @@ following:
           easier to simply discuss packages (or equivalently, libraries as
           a library is simply a package)
 
-1. Provide programmatic access to the full AST of Modelica libraries (packages)
-   and models.
+          MOK: Sounds good.
+
+1. Provide programmatic access to the full AST of Modelica libraries
 2. Provide that access through the Java and/or Python API.
 
 .. todo:: I changed the paragraph below to use Java based on the call
@@ -139,27 +145,10 @@ for accessing the AST parser.
           caught earlier in Java (during compilation). I therefore suggest
           to remove the statement, unless you have a good citation.
 
-Using Java has the advantage of being able to
-interface directly with the Java API of JModelica. The downside is that the
-Java API is less documented and more cumbersome to navigate when compared to
-the Python API. Also, Java as a developer language, tends to be less agile
-meaning that it takes more developer time to do the same things than a dynamic
-language like Python. However, the resulting program should run fast and
-require few dependencies over Java itself (and perhaps some XML libraries).
-
-A nice compromise might involve using a JVM-based language such as JRuby. JRuby
-is an implementation of the Ruby programming language on the JVM. The advantage
-of going with something like JRuby is that Ruby offers higher productivity
-than straight Java while also offering close integration with Java. Thus, in
-some senses it is a perfect "glue" language for a JVM-based application. The
-downside is that JRuby requires an additional .jar file (in addition to the JVM
-which would already be present to support JModelica) which implements the Ruby
-language. The `jruby.jar` file is currently 13.5 MB as of release 9.1.7.0.
-Other JVM-based languages exist and are compelling as well.
-
-We will continue to visit the question of implementation language but
-nominally, implementing the code in Java presents the least packaging
-challenges while providing direct access to the JModelica compiler package.
+          MOK: That is fair. The statement on productivity was based on
+          personal experience but either is fine and I enjoy both languages.
+          I've removed the discussion of other programming language options
+          since we will use Java based on the Feb 14 call.
 
 The signature of the batch program we will write will be::
 
@@ -316,6 +305,12 @@ In this (very simple) model described above, a possible XML representation might
 
             todo: what does type add? This information is already in the children.
 
+                  mok: That is true that the information is in the children.
+                  The 'type' information was proposed as a pre-processing step
+                  that could assist OpenStudio in determining which connectors
+                  (or other models) can be connected together. However, it may
+                  be better to move this logic elsewhere.
+
             type="f:Modelica.SIunits.Current;p:Modelica.SIunits.Voltage">
             <variable
 
@@ -324,6 +319,26 @@ In this (very simple) model described above, a possible XML representation might
                      package is extended, as then, the first part of the name
                      may change (say A extends B, B contains parameter p.
                      Then this is called A.p, and not A.B.p)
+
+                    mok: We don't need to use the 'id' attribute but if we
+                    do, each 'id' in a well-formed XML document must be unique:
+
+                    https://www.w3.org/TR/2006/REC-xml11-20060816/#id
+
+                    Regarding your example, one way this could be handled is
+                    as follows:
+
+                        <model id="A" expands="B"></model>
+                        <model id="B">
+                          <variable id="B.p" ...></variable>
+                        </model>
+                    
+                    In the above, one would have to "walk" the datastructure
+                    to know of A.p's existance. We're definitely open to
+                    handling this differently. We could perhaps go with
+                    using a "name" attribute which does not echo the
+                    entire path -- this would save space but would require
+                    those consuming the data to recreate the paths.
 
               id="Ex1.PositivePin.v"
               type="Modelica.SIunits.Voltage"
@@ -357,14 +372,20 @@ In this (very simple) model described above, a possible XML representation might
             doc="Common elements of two pin electrical components">
 
             todo: above we used variable, but here we use var. Is this a typo?
+                  mok: Yes, fixed below. Note that we should discuss first and
+                  play with the final tooling before finalizing the exact
+                  tag names and data model. Note: we may want to investigate
+                  using more "terse" names as a means of reducing file size
+                  (e.g., "v" instead of "variable"); compression technology
+                  may make this a moot point
 
-            <var
+            <variable
               type="Bool"
               id="Ex1.TwoPin.useTheMod"
               variability="parameter">
               false
-            </var>
-            <var
+            </variable>
+            <variable
               type="Ex1.PositivePin"
               id="Ex1.TwoPin.p"
               variability="continuous">
@@ -378,8 +399,8 @@ In this (very simple) model described above, a possible XML representation might
                   </transformation>
                 </placement>
               </annotation>
-            </var>
-            <var
+            </variable>
+            <variable
               type="Ex1.NegativePin"
               id="Ex1.TwoPin.n"
               variability="continuous">
@@ -390,8 +411,8 @@ In this (very simple) model described above, a possible XML representation might
                   </transformation>
                 </placement>
               </annotation>
-            </var>
-            <var
+            </variable>
+            <variable
               type="Modelica.SIunits.Voltage"
               id="Ex1.TwoPin.v"
               variability="continuous"
@@ -403,8 +424,8 @@ In this (very simple) model described above, a possible XML representation might
                   </transformation>
                 </placement>
               </annotation>
-            </var>
-            <var
+            </variable>
+            <variable
               type="Modelica.SIunits.Current"
               id="Ex1.TwoPin.i"
               variability="continuous"
@@ -416,7 +437,7 @@ In this (very simple) model described above, a possible XML representation might
                   </transformation>
                 </placement>
               </annotation>
-            </var>
+            </variable>
             <!-- equation section elided... -->
           </model>
           <!-- OK, and finally the Resistor -->
@@ -424,11 +445,11 @@ In this (very simple) model described above, a possible XML representation might
             id="Ex1.Resistor"
             doc="A DRY resistor model">
             <extends>Ex1.TwoPin</extends>
-            <var
+            <variable
               type="Modelica.SIunits.Resistance"
               id="Ex1.Resistor.R"
               variability="parameter">
-            </var>
+            </variable>
             <!-- equation section elided... -->
           </model>
         </models>
@@ -436,34 +457,19 @@ In this (very simple) model described above, a possible XML representation might
     </lib>
 
 There have been several attempts to represent or use XML in relation to
-Modelica in the past. A brief listing of key papers appears below:
+Modelica in the past (:cite:`Landin2014`, :cite:`Fritzson2003G`, :cite:`Pop2003`, :cite:`Pop2005`, and :cite:`Reisenbichler2006`).
 
-.. todo: Please put them into the references.bib file and use :cite:`xxx`
-
-- `N. Landin. (2014). "XML export and import of Modelica Models"
-  <https://gupea.ub.gu.se/bitstream/2077/38718/1/gupea_2077_38718_1.pdf>`_
-- `ModelicaXML Schema <https://github.com/modelica-association/ModelicaXML>`_
-- `Appendix G of Fritzson (2004) "Principles of ... with Modelica 2.1"
-  <http://onlinelibrary.wiley.com/store/10.1002/9780470545669.app7/asset/app7.pdf?v=1&t=iyq3ixri&s=3acd1aef6559f8c230d827878d73980bdd1407f2>`_
-- `A. Pop and P. Fritzson. (2003). "ModelicaXML..."
-  <https://modelica.org/events/Conference2003/papers/h39_Pop.pdf>`_
-- `A. Pop and P. Fritzson. ModelicaXML Presentation
-  <http://www.ida.liu.se/~adrpo33/modelica/ModelicaXML-Presentation-2003-11-04.pdf>`_
-- `U. Reisenbichler et al. 2006. "If we only had used XML..."
-  <https://www.modelica.org/events/modelica2006/Proceedings/sessions/Session6d1.pdf>`_
-
-In particular, the first reference above links to a 2014 Master's Thesis
-describing the work of N. Landin with Modelon using JModelica to export XML for
-the purpose of model exchange -- this is very similar to our use case.
+In particular, N. Landin did work with Modelon using JModelica to export XML for
+the purpose of model exchange :cite:`Landin2014` -- this is very similar to our use case.
 Unfortunately, this work deals only with "flattened" models -- Modelica models
 that have been instantiated with all of the hierarchy removed. For our use
 case, the hierarchy must be preserved so that the OpenStudio team can
 build a new model through instantiation of models from the MBL.
 
 The paper by Reisenbichler 2006 motivates the usage of XML in association with
-Modelica without getting into specifics. The remaining work by Pop and Fritzson
+Modelica without getting into specifics :cite:`Reisenbichler2006`. The remaining work by Pop and Fritzson
 is thus the only comprehensive work on an XML representation of Modelica
-*source* AST that appears in the literature. The purpose of the XML work by Pop
+*source* AST that appears in the literature (:cite:`Pop2003`, :cite:`Pop2005`, and :cite:`Fritzson2003G`). The purpose of the XML work by Pop
 and Fritzson was to create a complete XML representation of the entire Modelica
 source. It is generally a good reference but we note that it is, perhaps
 unnecessarily, verbose for our current needs. As such, although we will refer
@@ -495,14 +501,6 @@ Summary of Questions and Next Steps
   classes.
 - Solidify the XML data model
 - Create diff tool for comparing XML library output files in a meaningful way
-
-References
-""""""""""
-
-JModelica User Guide
-
-    "JModelica.org User Guide: Version 1.17". Available at:
-    http://www.jmodelica.org/api-docs/usersguide/JModelicaUsersGuide-1.17.0.pdf
 
 .. rubric:: Footnotes
 
