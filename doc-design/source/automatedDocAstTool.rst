@@ -328,7 +328,7 @@ In this (very simple) model described above, a possible XML representation might
                     Regarding your example, one way this could be handled is
                     as follows:
 
-                        <model id="A" expands="B"></model>
+                        <model id="A"><extends>B</extends></model>
                         <model id="B">
                           <variable id="B.p" ...></variable>
                         </model>
@@ -372,12 +372,14 @@ In this (very simple) model described above, a possible XML representation might
             doc="Common elements of two pin electrical components">
 
             todo: above we used variable, but here we use var. Is this a typo?
-                  mok: Yes, fixed below. Note that we should discuss first and
-                  play with the final tooling before finalizing the exact
-                  tag names and data model. Note: we may want to investigate
-                  using more "terse" names as a means of reducing file size
-                  (e.g., "v" instead of "variable"); compression technology
-                  may make this a moot point
+
+                  mok: Yes, fixed below. Note that I don't want this example
+                  to reflect the exact tag names and data model -- we still
+                  need to discuss first; this is only a suggestion. Note: we
+                  may want to investigate using more "terse" names as a means
+                  of reducing file size (e.g., "v" instead of "variable" as an
+                  extreme case); compression technology may make long variable
+                  names a non-issue but we need to measure.
 
             <variable
               type="Bool"
