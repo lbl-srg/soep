@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>4. Requirements &mdash; Spawn of EnergyPlus</title>
+    <title>4. Requirements &#8212; Spawn of EnergyPlus</title>
     
     <link rel="stylesheet" href="_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -25,7 +25,8 @@
         VERSION:     '1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
@@ -37,7 +38,8 @@
     <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="_static/lbl-icon.ico"/>
-    <link rel="top" title="Spawn of EnergyPlus" href="index.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="5. Software Architecture" href="softwareArchitecture.html" />
     <link rel="prev" title="3. Use Cases" href="useCases.html" />
 <meta charset='utf-8'>
@@ -262,34 +264,34 @@ nonlinear DAE system with index one
 <span class="math">\(x_d(\cdot)\)</span> and <span class="math">\(u_d(\cdot)\)</span>.
 The general form is <a class="reference internal" href="index.html#wetter2005-1" id="id2">[Wet05]</a></p>
 <div class="math" id="equation-eq_DAEPhy">
-<span class="eqno">(1)</span>\[\begin{split}[\dot x_c(t), x_d(t)] &amp; = f(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\end{split}\]\[\begin{split}[y_c(t), y_d(t)] &amp; = g(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\end{split}\]\[\begin{split}0 &amp; = \gamma\bigl(u_c(t), y_c(t), y_d(t) \bigr),\end{split}\]\[\begin{split}[x_c(t_0), x_d(t_0)] &amp; = [x_{c,0}, x_{d,0}].\end{split}\]</div>
-<p>Here, we simplified the notation by using the same symbols as
-in <a href="#equation-eq_FMUMoExOde">(?)</a> and <a href="#equation-eq_FMUMoExOdeOut">(?)</a>, but
-<span class="math">\(x_c(\cdot)\)</span>, <span class="math">\(u_c(\cdot)\)</span>,
-<span class="math">\(f(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)\)</span> etc. are to be understood
-as vectors formed by stacking the states, input and derivative functions
-of all connected FMUs. This notation is sufficient for the discussions but avoids a too cumbersome notation.</p>
-<p>In <a href="#equation-eq_DAEPhy">(1)</a>, we introduced the algebraic constraint
-<span class="math">\(0 = \gamma(\cdot, \cdot, \cdot)\)</span>.
+<span class="eqno">(1)</span>\[\begin{split}[\dot x_c(t), x_d(t)] &amp; = f(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\end{split}\]\[\begin{split}[y_c(t), y_d(t)] &amp; = g(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\end{split}\]\[\begin{split}0 &amp; = \gamma\bigl(u_c(t), y_c(t), y_d(t) \bigr),\end{split}\]\[\begin{split}[x_c(t_0), x_d(t_0)] &amp; = [x_{c,0}, x_{d,0}],\end{split}\]</div>
+<p>where
+<span class="math">\(x(\cdot)\)</span> is the state vector, with superscript
+<span class="math">\(c\)</span> denoting continuous and <span class="math">\(d\)</span> denoting discrete states,
+<span class="math">\(u(\cdot)\)</span> is the control input,
+<span class="math">\(p\)</span> are parameters,
+<span class="math">\(f(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)\)</span> is the state transitions,
+<span class="math">\(g(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)\)</span> is the output function and
+<span class="math">\(0 = \gamma(\cdot, \cdot, \cdot)\)</span> are the algebraic constraints.
 This represents algebraic loops that can be formed when connecting FMUs in a loop.</p>
 <p>We will now present requirements for
-existence of a unique smooth solution of the DAE System <a href="#equation-eq_DAEPhy">(1)</a>.
+existence of a unique smooth solution of the DAE System <a class="reference internal" href="#equation-eq_DAEPhy">(1)</a>.
 For simplicity, we assume in the analysis
 <span class="math">\(x_d(\cdot)\)</span> and
 <span class="math">\(y_d(\cdot)\)</span> to only depend on time but not on
 <span class="math">\(x_c(\cdot)\)</span> or <span class="math">\(y_c(\cdot)\)</span>. Otherwise,
 the analysis would get considerably more involved.
-This allows us to simplify <a href="#equation-eq_DAEPhy">(1)</a> to</p>
+This allows us to simplify <a class="reference internal" href="#equation-eq_DAEPhy">(1)</a> to</p>
 <div class="math" id="equation-eq_DAEPhyCon">
 <span class="eqno">(2)</span>\[\begin{split}\dot x(t) &amp; = f(x(t), \mu(t), p, t),\end{split}\]\[\begin{split}0 &amp; = \gamma(x(t), \mu(t)),\end{split}\]\[\begin{split}x(t_0) &amp; = x_{0},\end{split}\]</div>
 <p>where we omitted the subscript <span class="math">\(c\)</span> as all variables are continuous.</p>
 <p>First, we will state the requirement that allows to
 establish existence, uniqueness and differentiability of
-the solution <span class="math">\(x(t_f)\)</span> to <a href="#equation-eq_DAEPhyCon">(2)</a>.</p>
+the solution <span class="math">\(x(t_f)\)</span> to <a class="reference internal" href="#equation-eq_DAEPhyCon">(2)</a>.</p>
 <p><strong>Requirement:</strong>
 Let
 <span class="math">\(\gamma \colon \Re^n \times \Re^m \to \Re^m\)</span>
-be defined as in <a href="#equation-eq_DAEPhyCon">(2)</a>.
+be defined as in <a class="reference internal" href="#equation-eq_DAEPhyCon">(2)</a>.
 We assume that
 <span class="math">\(\gamma(\cdot,\cdot)\)</span> is once continuously differentiable,
 and we assume that
@@ -309,7 +311,7 @@ the solution
 is unique and once continuously differentiable in
 <span class="math">\(x\)</span>.</p>
 <p>Therefore, to establish existence, uniqueness and differentiability
-of <span class="math">\(x(t_f)\)</span>, we can reduce the DAE system <a href="#equation-eq_DAEPhyCon">(2)</a>
+of <span class="math">\(x(t_f)\)</span>, we can reduce the DAE system <a class="reference internal" href="#equation-eq_DAEPhyCon">(2)</a>
 to an ordinary differential
 equation, which will allow us to use standard results from the
 theory of ordinary differential equations.
@@ -318,7 +320,7 @@ the function</p>
 <div class="math" id="equation-eq_tilFDef">
 <span class="eqno">(3)</span>\[\begin{split}\widetilde f(x(t), p, t) &amp; \triangleq
     f(x(t), \mu^*(x), p, t),\end{split}\]</div>
-<p>and write the DAE system <a href="#equation-eq_DAEPhyCon">(2)</a> in the form</p>
+<p>and write the DAE system <a class="reference internal" href="#equation-eq_DAEPhyCon">(2)</a> in the form</p>
 <div class="math" id="equation-eq_tilFSys">
 <span class="eqno">(4)</span>\[\begin{split}\dot x(t) &amp; = \widetilde f(x(t), p, t),\end{split}\]\[\begin{split}x(t_0) &amp; = x_{0}.\end{split}\]</div>
 <p>We will use the notation
@@ -330,7 +332,7 @@ for the partial derivatives
 <p><strong>Requirement:</strong>
 With <span class="math">\(\widetilde f(\cdot, \cdot, \cdot)\)</span>
 as in
-<a href="#equation-eq_tilFSys">(4)</a>, we require that</p>
+<a class="reference internal" href="#equation-eq_tilFSys">(4)</a>, we require that</p>
 <blockquote>
 <div><ol class="arabic">
 <li><p class="first">The initial condition <span class="math">\(x_{0}\)</span> is once continuously differentiable in <span class="math">\(p\)</span>.</p>
@@ -350,7 +352,7 @@ as in
 </div></blockquote>
 <p>With these conditions, it follows as a special case of Corollary 5.6.9 in <a class="reference internal" href="index.html#pol97-1" id="id4">[Pol97]</a>,
 that the solution
-<span class="math">\(x(t_f)\)</span> to <a href="#equation-eq_DAEPhyCon">(2)</a> exists and is once continuously differentiable with
+<span class="math">\(x(t_f)\)</span> to <a class="reference internal" href="#equation-eq_DAEPhyCon">(2)</a> exists and is once continuously differentiable with
 respect to the parameter <span class="math">\(p\)</span> on bounded sets.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -552,7 +554,7 @@ Linux 32/64 bit, and Mac OS X 64 bit.</li>
     </p>
     <p>
         &copy; Copyright (c) All rights reserved.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.<br/>
     </p>
   </div>
 </footer>

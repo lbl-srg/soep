@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>5. Software Architecture &mdash; Spawn of EnergyPlus</title>
+    <title>5. Software Architecture &#8212; Spawn of EnergyPlus</title>
     
     <link rel="stylesheet" href="_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -25,7 +25,8 @@
         VERSION:     '1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
@@ -37,7 +38,8 @@
     <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="_static/lbl-icon.ico"/>
-    <link rel="top" title="Spawn of EnergyPlus" href="index.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="6. Numerical Methods of the Master Algorithm" href="numericalMethods.html" />
     <link rel="prev" title="4. Requirements" href="requirements.html" />
 <meta charset='utf-8'>
@@ -187,12 +189,9 @@
 <span id="sec-soft-arch"></span><h1>5. Software Architecture<a class="headerlink" href="#software-architecture" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="openstudio-integration">
 <h2>5.1. OpenStudio integration<a class="headerlink" href="#openstudio-integration" title="Permalink to this headline">¶</a></h2>
-<p><a class="reference internal" href="#fig-overall-software-architecture-two-editors"><span class="std std-numref">Fig. 5.1</span></a>
-and
-<a class="reference internal" href="#fig-overall-software-architecture-one-editor"><span class="std std-numref">Fig. 5.2</span></a>
-show the overall
-software architecture of SOEP, either with one or with two
-HVAC and control editors.</p>
+<p><a class="reference internal" href="#fig-overall-software-architecture-one-editor"><span class="std std-numref">Fig. 5.1</span></a>
+shows the overall
+software architecture of SOEP.</p>
 <p>The <cite>Application</cite> on top of the figure may be an
 equipment sales tool that uses an open, or a proprietary,
 Modelica model library of their product line, which allows
@@ -213,10 +212,9 @@ control sequence library), manipulated and stored again
 in the user-provided Modelica library. This functionality is also
 needed for the OpenBuildingControl project.</p>
 <p>Currently, the OpenStudio Model Library is compiled C++ code.
-Our integration either generates C++ code that would need to
-compiled which a C++ compiler, or the OpenStudio Model Library
-could be changed to allow dynamic loading of models for
-the SOEP mode.
+Our integration will generate a representation of the
+Modelica library that allows OpenStudio to
+dynamic load models for the SOEP mode.
 Note that the JModelica distribution includes a C++ compiler.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -225,122 +223,15 @@ Note that the JModelica distribution includes a C++ compiler.</p>
 access <cite>JModelica</cite> to get the AST, or whether they read
 the AST from <cite>Modelica Library AST</cite> does not affect
 the functionality, but it affects the architecture.
-In <a class="reference internal" href="#fig-overall-software-architecture-two-editors"><span class="std std-numref">Fig. 5.1</span></a>
+In <code class="xref std std-numref docutils literal"><span class="pre">fig_overall_software_architecture_two_editors</span></code>
 we show the architecture if the <cite>Modelica Library AST</cite> is parsed
 directly using JModelica rather than storing it in a file.</li>
-<li>The architecture shows two graphical editors for HVAC systems.
-Ideally, we would combine them into one graphical editor. Whether this
-is feasible will depend on the modeling support that the refactored
-OpenStudio <cite>HVAC System Editor</cite> will provide.</li>
 </ol>
 </div>
 <div class="figure" id="id2">
-<span id="fig-overall-software-architecture-two-editors"></span><p class="plantuml">
-<object data="_images/plantuml-c8963f20cd7708a4bf970274d543e411bed62bfd.svg" type="image/svg+xml" style="width:2077px;height:1545px;">
-<img src="_images/plantuml-c8963f20cd7708a4bf970274d543e411bed62bfd.png" alt="title Overall software architecture (with two editors for the SOEP mode).
-
-skinparam componentStyle uml2
-
-package OpenStudio {
-interface API
-API -- [Core]
-package Legacy-Mode {
-database &quot;Legacy\nModel Library&quot;
-[Core] --&gt; [Legacy\nModel Library]: integrates
-[Core] --&gt; [HVAC Systems Editor\n(Legacy Mode)]: integrates
-[Core] --&gt; [EnergyPlus\nSimulator Interface]: integrates
-}
-
-package SOEP-Mode {
-database &quot;SOEP\nModel Library&quot;
-[Core] --&gt; [SOEP\nModel Library]: integrates
-[Core] --&gt; [HVAC Systems Editor\n(SOEP Mode)]: integrates
-[Core] --&gt; [SOEP\nSimulator Interface]: integrates
-}
-}
-
-actor Developer as epdev
-[Legacy\nModel Library] &lt;.. epdev : updates
-
-EnergyPlus &lt;.. [EnergyPlus\nSimulator Interface]: writes inputs,\nruns simulation,\nreads outputs
-package EnergyPlus {
-  [in.idf] -&gt; [EnergyPlus.exe]
-  [EnergyPlus.exe] -&gt; [eplusout.sql]
-}
-
-package SOEP {
-[Schematic Editor] ..&gt; [JModelica] : parses\nAST
-[HVAC Systems Editor\n(SOEP Mode)] ..&gt; [Schematic Editor]: calls editor,\nwhich returns\n.mo file
-[SOEP\nModel Library] &lt;.. [Conversion Script]: augments library\nby generating C++ code
-
-[Conversion Script] ..&gt; [JModelica]: parses\nAST
-[SOEP\nSimulator Interface] ..&gt; [JModelica] : writes inputs,\nruns simulation,\nreads outputs
-database &quot;Modelica\nLibrary AST&quot;
-database &quot;Modelica\nBuildings Library&quot;
-[HVAC Systems Editor\n(SOEP Mode)] ..&gt; [Modelica\nLibrary AST]: reads AST
-[Modelica\nLibrary AST] &lt;.. [Conversion Script] : generates\nAST
-[JModelica] --&gt; [Modelica\nBuildings Library]: imports
-}
-
-actor &quot;Developer or User&quot; as modev
-[Conversion Script] &lt;.. modev : invokes
-
-actor Developer as budev
-[Modelica\nBuildings Library] &lt;.. budev : adds annotations
-
-actor User as mouse
-[User-Provided\nModelica Library] &lt;.. mouse : adds annotations
-
-
-[Application] ..&gt; () API : uses
-[Measures] ..&gt; () API : uses
-
-database &quot;User-Provided\nModelica Library&quot;
-[JModelica] --&gt; [User-Provided\nModelica Library]: imports
-
-
-
-note right of [Schematic Editor]
-  Allows free graphical editing
-  of Modelica models. However,
-  after editing, many OS Measures
-  cannot be applied anymore
-  (as models may be incompatible
-  with the Measures).
-  However, OS can still simulate
-  these models and parse their
-  outputs.
-end note
-
-note bottom of [User-Provided\nModelica Library]
-  Allows companies to use
-  their own Modelica libraries
-  with custom HVAC systems and
-  control sequences, or
-  to integrate an electronic
-  equipment catalog or a
-  library used for an equipment
-  sales tool.
-end note
-
-note left of OpenStudio
-  Not yet shown is
-  how to integrate
-  the building model.
-end note
-
-note right of Application
-  Application that uses
-  the OpenStudio SDK.
-end note" />
-
-</object></p>
-<p class="caption"><span class="caption-number">Fig. 5.1 </span>: Overall software architecture (with two editors for the SOEP mode).<a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
-</div>
-<div class="figure" id="id3">
 <span id="fig-overall-software-architecture-one-editor"></span><p class="plantuml">
-<object data="_images/plantuml-faf7e90568d800c9c01e6a6810d9223a6c0e8f2a.svg" type="image/svg+xml" style="width:2369px;height:1398px;">
-<img src="_images/plantuml-faf7e90568d800c9c01e6a6810d9223a6c0e8f2a.png" alt="title Overall software architecture (with one editor for the SOEP mode).
+<object data="_images/plantuml-ef0086246e13fcc3ebb36d14ffb15a59b5eb6217.svg" type="image/svg+xml" style="width:1813px;height:1299px;">
+<img src="_images/plantuml-ef0086246e13fcc3ebb36d14ffb15a59b5eb6217.png" alt="title Overall software architecture
 
 skinparam componentStyle uml2
 
@@ -365,12 +256,6 @@ database &quot;SOEP\nModel Library&quot;
 
 actor Developer as epdev
 [Legacy\nModel Library] &lt;.. epdev : updates
-
-EnergyPlus &lt;.. [EnergyPlus\nSimulator Interface]: writes inputs,\nruns simulation,\nreads outputs
-package EnergyPlus {
-  [in.idf] -&gt; [EnergyPlus.exe]
-  [EnergyPlus.exe] -&gt; [eplusout.sql]
-}
 
 package SOEP {
 [HVAC Systems Editor\n(SOEP Mode)] ..&gt; [JModelica] : parses\nAST
@@ -400,21 +285,15 @@ actor User as mouse
 database &quot;User-Provided\nModelica Library&quot;
 [JModelica] --&gt; [User-Provided\nModelica Library]: imports
 
+EnergyPlus &lt;.. [EnergyPlus\nSimulator Interface]: writes inputs,\nruns simulation,\nreads outputs
+package EnergyPlus {
+  [in.idf] -&gt; [EnergyPlus.exe]
+  [EnergyPlus.exe] -&gt; [eplusout.sql]
+}
+
 note left of mod_AST
   Used as an intermediate format and
   to verify incompatible changes.
-end note
-
-note right of [HVAC Systems Editor\n(SOEP Mode)]
-  Allows free graphical editing
-  of Modelica models. However,
-  after editing, many OS Measures
-  cannot be applied anymore
-  (as models may be incompatible
-  with the Measures).
-  However, OS can still simulate
-  these models and parse their
-  outputs.
 end note
 
 note bottom of [User-Provided\nModelica Library]
@@ -428,19 +307,13 @@ note bottom of [User-Provided\nModelica Library]
   sales tool.
 end note
 
-note left of OpenStudio
-  Not yet shown is
-  how to integrate
-  the building model.
-end note
-
 note right of Application
   Application that uses
   the OpenStudio SDK.
 end note" />
 
 </object></p>
-<p class="caption"><span class="caption-number">Fig. 5.2 </span>: Overall software architecture (with one editor for the SOEP mode).<a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 5.1 </span>: Overall software architecture.<a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </div>
 <p><strong>fixme: more design to be added</strong></p>
 <div class="section" id="automated-documentation-ast-support-tool">
@@ -448,10 +321,12 @@ end note" />
 <p>This section describes an agreed-upon workflow, toolchain and process to
 generate automated SOEP &#8220;documentation&#8221; and abstract syntax trees from Modelica
 libraries; in particular, the Modelica Buildings Library (MBL).</p>
-<p>The goal of this project is to make the <a class="reference external" href="https://en.wikipedia.org/wiki/Abstract_syntax_tree">abstract syntax tree (AST)</a> of the Modelica
-Buildings Library (MBL) <a class="footnote-reference" href="#fn-mbl" id="id1">[1]</a> available to other tools. Specifically, this
-work should be of use to the OpenStudio team for discovering available models
-and their parameters and other metadata for use from the OpenStudio interface.</p>
+<p>The goal of this effort is to build a computer program that makes the <a class="reference external" href="https://en.wikipedia.org/wiki/Abstract_syntax_tree">abstract
+syntax tree (AST)</a> of the
+Modelica Buildings Library (MBL) <a class="footnote-reference" href="#fn-mbl" id="id1">[1]</a> available to other tools via an XML
+file.  Specifically, this work should be of use to the OpenStudio team for
+discovering available models and their parameters and other metadata for use
+from the OpenStudio interface for SOEP.</p>
 <div class="section" id="background">
 <h4>5.1.1.1. Background<a class="headerlink" href="#background" title="Permalink to this headline">¶</a></h4>
 <p>Modelica source code contains quite a lot of meta-data in addition to the
@@ -462,45 +337,59 @@ model including html-documentation, vendor-specific data, and graphical
 annotations. Parameters, variables, equations, and models can contain
 documentation strings and annotations. Furthermore, packages can be documented
 and the display order of sub-packages, models, classes, functions, connectors
-and other objects can be specified. Modelica Models also have a hierarchical
-structure of packages, models, and models can be composed of multiple (possibly
+and other objects can be specified. Modelica libraries have a hierarchical
+structure consisting mainly of packages which contain models and other objects
+as well as sub-packages. Models themselves can be composed of multiple (possibly
 replaceable) components. Much of this information will be required by the
-OpenStudio tool in order to understand which components are available, where
-they reside in the library structure, what parameters they have, how they can
-be configured, how to display them, and what other meta-data are available
-(such as documentation).</p>
-<p>From initial discussion with Michael Wetter (LBNL) on this task, we&#8217;ve
-identified the main focus will be to make the AST of Modelica source files
-including the metadata mentioned above available to the OpenStudio team. We
+OpenStudio tool in order to understand which component models are available,
+where they reside in the library&#8217;s package structure (i.e., their fully
+qualified name), what parameters they have, how they can be configured, how to
+display them, and what other meta-data are available (such as documentation
+strings and full-on HTML documentation).</p>
+<p>This section is concerned about making the AST of Modelica source files,
+including the metadata mentioned above, available to OpenStudio. We
 will specifically focus on the Modelica Buildings Library (MBL), though as we
-discuss later, the tool should also be able to work over other Modelica files
-and libraries.</p>
-<p>The intent of the AST &#8220;documentation&#8221; is <em>primarily</em> to be consumed by the
+discuss later, the tool should also be able to work with other Modelica
+packages and blocks.</p>
+<p>The intent of the AST representation is <em>primarily</em> to be consumed by the
 OpenStudio application for identification of models, model documentation, model
 connecting points, inputs/outputs, and parameters and related meta-data.</p>
 <p>Presumably, an OpenStudio application will consume some or all of the above
 information, use it to provide an interface to the user, and ultimately write
 out a Modelica file which connects the various library components, configures
 various components and packages (for example, setting the &#8220;media&#8221; or working
-fluid of fluid component models in various HVAC loops), and sets the various
-parameter values.</p>
+fluid of fluid component models in various HVAC loops), and assigning
+values to parameters.</p>
 <p>To create models, information from other libraries, most notably, the Modelica
 Standard Library (MSL) itself, may need to be made available. Typical
-applications and examples from the Modelica Buildings Library (MBL) use
+applications and examples from the MBL use
 component models from both the MSL and MBL. There is also interest in being
 able to support additional third party libraries over and above the MSL and
 MBL. Therefore, it will be important that this tool is not limited to just
 parsing/processing the MBL.</p>
 <p>Also, related to meta-data, it has been proposed that the MBL add any
-OpenStudio-specific metadata to the MBL files themselves. However, although
-this may be easy and feasible for MBL, it may not be practical to consider
-annotating the MSL or other third party libraries as we have no direct control
-over that library and any custom annotations would have to be re-applied with
-future MSL versions. Because of this, to the extent possible, it may be better
-to not rely upon custom vendor-specific annotations where possible.</p>
+OpenStudio-specific metadata to the MBL files themselves. It was originally
+envisioned that Modelica&#8217;s annotations should support just such a use-case.
+However, although it may be straight-forward to annotate the MBL (which we have
+control over), it may not be practical to consider annotating the MSL or other
+third party libraries as we have no direct control over those libraries and any
+custom annotations would have to be re-applied with future MSL version releases.
+Because of this, to the extent possible, it may be better to use custom
+annotations as a last resort or for something very specific to the
+MBL/OpenStudio/SOEP coupling.</p>
+<div class="admonition-todo admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p class="last">Let&#8217;s discuss re custom annotation.
+I think they are only needed for the MBL, not the MSL.</p>
+</div>
 </div>
 <div class="section" id="proposed-workflow-process-and-toolchain">
 <h4>5.1.1.2. Proposed Workflow, Process, and Toolchain<a class="headerlink" href="#proposed-workflow-process-and-toolchain" title="Permalink to this headline">¶</a></h4>
+<div class="admonition-todo admonition" id="index-1">
+<p class="first admonition-title">Todo</p>
+<p class="last">Let&#8217;s discuss re custom annotation.
+I think we can remove the MSL from below.</p>
+</div>
 <p>We propose to build a stand-alone batch-process program that will transform any
 Modelica input file or library (specifically, the Modelica Buildings Library in
 particular although we have identified the need to possibly parse the MSL as
@@ -513,10 +402,12 @@ package structure of the library</li>
 <dt>for each model, to know</dt>
 <dd><ul class="first last">
 <li>what connection &#8220;ports&#8221; are available</li>
+<li>for fluid ports, which ports carry the same fluid (so that media
+assignments can be propagated through a circuit)</li>
 <li>what control inputs/outputs are available</li>
 <li>what parameters are available</li>
-<li>what configuration management options exist (ie, replaceable components
-and packages)</li>
+<li>what configuration management options exist (i.e., replaceable components
+and packages and which parameters belong to which component)</li>
 <li>including meta-data and attributes for all the above such as graphics
 annotations, vendor annotations, html documentation, etc.</li>
 </ul>
@@ -524,30 +415,70 @@ annotations, vendor annotations, html documentation, etc.</li>
 </dl>
 </li>
 </ul>
+<p>Although we intend to build a stand-alone tool, there is interest from the
+OpenStudio team in using this tool directly and/or incorporating the algorithms
+into the OpenStudio interface to import new Modelica libraries and files. As
+such, there are some upstream constraints such as a desire to minimize
+dependencies. We will discuss this more below when we talk about programming
+language.</p>
 <p>We believe the <a class="reference external" href="http://www.jmodelica.org/api-docs/usersguide/JModelicaUsersGuide-1.17.0.pdf">JModelica</a>
 tool suite will be able to provide the proper parsing tools for the AST we
 need. Specifically, we must ensure that the AST we derive from JModelica meets
 all of our needs &#8211; most notably, we must ensure we have access to all
-annotations from a model. Thus, there are two key questions we must answer
-before deciding whether we can embrace the JModelica toolchain for the current
-effort:</p>
+annotations from a model. Specifically, we are looking to JModelica for the
+following:</p>
+<div class="admonition-todo admonition" id="index-2">
+<p class="first admonition-title">Todo</p>
+<p class="last">I find it confusing to talk about packages and models. If we
+can parse packages, then we can also parse models, and if users
+provide a model, it will probably be in a package? It may hence be
+easier to simply discuss packages (or equivalently, libraries as
+a library is simply a package)</p>
+</div>
 <ol class="arabic simple">
-<li>Does the JModelica toolchain provide sufficient access to the full AST?</li>
-<li>Is that access available through the Python interface?</li>
+<li>Provide programmatic access to the full AST of Modelica libraries (packages)
+and models.</li>
+<li>Provide that access through the Java and/or Python API.</li>
 </ol>
-<p>We have confirmed with preliminary work that we can walk a source AST using the
-Python API of JModelica 1.17. We have also determined that the AST information
-does include annotation data. As such, our recommendation would be to build the
-tool in Python.</p>
-<p>The Python interface to JModelica appears the most logical choice as it is the
-most developed, documented, and user-facing of the APIs for JModelica &#8211; in
-fact, it is the only user-facing interface to the open-source JModelica
-toolsuite at the moment. We have used and have demonstrated that the JModelica
-interface does indeed expose at least some of the main hooks into the compiler
-including, most notably, access to the AST including annotations (using version
-1.17). Python is well known and loved by many developers, most notably those in
-the engineering domain and offers quite a few tools and libraries (including
-XML libraries) that can be used/added if needed.</p>
+<div class="admonition-todo admonition" id="index-3">
+<p class="first admonition-title">Todo</p>
+<p class="last">I changed the paragraph below to use Java based on the call
+of Feb. 14.</p>
+</div>
+<p>We have confirmed with preliminary work that we can walk a source AST of a
+single Modelica file using the Python API of JModelica 1.17. We have also
+determined that the AST information does include annotation data.
+The OpenStudio team has expressed a preference for
+using the Java API directly in hopes of reducing the dependencies required for
+packaging. Therefore, we will use the Java API and develop a Java application
+for accessing the AST parser.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">I suggest to delete the statement below about Python being faster
+to develop than Java. I think this is true for small applications,
+but not sure if still true for large applications as errors are typically
+caught earlier in Java (during compilation). I therefore suggest
+to remove the statement, unless you have a good citation.</p>
+</div>
+<p>Using Java has the advantage of being able to
+interface directly with the Java API of JModelica. The downside is that the
+Java API is less documented and more cumbersome to navigate when compared to
+the Python API. Also, Java as a developer language, tends to be less agile
+meaning that it takes more developer time to do the same things than a dynamic
+language like Python. However, the resulting program should run fast and
+require few dependencies over Java itself (and perhaps some XML libraries).</p>
+<p>A nice compromise might involve using a JVM-based language such as JRuby. JRuby
+is an implementation of the Ruby programming language on the JVM. The advantage
+of going with something like JRuby is that Ruby offers higher productivity
+than straight Java while also offering close integration with Java. Thus, in
+some senses it is a perfect &#8220;glue&#8221; language for a JVM-based application. The
+downside is that JRuby requires an additional .jar file (in addition to the JVM
+which would already be present to support JModelica) which implements the Ruby
+language. The <cite>jruby.jar</cite> file is currently 13.5 MB as of release 9.1.7.0.
+Other JVM-based languages exist and are compelling as well.</p>
+<p>We will continue to visit the question of implementation language but
+nominally, implementing the code in Java presents the least packaging
+challenges while providing direct access to the JModelica compiler package.</p>
 <p>The signature of the batch program we will write will be:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ast_doc_gen</span> <span class="o">&lt;</span><span class="n">options</span><span class="o">&gt;</span> <span class="o">--</span><span class="n">out</span> <span class="o">&lt;</span><span class="n">outputfile</span><span class="o">-</span><span class="n">path</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">path_to_modelica_library</span><span class="o">&gt;</span>
 </pre></div>
@@ -561,7 +492,11 @@ on the library available at <code class="docutils literal"><span class="pre">pat
 should only be one library documented per XML file. If additional library data
 is generated, (for example, the MSL), each library should get its own file.</p>
 <p>Options could include flags to allow turning off/on the reporting of various
-constructs in the source library.</p>
+constructs in the source library and for selecting only certain packages to
+import. For example, the OpenStudio team may need to make the <cite>Modelica.Block</cite>
+package of the MSL available for use with the MBL but would not necessarily
+need to include other packages such as <cite>Modelica.Magnetic</cite>,
+<cite>Modelica.Electrical</cite>, or <cite>Modelica.Mechanics</cite>.</p>
 <p>An additional feature of the tool will be to perform a &#8220;diff&#8221; (i.e., logical
 differences) between two generated XML files. The signature for this
 application would be:</p>
@@ -572,32 +507,35 @@ application would be:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">path1</span><span class="p">,</span> <span class="n">path2</span><span class="p">)</span> <span class="o">==&gt;</span> <span class="n">xml</span><span class="o">-</span><span class="n">file</span>
 </pre></div>
 </div>
-<p>The purpose of this tool would be to detect any non-trivial differences between
-two generated XML files that hold the AST of a Modelica library and report
-those changes out to another XML file. The content of this XML file would
-explicitly show the differences between the two input manifests. The options
-here would allow for tweaking the meaning of what it means to be &#8220;different&#8221;.
-For example, depending on the context, the following types of changes may be
-ignored:</p>
+<p>The purpose of the <cite>ast_doc_diff</cite> tool would be to detect non-trivial
+differences between two generated XML files that hold the AST of a Modelica
+library and report those changes out to another XML file. The content of the
+&#8220;difference&#8221; XML file would explicitly show the differences between the two
+input manifests. The options here would allow for tweaking the meaning of what
+it means to be &#8220;different&#8221;. For example, depending on the context, the
+following types of changes may be ignored:</p>
 <ul class="simple">
 <li>changes to text in embedded HTML document</li>
 <li>changes in ordering of classes/models in a package</li>
 <li>addition of new functions (assuming functions would not be directly consumed
 by the OpenStudio tool)</li>
 </ul>
+<p>The <cite>ast_doc_diff</cite> tool would be of use in particular when new versions of the
+MBL are released and the OpenStudio team would like to check if there are
+non-trivial changes they need to integrate.</p>
 </div>
 <div class="section" id="discussion-and-details">
 <h4>5.1.1.3. Discussion and Details<a class="headerlink" href="#discussion-and-details" title="Permalink to this headline">¶</a></h4>
-<p>A key area of agreement will need to be reached on what data gets put into the
-XML output. Specifically, we need to think through how to represent the
-models in the MBL in such a way that they can be consumed by the <em>OpenStudio</em>
-toolchain. At the planning meeting on February 1, 2017, it was discussed that
-we generally want all of the information from the source AST <em>except</em> equation
-and algorithm sections. All annotations should be made available.</p>
+<p>A key area of work will be on designing the data model of the XML output.
+Specifically, we need to think through how to represent the models in the MBL
+in such a way that they can be consumed by the <em>OpenStudio</em> toolchain. At the
+planning meeting on February 1, 2017, it was discussed that we generally want
+all of the information from the source AST <em>except</em> equation and algorithm
+sections. All annotations should be made available.</p>
 <p>One consideration will be: which version of the AST should be used to represent
 packages, classes, models, etc. The <a class="reference external" href="http://www.jmodelica.org/api-docs/usersguide/JModelicaUsersGuide-1.17.0.pdf">JModelica User&#8217;s Guide 1.17</a>
 in Chapter 9 talks about three kinds of AST: source level, instance level, and
-flattened.  The flattened AST is not relevant for us (it corresponds to a fully
+flattened. The flattened AST is not relevant for us (it corresponds to a fully
 flattened model instance ready to be compiled; our interest is in browsing all
 objects for potential configuration).</p>
 <p>The source level AST corresponds 1:1 to the original files in both structure
@@ -606,10 +544,14 @@ components and extended classes and thus may require additional processing by
 consumers.</p>
 <p>An instance level AST, in contrast, represents the fully expanded instance of a
 given model or class, including configurations. Although this is tempting to
-use, we are dealing with a library, not a model <em>instance</em>. It will be
-<em>OpenStudio</em>&#8216;s job to build and specify a model class to instantiate.
-Especially due to Modelica&#8217;s configuration mechanism, it would be dangerous to
-treat object <em>classes</em> as <em>instances</em>.</p>
+use, we must remember that we are dealing with a library, not a model
+<em>instance</em>. It will be <em>OpenStudio</em>&#8216;s job to build and specify a model class to
+instantiate. Especially due to Modelica&#8217;s configuration mechanism, it would be
+dangerous to treat object <em>classes</em> as <em>instances</em>.</p>
+<p>Therefore, we will aim at delivering something closer to the source AST but
+with a mind to construct the data model such that it is easy to trace
+dependencies such as class extensions (i.e., inheritance) and replaceable
+components.</p>
 <p>For an example, consider the following model (adapted from <a class="reference external" href="http://book.xogeny.com/components/components/elec_comps/">Modelica by
 Example: Electrical Components</a>):</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">package</span> <span class="n">Ex1</span>
@@ -676,13 +618,23 @@ Example: Electrical Components</a>):</p>
       --&gt;
       &lt;connector
         id=&quot;Ex1.PositivePin&quot;
+
+        todo: what does type add? This information is already in the children.
+
         type=&quot;f:Modelica.SIunits.Current;p:Modelica.SIunits.Voltage&quot;&gt;
         &lt;variable
+
+          todo: is it required that id below repeats the id of the parent?
+                 It seems to give a conflict if a model from a different
+                 package is extended, as then, the first part of the name
+                 may change (say A extends B, B contains parameter p.
+                 Then this is called A.p, and not A.B.p)
+
           id=&quot;Ex1.PositivePin.v&quot;
           type=&quot;Modelica.SIunits.Voltage&quot;
           connect_type=&quot;potential&quot;
           doc=&quot;Potential at the pin&quot;/&gt;
-        &lt;var
+        &lt;variable
           id=&quot;Ex1.PositivePin.i&quot;
           type=&quot;Modelica.SIunits.Current&quot;
           connect_type=&quot;flow&quot;
@@ -708,6 +660,9 @@ Example: Electrical Components</a>):</p>
         id=&quot;Ex1.TwoPin&quot;
         type=&quot;partial&quot;
         doc=&quot;Common elements of two pin electrical components&quot;&gt;
+
+        todo: above we used variable, but here we use var. Is this a typo?
+
         &lt;var
           type=&quot;Bool&quot;
           id=&quot;Ex1.TwoPin.useTheMod&quot;
@@ -786,8 +741,8 @@ Example: Electrical Components</a>):</p>
 &lt;/lib&gt;
 </pre></div>
 </div>
-<p>Fortunately, there have been several attempts to represent or use XML in relation
-to Modelica in the past:</p>
+<p>There have been several attempts to represent or use XML in relation to
+Modelica in the past. A brief listing of key papers appears below:</p>
 <ul class="simple">
 <li><a class="reference external" href="https://gupea.ub.gu.se/bitstream/2077/38718/1/gupea_2077_38718_1.pdf">N. Landin. (2014). &#8220;XML export and import of Modelica Models&#8221;</a></li>
 <li><a class="reference external" href="https://github.com/modelica-association/ModelicaXML">ModelicaXML Schema</a></li>
@@ -802,15 +757,15 @@ the purpose of model exchange &#8211; this is very similar to our use case.
 Unfortunately, this work deals only with &#8220;flattened&#8221; models &#8211; Modelica models
 that have been instantiated with all of the hierarchy removed. For our use
 case, the hierarchy must be preserved so that the OpenStudio team can
-<em>construct</em> a new model from existing library definitions.</p>
+build a new model through instantiation of models from the MBL.</p>
 <p>The paper by Reisenbichler 2006 motivates the usage of XML in association with
 Modelica without getting into specifics. The remaining work by Pop and Fritzson
-is thus the only comprehensive proposals for an XML representation of Modelica
-<em>source</em> AST. The purpose of the XML work by Pop and Fritzson was to create a
-complete XML representation of the entire Modelica source. It is generally a good
-reference but we note that it is, perhaps unnecessarily, verbose for our
-current needs. As such, we plan to study this work but will not tie ourselves
-to it.</p>
+is thus the only comprehensive work on an XML representation of Modelica
+<em>source</em> AST that appears in the literature. The purpose of the XML work by Pop
+and Fritzson was to create a complete XML representation of the entire Modelica
+source. It is generally a good reference but we note that it is, perhaps
+unnecessarily, verbose for our current needs. As such, although we will refer
+to this work, we do not plan to duplicate it.</p>
 </div>
 <div class="section" id="summary-of-questions-and-next-steps">
 <h4>5.1.1.4. Summary of Questions and Next Steps<a class="headerlink" href="#summary-of-questions-and-next-steps" title="Permalink to this headline">¶</a></h4>
@@ -820,17 +775,23 @@ to it.</p>
 as an &#8220;open source&#8221; API (which is not guaranteed to be stable) for accessing
 the AST of JModelica. Can we get a better understanding of the differences
 between the two?</li>
-<li>We have confirmed that JModelica 1.17 does support parsing AST of annotations
-and models. We need to confirm that custom directives are supported as well.</li>
-<li>The exact data design for XML output must to be determined. What data will
-the OpenStudio need access to?</li>
+<li>The exact data model for XML output must to be determined. What data will the
+OpenStudio need access to?</li>
+<li>What pre-processing on the extracted data would be useful?</li>
 </ul>
 <p><strong>Next Steps</strong>:</p>
 <ul class="simple">
-<li>Write a tool using the JModelica Python API to extract AST data from Modelica
-Models in a library and write that data out as XML</li>
-<li>Design the XML end format</li>
-<li>Create diff tool for comparing xml library dumps in a meaningful way</li>
+<li>Pick the implementation programming language. In particular, determine whether
+Python or &#8220;JVM-based languages&#8221; are acceptable to use or if we need to stick
+with Java.</li>
+<li>Write the proposed programs using JModelica to extract AST data from Modelica
+Models in a library and write that data out as XML.</li>
+<li>We have confirmed that JModelica 1.17 does support parsing AST of annotations
+and models. We need to confirm that custom directives are supported as well
+and that we can parse all information needed from packages and other object
+classes.</li>
+<li>Solidify the XML data model</li>
+<li>Create diff tool for comparing XML library output files in a meaningful way</li>
 </ul>
 </div>
 <div class="section" id="references">
@@ -844,8 +805,7 @@ Models in a library and write that data out as XML</li>
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
 <tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>Our main focus is to support the Modelica Buildings Library but
-the tool should also work for other Modelica file import/parsing
-tasks</td></tr>
+the tool should also work for other Modelica libraries.</td></tr>
 </tbody>
 </table>
 </div>
@@ -874,12 +834,12 @@ direct feed-through from the input
 FMI for Model-Exchange (FMI-ME) version 2.0, because the Co-Simulation
 standard does not allow a zero time step size as needed for direct feed-through.</p>
 <p>The QSS solvers require the derivatives shown in <a class="reference internal" href="#tab-qss-der"><span class="std std-numref">Table 5.1</span></a>.</p>
-<table border="1" class="docutils" id="id4">
+<table border="1" class="docutils" id="id3">
 <span id="tab-qss-der"></span><caption><span class="caption-number">Table 5.1 </span><span class="caption-text">Derivatives required by QSS algorithms. One asteriks indicates
         that they are provided by FMI-ME 2.0, and two asteriks indicate
         that they can optionally be computed exactly if directional
         derivative are provided by the FMU.
-        The others cannot be provided through the FMI API.</span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
+        The others cannot be provided through the FMI API.</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col width="10%" />
 <col width="47%" />
@@ -974,18 +934,21 @@ three event indicator functions.</p>
 <span class="nt">&lt;/ModelStructure&gt;</span>
 </pre></div>
 </div>
-<p><a class="reference internal" href="#fig-sof-arc-qss-jmod2"><span class="std std-numref">Fig. 5.3</span></a> shows the software architecture
+<p><a class="reference internal" href="#fig-sof-arc-qss-jmod2"><span class="std std-numref">Fig. 5.2</span></a> shows the software architecture
 with the extended FMI API.
 For simplicity the figure only
 shows single FMUs, but we anticipated having multiple interconnected FMUs.</p>
-<div class="figure" id="id5">
+<div class="figure" id="id4">
 <span id="fig-sof-arc-qss-jmod2"></span><p class="plantuml">
-<object data="_images/plantuml-24defd2522bbfd79c38a6e8c59729bea024054bd.svg" type="image/svg+xml" style="width:708px;height:404px;">
-<img src="_images/plantuml-24defd2522bbfd79c38a6e8c59729bea024054bd.png" alt="title Software architecture for QSS integration with JModelica with extended FMI API
+<object data="_images/plantuml-d3ab43b4760911a14ec67218d35277eb19092c30.svg" type="image/svg+xml" style="width:873px;height:417px;">
+<img src="_images/plantuml-d3ab43b4760911a14ec67218d35277eb19092c30.png" alt="title Software architecture for QSS integration with JModelica with extended FMI API
 
 skinparam componentStyle uml2
 
-[QSS solver] as qss_sol
+package FMU-ME {
+  [QSS solver] as qss_sol
+  [FMU-ME] as FMU_QSS
+}
 
 package PyFMI {
 [Master algorithm] -&gt; qss_sol : &quot;inputs, time&quot;
@@ -998,9 +961,6 @@ package PyFMI {
 [Master algorithm] --&gt; [FMU-CS] : &quot;hRequested&quot;
 [Master algorithm] &lt;-- [FMU-CS] : &quot;(x, hMax)&quot;
 
-
-[FMU-ME] as FMU_QSS
-
 package Optimica {
 [JModelica compiler] as jmc
 }
@@ -1011,54 +971,8 @@ FMU_QSS --&gt; qss_sol : &quot;derivatives&quot;
 qss_sol --&gt; FMU_QSS : &quot;inputs, time, states&quot;" />
 
 </object></p>
-<p class="caption"><span class="caption-number">Fig. 5.3 </span>: Software architecture for QSS integration with JModelica
-with extended FMI API.<a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
-</div>
-<p><a class="reference internal" href="#fig-sof-arc-qss-jmod"><span class="std std-numref">Fig. 5.4</span></a> shows the originally suggested software architecture
-for the case where the QSS solver is integrated into an FMU-ME.
-This original design would not require modifying the FMI API,
-but it would require some stability of the JModelica-generated model API
-(which is not standardized).
-For simplicity the figure only
-shows single FMUs, but we anticipated having multiple interconnected FMUs.</p>
-<div class="figure" id="id6">
-<span id="fig-sof-arc-qss-jmod"></span><p class="plantuml">
-<object data="_images/plantuml-e4838197400c94eb25612e824cf5cca0721e246a.svg" type="image/svg+xml" style="width:818px;height:521px;">
-<img src="_images/plantuml-e4838197400c94eb25612e824cf5cca0721e246a.png" alt="title Software architecture for QSS integration with JModelica
-
-skinparam componentStyle uml2
-
-[FMU-ME] as FMU_QSS
-
-package Optimica {
-[QSS library] as qss_lib
-qss_lib    --&gt; [JModelica compiler]
-}
-
-[Modelica model] --&gt; [JModelica compiler]
-
-[JModelica compiler] -&gt; FMU_QSS
-
-package PyFMI {
-[Master algorithm] -&gt; FMU_QSS : &quot;inputs, time&quot;
-[Master algorithm] &lt;- FMU_QSS : &quot;next event time&quot;
-[Master algorithm] -- [Sundials]
-}
-
-[Sundials] --&gt; [FMU-ME] : &quot;(x, t)&quot;
-[Sundials] &lt;-- [FMU-ME] : &quot;dx/dt&quot;
-[Master algorithm] --&gt; [FMU-CS] : &quot;hRequested&quot;
-[Master algorithm] &lt;-- [FMU-CS] : &quot;(x, hMax)&quot;
-
-
-note left of FMU_QSS
-   FMU-ME 2.0 API, sends
-   next event time, but
-   exposes no state derivatives
-end note" />
-
-</object></p>
-<p class="caption"><span class="caption-number">Fig. 5.4 </span>: Software architecture for QSS integration with JModelica.<a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 5.2 </span>: Software architecture for QSS integration with JModelica
+with extended FMI API.<a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -1086,7 +1000,7 @@ cross multiple FMUs.</p>
     </p>
     <p>
         &copy; Copyright (c) All rights reserved.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.<br/>
     </p>
   </div>
 </footer>
