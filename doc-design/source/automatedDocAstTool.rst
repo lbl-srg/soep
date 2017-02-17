@@ -379,7 +379,9 @@ In this (very simple) model described above, a possible XML representation might
                   may want to investigate using more "terse" names as a means
                   of reducing file size (e.g., "v" instead of "variable" as an
                   extreme case); compression technology may make long variable
-                  names a non-issue but we need to measure.
+                  names a non-issue but we need to measure. There is also the
+                  question of what data should appear as nested tags and what
+                  should appear as attributes.
 
             <variable
               type="Bool"
