@@ -61,28 +61,12 @@ parsing/processing the MBL.
 Also, related to meta-data, it has been proposed that the MBL add any
 OpenStudio-specific metadata to the MBL files themselves. It was originally
 envisioned that Modelica's annotations should support just such a use-case.
-However, although it may be straight-forward to annotate the MBL (which we have
-control over), it may not be practical to consider annotating the MSL or other
-third party libraries as we have no direct control over those libraries and any
-custom annotations would have to be re-applied with future MSL version releases.
-Because of this, to the extent possible, it may be better to use custom
-annotations as a last resort or for something very specific to the
-MBL/OpenStudio/SOEP coupling.
-
-.. todo:: Let's discuss re custom annotation.
-          I think they are only needed for the MBL, not the MSL.
-
-          MOK: sounds good. It might be good to walk through an example (as
-          specific as we can make it) of how we envision the XML data is to be
-          used/consumed. That might clarify the workflow a bit more in my mind.
+It has been noted that if components from other libraries need to be made
+available to OpenStudio, they could be pulled into the MBL and annotated
+(for example, components from Modelica.Blocks).
 
 Proposed Workflow, Process, and Toolchain
 """""""""""""""""""""""""""""""""""""""""
-
-.. todo:: Let's discuss re custom annotation.
-          I think we can remove the MSL from below.
-
-          MOK: OK.
 
 We propose to build a stand-alone batch-process program that will transform any
 Modelica input file or library (specifically, the Modelica Buildings Library in
@@ -91,7 +75,8 @@ particular) into an XML document. The XML document will contain:
 - identification of which models, classes, connectors, functions, etc. exist
 - identification of the relative hierarchy of the above components within the
   package structure of the library
-- for each model, to know
+- for each package, to know
+    - what models are available
     - what connection "ports" are available
     - for fluid ports, which ports carry the same fluid (so that media
       assignments can be propagated through a circuit)
@@ -114,22 +99,10 @@ We believe the `JModelica
 tool suite will be able to provide the proper parsing tools for the AST we
 need. Specifically, we must ensure that the AST we derive from JModelica meets
 all of our needs -- most notably, we must ensure we have access to all
-annotations from a model. Specifically, we are looking to JModelica for the
-following:
-
-.. todo:: I find it confusing to talk about packages and models. If we
-          can parse packages, then we can also parse models, and if users
-          provide a model, it will probably be in a package? It may hence be
-          easier to simply discuss packages (or equivalently, libraries as
-          a library is simply a package)
-
-          MOK: Sounds good.
+annotations. Specifically, we are looking to JModelica for the following:
 
 1. Provide programmatic access to the full AST of Modelica libraries
 2. Provide that access through the Java and/or Python API.
-
-.. todo:: I changed the paragraph below to use Java based on the call
-          of Feb. 14.
 
 We have confirmed with preliminary work that we can walk a source AST of a
 single Modelica file using the Python API of JModelica 1.17. We have also
@@ -138,17 +111,6 @@ The OpenStudio team has expressed a preference for
 using the Java API directly in hopes of reducing the dependencies required for
 packaging. Therefore, we will use the Java API and develop a Java application
 for accessing the AST parser.
-
-.. note:: I suggest to delete the statement below about Python being faster
-          to develop than Java. I think this is true for small applications,
-          but not sure if still true for large applications as errors are typically
-          caught earlier in Java (during compilation). I therefore suggest
-          to remove the statement, unless you have a good citation.
-
-          MOK: That is fair. The statement on productivity was based on
-          personal experience but either is fine and I enjoy both languages.
-          I've removed the discussion of other programming language options
-          since we will use Java based on the Feb 14 call.
 
 The signature of the batch program we will write will be::
 
@@ -199,6 +161,11 @@ non-trivial changes they need to integrate.
 
 Discussion and Details
 """"""""""""""""""""""
+
+.. todo: We are currently evaluating whether to use the commercial JModelica API
+         directly to do the following or whether to generate XML. We will
+         leave the discussion in as-is for now as it captures some elements
+         of the design work but it needs to be updated once a decision is made.
 
 A key area of work will be on designing the data model of the XML output.
 Specifically, we need to think through how to represent the models in the MBL
@@ -484,27 +451,16 @@ Summary of Questions and Next Steps
 
 **Questions**:
 
-- It is our understanding that there is both a paid "proprietary" API as well
-  as an "open source" API (which is not guaranteed to be stable) for accessing
-  the AST of JModelica. Can we get a better understanding of the differences
-  between the two?
-- The exact data model for XML output must to be determined. What data will the
-  OpenStudio need access to?
 - What pre-processing on the extracted data would be useful?
 
 **Next Steps**:
 
-- Pick the implementation programming language. In particular, determine whether
-  Python or "JVM-based languages" are acceptable to use or if we need to stick
-  with Java.
+- Make a decision as to the JModelica API to use
+- Determine what constitutes a significant difference between different versions of the
+  Modelica Buildings Library and how to communicate those
 - Write the proposed programs using JModelica to extract AST data from Modelica
   Models in a library and write that data out as XML.
-- We have confirmed that JModelica 1.17 does support parsing AST of annotations
-  and models. We need to confirm that custom directives are supported as well
-  and that we can parse all information needed from packages and other object
-  classes.
-- Solidify the XML data model
-- Create diff tool for comparing XML library output files in a meaningful way
+- Create diff tool for comparing versions of the MBL in a meaningful way
 
 .. rubric:: Footnotes
 
