@@ -162,10 +162,10 @@ non-trivial changes they need to integrate.
 Discussion and Details
 """"""""""""""""""""""
 
-.. todo: We are currently evaluating whether to use the commercial JModelica API
-         directly to do the following or whether to generate XML. We will
-         leave the discussion in as-is for now as it captures some elements
-         of the design work but it needs to be updated once a decision is made.
+.. todo:: We are currently evaluating whether to use the commercial JModelica API
+          directly to do the following or whether to generate XML. We will
+          leave the discussion in as-is for now as it captures some elements
+          of the design work but it needs to be updated once a decision is made.
 
 A key area of work will be on designing the data model of the XML output.
 Specifically, we need to think through how to represent the models in the MBL
