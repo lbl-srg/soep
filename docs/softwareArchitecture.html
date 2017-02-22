@@ -134,7 +134,6 @@
 <li><a class="reference internal" href="#proposed-workflow-process-and-toolchain">5.1.1.2. Proposed Workflow, Process, and Toolchain</a></li>
 <li><a class="reference internal" href="#discussion-and-details">5.1.1.3. Discussion and Details</a></li>
 <li><a class="reference internal" href="#summary-of-questions-and-next-steps">5.1.1.4. Summary of Questions and Next Steps</a></li>
-<li><a class="reference internal" href="#references">5.1.1.5. References</a></li>
 </ul>
 </li>
 </ul>
@@ -228,7 +227,7 @@ we show the architecture if the <cite>Modelica Library AST</cite> is parsed
 directly using JModelica rather than storing it in a file.</li>
 </ol>
 </div>
-<div class="figure" id="id2">
+<div class="figure" id="id12">
 <span id="fig-overall-software-architecture-one-editor"></span><p class="plantuml">
 <object data="_images/plantuml-ef0086246e13fcc3ebb36d14ffb15a59b5eb6217.svg" type="image/svg+xml" style="width:1813px;height:1299px;">
 <img src="_images/plantuml-ef0086246e13fcc3ebb36d14ffb15a59b5eb6217.png" alt="title Overall software architecture
@@ -313,7 +312,7 @@ note right of Application
 end note" />
 
 </object></p>
-<p class="caption"><span class="caption-number">Fig. 5.1 </span>: Overall software architecture.<a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 5.1 </span>: Overall software architecture.<a class="headerlink" href="#id12" title="Permalink to this image">¶</a></p>
 </div>
 <p><strong>fixme: more design to be added</strong></p>
 <div class="section" id="automated-documentation-ast-support-tool">
@@ -324,7 +323,7 @@ libraries; in particular, the Modelica Buildings Library (MBL).</p>
 <p>The goal of this effort is to build a computer program that makes the <a class="reference external" href="https://en.wikipedia.org/wiki/Abstract_syntax_tree">abstract
 syntax tree (AST)</a> of the
 Modelica Buildings Library (MBL) <a class="footnote-reference" href="#fn-mbl" id="id1">[1]</a> available to other tools via an XML
-file.  Specifically, this work should be of use to the OpenStudio team for
+file. Specifically, this work should be of use to the OpenStudio team for
 discovering available models and their parameters and other metadata for use
 from the OpenStudio interface for SOEP.</p>
 <div class="section" id="background">
@@ -370,37 +369,23 @@ parsing/processing the MBL.</p>
 <p>Also, related to meta-data, it has been proposed that the MBL add any
 OpenStudio-specific metadata to the MBL files themselves. It was originally
 envisioned that Modelica&#8217;s annotations should support just such a use-case.
-However, although it may be straight-forward to annotate the MBL (which we have
-control over), it may not be practical to consider annotating the MSL or other
-third party libraries as we have no direct control over those libraries and any
-custom annotations would have to be re-applied with future MSL version releases.
-Because of this, to the extent possible, it may be better to use custom
-annotations as a last resort or for something very specific to the
-MBL/OpenStudio/SOEP coupling.</p>
-<div class="admonition-todo admonition" id="index-0">
-<p class="first admonition-title">Todo</p>
-<p class="last">Let&#8217;s discuss re custom annotation.
-I think they are only needed for the MBL, not the MSL.</p>
-</div>
+It has been noted that if components from other libraries need to be made
+available to OpenStudio, they could be pulled into the MBL and annotated
+(for example, components from Modelica.Blocks).</p>
 </div>
 <div class="section" id="proposed-workflow-process-and-toolchain">
 <h4>5.1.1.2. Proposed Workflow, Process, and Toolchain<a class="headerlink" href="#proposed-workflow-process-and-toolchain" title="Permalink to this headline">¶</a></h4>
-<div class="admonition-todo admonition" id="index-1">
-<p class="first admonition-title">Todo</p>
-<p class="last">Let&#8217;s discuss re custom annotation.
-I think we can remove the MSL from below.</p>
-</div>
 <p>We propose to build a stand-alone batch-process program that will transform any
 Modelica input file or library (specifically, the Modelica Buildings Library in
-particular although we have identified the need to possibly parse the MSL as
-well) into an XML document. The XML document will contain:</p>
+particular) into an XML document. The XML document will contain:</p>
 <ul class="simple">
 <li>identification of which models, classes, connectors, functions, etc. exist</li>
 <li>identification of the relative hierarchy of the above components within the
 package structure of the library</li>
 <li><dl class="first docutils">
-<dt>for each model, to know</dt>
+<dt>for each package, to know</dt>
 <dd><ul class="first last">
+<li>what models are available</li>
 <li>what connection &#8220;ports&#8221; are available</li>
 <li>for fluid ports, which ports carry the same fluid (so that media
 assignments can be propagated through a circuit)</li>
@@ -425,26 +410,11 @@ language.</p>
 tool suite will be able to provide the proper parsing tools for the AST we
 need. Specifically, we must ensure that the AST we derive from JModelica meets
 all of our needs &#8211; most notably, we must ensure we have access to all
-annotations from a model. Specifically, we are looking to JModelica for the
-following:</p>
-<div class="admonition-todo admonition" id="index-2">
-<p class="first admonition-title">Todo</p>
-<p class="last">I find it confusing to talk about packages and models. If we
-can parse packages, then we can also parse models, and if users
-provide a model, it will probably be in a package? It may hence be
-easier to simply discuss packages (or equivalently, libraries as
-a library is simply a package)</p>
-</div>
+annotations. Specifically, we are looking to JModelica for the following:</p>
 <ol class="arabic simple">
-<li>Provide programmatic access to the full AST of Modelica libraries (packages)
-and models.</li>
+<li>Provide programmatic access to the full AST of Modelica libraries</li>
 <li>Provide that access through the Java and/or Python API.</li>
 </ol>
-<div class="admonition-todo admonition" id="index-3">
-<p class="first admonition-title">Todo</p>
-<p class="last">I changed the paragraph below to use Java based on the call
-of Feb. 14.</p>
-</div>
 <p>We have confirmed with preliminary work that we can walk a source AST of a
 single Modelica file using the Python API of JModelica 1.17. We have also
 determined that the AST information does include annotation data.
@@ -452,33 +422,6 @@ The OpenStudio team has expressed a preference for
 using the Java API directly in hopes of reducing the dependencies required for
 packaging. Therefore, we will use the Java API and develop a Java application
 for accessing the AST parser.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">I suggest to delete the statement below about Python being faster
-to develop than Java. I think this is true for small applications,
-but not sure if still true for large applications as errors are typically
-caught earlier in Java (during compilation). I therefore suggest
-to remove the statement, unless you have a good citation.</p>
-</div>
-<p>Using Java has the advantage of being able to
-interface directly with the Java API of JModelica. The downside is that the
-Java API is less documented and more cumbersome to navigate when compared to
-the Python API. Also, Java as a developer language, tends to be less agile
-meaning that it takes more developer time to do the same things than a dynamic
-language like Python. However, the resulting program should run fast and
-require few dependencies over Java itself (and perhaps some XML libraries).</p>
-<p>A nice compromise might involve using a JVM-based language such as JRuby. JRuby
-is an implementation of the Ruby programming language on the JVM. The advantage
-of going with something like JRuby is that Ruby offers higher productivity
-than straight Java while also offering close integration with Java. Thus, in
-some senses it is a perfect &#8220;glue&#8221; language for a JVM-based application. The
-downside is that JRuby requires an additional .jar file (in addition to the JVM
-which would already be present to support JModelica) which implements the Ruby
-language. The <cite>jruby.jar</cite> file is currently 13.5 MB as of release 9.1.7.0.
-Other JVM-based languages exist and are compelling as well.</p>
-<p>We will continue to visit the question of implementation language but
-nominally, implementing the code in Java presents the least packaging
-challenges while providing direct access to the JModelica compiler package.</p>
 <p>The signature of the batch program we will write will be:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ast_doc_gen</span> <span class="o">&lt;</span><span class="n">options</span><span class="o">&gt;</span> <span class="o">--</span><span class="n">out</span> <span class="o">&lt;</span><span class="n">outputfile</span><span class="o">-</span><span class="n">path</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">path_to_modelica_library</span><span class="o">&gt;</span>
 </pre></div>
@@ -621,6 +564,12 @@ Example: Electrical Components</a>):</p>
 
         todo: what does type add? This information is already in the children.
 
+              mok: That is true that the information is in the children.
+              The &#39;type&#39; information was proposed as a pre-processing step
+              that could assist OpenStudio in determining which connectors
+              (or other models) can be connected together. However, it may
+              be better to move this logic elsewhere.
+
         type=&quot;f:Modelica.SIunits.Current;p:Modelica.SIunits.Voltage&quot;&gt;
         &lt;variable
 
@@ -629,6 +578,26 @@ Example: Electrical Components</a>):</p>
                  package is extended, as then, the first part of the name
                  may change (say A extends B, B contains parameter p.
                  Then this is called A.p, and not A.B.p)
+
+                mok: We don&#39;t need to use the &#39;id&#39; attribute but if we
+                do, each &#39;id&#39; in a well-formed XML document must be unique:
+
+                https://www.w3.org/TR/2006/REC-xml11-20060816/#id
+
+                Regarding your example, one way this could be handled is
+                as follows:
+
+                    &lt;model id=&quot;A&quot;&gt;&lt;extends&gt;B&lt;/extends&gt;&lt;/model&gt;
+                    &lt;model id=&quot;B&quot;&gt;
+                      &lt;variable id=&quot;B.p&quot; ...&gt;&lt;/variable&gt;
+                    &lt;/model&gt;
+
+                In the above, one would have to &quot;walk&quot; the datastructure
+                to know of A.p&#39;s existance. We&#39;re definitely open to
+                handling this differently. We could perhaps go with
+                using a &quot;name&quot; attribute which does not echo the
+                entire path -- this would save space but would require
+                those consuming the data to recreate the paths.
 
           id=&quot;Ex1.PositivePin.v&quot;
           type=&quot;Modelica.SIunits.Voltage&quot;
@@ -663,13 +632,23 @@ Example: Electrical Components</a>):</p>
 
         todo: above we used variable, but here we use var. Is this a typo?
 
-        &lt;var
+              mok: Yes, fixed below. Note that I don&#39;t want this example
+              to reflect the exact tag names and data model -- we still
+              need to discuss first; this is only a suggestion. Note: we
+              may want to investigate using more &quot;terse&quot; names as a means
+              of reducing file size (e.g., &quot;v&quot; instead of &quot;variable&quot; as an
+              extreme case); compression technology may make long variable
+              names a non-issue but we need to measure. There is also the
+              question of what data should appear as nested tags and what
+              should appear as attributes.
+
+        &lt;variable
           type=&quot;Bool&quot;
           id=&quot;Ex1.TwoPin.useTheMod&quot;
           variability=&quot;parameter&quot;&gt;
           false
-        &lt;/var&gt;
-        &lt;var
+        &lt;/variable&gt;
+        &lt;variable
           type=&quot;Ex1.PositivePin&quot;
           id=&quot;Ex1.TwoPin.p&quot;
           variability=&quot;continuous&quot;&gt;
@@ -683,8 +662,8 @@ Example: Electrical Components</a>):</p>
               &lt;/transformation&gt;
             &lt;/placement&gt;
           &lt;/annotation&gt;
-        &lt;/var&gt;
-        &lt;var
+        &lt;/variable&gt;
+        &lt;variable
           type=&quot;Ex1.NegativePin&quot;
           id=&quot;Ex1.TwoPin.n&quot;
           variability=&quot;continuous&quot;&gt;
@@ -695,8 +674,8 @@ Example: Electrical Components</a>):</p>
               &lt;/transformation&gt;
             &lt;/placement&gt;
           &lt;/annotation&gt;
-        &lt;/var&gt;
-        &lt;var
+        &lt;/variable&gt;
+        &lt;variable
           type=&quot;Modelica.SIunits.Voltage&quot;
           id=&quot;Ex1.TwoPin.v&quot;
           variability=&quot;continuous&quot;
@@ -708,8 +687,8 @@ Example: Electrical Components</a>):</p>
               &lt;/transformation&gt;
             &lt;/placement&gt;
           &lt;/annotation&gt;
-        &lt;/var&gt;
-        &lt;var
+        &lt;/variable&gt;
+        &lt;variable
           type=&quot;Modelica.SIunits.Current&quot;
           id=&quot;Ex1.TwoPin.i&quot;
           variability=&quot;continuous&quot;
@@ -721,7 +700,7 @@ Example: Electrical Components</a>):</p>
               &lt;/transformation&gt;
             &lt;/placement&gt;
           &lt;/annotation&gt;
-        &lt;/var&gt;
+        &lt;/variable&gt;
         &lt;!-- equation section elided... --&gt;
       &lt;/model&gt;
       &lt;!-- OK, and finally the Resistor --&gt;
@@ -729,11 +708,11 @@ Example: Electrical Components</a>):</p>
         id=&quot;Ex1.Resistor&quot;
         doc=&quot;A DRY resistor model&quot;&gt;
         &lt;extends&gt;Ex1.TwoPin&lt;/extends&gt;
-        &lt;var
+        &lt;variable
           type=&quot;Modelica.SIunits.Resistance&quot;
           id=&quot;Ex1.Resistor.R&quot;
           variability=&quot;parameter&quot;&gt;
-        &lt;/var&gt;
+        &lt;/variable&gt;
         &lt;!-- equation section elided... --&gt;
       &lt;/model&gt;
     &lt;/models&gt;
@@ -742,26 +721,17 @@ Example: Electrical Components</a>):</p>
 </pre></div>
 </div>
 <p>There have been several attempts to represent or use XML in relation to
-Modelica in the past. A brief listing of key papers appears below:</p>
-<ul class="simple">
-<li><a class="reference external" href="https://gupea.ub.gu.se/bitstream/2077/38718/1/gupea_2077_38718_1.pdf">N. Landin. (2014). &#8220;XML export and import of Modelica Models&#8221;</a></li>
-<li><a class="reference external" href="https://github.com/modelica-association/ModelicaXML">ModelicaXML Schema</a></li>
-<li><a class="reference external" href="http://onlinelibrary.wiley.com/store/10.1002/9780470545669.app7/asset/app7.pdf?v=1&amp;t=iyq3ixri&amp;s=3acd1aef6559f8c230d827878d73980bdd1407f2">Appendix G of Fritzson (2004) &#8220;Principles of ... with Modelica 2.1&#8221;</a></li>
-<li><a class="reference external" href="https://modelica.org/events/Conference2003/papers/h39_Pop.pdf">A. Pop and P. Fritzson. (2003). &#8220;ModelicaXML...&#8221;</a></li>
-<li><a class="reference external" href="http://www.ida.liu.se/~adrpo33/modelica/ModelicaXML-Presentation-2003-11-04.pdf">A. Pop and P. Fritzson. ModelicaXML Presentation</a></li>
-<li><a class="reference external" href="https://www.modelica.org/events/modelica2006/Proceedings/sessions/Session6d1.pdf">U. Reisenbichler et al. 2006. &#8220;If we only had used XML...&#8221;</a></li>
-</ul>
-<p>In particular, the first reference above links to a 2014 Master&#8217;s Thesis
-describing the work of N. Landin with Modelon using JModelica to export XML for
-the purpose of model exchange &#8211; this is very similar to our use case.
+Modelica in the past (<a class="reference internal" href="references.html#landin2014" id="id2">[Lan14]</a>, <a class="reference internal" href="references.html#fritzson2003g" id="id3">[Fri03]</a>, <a class="reference internal" href="references.html#pop2003" id="id4">[PF03]</a>, <a class="reference internal" href="references.html#pop2005" id="id5">[PSAssmannF05]</a>, and <a class="reference internal" href="references.html#reisenbichler2006" id="id6">[RKH+06]</a>).</p>
+<p>In particular, N. Landin did work with Modelon using JModelica to export XML for
+the purpose of model exchange <a class="reference internal" href="references.html#landin2014" id="id7">[Lan14]</a> &#8211; this is very similar to our use case.
 Unfortunately, this work deals only with &#8220;flattened&#8221; models &#8211; Modelica models
 that have been instantiated with all of the hierarchy removed. For our use
 case, the hierarchy must be preserved so that the OpenStudio team can
 build a new model through instantiation of models from the MBL.</p>
 <p>The paper by Reisenbichler 2006 motivates the usage of XML in association with
-Modelica without getting into specifics. The remaining work by Pop and Fritzson
+Modelica without getting into specifics <a class="reference internal" href="references.html#reisenbichler2006" id="id8">[RKH+06]</a>. The remaining work by Pop and Fritzson
 is thus the only comprehensive work on an XML representation of Modelica
-<em>source</em> AST that appears in the literature. The purpose of the XML work by Pop
+<em>source</em> AST that appears in the literature (<a class="reference internal" href="references.html#pop2003" id="id9">[PF03]</a>, <a class="reference internal" href="references.html#pop2005" id="id10">[PSAssmannF05]</a>, and <a class="reference internal" href="references.html#fritzson2003g" id="id11">[Fri03]</a>). The purpose of the XML work by Pop
 and Fritzson was to create a complete XML representation of the entire Modelica
 source. It is generally a good reference but we note that it is, perhaps
 unnecessarily, verbose for our current needs. As such, although we will refer
@@ -771,35 +741,17 @@ to this work, we do not plan to duplicate it.</p>
 <h4>5.1.1.4. Summary of Questions and Next Steps<a class="headerlink" href="#summary-of-questions-and-next-steps" title="Permalink to this headline">¶</a></h4>
 <p><strong>Questions</strong>:</p>
 <ul class="simple">
-<li>It is our understanding that there is both a paid &#8220;proprietary&#8221; API as well
-as an &#8220;open source&#8221; API (which is not guaranteed to be stable) for accessing
-the AST of JModelica. Can we get a better understanding of the differences
-between the two?</li>
-<li>The exact data model for XML output must to be determined. What data will the
-OpenStudio need access to?</li>
 <li>What pre-processing on the extracted data would be useful?</li>
 </ul>
 <p><strong>Next Steps</strong>:</p>
 <ul class="simple">
-<li>Pick the implementation programming language. In particular, determine whether
-Python or &#8220;JVM-based languages&#8221; are acceptable to use or if we need to stick
-with Java.</li>
+<li>Make a decision as to the JModelica API to use</li>
+<li>Determine what constitutes a significant difference between different versions of the
+Modelica Buildings Library and how to communicate those</li>
 <li>Write the proposed programs using JModelica to extract AST data from Modelica
 Models in a library and write that data out as XML.</li>
-<li>We have confirmed that JModelica 1.17 does support parsing AST of annotations
-and models. We need to confirm that custom directives are supported as well
-and that we can parse all information needed from packages and other object
-classes.</li>
-<li>Solidify the XML data model</li>
-<li>Create diff tool for comparing XML library output files in a meaningful way</li>
+<li>Create diff tool for comparing versions of the MBL in a meaningful way</li>
 </ul>
-</div>
-<div class="section" id="references">
-<h4>5.1.1.5. References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h4>
-<p>JModelica User Guide</p>
-<blockquote>
-<div>&#8220;JModelica.org User Guide: Version 1.17&#8221;. Available at:
-<a class="reference external" href="http://www.jmodelica.org/api-docs/usersguide/JModelicaUsersGuide-1.17.0.pdf">http://www.jmodelica.org/api-docs/usersguide/JModelicaUsersGuide-1.17.0.pdf</a></div></blockquote>
 <p class="rubric">Footnotes</p>
 <table class="docutils footnote" frame="void" id="fn-mbl" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
@@ -834,12 +786,12 @@ direct feed-through from the input
 FMI for Model-Exchange (FMI-ME) version 2.0, because the Co-Simulation
 standard does not allow a zero time step size as needed for direct feed-through.</p>
 <p>The QSS solvers require the derivatives shown in <a class="reference internal" href="#tab-qss-der"><span class="std std-numref">Table 5.1</span></a>.</p>
-<table border="1" class="docutils" id="id3">
+<table border="1" class="docutils" id="id13">
 <span id="tab-qss-der"></span><caption><span class="caption-number">Table 5.1 </span><span class="caption-text">Derivatives required by QSS algorithms. One asteriks indicates
         that they are provided by FMI-ME 2.0, and two asteriks indicate
         that they can optionally be computed exactly if directional
         derivative are provided by the FMU.
-        The others cannot be provided through the FMI API.</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
+        The others cannot be provided through the FMI API.</span><a class="headerlink" href="#id13" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col width="10%" />
 <col width="47%" />
@@ -938,7 +890,7 @@ three event indicator functions.</p>
 with the extended FMI API.
 For simplicity the figure only
 shows single FMUs, but we anticipated having multiple interconnected FMUs.</p>
-<div class="figure" id="id4">
+<div class="figure" id="id14">
 <span id="fig-sof-arc-qss-jmod2"></span><p class="plantuml">
 <object data="_images/plantuml-d3ab43b4760911a14ec67218d35277eb19092c30.svg" type="image/svg+xml" style="width:873px;height:417px;">
 <img src="_images/plantuml-d3ab43b4760911a14ec67218d35277eb19092c30.png" alt="title Software architecture for QSS integration with JModelica with extended FMI API
@@ -972,7 +924,7 @@ qss_sol --&gt; FMU_QSS : &quot;inputs, time, states&quot;" />
 
 </object></p>
 <p class="caption"><span class="caption-number">Fig. 5.2 </span>: Software architecture for QSS integration with JModelica
-with extended FMI API.<a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+with extended FMI API.<a class="headerlink" href="#id14" title="Permalink to this image">¶</a></p>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
