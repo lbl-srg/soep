@@ -456,6 +456,7 @@ The refactored model will be
 
   model Test
     Real x;
+    Modelica.Blocks.Interfaces.RealInput u;
     Modelica.Blocks.Interfaces.RealOutput z 
       annotation(JModelica(z="Zero crossing")); 
     Modelica.Blocks.Interfaces.RealOutput der_z 
