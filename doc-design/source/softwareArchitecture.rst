@@ -198,6 +198,9 @@ Because the FMI API does not provide access to the required derivatives,
 we will now propose functions to be added to the FMI API
 that are needed for an efficient implementation of QSS.
 
+Proposal of LBNL
+~~~~~~~~~~~~~~~~
+
 QSS generally requires to only update a subset of the state vector. We therefore
 introduce the following function:
 
@@ -316,3 +319,164 @@ shows single FMUs, but we anticipated having multiple interconnected FMUs.
    We still need to design how to handle algebraic loops inside the FMU
    (see also Cellier's and Kofman's book) and algebraic loops that
    cross multiple FMUs.
+
+
+To avoid having to change the FMI specification,
+Modelon proposes an alternative approach which is 
+discussed in the next sections.
+
+Proposal of Modelon
+~~~~~~~~~~~~~~~~~~~
+
+
+**Use the fmi2SetReal() to set continuous states**:
+
+In this approach, we use ``fmi2SetReal()`` to set individual state variable.
+This approach requires an extension to the FMI standard
+and is equivalent to ``fmi2SetSpecificContinuousStates()``.
+
+**Add Time as a state variable**:
+
+
+JModelica provides directional derivatives.
+If ``Time`` is added as a state variable, then the directional 
+derivatives will allow to get second derivative of states
+with respect to time.
+
+This approach has following drawbacks:
+
+  * It can not be used to get higher order derivatives (e.g. 3rd derivative) with a single FMU call.
+  * For QSS solvers, ``Time`` will need to be a hidden state 
+    so that they do not mistakenly integrate it.
+
+**Add event indicators and first derivative of event indicators as output variables**:
+
+To achieve the proposed solution we see two implementation options
+
+*Option 1*
+
+The Modelica modeler has to a) explicitely model the event indicator function
+with its derivative in the Modelica model, b) add two output variables, 
+one for the event indicator and one 
+for its derivative, and c) annotate these variables so 
+the master knows how they should be used.
+
+Given a model such as  
+
+.. code-block:: modelica
+
+   model Test
+     Real x;
+   equation 
+     if (x > 2) then
+       der(x) = 1;
+     else
+       der(x) = 3;
+     end if;
+   end Test;
+
+The modeler has to extend the model to 
+include two new variables ``z`` and ``der_z``
+for the event indicator funtions and its derivative.
+``z`` will be computed as :math:`z = x - 2`,
+and ``der_z`` will be the first derivative of ``z``
+with respect to time.
+
+The refactored model will be 
+
+.. code-block:: modelica
+
+   model Test
+     Real x;
+     Modelica.Blocks.Interfaces.RealOutput z 
+       annotation(JModelica(z="Zero crossing")); 
+     Modelica.Blocks.Interfaces.RealOutput der_z 
+       annotation(JModelica(der_z="First derivative of zero crossing"));
+   equation 
+     z = x - 2;
+     der_z = der (z);
+     if (x > 2) then
+       der(x) = 1;
+     else
+       der(x) = 3;
+     end if;
+   end Test;
+
+A major drawback of this approach is that the modeler will need to 
+make sure that it implements all event indicator functions.
+The modeler will also need to implement the derivatives of
+the event indicator functions. This is error prone, unpracticable
+and will need additional variables/equations for higher order QSS such 
+as Qss3.
+
+*Option 2*
+
+An alternative approach is to let the JModelica
+compiler expands the Modelica model or the code generated
+by the compiler to a) include these additional variables/
+equations, and b) make them available in the XML file of the FMU.
+
+The drawback here is that this approach will
+have to be implemented in any Modelica compiler
+which needs to support the QSS libraries.
+Since we are not in control of Modelica tool vendors, 
+we can not predict whether this approach will be 
+widely adopted.
+
+If the proposal of Modelon is accepted, then we recommend to implement Option 2.
+
+.. note::
+
+   In both cases, a challenge arises 
+   if the event indicator function depends on the 
+   inputs of the model. In which case without further modification
+   of the model, the event indicator will not be able 
+   to be differentiated. This is illustrated in the next example.
+
+Given our slighly modified previous model where the event indicator 
+is a function of the input u 
+
+.. code-block:: modelica
+
+  model Test
+    Real x;
+    Modelica.Blocks.Interfaces.RealInput u; 
+  equation 
+    if (x > u) then
+      der(x) = 1;
+    else
+      der(x) = 3;
+    end if;
+  end Test;
+
+The refactored model will be 
+
+.. code-block:: modelica
+
+  model Test
+    Real x;
+    Modelica.Blocks.Interfaces.RealOutput z 
+      annotation(JModelica(z="Zero crossing")); 
+    Modelica.Blocks.Interfaces.RealOutput der_z 
+      annotation(JModelica(der_z="First derivative of zero crossing"));
+  equation 
+    z = x - u;
+    der_z = der( x-u);
+    if (x > u) then
+      der(x) = 1;
+    else
+      der(x) = 3;
+    end if;
+  end Test;
+
+This model will not compile unless we introduce a new variable ``du_dt`` which
+is the derivative of the input with respect to time.
+This variable will be used to calculate the expression ``der_z``.
+The modeler will either have to introduce such a variable or 
+the JModelica compiler will have to address this at compilation time.
+
+
+
+
+
+
