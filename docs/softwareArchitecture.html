@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>5. Software Architecture &#8212; Spawn of EnergyPlus</title>
+    <title>5. Software Architecture &mdash; Spawn of EnergyPlus</title>
     
     <link rel="stylesheet" href="_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -25,8 +25,7 @@
         VERSION:     '1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
+        HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
@@ -38,8 +37,7 @@
     <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="_static/lbl-icon.ico"/>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="Spawn of EnergyPlus" href="index.html" />
     <link rel="next" title="6. Numerical Methods of the Master Algorithm" href="numericalMethods.html" />
     <link rel="prev" title="4. Requirements" href="requirements.html" />
 <meta charset='utf-8'>
@@ -138,7 +136,11 @@
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#jmodelica-integration">5.2. JModelica Integration</a></li>
+<li><a class="reference internal" href="#jmodelica-integration">5.2. JModelica Integration</a><ul>
+<li><a class="reference internal" href="#proposal-of-lbnl">5.2.1. Proposal of LBNL</a></li>
+<li><a class="reference internal" href="#proposal-of-modelon">5.2.2. Proposal of Modelon</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -378,13 +380,15 @@ available to OpenStudio, they could be pulled into the MBL and annotated
 <p>We propose to build a stand-alone batch-process program that will transform any
 Modelica input file or library (specifically, the Modelica Buildings Library in
 particular) into an XML document. The XML document will contain:</p>
-<ul class="simple">
-<li>identification of which models, classes, connectors, functions, etc. exist</li>
-<li>identification of the relative hierarchy of the above components within the
-package structure of the library</li>
+<ul>
+<li><p class="first">identification of which models, classes, connectors, functions, etc. exist</p>
+</li>
+<li><p class="first">identification of the relative hierarchy of the above components within the
+package structure of the library</p>
+</li>
 <li><dl class="first docutils">
 <dt>for each package, to know</dt>
-<dd><ul class="first last">
+<dd><ul class="first last simple">
 <li>what models are available</li>
 <li>what connection &#8220;ports&#8221; are available</li>
 <li>for fluid ports, which ports carry the same fluid (so that media
@@ -826,8 +830,13 @@ standard does not allow a zero time step size as needed for direct feed-through.
 </tbody>
 </table>
 <p>Because the FMI API does not provide access to the required derivatives,
-we will now propose functions to be added to the FMI API
-that are needed for an efficient implementation of QSS.</p>
+we discuss two proposals that are needed for an efficient implementation of QSS.
+The first proposal requires an extension of the FMI specification whereas the second
+proposal requires a modification of the specification as well as a refactoring
+of Modelica models or a customization of the JModelica code generator. Both proposals
+are discussed in the next sections.</p>
+<div class="section" id="proposal-of-lbnl">
+<h3>5.2.1. Proposal of LBNL<a class="headerlink" href="#proposal-of-lbnl" title="Permalink to this headline">¶</a></h3>
 <p>QSS generally requires to only update a subset of the state vector. We therefore
 introduce the following function:</p>
 <div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">fmi2Status</span> <span class="nf">fmi2SetSpecificContinuousStates</span><span class="p">(</span><span class="n">fmi2Component</span> <span class="n">c</span><span class="p">,</span>
@@ -939,6 +948,137 @@ with extended FMI API.<a class="headerlink" href="#id14" title="Permalink to thi
 (see also Cellier&#8217;s and Kofman&#8217;s book) and algebraic loops that
 cross multiple FMUs.</p>
 </div>
+<p>To avoid having to change the FMI specification,
+Modelon proposes an alternative approach which is
+discussed in the next sections.</p>
+</div>
+<div class="section" id="proposal-of-modelon">
+<h3>5.2.2. Proposal of Modelon<a class="headerlink" href="#proposal-of-modelon" title="Permalink to this headline">¶</a></h3>
+<p><strong>Use the fmi2SetReal() to set continuous states</strong>:</p>
+<p>In this approach, we use <code class="docutils literal"><span class="pre">fmi2SetReal()</span></code> to set individual state variable.
+This approach requires a modification of the FMI standard
+and is equivalent to <code class="docutils literal"><span class="pre">fmi2SetSpecificContinuousStates()</span></code>.</p>
+<p><strong>Add Time as a state variable</strong>:</p>
+<p>JModelica provides directional derivatives.
+If <code class="docutils literal"><span class="pre">Time</span></code> is added as a state variable, then the directional
+derivatives will allow to get second derivative of states
+with respect to time.</p>
+<p>This approach has following drawbacks:</p>
+<blockquote>
+<div><ul class="simple">
+<li>It can not be used to get higher order derivatives (e.g. 3rd derivative) with a single FMU call.</li>
+<li>For QSS solvers, <code class="docutils literal"><span class="pre">Time</span></code> will need to be a hidden state
+so they do not mistakenly integrate it.</li>
+</ul>
+</div></blockquote>
+<p><strong>Add event indicators and first derivative of event indicators as output variables</strong>:</p>
+<p>To achieve the proposed solution we see two implementation options</p>
+<p><em>Option 1</em></p>
+<p>The Modelica modeler has to a) explicitely model the event indicator function
+with its derivative in the Modelica model, b) add two output variables,
+one for the event indicator and one for its derivative,
+and c) annotate the variables so the master knows how they should be used.
+This is illustrated in the example below.</p>
+<p>Given a model such as</p>
+<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">Test</span>
+  <span class="nb">Real</span> <span class="n">x</span><span class="p">;</span>
+<span class="kr">equation</span>
+  <span class="kr">if</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">)</span> <span class="kr">then</span>
+    <span class="kr">der</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="kr">else</span>
+    <span class="kr">der</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+  <span class="kr">end</span> <span class="kr">if</span><span class="p">;</span>
+<span class="kr">end</span> <span class="nc">Test</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>The modeler has to extend the model to
+include two new variables <code class="docutils literal"><span class="pre">z</span></code> and <code class="docutils literal"><span class="pre">der_z</span></code>
+for the event indicator function and its derivative.
+<code class="docutils literal"><span class="pre">z</span></code> will be computed as <span class="math">\(z = x - 2\)</span>,
+and <code class="docutils literal"><span class="pre">der_z</span></code> will be the first derivative of <code class="docutils literal"><span class="pre">z</span></code>
+with respect to time.</p>
+<p>The refactored model will be</p>
+<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">Test</span>
+  <span class="nb">Real</span> <span class="n">x</span><span class="p">;</span>
+  <span class="n">Modelica</span><span class="o">.</span><span class="n">Blocks</span><span class="o">.</span><span class="n">Interfaces</span><span class="o">.</span><span class="n">RealOutput</span> <span class="n">z</span>
+    <span class="kr">annotation</span><span class="p">(</span><span class="n">JModelica</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="s2">&quot;Zero crossing&quot;</span><span class="p">));</span>
+  <span class="n">Modelica</span><span class="o">.</span><span class="n">Blocks</span><span class="o">.</span><span class="n">Interfaces</span><span class="o">.</span><span class="n">RealOutput</span> <span class="n">der_z</span>
+    <span class="kr">annotation</span><span class="p">(</span><span class="n">JModelica</span><span class="p">(</span><span class="n">der_z</span><span class="o">=</span><span class="s2">&quot;First derivative of zero crossing&quot;</span><span class="p">));</span>
+<span class="kr">equation</span>
+  <span class="n">z</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="mi">2</span><span class="p">;</span>
+  <span class="n">der_z</span> <span class="o">=</span> <span class="kr">der</span> <span class="p">(</span><span class="n">z</span><span class="p">);</span>
+  <span class="kr">if</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">)</span> <span class="kr">then</span>
+    <span class="kr">der</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="kr">else</span>
+    <span class="kr">der</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+  <span class="kr">end</span> <span class="kr">if</span><span class="p">;</span>
+<span class="kr">end</span> <span class="nc">Test</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>A major drawback of this approach is that the modeler will need to
+make sure that it implements all event indicator functions.
+The modeler will also need to implement the derivatives of
+the event indicator functions. This is error prone, unpracticable,
+and will need additional variables/equations for higher order QSS such
+as Qss3.</p>
+<p><em>Option 2</em></p>
+<p>An alternative approach is to let the JModelica
+compiler expands the Modelica model or the code generated
+by the compiler to a) include these additional variables/
+equations, and b) make them available in the XML file of the FMU.</p>
+<p>The drawback here is that this approach will
+have to be implemented in any Modelica compiler
+which needs to support the QSS libraries.
+Since we are not in control of Modelica tool vendors,
+we can not predict whether this approach will be
+widely adopted.</p>
+<p>If the proposal of Modelon is accepted, then we recommend to implement Option 2.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">In both cases, a challenge arises
+if the event indicator function depends on the
+inputs of the model. In which case without further modification
+of the model, the event indicator will not be able
+to be differentiated. This is illustrated in the next example.</p>
+</div>
+<p>Given our slighly modified previous model where the event indicator
+is a function of the input u</p>
+<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">Test</span>
+  <span class="nb">Real</span> <span class="n">x</span><span class="p">;</span>
+  <span class="n">Modelica</span><span class="o">.</span><span class="n">Blocks</span><span class="o">.</span><span class="n">Interfaces</span><span class="o">.</span><span class="n">RealInput</span> <span class="n">u</span><span class="p">;</span>
+<span class="kr">equation</span>
+  <span class="kr">if</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="n">u</span><span class="p">)</span> <span class="kr">then</span>
+    <span class="kr">der</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="kr">else</span>
+    <span class="kr">der</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+  <span class="kr">end</span> <span class="kr">if</span><span class="p">;</span>
+<span class="kr">end</span> <span class="nc">Test</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>The refactored model will be</p>
+<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">Test</span>
+  <span class="nb">Real</span> <span class="n">x</span><span class="p">;</span>
+  <span class="n">Modelica</span><span class="o">.</span><span class="n">Blocks</span><span class="o">.</span><span class="n">Interfaces</span><span class="o">.</span><span class="n">RealOutput</span> <span class="n">z</span>
+    <span class="kr">annotation</span><span class="p">(</span><span class="n">JModelica</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="s2">&quot;Zero crossing&quot;</span><span class="p">));</span>
+  <span class="n">Modelica</span><span class="o">.</span><span class="n">Blocks</span><span class="o">.</span><span class="n">Interfaces</span><span class="o">.</span><span class="n">RealOutput</span> <span class="n">der_z</span>
+    <span class="kr">annotation</span><span class="p">(</span><span class="n">JModelica</span><span class="p">(</span><span class="n">der_z</span><span class="o">=</span><span class="s2">&quot;First derivative of zero crossing&quot;</span><span class="p">));</span>
+<span class="kr">equation</span>
+  <span class="n">z</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">u</span><span class="p">;</span>
+  <span class="n">der_z</span> <span class="o">=</span> <span class="kr">der</span><span class="p">(</span> <span class="n">x</span><span class="o">-</span><span class="n">u</span><span class="p">);</span>
+  <span class="kr">if</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="n">u</span><span class="p">)</span> <span class="kr">then</span>
+    <span class="kr">der</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="kr">else</span>
+    <span class="kr">der</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+  <span class="kr">end</span> <span class="kr">if</span><span class="p">;</span>
+<span class="kr">end</span> <span class="nc">Test</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>This model will not compile unless we introduce a new variable <code class="docutils literal"><span class="pre">du_dt</span></code> which
+is the derivative of the input with respect to time.
+This variable will be used to calculate the expression <code class="docutils literal"><span class="pre">der_z</span></code>.
+The modeler will either have to introduce such a variable or
+the JModelica compiler will have to address this at compilation time.</p>
+</div>
 </div>
 </div>
 
@@ -959,7 +1099,7 @@ cross multiple FMUs.</p>
     </p>
     <p>
         &copy; Copyright (c) All rights reserved.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.<br/>
     </p>
   </div>
 </footer>
