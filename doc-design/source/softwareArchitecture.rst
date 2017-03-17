@@ -195,8 +195,11 @@ The QSS solvers require the derivatives shown in :numref:`tab_qss_der`.
    +-------------+-----------------------------------------------------------+-----------------------------------------------------+
 
 Because the FMI API does not provide access to the required derivatives,
-we will now propose functions to be added to the FMI API
-that are needed for an efficient implementation of QSS.
+we discuss two proposals that are needed for an efficient implementation of QSS.
+The first proposal requires an extension of the FMI specification whereas the second
+proposal requires a modification of the specification as well as a refactoring
+of Modelica models or a customization of the JModelica code generator. Both proposals
+are discussed in the next sections.
 
 Proposal of LBNL
 ~~~~~~~~~~~~~~~~
@@ -328,15 +331,13 @@ discussed in the next sections.
 Proposal of Modelon
 ~~~~~~~~~~~~~~~~~~~
 
-
 **Use the fmi2SetReal() to set continuous states**:
 
 In this approach, we use ``fmi2SetReal()`` to set individual state variable.
-This approach requires an extension to the FMI standard
+This approach requires a modification of the FMI standard
 and is equivalent to ``fmi2SetSpecificContinuousStates()``.
 
 **Add Time as a state variable**:
-
 
 JModelica provides directional derivatives.
 If ``Time`` is added as a state variable, then the directional 
@@ -347,7 +348,7 @@ This approach has following drawbacks:
 
   * It can not be used to get higher order derivatives (e.g. 3rd derivative) with a single FMU call.
   * For QSS solvers, ``Time`` will need to be a hidden state 
-    so that they do not mistakenly integrate it.
+    so they do not mistakenly integrate it.
 
 **Add event indicators and first derivative of event indicators as output variables**:
 
@@ -357,9 +358,9 @@ To achieve the proposed solution we see two implementation options
 
 The Modelica modeler has to a) explicitely model the event indicator function
 with its derivative in the Modelica model, b) add two output variables, 
-one for the event indicator and one 
-for its derivative, and c) annotate these variables so 
-the master knows how they should be used.
+one for the event indicator and one for its derivative, 
+and c) annotate the variables so the master knows how they should be used.
+This is illustrated in the example below.
 
 Given a model such as  
 
@@ -377,7 +378,7 @@ Given a model such as
 
 The modeler has to extend the model to 
 include two new variables ``z`` and ``der_z``
-for the event indicator funtions and its derivative.
+for the event indicator function and its derivative.
 ``z`` will be computed as :math:`z = x - 2`,
 and ``der_z`` will be the first derivative of ``z``
 with respect to time.
@@ -405,7 +406,7 @@ The refactored model will be
 A major drawback of this approach is that the modeler will need to 
 make sure that it implements all event indicator functions.
 The modeler will also need to implement the derivatives of
-the event indicator functions. This is error prone, unpracticable
+the event indicator functions. This is error prone, unpracticable,
 and will need additional variables/equations for higher order QSS such 
 as Qss3.
 
