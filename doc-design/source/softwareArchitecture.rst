@@ -352,6 +352,17 @@ This approach has following drawbacks:
   * For QSS solvers, ``Time`` will need to be a hidden state 
     so they do not mistakenly integrate it.
 
+.. note::
+
+  The FMI specification says on page 26 that If a variable with 
+  causality= ′′independent′′ is explicitely defined under 
+  ScalarVariables, a directional derivative with 
+  respect to this variable can be computed. 
+  Hence if ``Time`` is an independent variable, which is specified
+  in the XML, then the directional derivative of the derivative function
+  with respect to time (second derivative of the state) can be computed.  
+
+
 **Add event indicators and first derivative of event indicators as output variables**:
 
 To achieve the proposed solution we see two implementation options
