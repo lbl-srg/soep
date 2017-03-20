@@ -972,6 +972,16 @@ with respect to time.</p>
 so they do not mistakenly integrate it.</li>
 </ul>
 </div></blockquote>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The FMI specification says on page 26 that If a variable with
+causality= ′′independent′′ is explicitely defined under
+ScalarVariables, a directional derivative with
+respect to this variable can be computed.
+Hence if <code class="docutils literal"><span class="pre">Time</span></code> is an independent variable, which is specified
+in the XML, then the directional derivative of the derivative function
+with respect to time (second derivative of the state) can be computed</p>
+</div>
 <p><strong>Add event indicators and first derivative of event indicators as output variables</strong>:</p>
 <p>To achieve the proposed solution we see two implementation options</p>
 <p><em>Option 1</em></p>
