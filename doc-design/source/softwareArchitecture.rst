@@ -355,7 +355,7 @@ This approach has following drawbacks:
 .. note::
 
   The FMI specification says on page 26 that If a variable with 
-  causality= ′′independent′′ is explicitely defined under 
+  ``causality= ′′independent′′`` is explicitely defined under 
   ScalarVariables, a directional derivative with 
   respect to this variable can be computed. 
   Hence if ``Time`` is an independent variable, which is specified
