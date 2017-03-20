@@ -334,8 +334,10 @@ Proposal of Modelon
 **Use the fmi2SetReal() to set continuous states**:
 
 In this approach, we use ``fmi2SetReal()`` to set individual state variable.
-This approach requires a modification of the FMI standard
-and is equivalent to ``fmi2SetSpecificContinuousStates()``.
+This approach requires a modification of the FMI standard,
+is equivalent to ``fmi2SetSpecificContinuousStates()``, and should be
+preferably used since it does not require to add a new function to the specification.
+
 
 **Add Time as a state variable**:
 
@@ -390,9 +392,9 @@ The refactored model will be
    model Test
      Real x;
      Modelica.Blocks.Interfaces.RealOutput z 
-       annotation(JModelica(z="Zero crossing")); 
+       annotation(JModelica(z="Event indicator")); 
      Modelica.Blocks.Interfaces.RealOutput der_z 
-       annotation(JModelica(der_z="First derivative of zero crossing"));
+       annotation(JModelica(der_z="First derivative of event indicator"));
    equation 
      z = x - 2;
      der_z = der (z);
@@ -458,12 +460,12 @@ The refactored model will be
     Real x;
     Modelica.Blocks.Interfaces.RealInput u;
     Modelica.Blocks.Interfaces.RealOutput z 
-      annotation(JModelica(z="Zero crossing")); 
+      annotation(JModelica(z="Event indicator")); 
     Modelica.Blocks.Interfaces.RealOutput der_z 
-      annotation(JModelica(der_z="First derivative of zero crossing"));
+      annotation(JModelica(der_z="First derivative of event indicator"));
   equation 
     z = x - u;
-    der_z = der( x-u);
+    der_z = der(x-u);
     if (x > u) then
       der(x) = 1;
     else
