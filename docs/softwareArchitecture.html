@@ -956,8 +956,9 @@ discussed in the next sections.</p>
 <h3>5.2.2. Proposal of Modelon<a class="headerlink" href="#proposal-of-modelon" title="Permalink to this headline">¶</a></h3>
 <p><strong>Use the fmi2SetReal() to set continuous states</strong>:</p>
 <p>In this approach, we use <code class="docutils literal"><span class="pre">fmi2SetReal()</span></code> to set individual state variable.
-This approach requires a modification of the FMI standard
-and is equivalent to <code class="docutils literal"><span class="pre">fmi2SetSpecificContinuousStates()</span></code>.</p>
+This approach requires a modification of the FMI standard,
+is equivalent to <code class="docutils literal"><span class="pre">fmi2SetSpecificContinuousStates()</span></code>, and should be
+preferably used since it does not require to add a new function to the specification.</p>
 <p><strong>Add Time as a state variable</strong>:</p>
 <p>JModelica provides directional derivatives.
 If <code class="docutils literal"><span class="pre">Time</span></code> is added as a state variable, then the directional
@@ -1001,9 +1002,9 @@ with respect to time.</p>
 <div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">Test</span>
   <span class="nb">Real</span> <span class="n">x</span><span class="p">;</span>
   <span class="n">Modelica</span><span class="o">.</span><span class="n">Blocks</span><span class="o">.</span><span class="n">Interfaces</span><span class="o">.</span><span class="n">RealOutput</span> <span class="n">z</span>
-    <span class="kr">annotation</span><span class="p">(</span><span class="n">JModelica</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="s2">&quot;Zero crossing&quot;</span><span class="p">));</span>
+    <span class="kr">annotation</span><span class="p">(</span><span class="n">JModelica</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="s2">&quot;Event indicator&quot;</span><span class="p">));</span>
   <span class="n">Modelica</span><span class="o">.</span><span class="n">Blocks</span><span class="o">.</span><span class="n">Interfaces</span><span class="o">.</span><span class="n">RealOutput</span> <span class="n">der_z</span>
-    <span class="kr">annotation</span><span class="p">(</span><span class="n">JModelica</span><span class="p">(</span><span class="n">der_z</span><span class="o">=</span><span class="s2">&quot;First derivative of zero crossing&quot;</span><span class="p">));</span>
+    <span class="kr">annotation</span><span class="p">(</span><span class="n">JModelica</span><span class="p">(</span><span class="n">der_z</span><span class="o">=</span><span class="s2">&quot;First derivative of event indicator&quot;</span><span class="p">));</span>
 <span class="kr">equation</span>
   <span class="n">z</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="mi">2</span><span class="p">;</span>
   <span class="n">der_z</span> <span class="o">=</span> <span class="kr">der</span> <span class="p">(</span><span class="n">z</span><span class="p">);</span>
@@ -1060,12 +1061,12 @@ is a function of the input u</p>
   <span class="nb">Real</span> <span class="n">x</span><span class="p">;</span>
   <span class="n">Modelica</span><span class="o">.</span><span class="n">Blocks</span><span class="o">.</span><span class="n">Interfaces</span><span class="o">.</span><span class="n">RealInput</span> <span class="n">u</span><span class="p">;</span>
   <span class="n">Modelica</span><span class="o">.</span><span class="n">Blocks</span><span class="o">.</span><span class="n">Interfaces</span><span class="o">.</span><span class="n">RealOutput</span> <span class="n">z</span>
-    <span class="kr">annotation</span><span class="p">(</span><span class="n">JModelica</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="s2">&quot;Zero crossing&quot;</span><span class="p">));</span>
+    <span class="kr">annotation</span><span class="p">(</span><span class="n">JModelica</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="s2">&quot;Event indicator&quot;</span><span class="p">));</span>
   <span class="n">Modelica</span><span class="o">.</span><span class="n">Blocks</span><span class="o">.</span><span class="n">Interfaces</span><span class="o">.</span><span class="n">RealOutput</span> <span class="n">der_z</span>
-    <span class="kr">annotation</span><span class="p">(</span><span class="n">JModelica</span><span class="p">(</span><span class="n">der_z</span><span class="o">=</span><span class="s2">&quot;First derivative of zero crossing&quot;</span><span class="p">));</span>
+    <span class="kr">annotation</span><span class="p">(</span><span class="n">JModelica</span><span class="p">(</span><span class="n">der_z</span><span class="o">=</span><span class="s2">&quot;First derivative of event indicator&quot;</span><span class="p">));</span>
 <span class="kr">equation</span>
   <span class="n">z</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">u</span><span class="p">;</span>
-  <span class="n">der_z</span> <span class="o">=</span> <span class="kr">der</span><span class="p">(</span> <span class="n">x</span><span class="o">-</span><span class="n">u</span><span class="p">);</span>
+  <span class="n">der_z</span> <span class="o">=</span> <span class="kr">der</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">u</span><span class="p">);</span>
   <span class="kr">if</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="n">u</span><span class="p">)</span> <span class="kr">then</span>
     <span class="kr">der</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
   <span class="kr">else</span>
