@@ -28,13 +28,4 @@ Spawn of EnergyPlus -- Design and Implementation (Working Draft)
    api
    benchmarks
    acknowledgments
-
-.. only:: html
-
-   .. rubric:: References
-
-References
-==========
-
-.. bibliography:: references.bib
-   :all:
+   bibliography

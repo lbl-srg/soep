@@ -286,11 +286,8 @@ latex_documents = [
 #'classoptions': ',openany'                        : remove blank pages in PDF.
 #'babel': '\\usepackage[english]{babel}'           : suppress error message caused by undefined language.
 #'maketitle': '\\pagenumbering{gobble}\\maketitle' : switch off the page numbering in the tile and the index.
-latex_elements = {'classoptions': ', openany',         # remove blank pages in PDF.
-                   'releasename': 'Version',
-                  'babel': '\\usepackage[english]{babel}'}
-
-#                 'fontpkg': '\\usepackage[scaled]{helvet}'
+latex_elements = {'babel': '\\usepackage[english]{babel}', \
+                  'releasename': 'Final Report'}
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
@@ -301,70 +298,101 @@ latex_logo = '_static/soep-logo.png'
 latex_use_parts = False
 
 # Additional stuff for the LaTeX preamble.
-latex_preamble = '''
+latex_elements['preamble'] = r'''
 % Format of chapter fonts
-\\makeatletter
-\\ChNameVar{\\raggedleft\\sf\\bfseries\\Large} % sets the style for name
-\\ChNumVar{\\raggedleft\\sf\\bfseries\\Large} % sets the style for name
-\\ChTitleVar{\\raggedleft\\sf\\bfseries\\Large} % sets the style for name
-\\makeatother
+\makeatletter
+\ChNameVar{\raggedleft\sf\bfseries\Large} % sets the style for name
+\ChNumVar{\raggedleft\sf\bfseries\Large} % sets the style for name
+\ChTitleVar{\raggedleft\sf\bfseries\Large} % sets the style for name
+\makeatother
 
 
-\\usepackage[scaled]{helvet}
-\\usepackage[T1]{fontenc}
-\\titleformat*{\\section}{\\Large\\sffamily}
-\\titleformat*{\\subsection}{\\large\\sffamily}
+\usepackage[scaled]{helvet}
+\usepackage[T1]{fontenc}
+\titleformat*{\section}{\Large\sffamily}
+\titleformat*{\subsection}{\large\sffamily}
+\titleformat*{\subsubsection}{\sffamily}
+\titleformat*{\paragraph}
+  {\rmfamily\slshape}
+  {}{}{}
+  \titlespacing{\paragraph}
+  {0pc}{1.5ex minus .1 ex}{0pc}
+
+\renewcommand\familydefault{\sfdefault}
+\renewcommand{\baselinestretch}{1.1}
 
 
-\\renewcommand{\\thepage}{\\arabic{page}}
+% Reduce the list spacing
+\usepackage{enumitem}
+\setlist{nosep} % or \setlist{noitemsep} to leave space around whole list
 
-\\usepackage{fancyhdr}
-\\lhead{}
-\\rhead{\\textsf{\\nouppercase \\leftmark}}
-\\rfoot{\\textsf{\\thepage}}
-\\cfoot{}
-\\renewcommand{\\footrulewidth}{0.4pt}
-%-\setlength{\headheight}{15.2pt}
+% This allows adding :cite: in the label of figures.
+% It is a work-around for https://github.com/mcmtroffaes/sphinxcontrib-bibtex/issues/92
+\usepackage{etoolbox}
+\AtBeginEnvironment{figure}{\renewcommand{\phantomsection}{}}
 
-% Overwrite the plain page style from sphinx.sty
-% This style is used in the first page of each chapter
-  \\fancypagestyle{plain}{
-    \\fancyhf{}
-    \\fancyfoot[LE,RO]{{\\textsf{\\thepage}}}
-    \\renewcommand{\\headrulewidth}{0pt}
-    \\renewcommand{\\footrulewidth}{0.4pt}
-  }
 
-\\pagestyle{fancy}
+% Set format to 6x9 inches for report to be printed as a book.
+%\usepackage[margin=0.75in, paperwidth=6in, paperheight=9in, includehead, includefoot, centering]{geometry}
 
-\\setcounter{secnumdepth}{2}
-\\usepackage{amssymb,amsmath}
+
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
+
+
+\setcounter{secnumdepth}{3}
+\usepackage{amssymb,amsmath}
 
 % Figure and table caption in italic fonts
-\\makeatletter
-\\renewcommand{\\fnum@figure}[1]{\\small \\textit{\\figurename~\\thefigure}: \\it }
-\\renewcommand{\\fnum@table}[1]{\\small \\textit{\\tablename~\\thetable}: \\it }
-\\makeatother
+\makeatletter
+\renewcommand{\fnum@figure}[1]{\small \textit{\figurename~\thefigure}: \it }
+\renewcommand{\fnum@table}[1]{\small \textit{\tablename~\thetable}: \it }
+\makeatother
 
 % The next two lines patch the References title
-\\usepackage{etoolbox}
-\\patchcmd{\\thebibliography}{\\chapter*}{\\phantom}{}{}
+\usepackage{etoolbox}
+\patchcmd{\thebibliography}{\chapter*}{\phantom}{}{}
 
 \definecolor{TitleColor}{rgb}{0 ,0 ,0} % black rathern than blue titles
 
-\\renewcommand{\Re}{{\mathbb R}}
-\\newcommand{\Na}{{\mathbb N}}
-\\newcommand{\Z}{{\mathbb Z}}
+\renewcommand{\Re}{{\mathbb R}}
+\newcommand{\Na}{{\mathbb N}}
+\newcommand{\Z}{{\mathbb Z}}
 
-\\usepackage{tcolorbox}
-\\makeatother
-  \\renewenvironment{notice}[3]{%
-    \\begin{tcolorbox}[colframe=white!50!black,
-                       colback=white!97!black,
-                       title=#2] #3}
-   { \\end{tcolorbox}
-  }
-\\makeatother
+\usepackage{listings}
+% see: http://mirror.aarnet.edu.au/pub/CTAN/macros/latex/contrib/listings/listings-1.3.pdf
+\lstset{%
+  basicstyle=\small, % print whole listing small
+  keywordstyle=\color{red},
+  identifierstyle=, % nothing happens
+  commentstyle=\color{blue}, % white comments
+  stringstyle=\color{OliveGreen}\it, % typewriter type for strings
+  showstringspaces=false,
+  numbers=left,
+  numberstyle=\tiny,
+  numbersep=5pt} % no special string space
+
+\lstset{
+    frame=single,
+    breaklines=true,
+    postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\color{red}\hookrightarrow\space}}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\lstdefinelanguage{Modelica}{%
+  morekeywords={Thermal,HeatTransfer,Interfaces, flow, %
+    SI,Temperature,HeatFlowRate,HeatPort},
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]",
+  emph={equation, partial, connector, model, public, end, %
+    extends, parameter}, emphstyle=\color{blue},
+}
+
+
+\usepackage{xcolor}
+\usepackage{sectsty}
+%\definecolor{ebc}{rgb}{0.917, 0.463, 0.220}
+%\chapterfont{\color{ebc}}  % sets colour of chapters
 
 '''
 
