@@ -195,39 +195,41 @@ The QSS solvers require the derivatives shown in :numref:`tab_qss_der`.
    +-------------+-----------------------------------------------------------+-----------------------------------------------------+
 
 Because the FMI API does not provide access to the required derivatives,
-we discuss two proposals that are needed for an efficient implementation of QSS.
-The first proposal requires an extension of the FMI specification whereas the second
-proposal requires a modification of the specification as well as a refactoring
-of Modelica models or a customization of the JModelica code generator. Both proposals
-are discussed in the next sections.
+we discuss below two proposals that are needed for an efficient implementation of QSS.
+
+.. The first proposal requires an extension of the FMI specification whereas the second
+   proposal requires a modification of the specification as well as a refactoring
+   of Modelica models or a customization of the JModelica code generator.
+   Both proposals are discussed in the next sections.
 
 Proposal of LBNL
 ~~~~~~~~~~~~~~~~
 
 QSS generally requires to only update a subset of the state vector. We therefore
-introduce the following function:
+propose to use the function
 
 .. code-block:: c
 
-  fmi2Status fmi2SetSpecificContinuousStates(fmi2Component c,
-                                             const fmi2Real x[],
-                                             const fmi2ValueReference vr[],
-                                             size_t nx);
+  fmi2Status fmi2SetReal(fmi2Component c,
+                         const fmi2Real x[],
+                         const fmi2ValueReference vr[],
+                         size_t nx);
 
-This function is similar to ``fmi2SetContinuousStates()``. However, it takes
-as additional arguments
+This function exists in FMI-ME 2.0, but the standard only allows to call it for
+state variables during the initialization.
 
- * the value references ``vr`` of the state variables that need to be updated, and
- * the length ``nx`` of the state vector ``x``.
+We therefore propose that the standard is being changed as follows:
 
-Similar to ``fmi2SetContinuousStates()``, this function should re-initialize caching
-of all variables which depend on the *updated* states.
+ * ``fmi2SetReal`` can be called during the continuous time mode
+   and during event mode not only for inputs,
+   as is allowed in FMI-ME 2.0, but also for continuous time and discrete states.
+ * ``fmi2SetReal`` shall re-initialize caching
+   of all variables which depend on the arguments of the function.
 
-.. note::
-
-  The currently implemented function ``fmi2SetContinuousStates()`` forces to update
-  the entire state vector. This re-initializes ``caching`` of all variables
-  which depend on the state variables. This is inefficient for QSS solvers.
+.. note:: Calling ``fmi2SetReal`` for discrete states is needed if an FMU-ME
+          contains the QSS solver, in which cases it exposes discrete states.
+          Because discrete states can only be changed during event mode,
+          it must be allowed to call ``fmi2SetReal`` during event mode.
 
 To retrieve individual state derivatives, we introduce the following extensions
 to the ``modelDescription.xml`` file. [In the code below, ``ScalarVariables``
@@ -269,7 +271,7 @@ three event indicator functions.
               <Element index="3" order="0" dependencies="" value_reference="202" />
 
               <!-- With order > 0, higher order derivatives can be specified. -->
-              <!-- This is dz[0]/dt whch depends on scalar variable 2 -->
+              <!-- This is dz[0]/dt which depends on scalar variable 2 -->
               <Element index="1" order="1" dependencies="2" value_reference="210" />
             </EventIndicators>
           </ModelStructure>
@@ -325,63 +327,65 @@ shows single FMUs, but we anticipated having multiple interconnected FMUs.
 
 
 To avoid having to change the FMI specification,
-Modelon proposes an alternative approach which is 
+Modelon proposes an alternative approach which is
 discussed in the next sections.
 
 Proposal of Modelon
 ~~~~~~~~~~~~~~~~~~~
 
+Modelon proposes to allow setting ``fmi2SetReal()`` on continuous states (as
+we do above), adding ``Time`` as a state (which we believe is not needed)
+and adding event indicators and first derivative of event indicators as output variables.
+
+Below we summarize and comment on these three changes.
+
 **Use the fmi2SetReal() to set continuous states**:
 
-In this approach, we use ``fmi2SetReal()`` to set individual state variable.
+It shall be allowed to call ``fmi2SetReal()`` for individual state variables.
 This approach requires a modification of the FMI standard,
-is equivalent to ``fmi2SetSpecificContinuousStates()``, and should be
-preferably used since it does not require to add a new function to the specification.
+and is identical with our proposed change above.
 
 
 **Add Time as a state variable**:
 
 JModelica provides directional derivatives.
-If ``Time`` is added as a state variable, then the directional 
+If ``Time`` (used with capital ``T`` as ```time`` is a reserved Modelica keyword)
+is added as a state variable, then the directional
 derivatives will allow to get second derivative of states
 with respect to time.
 
 This approach has following drawbacks:
 
   * It can not be used to get higher order derivatives (e.g. 3rd derivative) with a single FMU call.
-  * For QSS solvers, ``Time`` will need to be a hidden state 
-    so they do not mistakenly integrate it.
+  * QSS solvers need to know that they need not integrate the state called ``Time``.
+    This probably needs a new attribute in the ``modelDescription.xml`` file.
 
 .. note::
 
-  The FMI specification says on page 26 that If a variable with 
-  ``causality= ′′independent′′`` is explicitely defined under 
-  ScalarVariables, a directional derivative with 
-  respect to this variable can be computed. 
-  Hence if ``Time`` is an independent variable, which is specified
-  in the XML, then the directional derivative of the derivative function
-  with respect to time (second derivative of the state) can be computed.  
+  The FMI specification says on page 26 that If a variable with
+  ``causality= ′′independent′′`` is explicitely defined under
+  ScalarVariables, a directional derivative with
+  respect to this variable can be computed.
+  Hence if ``Time`` has ``causality= ′′independent′′``,
+  then the directional derivative of the derivative function
+  with respect to time (second derivative of the state) can be computed.
+  Therefore, LBNL sees no reason to add ``Time`` as a state variable.
 
 
 **Add event indicators and first derivative of event indicators as output variables**:
 
-To achieve the proposed solution we see two implementation options
+To get access to the event indicator functions and their derivatives,
+the JModelica
+compiler would need to introduce additional variables and
+make them available in the ``modelDescription.xml`` file.
 
-*Option 1*
-
-The Modelica modeler has to a) explicitely model the event indicator function
-with its derivative in the Modelica model, b) add two output variables, 
-one for the event indicator and one for its derivative, 
-and c) annotate the variables so the master knows how they should be used.
-This is illustrated in the example below.
-
-Given a model such as  
+For example, consider
 
 .. code-block:: modelica
 
    model Test
      Real x;
-   equation 
+   equation
      if (x > 2) then
        der(x) = 1;
      else
@@ -389,109 +393,45 @@ Given a model such as
      end if;
    end Test;
 
-The modeler has to extend the model to 
-include two new variables ``z`` and ``der_z``
-for the event indicator function and its derivative.
-``z`` will be computed as :math:`z = x - 2`,
-and ``der_z`` will be the first derivative of ``z``
-with respect to time.
+For such a model, JModelica would
 
-The refactored model will be 
+ 1. need to add an equation of the form
+    ``z = x - 2`` and ``der_z = der(x)``,
+ 2. expose ``z`` and ``der_z`` as output variables, and
+ 3. annotate in ``modelDescription.xml`` that
 
-.. code-block:: modelica
+      a. ``z`` is an event indicators and
+      b. ``der_z`` is its derivative
 
-   model Test
-     Real x;
-     Modelica.Blocks.Interfaces.RealOutput z 
-       annotation(JModelica(z="Event indicator")); 
-     Modelica.Blocks.Interfaces.RealOutput der_z 
-       annotation(JModelica(der_z="First derivative of event indicator"));
-   equation 
-     z = x - 2;
-     der_z = der (z);
-     if (x > 2) then
-       der(x) = 1;
-     else
-       der(x) = 3;
-     end if;
-   end Test;
-
-A major drawback of this approach is that the modeler will need to 
-make sure that it implements all event indicator functions.
-The modeler will also need to implement the derivatives of
-the event indicator functions. This is error prone, unpracticable,
-and will need additional variables/equations for higher order QSS such 
-as Qss3.
-
-*Option 2*
-
-An alternative approach is to let the JModelica
-compiler expands the Modelica model or the code generated
-by the compiler to a) include these additional variables/
-equations, and b) make them available in the XML file of the FMU.
+    [in order for QSS to schedule an event at zero crossing, rather than simply integrating it].
 
 The drawback here is that this approach will
 have to be implemented in any Modelica compiler
 which needs to support the QSS libraries.
-Since we are not in control of Modelica tool vendors, 
-we can not predict whether this approach will be 
+Since we are not in control of Modelica tool vendors,
+it is not clear whether this approach will be
 widely adopted.
 
-If the proposal of Modelon is accepted, then we recommend to implement Option 2.
+Event indicators that depend on the input
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. note::
-
-   In both cases, a challenge arises 
-   if the event indicator function depends on the 
-   inputs of the model. In which case without further modification
-   of the model, the event indicator will not be able 
-   to be differentiated. This is illustrated in the next example.
-
-Given our slighly modified previous model where the event indicator 
-is a function of the input u 
+A challenge arises if the event indicator function depends on the
+inputs of the model. Consider
 
 .. code-block:: modelica
 
-  model Test
-    Real x;
-    Modelica.Blocks.Interfaces.RealInput u; 
-  equation 
-    if (x > u) then
-      der(x) = 1;
-    else
-      der(x) = 3;
-    end if;
-  end Test;
+   model Test
+    input Real u;
+    output Real y;
+   equation
+     if (u > 0) then
+       y = 1;
+     else
+       y = 0;
+     end if;
+   end Test;
 
-The refactored model will be 
-
-.. code-block:: modelica
-
-  model Test
-    Real x;
-    Modelica.Blocks.Interfaces.RealInput u;
-    Modelica.Blocks.Interfaces.RealOutput z 
-      annotation(JModelica(z="Event indicator")); 
-    Modelica.Blocks.Interfaces.RealOutput der_z 
-      annotation(JModelica(der_z="First derivative of event indicator"));
-  equation 
-    z = x - u;
-    der_z = der(x-u);
-    if (x > u) then
-      der(x) = 1;
-    else
-      der(x) = 3;
-    end if;
-  end Test;
-
-This model will not compile unless we introduce a new variable ``du_dt`` which
-is the derivative of the input with respect to time.
-This variable will be used to calculate the expression ``der_z``.
-The modeler will either have to introduce such a variable or 
-the JModelica compiler will have to address this at compilation time.
-
-
-
-
-
-
+Then, ``z = u`` and ``der_z = der(u)``. Hence,
+it is not possible to create an FMU of this model unless an additional
+input ``der_u`` is added, which needs to be set by the master to be equal to
+:math:`du/dt`.

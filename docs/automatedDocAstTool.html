@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Automated Documentation/AST Support Tool &mdash; Spawn of EnergyPlus</title>
+    <title>Automated Documentation/AST Support Tool &#8212; Spawn of EnergyPlus</title>
     
     <link rel="stylesheet" href="_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -25,7 +25,8 @@
         VERSION:     '1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
@@ -37,7 +38,8 @@
     <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="_static/lbl-icon.ico"/>
-    <link rel="top" title="Spawn of EnergyPlus" href="index.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
@@ -110,6 +112,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="benchmarks.html">8. Benchmarks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="acknowledgments.html">9. Acknowledgments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bibliography.html">10. References</a></li>
 </ul>
 </ul>
 </li>
@@ -228,15 +231,13 @@ available to OpenStudio, they could be pulled into the MBL and annotated
 <p>We propose to build a stand-alone batch-process program that will transform any
 Modelica input file or library (specifically, the Modelica Buildings Library in
 particular) into an XML document. The XML document will contain:</p>
-<ul>
-<li><p class="first">identification of which models, classes, connectors, functions, etc. exist</p>
-</li>
-<li><p class="first">identification of the relative hierarchy of the above components within the
-package structure of the library</p>
-</li>
+<ul class="simple">
+<li>identification of which models, classes, connectors, functions, etc. exist</li>
+<li>identification of the relative hierarchy of the above components within the
+package structure of the library</li>
 <li><dl class="first docutils">
 <dt>for each package, to know</dt>
-<dd><ul class="first last simple">
+<dd><ul class="first last">
 <li>what models are available</li>
 <li>what connection &#8220;ports&#8221; are available</li>
 <li>for fluid ports, which ports carry the same fluid (so that media
@@ -639,7 +640,7 @@ the tool should also work for other Modelica libraries.</td></tr>
     </p>
     <p>
         &copy; Copyright (c) All rights reserved.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.<br/>
     </p>
   </div>
 </footer>
