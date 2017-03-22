@@ -405,12 +405,6 @@ For such a model, JModelica would
 
     [in order for QSS to schedule an event at zero crossing, rather than simply integrating it].
 
-The drawback here is that this approach will
-have to be implemented in any Modelica compiler
-which needs to support the QSS libraries.
-Since we are not in control of Modelica tool vendors,
-it is not clear whether this approach will be
-widely adopted.
 
 Event indicators that depend on the input
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
