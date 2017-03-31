@@ -22,6 +22,7 @@ sys.path.append(os.path.abspath('.'))
 #extensions = ['sphinx.ext.autodoc', 'sphinx.ext.pngmath']
 extensions = ['sphinx.ext.autodoc', \
               'mathjax', \
+              'numfig', \
               'sphinxcontrib.bibtex', \
               'sphinxcontrib.plantuml', \
               'sphinx.ext.todo']
