@@ -440,10 +440,9 @@ The names of event indicators variables will start with ``__zc_``. The names of 
 indicators will start with ``__zc_der_``.  As an example, ``__zc_z1`` and ``__zc_der_z1`` 
 are the names of the event indicator ``z1`` with its derivative ``der_z1``.
 
-The master algorithm must check if the number of event indicator 
-variables found in the model description file matches 
-the ``numberOfEventIndicators`` attribute, 
-and reject the FMU if the numbers do not match.
+If the number of event indicators variables matches the ``numberOfEventIndicators`` attribute, 
+then only __zc_ and __zc_der_ need to be used by QSS, 
+If the number of event indicators does not match, the FMU need to be rejected with an error message.
 
 .. note::
 
