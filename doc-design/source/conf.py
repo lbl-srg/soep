@@ -23,7 +23,6 @@ sys.path.append(os.path.abspath('.'))
 extensions = ['sphinx.ext.autodoc', \
               'mathjax', \
               'sphinxcontrib.bibtex', \
-              'numfig', \
               'sphinxcontrib.plantuml', \
               'sphinx.ext.todo']
 todo_include_todos = True

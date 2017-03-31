@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>5. Software Architecture &#8212; Spawn of EnergyPlus</title>
+    <title>5. Software Architecture &mdash; Spawn of EnergyPlus</title>
     
     <link rel="stylesheet" href="_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -25,8 +25,7 @@
         VERSION:     '1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
+        HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
@@ -38,8 +37,7 @@
     <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="_static/lbl-icon.ico"/>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="Spawn of EnergyPlus" href="index.html" />
     <link rel="next" title="6. Numerical Methods of the Master Algorithm" href="numericalMethods.html" />
     <link rel="prev" title="4. Requirements" href="requirements.html" />
 <meta charset='utf-8'>
@@ -143,6 +141,7 @@
 <li><a class="reference internal" href="#proposal-of-lbnl">5.2.1. Proposal of LBNL</a></li>
 <li><a class="reference internal" href="#proposal-of-modelon">5.2.2. Proposal of Modelon</a></li>
 <li><a class="reference internal" href="#event-indicators-that-depend-on-the-input">5.2.3. Event indicators that depend on the input</a></li>
+<li><a class="reference internal" href="#workaround-for-implementing-event-indicators">5.2.4. Workaround for implementing event indicators</a></li>
 </ul>
 </li>
 </ul>
@@ -318,7 +317,7 @@ note right of Application
 end note" />
 
 </object></p>
-<p class="caption"><span class="caption-number">Fig. 5.1 </span>: Overall software architecture.<a class="headerlink" href="#id12" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 5.1 </span><span class="caption-text">Overall software architecture.</span><a class="headerlink" href="#id12" title="Permalink to this image">¶</a></p>
 </div>
 <p><strong>fixme: more design to be added</strong></p>
 <div class="section" id="automated-documentation-ast-support-tool">
@@ -384,13 +383,15 @@ available to OpenStudio, they could be pulled into the MBL and annotated
 <p>We propose to build a stand-alone batch-process program that will transform any
 Modelica input file or library (specifically, the Modelica Buildings Library in
 particular) into an XML document. The XML document will contain:</p>
-<ul class="simple">
-<li>identification of which models, classes, connectors, functions, etc. exist</li>
-<li>identification of the relative hierarchy of the above components within the
-package structure of the library</li>
+<ul>
+<li><p class="first">identification of which models, classes, connectors, functions, etc. exist</p>
+</li>
+<li><p class="first">identification of the relative hierarchy of the above components within the
+package structure of the library</p>
+</li>
 <li><dl class="first docutils">
 <dt>for each package, to know</dt>
-<dd><ul class="first last">
+<dd><ul class="first last simple">
 <li>what models are available</li>
 <li>what connection &#8220;ports&#8221; are available</li>
 <li>for fluid ports, which ports carry the same fluid (so that media
@@ -940,8 +941,8 @@ FMU_QSS --&gt; qss_sol : &quot;derivatives&quot;
 qss_sol --&gt; FMU_QSS : &quot;inputs, time, states&quot;" />
 
 </object></p>
-<p class="caption"><span class="caption-number">Fig. 5.2 </span>: Software architecture for QSS integration with JModelica
-with extended FMI API.<a class="headerlink" href="#id14" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 5.2 </span><span class="caption-text">Software architecture for QSS integration with JModelica
+with extended FMI API.</span><a class="headerlink" href="#id14" title="Permalink to this image">¶</a></p>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -965,7 +966,7 @@ This approach requires a modification of the FMI standard,
 and is identical with our proposed change above.</p>
 <p><strong>Add Time as a state variable</strong>:</p>
 <p>JModelica provides directional derivatives.
-If <code class="docutils literal"><span class="pre">Time</span></code> (used with capital <code class="docutils literal"><span class="pre">T</span></code> as <code class="docutils literal"><span class="pre">`time</span></code> is a reserved Modelica keyword)
+If <code class="docutils literal"><span class="pre">Time</span></code> (used with capital <code class="docutils literal"><span class="pre">T</span></code> as <code class="docutils literal"><span class="pre">time</span></code> is a reserved Modelica keyword)
 is added as a state variable, then the directional
 derivatives will allow to get second derivative of states
 with respect to time.</p>
@@ -980,10 +981,10 @@ This probably needs a new attribute in the <code class="docutils literal"><span 
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">The FMI specification says on page 26 that If a variable with
-<code class="docutils literal"><span class="pre">causality=</span> <span class="pre">′′independent′′</span></code> is explicitely defined under
+<code class="docutils literal"><span class="pre">causality=</span> <span class="pre">independent</span></code> is explicitely defined under
 ScalarVariables, a directional derivative with
 respect to this variable can be computed.
-Hence if <code class="docutils literal"><span class="pre">Time</span></code> has <code class="docutils literal"><span class="pre">causality=</span> <span class="pre">′′independent′′</span></code>,
+Hence if <code class="docutils literal"><span class="pre">Time</span></code> has <code class="docutils literal"><span class="pre">causality=</span> <span class="pre">independent</span></code>,
 then the directional derivative of the derivative function
 with respect to time (second derivative of the state) can be computed.
 Therefore, LBNL sees no reason to add <code class="docutils literal"><span class="pre">Time</span></code> as a state variable.</p>
@@ -1046,6 +1047,24 @@ it is not possible to create an FMU of this model unless an additional
 input <code class="docutils literal"><span class="pre">der_u</span></code> is added, which needs to be set by the master to be equal to
 <span class="math">\(du/dt\)</span>.</p>
 </div>
+<div class="section" id="workaround-for-implementing-event-indicators">
+<h3>5.2.4. Workaround for implementing event indicators<a class="headerlink" href="#workaround-for-implementing-event-indicators" title="Permalink to this headline">¶</a></h3>
+<p>While waiting for the implementation of one of the two proposals,
+LBNL will refactor some Modelica models to expose event indicators and derivatives as FMU output variables.</p>
+<p>The names of event indicators variables will start with <code class="docutils literal"><span class="pre">__zc_</span></code>. The names of derivatives of event
+indicators will start with <code class="docutils literal"><span class="pre">__zc_der_</span></code>.  As an example, <code class="docutils literal"><span class="pre">__zc_z1</span></code> and <code class="docutils literal"><span class="pre">__zc_der_z1</span></code>
+are the names of the event indicator <code class="docutils literal"><span class="pre">z1</span></code> with its derivative <code class="docutils literal"><span class="pre">der_z1</span></code>.</p>
+<p>The master algorithm must check if the number of event indicator
+variables found in the model description file matches
+the <code class="docutils literal"><span class="pre">numberOfEventIndicators</span></code> attribute,
+and reject the FMU if the numbers do not match.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Per design, Dymola (2017 FD01) generates twice as many event indicators as actually existing in the model.
+Hence the master algorithm needs to detect if the tool which exported the FMU is Dymola
+to adapt the check on the number of event indicators variables.</p>
+</div>
+</div>
 </div>
 </div>
 
@@ -1066,7 +1085,7 @@ input <code class="docutils literal"><span class="pre">der_u</span></code> is ad
     </p>
     <p>
         &copy; Copyright (c) All rights reserved.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.<br/>
     </p>
   </div>
 </footer>
