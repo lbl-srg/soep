@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>5. Software Architecture &mdash; Spawn of EnergyPlus</title>
+    <title>5. Software Architecture &#8212; Spawn of EnergyPlus</title>
     
     <link rel="stylesheet" href="_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -37,6 +37,8 @@
     <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="_static/lbl-icon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="top" title="Spawn of EnergyPlus" href="index.html" />
     <link rel="next" title="6. Numerical Methods of the Master Algorithm" href="numericalMethods.html" />
     <link rel="prev" title="4. Requirements" href="requirements.html" />
@@ -234,7 +236,7 @@ directly using JModelica rather than storing it in a file.</li>
 </div>
 <div class="figure" id="id12">
 <span id="fig-overall-software-architecture-one-editor"></span><p class="plantuml">
-<object data="_images/plantuml-ef0086246e13fcc3ebb36d14ffb15a59b5eb6217.svg" type="image/svg+xml" style="width:1813px;height:1299px;">
+<object data="_images/plantuml-ef0086246e13fcc3ebb36d14ffb15a59b5eb6217.svg" type="image/svg+xml" style="width:1813px;height:1314px;">
 <img src="_images/plantuml-ef0086246e13fcc3ebb36d14ffb15a59b5eb6217.png" alt="title Overall software architecture
 
 skinparam componentStyle uml2
@@ -317,7 +319,7 @@ note right of Application
 end note" />
 
 </object></p>
-<p class="caption"><span class="caption-number">Fig. 5.1 </span><span class="caption-text">Overall software architecture.</span><a class="headerlink" href="#id12" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 5.1 </span>: Overall software architecture.<a class="headerlink" href="#id12" title="Permalink to this image">¶</a></p>
 </div>
 <p><strong>fixme: more design to be added</strong></p>
 <div class="section" id="automated-documentation-ast-support-tool">
@@ -910,7 +912,7 @@ For simplicity the figure only
 shows single FMUs, but we anticipated having multiple interconnected FMUs.</p>
 <div class="figure" id="id14">
 <span id="fig-sof-arc-qss-jmod2"></span><p class="plantuml">
-<object data="_images/plantuml-d3ab43b4760911a14ec67218d35277eb19092c30.svg" type="image/svg+xml" style="width:873px;height:417px;">
+<object data="_images/plantuml-d3ab43b4760911a14ec67218d35277eb19092c30.svg" type="image/svg+xml" style="width:875px;height:421px;">
 <img src="_images/plantuml-d3ab43b4760911a14ec67218d35277eb19092c30.png" alt="title Software architecture for QSS integration with JModelica with extended FMI API
 
 skinparam componentStyle uml2
@@ -941,8 +943,8 @@ FMU_QSS --&gt; qss_sol : &quot;derivatives&quot;
 qss_sol --&gt; FMU_QSS : &quot;inputs, time, states&quot;" />
 
 </object></p>
-<p class="caption"><span class="caption-number">Fig. 5.2 </span><span class="caption-text">Software architecture for QSS integration with JModelica
-with extended FMI API.</span><a class="headerlink" href="#id14" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 5.2 </span>: Software architecture for QSS integration with JModelica
+with extended FMI API.<a class="headerlink" href="#id14" title="Permalink to this image">¶</a></p>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -1054,10 +1056,9 @@ LBNL will refactor some Modelica models to expose event indicators and derivativ
 <p>The names of event indicators variables will start with <code class="docutils literal"><span class="pre">__zc_</span></code>. The names of derivatives of event
 indicators will start with <code class="docutils literal"><span class="pre">__zc_der_</span></code>.  As an example, <code class="docutils literal"><span class="pre">__zc_z1</span></code> and <code class="docutils literal"><span class="pre">__zc_der_z1</span></code>
 are the names of the event indicator <code class="docutils literal"><span class="pre">z1</span></code> with its derivative <code class="docutils literal"><span class="pre">der_z1</span></code>.</p>
-<p>The master algorithm must check if the number of event indicator
-variables found in the model description file matches
-the <code class="docutils literal"><span class="pre">numberOfEventIndicators</span></code> attribute,
-and reject the FMU if the numbers do not match.</p>
+<p>If the number of event indicators variables matches the <code class="docutils literal"><span class="pre">numberOfEventIndicators</span></code> attribute,
+then only __zc_ and __zc_der_ need to be used by QSS,
+If the number of event indicators does not match, the FMU need to be rejected with an error message.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Per design, Dymola (2017 FD01) generates twice as many event indicators as actually existing in the model.
@@ -1085,7 +1086,7 @@ to adapt the check on the number of event indicators variables.</p>
     </p>
     <p>
         &copy; Copyright (c) All rights reserved.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.8.<br/>
     </p>
   </div>
 </footer>
