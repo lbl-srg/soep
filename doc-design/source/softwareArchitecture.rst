@@ -349,7 +349,7 @@ and is identical with our proposed change above.
 **Add Time as a state variable**:
 
 JModelica provides directional derivatives.
-If ``Time`` (used with capital ``T`` as ```time`` is a reserved Modelica keyword)
+If ``Time`` (used with capital ``T`` as ``time`` is a reserved Modelica keyword)
 is added as a state variable, then the directional
 derivatives will allow to get second derivative of states
 with respect to time.
@@ -363,10 +363,10 @@ This approach has following drawbacks:
 .. note::
 
   The FMI specification says on page 26 that If a variable with
-  ``causality= ′′independent′′`` is explicitely defined under
+  ``causality= independent`` is explicitely defined under
   ScalarVariables, a directional derivative with
   respect to this variable can be computed.
-  Hence if ``Time`` has ``causality= ′′independent′′``,
+  Hence if ``Time`` has ``causality= independent``,
   then the directional derivative of the derivative function
   with respect to time (second derivative of the state) can be computed.
   Therefore, LBNL sees no reason to add ``Time`` as a state variable.
@@ -429,3 +429,29 @@ Then, ``z = u`` and ``der_z = der(u)``. Hence,
 it is not possible to create an FMU of this model unless an additional
 input ``der_u`` is added, which needs to be set by the master to be equal to
 :math:`du/dt`.
+
+Workaround for implementing event indicators
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+While waiting for the implementation of one of the two proposals,
+LBNL will refactor some Modelica models to expose event indicators and derivatives as FMU output variables.
+
+The names of event indicators variables will start with ``__zc_``. The names of derivatives of event 
+indicators will start with ``__zc_der_``.  As an example, ``__zc_z1`` and ``__zc_der_z1`` 
+are the names of the event indicator ``z1`` with its derivative ``der_z1``.
+
+The master algorithm must check if the number of event indicator 
+variables found in the model description file matches 
+the ``numberOfEventIndicators`` attribute, 
+and reject the FMU if the numbers do not match.
+
+.. note::
+
+  Per design, Dymola (2017 FD01) generates twice as many event indicators as actually existing in the model.
+  Hence the master algorithm needs to detect if the tool which exported the FMU is Dymola 
+  to adapt the check on the number of event indicators variables.
+
+
+
+
+
