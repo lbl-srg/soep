@@ -147,13 +147,46 @@ differences between two generated XML files that hold the AST of a Modelica
 library and report those changes out to another XML file. The content of the
 "difference" XML file would explicitly show the differences between the two
 input manifests. The options here would allow for tweaking the meaning of what
-it means to be "different". For example, depending on the context, the
-following types of changes may be ignored:
+it means to be "different".
 
-- changes to text in embedded HTML document
-- changes in ordering of classes/models in a package
-- addition of new functions (assuming functions would not be directly consumed
-  by the OpenStudio tool)
+The following two lists attempt to list out examples of changes that
+cannot be ignored as well as changes that can be ignored.
+
+*Significant Changes (Cannot be Ignored)*
+
+- changes to names of any public model/block, public parameters, variables,
+  connectors, or subcomponents
+- addition/subtraction of any public parameters, variables, connectors,
+  or subcomponents
+- addition/subtraction of packages/models/blocks/functions meant to be consumed
+  by OpenStudio
+- moving a model/block/function between packages (i.e., changing the path)
+
+*Changes that may be Ignored*
+
+- changes in style without changes in meaning (addition or removal of
+  whitespace, windows newlines to linux newlines or vice versa, reordering
+  within a section)
+- changes to documentation strings
+- changes to text in embedded HTML documentation
+- changes to revision notes
+- changes to graphical annotations
+- changes in ordering of models/blocks/functions within a package
+- changes to `protected` sections of code
+- changes to `equation` or `algorithm` sections of code
+- changes to some models/blocks/functions may be completely ignored if, by
+  convention, we deem certain paths as "not directly consumable" by OpenStudio.
+  For example, we may wish to not consume paths under a `BaseClasses`,
+  `Examples`, or `Functions` designation.
+
+To summarize, the creation of or changes to the "public API" (public
+parameters, variables, subcomponents, connectors) of models, blocks, or
+functions must be compared for change detection. Documentation (HTML)/
+documentation strings/graphics annotations will not affect the model interface
+or semantics. Changes to protected properties or equations will not affect
+the interface (but may affect the actual numeric output quantities).
+
+Annotations could be used to signal status changes such as "deprecation".
 
 The `ast_doc_diff` tool would be of use in particular when new versions of the
 MBL are released and the OpenStudio team would like to check if there are
