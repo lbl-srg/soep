@@ -4218,5 +4218,7 @@ First implementation.
               extent={{-12.5,-12.5},{12.5,12.5}},
               lineColor={0,0,0})}));
   end Icons;
-  annotation (uses(Modelica(version="3.2.2"), Buildings(version="4.0.0")));
+  annotation (uses(Modelica(version="3.2.2"), Buildings(version="5.0.0")),
+    version="1",
+    conversion(noneFromVersion=""));
 end SOEPDemo;
