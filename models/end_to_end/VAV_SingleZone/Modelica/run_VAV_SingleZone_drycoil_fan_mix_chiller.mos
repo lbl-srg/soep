@@ -1,0 +1,30 @@
+﻿cd("/home/dhblum/git/soep/soep/models/end_to_end/VAV_SingleZone/Modelica");
+Evaluate = true;
+experimentSetupOutput(events=false,equidistant=true);
+simulateModel("SOEPDemo.Examples.VAV_SingleZone_drycoil_fan_mix_chiller",
+              startTime=0,
+              stopTime=31536000, 
+              numberOfIntervals=0, 
+              outputInterval=3600, 
+              method="Dassl", 
+              tolerance=1e-04, 
+              resultFile="VAV_SingleZone_drycoil_fan_mix_chiller");
+n = readTrajectorySize("VAV_SingleZone_drycoil_fan_mix_chiller.mat");
+var_names = {"Time", 
+             "totalFanEnergy.y",
+             "totalHeatingEnergy.y",
+             "totalCoolingEnergy.y",
+             "totalPumpEnergy.y",
+             "singleZoneAirHVAC.TheatSetpoint",
+             "singleZoneAirHVAC.TcoolSetpoint",
+             "singleZoneAirHVAC.zoneMeanAirTemperature",
+             "vAV_SingleZone.fanPower",
+             "vAV_SingleZone.heatPower", 
+             "vAV_SingleZone.coolPower", 
+             "vAV_SingleZone.pumpPower", 
+             "vAV_SingleZone.supplyFan.m_flow",
+             "vAV_SingleZone.supplyAirTemp.T",
+             "vAV_SingleZone.oaAirFlow.m_flow", 
+             "vAV_SingleZone.minOAFra"};
+trajectories=readTrajectory("VAV_SingleZone_drycoil_fan_mix_chiller.mat", var_names, n);
+DataFiles.writeCSVmatrix("VAV_SingleZone_drycoil_fan_mix_chiller.csv",var_names,transpose(trajectories)); 
