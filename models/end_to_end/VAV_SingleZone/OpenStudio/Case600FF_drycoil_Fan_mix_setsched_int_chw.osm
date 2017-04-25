@@ -2166,7 +2166,7 @@ OS:Controller:OutdoorAir,
   ,                                       !- Mixed Air Node Name
   ,                                       !- Actuator Node Name
   0.125,                                  !- Minimum Outdoor Air Flow Rate {m3/s}
-  0.75,                                   !- Maximum Outdoor Air Flow Rate {m3/s}
+  0.625,                                  !- Maximum Outdoor Air Flow Rate {m3/s}
   NoEconomizer,                           !- Economizer Control Type
   ModulateFlow,                           !- Economizer Control Action Type
   28,                                     !- Economizer Maximum Limit Dry-Bulb Temperature {C}
