@@ -967,9 +967,9 @@ Therefore, we introduce the following xml section, which lists variables which d
 </pre></div>
 </div>
 <p>Furthermore for efficiency reason, FMU should provide an API which allows to
-trigger the update of <code class="docutils literal"><span class="pre">y</span></code> when its zero crossing dependent variables change.
+trigger the update of <code class="docutils literal"><span class="pre">y</span></code> when its event indicator dependent variables change.
 This will remove the need of calling <code class="docutils literal"><span class="pre">fmi2EnterEventMode()</span></code> and <code class="docutils literal"><span class="pre">fmi2NewDiscreteStates()</span></code>,
-and ensure that <code class="docutils literal"><span class="pre">y</span></code> is updated when a zero crossing happens.</p>
+and ensure that <code class="docutils literal"><span class="pre">y</span></code> is updated when a state event happens.</p>
 <p><a class="reference internal" href="#fig-sof-arc-qss-jmod2"><span class="std std-numref">Fig. 5.2</span></a> shows the software architecture
 with the extended FMI API.
 For simplicity the figure only
