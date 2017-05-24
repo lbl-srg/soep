@@ -316,10 +316,9 @@ Therefore, we introduce the following xml section, which lists variables which d
           </ModelStructure>
 
 Furthermore for efficiency reason, FMU should provide an API which allows to 
-trigger the update of ``y`` when its zero crossing dependent variables change.
+trigger the update of ``y`` when its event indicator dependent variables change.
 This will remove the need of calling ``fmi2EnterEventMode()`` and ``fmi2NewDiscreteStates()``,
-and ensure that ``y`` is updated when a zero crossing happens.
-
+and ensure that ``y`` is updated when a state event happens.
 
 
 :numref:`fig_sof_arc_qss_jmod2` shows the software architecture
