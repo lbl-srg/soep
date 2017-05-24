@@ -385,13 +385,15 @@ available to OpenStudio, they could be pulled into the MBL and annotated
 <p>We propose to build a stand-alone batch-process program that will transform any
 Modelica input file or library (specifically, the Modelica Buildings Library in
 particular) into an XML document. The XML document will contain:</p>
-<ul class="simple">
-<li>identification of which models, classes, connectors, functions, etc. exist</li>
-<li>identification of the relative hierarchy of the above components within the
-package structure of the library</li>
+<ul>
+<li><p class="first">identification of which models, classes, connectors, functions, etc. exist</p>
+</li>
+<li><p class="first">identification of the relative hierarchy of the above components within the
+package structure of the library</p>
+</li>
 <li><dl class="first docutils">
 <dt>for each package, to know</dt>
-<dd><ul class="first last">
+<dd><ul class="first last simple">
 <li>what models are available</li>
 <li>what connection &#8220;ports&#8221; are available</li>
 <li>for fluid ports, which ports carry the same fluid (so that media
@@ -1025,13 +1027,15 @@ compiler would need to introduce additional variables and
 make them available in the <code class="docutils literal"><span class="pre">modelDescription.xml</span></code> file.</p>
 <p>For example, consider</p>
 <div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">Test</span>
-  <span class="nb">Real</span> <span class="n">x</span><span class="p">;</span>
+  <span class="nb">Real</span> <span class="n">x</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">);</span>
+  <span class="kr">discrete</span> <span class="nb">Real</span> <span class="n">y</span><span class="p">;</span>
 <span class="kr">equation</span>
-  <span class="kr">if</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">)</span> <span class="kr">then</span>
-    <span class="kr">der</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-  <span class="kr">else</span>
-    <span class="kr">der</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
-  <span class="kr">end</span> <span class="kr">if</span><span class="p">;</span>
+  <span class="kr">der</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="nb">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mf">3.14</span><span class="o">*</span><span class="nb">time</span><span class="o">/</span><span class="mf">2.5</span><span class="p">);</span>
+  <span class="kr">when</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="kr">then</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="kr">elsewhen</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">)</span> <span class="kr">then</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="kr">end</span> <span class="kr">when</span><span class="p">;</span>
 <span class="kr">end</span> <span class="nc">Test</span><span class="p">;</span>
 </pre></div>
 </div>
@@ -1039,7 +1043,7 @@ make them available in the <code class="docutils literal"><span class="pre">mode
 <blockquote>
 <div><ol class="arabic">
 <li><p class="first">need to add an equation of the form
-<code class="docutils literal"><span class="pre">z</span> <span class="pre">=</span> <span class="pre">x</span> <span class="pre">-</span> <span class="pre">2</span></code> and <code class="docutils literal"><span class="pre">der_z</span> <span class="pre">=</span> <span class="pre">der(x)</span></code>,</p>
+<code class="docutils literal"><span class="pre">z</span> <span class="pre">=</span> <span class="pre">x</span> <span class="pre">-</span> <span class="pre">1</span></code> and <code class="docutils literal"><span class="pre">der_z</span> <span class="pre">=</span> <span class="pre">der(x)</span></code>,</p>
 </li>
 <li><p class="first">expose <code class="docutils literal"><span class="pre">z</span></code> and <code class="docutils literal"><span class="pre">der_z</span></code> as output variables, and</p>
 </li>
@@ -1092,6 +1096,44 @@ If the number of event indicators does not match, the FMU need to be rejected wi
 Hence the master algorithm needs to detect if the tool which exported the FMU is Dymola
 to adapt the check on the number of event indicators variables.</p>
 </div>
+<p>While implementing the workaround, some new requirements arose for FMI</p>
+<p>For example, consider</p>
+<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">Test</span>
+  <span class="nb">Real</span> <span class="n">x</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">);</span>
+  <span class="kr">discrete</span> <span class="nb">Real</span> <span class="n">y</span><span class="p">;</span>
+  <span class="n">Modelica</span><span class="o">.</span><span class="n">Blocks</span><span class="o">.</span><span class="n">Interfaces</span><span class="o">.</span><span class="n">RealOutput</span> <span class="n">__zc_z</span> <span class="s2">&quot;Zero crossing&quot;</span><span class="p">;</span>
+  <span class="n">Modelica</span><span class="o">.</span><span class="n">Blocks</span><span class="o">.</span><span class="n">Interfaces</span><span class="o">.</span><span class="n">RealOutput</span> <span class="n">__zc_der_z</span>
+  <span class="s2">&quot;Derivative of Zero crossing&quot;</span><span class="p">;</span>
+<span class="kr">equation</span>
+  <span class="kr">der</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="nb">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mf">3.14</span><span class="o">*</span><span class="nb">time</span><span class="o">/</span><span class="mf">2.5</span><span class="p">);</span>
+  <span class="n">__zc_z</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="n">__zc_der_z</span> <span class="o">=</span> <span class="kr">der</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
+  <span class="kr">when</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="kr">then</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="kr">elsewhen</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">)</span> <span class="kr">then</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="kr">end</span> <span class="kr">when</span><span class="p">;</span>
+<span class="kr">end</span> <span class="nc">Test</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>For QSS to be efficient, if this model is exported as an FMU, then the FMU must declare
+in the model description file that variable <code class="docutils literal"><span class="pre">y</span></code> depends on the zero crossing variable
+<code class="docutils literal"><span class="pre">__zc_z</span></code>. This is needed so <code class="docutils literal"><span class="pre">y</span></code> can be updated when a zero crossing happens.</p>
+<p>This leads to the requirement that all variables which depend
+on zero crossing variables must be listed in the model description file with their dependencies information.
+Therefore, we introduce the following xml section, which lists variables which depend on zero crossing variables.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;ModelStructure&gt;</span>
+  <span class="nt">&lt;EventIndicatorHandlers&gt;</span>
+    <span class="c">&lt;!-- This is variable with index 8 which depends on zero crossing variables with index 2 and 3 --&gt;</span>
+    <span class="nt">&lt;Unknown</span> <span class="na">index=</span><span class="s">&quot;8&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;2 3&quot;</span> <span class="na">value_reference=</span><span class="s">&quot;200&quot;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;/EventIndicatorHandlers&gt;</span>
+<span class="nt">&lt;/ModelStructure&gt;</span>
+</pre></div>
+</div>
+<p>Furthermore for efficiency reason, FMU should provide an API which allows to
+trigger the update of <code class="docutils literal"><span class="pre">y</span></code> when its zero crossing dependent variables change.
+This will remove the need of calling <code class="docutils literal"><span class="pre">fmi2EnterEventMode()</span></code> and <code class="docutils literal"><span class="pre">fmi2NewDiscreteStates()</span></code>,
+and ensure that <code class="docutils literal"><span class="pre">y</span></code> is updated when a zero crossing happens.</p>
 </div>
 </div>
 </div>

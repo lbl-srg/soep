@@ -261,9 +261,9 @@ need to be satisfied by the model equations.</p>
 <h3>4.2.1. Differentiability<a class="headerlink" href="#differentiability" title="Permalink to this headline">¶</a></h3>
 <p>Building simulation problems can be formulated as a semi-explicit
 nonlinear DAE system with index one
-<a class="reference internal" href="references.html#brenancampbellpetzold1989" id="id1">[BCP89]</a>, coupled to the discrete variables
+[BrenanCampbellPetzold1989], coupled to the discrete variables
 <span class="math">\(x_d(\cdot)\)</span> and <span class="math">\(u_d(\cdot)\)</span>.
-The general form is <a class="reference internal" href="references.html#wetter2005-1" id="id2">[Wet05]</a></p>
+The general form is [Wetter2005:1]</p>
 <div class="math" id="equation-eq_DAEPhy">
 <span class="eqno">(1)</span>\[\begin{split}[\dot x_c(t), x_d(t)] &amp; = f(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\end{split}\]\[\begin{split}[y_c(t), y_d(t)] &amp; = g(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\end{split}\]\[\begin{split}0 &amp; = \gamma\bigl(u_c(t), y_c(t), y_d(t) \bigr),\end{split}\]\[\begin{split}[x_c(t_0), x_d(t_0)] &amp; = [x_{c,0}, x_{d,0}],\end{split}\]</div>
 <p>where
@@ -305,7 +305,7 @@ that the matrix with partial derivatives
 <span class="math">\(\partial \gamma(x, \mu^*(x))/ \partial \mu \in \Re^{m \times m}\)</span>
 is non-singular.</p>
 <p>With this assumption and the use of the
-Implicit Function Theorem <a class="reference internal" href="references.html#pol97-1" id="id3">[Pol97]</a>, one can show that
+Implicit Function Theorem [Pol97:1], one can show that
 the solution
 <span class="math">\(\mu^*(x)\)</span> that satisfies
 <span class="math">\(\gamma(x, \mu^*(x) )=0\)</span>,
@@ -351,7 +351,7 @@ as in
 </li>
 </ol>
 </div></blockquote>
-<p>With these conditions, it follows as a special case of Corollary 5.6.9 in <a class="reference internal" href="references.html#pol97-1" id="id4">[Pol97]</a>,
+<p>With these conditions, it follows as a special case of Corollary 5.6.9 in [Pol97:1],
 that the solution
 <span class="math">\(x(t_f)\)</span> to <a class="reference internal" href="#equation-eq_DAEPhyCon">(2)</a> exists and is once continuously differentiable with
 respect to the parameter <span class="math">\(p\)</span> on bounded sets.</p>
@@ -396,7 +396,7 @@ an <span class="math">\(\epsilon' &gt; 0\)</span> and a strictly monotone increa
 <p>Note that this means that as the tolerance of the solver is decreased, the numerical error decreases.
 This requirement allows proving convergence to a first order
 optimal point for a class of derivative-free optimization
-algorithms <a class="reference internal" href="references.html#polakwetter2006" id="id5">[PW06]</a>.</p>
+algorithms [PolakWetter2006].</p>
 </div>
 </div>
 <div class="section" id="fmu-requirements">
@@ -449,14 +449,14 @@ step <span class="math">\(h\)</span> (i.e., it returns that it can simulate to
 <span class="math">\(h''\)</span> smaller than or equal to <span class="math">\(h'\)</span>,
 provided the FMU is started from the same state.
 This is required for proving termination of the master algorithm.
-See <a class="reference internal" href="references.html#broman2013" id="id6">[BBG+13]</a>.</li>
+See [Broman2013].</li>
 <li>If an FMU for co-simulation is asked to integrate for some
 <span class="math">\(0 &lt; h\)</span>, but it returns that it can only integrate until some
 <span class="math">\(0 &lt; h' &lt; h\)</span>, then if it is asked to integrate
 to some <span class="math">\(h''&gt;h'\)</span>, it will again only integrate until
 <span class="math">\(h'\)</span>.
 This property is required for FMUs to make maximum progress
-in each time step. See <a class="reference internal" href="references.html#broman2013" id="id7">[BBG+13]</a>.</li>
+in each time step. See [Broman2013].</li>
 <li>The FMUs must run on Windows 32/64 bit, Linux 32/64 bit
 and Mac OS X 64 bit.</li>
 </ol>
@@ -478,7 +478,7 @@ numerical solvers. If not specified, the default is <code class="docutils litera
 is allowed to attain.</li>
 </ol>
 <p>Note that a container for exporting HVAC components as an FMU is described
-in <a class="reference internal" href="references.html#wetterfuchsnouidui-2015" id="id8">[WFN15]</a>, and the Modelica Buildings library
+in [WetterFuchsNouidui:2015], and the Modelica Buildings library
 development version contains a revised package <cite>Buildings.Fluid.FMI</cite> that
 allows exporting HVAC systems and thermal zones.</p>
 </div>
