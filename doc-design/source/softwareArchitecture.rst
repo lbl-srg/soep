@@ -383,20 +383,22 @@ For example, consider
 
 .. code-block:: modelica
 
-   model Test
-     Real x;
-   equation
-     if (x > 2) then
-       der(x) = 1;
-     else
-       der(x) = 3;
-     end if;
-   end Test;
+    model Test
+      Real x(start=1.1, fixed=true);
+      discrete Real y;
+    equation 
+      der(x) = cos(2*3.14*time/2.5);
+      when (x > 1) then
+        y = 1;
+      elsewhen (x <= 1) then
+        y = 0;
+      end when;
+    end Test;
 
 For such a model, JModelica would
 
  1. need to add an equation of the form
-    ``z = x - 2`` and ``der_z = der(x)``,
+    ``z = x - 1`` and ``der_z = der(x)``,
  2. expose ``z`` and ``der_z`` as output variables, and
  3. annotate in ``modelDescription.xml`` that
 
@@ -450,6 +452,50 @@ If the number of event indicators does not match, the FMU need to be rejected wi
   Hence the master algorithm needs to detect if the tool which exported the FMU is Dymola 
   to adapt the check on the number of event indicators variables.
 
+While implementing the workaround, some new requirements arose for FMI
+
+For example, consider
+
+.. code-block:: modelica
+
+    model Test
+      Real x(start=1.1, fixed=true);
+      discrete Real y;
+      Modelica.Blocks.Interfaces.RealOutput __zc_z "Zero crossing";
+      Modelica.Blocks.Interfaces.RealOutput __zc_der_z
+      "Derivative of Zero crossing";
+    equation 
+      der(x) = cos(2*3.14*time/2.5);
+      __zc_z = x - 1;
+      __zc_der_z = der(x - 1);
+      when (x > 1) then
+        y = 1;
+      elsewhen (x <= 1) then
+        y = 0;
+      end when;
+    end Test;
+
+For QSS to be efficient, if this model is exported as an FMU, then the FMU must declare 
+in the model description file that variable ``y`` depends on the zero crossing variable 
+``__zc_z``. This is needed so ``y`` can be updated when a zero crossing happens. 
+
+This leads to the requirement that all variables which depend 
+on zero crossing variables must be listed in the model description file with their dependencies information. 
+Therefore, we introduce the following xml section, which lists variables which depend on zero crossing variables.
+
+.. code-block:: xml
+
+          <ModelStructure>
+            <EventIndicatorHandlers>
+              <!-- This is variable with index 8 which depends on zero crossing variables with index 2 and 3 -->
+              <Unknown index="8" dependencies="2 3" value_reference="200" />
+            </EventIndicatorHandlers>
+          </ModelStructure>
+
+Furthermore for efficiency reason, FMU should provide an API which allows to 
+trigger the update of ``y`` when its zero crossing dependent variables change.
+This will remove the need of calling ``fmi2EnterEventMode()`` and ``fmi2NewDiscreteStates()``,
+and ensure that ``y`` is updated when a zero crossing happens.
 
 
 
