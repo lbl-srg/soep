@@ -494,7 +494,7 @@ QSS Optimization Measures
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This section lists a number of measures which should improve the performance of QSS.
-These measure will be investigated and implemented in later version of SOEP.
+These measure will be investigated, prioritized, and implemented in SOEP.
 
 consider the model,  
 
