@@ -144,6 +144,7 @@
 <li><a class="reference internal" href="#proposal-of-modelon">5.2.2. Proposal of Modelon</a></li>
 <li><a class="reference internal" href="#event-indicators-that-depend-on-the-input">5.2.3. Event indicators that depend on the input</a></li>
 <li><a class="reference internal" href="#workaround-for-implementing-event-indicators">5.2.4. Workaround for implementing event indicators</a></li>
+<li><a class="reference internal" href="#qss-optimization-measures">5.2.5. QSS Optimization Measures</a></li>
 </ul>
 </li>
 </ul>
@@ -966,10 +967,6 @@ Therefore, we introduce the following xml section, which lists variables which d
 <span class="nt">&lt;/ModelStructure&gt;</span>
 </pre></div>
 </div>
-<p>Furthermore for efficiency reason, FMU should provide an API which allows to
-trigger the update of <code class="docutils literal"><span class="pre">y</span></code> when its event indicator dependent variables change.
-This will remove the need of calling <code class="docutils literal"><span class="pre">fmi2EnterEventMode()</span></code> and <code class="docutils literal"><span class="pre">fmi2NewDiscreteStates()</span></code>,
-and ensure that <code class="docutils literal"><span class="pre">y</span></code> is updated when a state event happens.</p>
 <p><a class="reference internal" href="#fig-sof-arc-qss-jmod2"><span class="std std-numref">Fig. 5.2</span></a> shows the software architecture
 with the extended FMI API.
 For simplicity the figure only
@@ -1130,6 +1127,42 @@ If the number of event indicators does not match, the FMU need to be rejected wi
 <p class="last">Per design, Dymola (2017 FD01) generates twice as many event indicators as actually existing in the model.
 Hence the master algorithm needs to detect if the tool which exported the FMU is Dymola
 to adapt the check on the number of event indicators variables.</p>
+</div>
+</div>
+<div class="section" id="qss-optimization-measures">
+<h3>5.2.5. QSS Optimization Measures<a class="headerlink" href="#qss-optimization-measures" title="Permalink to this headline">¶</a></h3>
+<p>This section lists a number of measures which should improve the performance of QSS.
+These measure will be investigated, prioritized, and implemented in SOEP.</p>
+<p>consider the model,</p>
+<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">Test</span>
+  <span class="nb">Real</span> <span class="n">x</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">);</span>
+  <span class="kr">discrete</span> <span class="nb">Real</span> <span class="n">y</span><span class="p">;</span>
+<span class="kr">equation</span>
+  <span class="kr">der</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="nb">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mf">3.14</span><span class="o">*</span><span class="nb">time</span><span class="o">/</span><span class="mf">2.5</span><span class="p">);</span>
+<span class="kr">when</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="kr">then</span>
+  <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="kr">elsewhen</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span> <span class="kr">then</span>
+  <span class="n">y</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+<span class="kr">elsewhen</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">)</span> <span class="kr">then</span>
+  <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="nb">reinit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span>
+<span class="kr">end</span> <span class="kr">when</span><span class="p">;</span>
+<span class="kr">end</span> <span class="nc">Test</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>which has three implicit event indicators <code class="docutils literal"><span class="pre">z1</span> <span class="pre">=x-1</span></code>,
+<code class="docutils literal"><span class="pre">z2</span> <span class="pre">=x+1</span></code>, <code class="docutils literal"><span class="pre">z3</span> <span class="pre">=x-5</span></code>.</p>
+<p>For QSS efficiency, the FMI specification should provide an API which allows to
+trigger the update of <code class="docutils literal"><span class="pre">y</span></code> when its event indicator dependent variable change.
+This will remove the need of calling <code class="docutils literal"><span class="pre">fmi2EnterEventMode()</span></code> and <code class="docutils literal"><span class="pre">fmi2NewDiscreteStates()</span></code>,
+and ensure that <code class="docutils literal"><span class="pre">y</span></code> is updated when a state event happens.</p>
+<p>Furtherore, the FMU must declare in the XML the priority sequence of the event indicators
+which is dicated in the Modelica model by the priority of <code class="docutils literal"><span class="pre">when</span></code>/<code class="docutils literal"><span class="pre">elsewhen</span></code>.
+This is required to trigger the computation of the &#8220;right&#8221; <code class="docutils literal"><span class="pre">y</span></code> when a state event happens.
+This could be done by requiring the index of the EventIndicators to be the order of the priority sequence.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Needs to integrate the issue with <code class="docutils literal"><span class="pre">time</span></code> not being declared in the XML once Stuart figures whether that is needed or not?</p>
 </div>
 </div>
 </div>
