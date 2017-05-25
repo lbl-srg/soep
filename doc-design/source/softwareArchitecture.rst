@@ -315,11 +315,6 @@ Therefore, we introduce the following xml section, which lists variables which d
             </EventIndicatorHandlers>
           </ModelStructure>
 
-Furthermore for efficiency reason, FMU should provide an API which allows to 
-trigger the update of ``y`` when its event indicator dependent variables change.
-This will remove the need of calling ``fmi2EnterEventMode()`` and ``fmi2NewDiscreteStates()``,
-and ensure that ``y`` is updated when a state event happens.
-
 
 :numref:`fig_sof_arc_qss_jmod2` shows the software architecture
 with the extended FMI API.
@@ -495,7 +490,46 @@ If the number of event indicators does not match, the FMU need to be rejected wi
   Hence the master algorithm needs to detect if the tool which exported the FMU is Dymola 
   to adapt the check on the number of event indicators variables.
 
+QSS Optimization Measures
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
+This section lists a number of measures which should improve the performance of QSS.
+These measure will be investigated and implemented in later version of SOEP.
 
+consider the model,  
+
+.. code-block:: modelica
+
+    model Test
+      Real x(start=1.1, fixed=true);
+      discrete Real y;
+    equation 
+      der(x) = cos(2*3.14*time/2.5);
+    when (x > 1) then
+      y = 1;
+    elsewhen (x > -2) then
+      y = 2;
+    elsewhen (x > 5) then
+      y = 0;
+    reinit(x, 3);
+    end when;
+    end Test;
+
+which has three implicit event indicators ``z1 =x-1``,
+``z2 =x+1``, ``z3 =x-5``.
+
+For QSS efficiency, the FMI specification should provide an API which allows to 
+trigger the update of ``y`` when its event indicator dependent variable change.
+This will remove the need of calling ``fmi2EnterEventMode()`` and ``fmi2NewDiscreteStates()``,
+and ensure that ``y`` is updated when a state event happens.
+
+Furtherore, the FMU must declare in the XML the priority sequence of the event indicators
+which is dicated in the Modelica model by the priority of ``when``/``elsewhen``.
+This is required to trigger the computation of the "right" ``y`` when a state event happens.
+This could be done by requiring the index of the EventIndicators to be the order of the priority sequence.
+
+.. note::
+
+  Needs to integrate the issue with ``time`` not being declared in the XML once Stuart figures whether that is needed or not?
 
 
