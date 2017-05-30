@@ -528,7 +528,7 @@ it is not allowed to show up in the ``dependencies`` list of ``der(x)``.
 .. note::
   
   Should we include this as an additional requirement? 
-  This will require to extend the definition of ``dependencies`` variable.
+  This will require to extend the definition of the ``dependencies`` attribute.
 
 Consider the following model,  
 
