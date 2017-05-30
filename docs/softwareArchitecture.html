@@ -1133,7 +1133,7 @@ to adapt the check on the number of event indicators variables.</p>
 <h3>5.2.5. QSS Optimization Measures<a class="headerlink" href="#qss-optimization-measures" title="Permalink to this headline">¶</a></h3>
 <p>This section lists a number of measures which should improve the performance of QSS.
 These measure will be investigated, prioritized, and implemented in SOEP.</p>
-<p>consider the following model,</p>
+<p>Consider the following model,</p>
 <div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">Test</span>
   <span class="nb">Real</span> <span class="n">x</span><span class="p">;</span>
   <span class="kr">discrete</span> <span class="nb">Real</span> <span class="n">y</span><span class="p">;</span>
@@ -1171,7 +1171,7 @@ If QSS assumes that a change of the zero crossing implies a change of its depend
 then this information could be used to trigger the update of <code class="docutils literal"><span class="pre">der(x)</span></code>. This is however
 not efficient and will lead to zero crossing dependent variables being unecessary updated.</p>
 </div>
-<p>consider the following model,</p>
+<p>Consider the following model,</p>
 <div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">Test</span>
   <span class="nb">Real</span> <span class="n">x</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">);</span>
   <span class="kr">discrete</span> <span class="nb">Real</span> <span class="n">y</span><span class="p">;</span>

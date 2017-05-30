@@ -496,7 +496,7 @@ QSS Optimization Measures
 This section lists a number of measures which should improve the performance of QSS.
 These measure will be investigated, prioritized, and implemented in SOEP.
 
-consider the following model,
+Consider the following model,
 
 .. code-block:: modelica
 
@@ -539,7 +539,7 @@ on ``x`` which is correct according to the current specifification.
   not efficient and will lead to zero crossing dependent variables being unecessary updated.
 
 
-consider the following model,  
+Consider the following model,  
 
 .. code-block:: modelica
 
