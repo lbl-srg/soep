@@ -530,12 +530,6 @@ it is not allowed to show up in the ``dependencies`` list of ``der(x)``.
   Should we include this as an additional requirement? 
   This will require to extend the definition of ``dependencies`` variable.
 
-  One proposed workaround is to use the zero crossing dependency information. 
-  The zero crossing function which triggers the update of ``y`` depends on ``x``.
-  If QSS assumes that a change of the zero crossing implies a change of its dependencies,
-  then this information could be used to trigger the update of ``der(x)``. This is however
-  not efficient and will lead to zero crossing dependent variables being unecessary updated.
-
 Consider the following model,  
 
 .. code-block:: modelica

@@ -1161,13 +1161,8 @@ For state derivatives and outputs, known variables are</p>
 it is not allowed to show up in the <code class="docutils literal"><span class="pre">dependencies</span></code> list of <code class="docutils literal"><span class="pre">der(x)</span></code>.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p>Should we include this as an additional requirement?
+<p class="last">Should we include this as an additional requirement?
 This will require to extend the definition of <code class="docutils literal"><span class="pre">dependencies</span></code> variable.</p>
-<p class="last">One proposed workaround is to use the zero crossing dependency information.
-The zero crossing function which triggers the update of <code class="docutils literal"><span class="pre">y</span></code> depends on <code class="docutils literal"><span class="pre">x</span></code>.
-If QSS assumes that a change of the zero crossing implies a change of its dependencies,
-then this information could be used to trigger the update of <code class="docutils literal"><span class="pre">der(x)</span></code>. This is however
-not efficient and will lead to zero crossing dependent variables being unecessary updated.</p>
 </div>
 <p>Consider the following model,</p>
 <div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">Test</span>
