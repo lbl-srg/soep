@@ -1158,9 +1158,7 @@ For state derivatives and outputs, known variables are</p>
 <li>independent variable (usually time; causality = &#8220;independent&#8221;)</li>
 </ul>
 <p>Since <code class="docutils literal"><span class="pre">y</span></code> does not fuflill any of the above requirements,
-it is not allowed to show up in the <code class="docutils literal"><span class="pre">dependencies</span></code> list of <code class="docutils literal"><span class="pre">der(x)</span></code>.
-Currently, when the model is exported as an FMU, the XML declares that <code class="docutils literal"><span class="pre">der(x)</span></code> depends
-on <code class="docutils literal"><span class="pre">x</span></code> which is correct according to the current specifification.</p>
+it is not allowed to show up in the <code class="docutils literal"><span class="pre">dependencies</span></code> list of <code class="docutils literal"><span class="pre">der(x)</span></code>.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p>Should we include this as an additional requirement?

@@ -524,8 +524,6 @@ For state derivatives and outputs, known variables are
 
 Since ``y`` does not fuflill any of the above requirements,
 it is not allowed to show up in the ``dependencies`` list of ``der(x)``.
-Currently, when the model is exported as an FMU, the XML declares that ``der(x)`` depends
-on ``x`` which is correct according to the current specifification. 
 
 .. note::
   
@@ -537,7 +535,6 @@ on ``x`` which is correct according to the current specifification.
   If QSS assumes that a change of the zero crossing implies a change of its dependencies,
   then this information could be used to trigger the update of ``der(x)``. This is however
   not efficient and will lead to zero crossing dependent variables being unecessary updated.
-
 
 Consider the following model,  
 
