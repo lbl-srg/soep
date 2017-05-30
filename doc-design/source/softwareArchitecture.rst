@@ -496,7 +496,50 @@ QSS Optimization Measures
 This section lists a number of measures which should improve the performance of QSS.
 These measure will be investigated, prioritized, and implemented in SOEP.
 
-consider the model,  
+consider the following model,
+
+.. code-block:: modelica
+
+  model Test
+    Real x;
+    discrete Real y;
+  equation
+    der(x) = y + 1;
+    when (x > 0.5) then
+      y = -1.0;
+    end when;
+  end Test;
+
+QSS requires the FMU which exports this model to declare in its model description file
+the dependency of ``der(x)`` on ``y``. This will allow ``der(x)`` to update when ``y`` changes.
+This information should be encoded in the ``dependencies`` attribute of ``der(x)``.
+However, FMI states on page 61 that ``dependencies`` are optional attribute 
+defining the dependencies of the unknown (directly or indirectly via auxiliary variables) 
+with respect to known.
+For state derivatives and outputs, known variables are
+
+- inputs (variables with causality = "input") 
+- continuous-time states
+- independent variable (usually time; causality = "independent")
+
+Since ``y`` does not fuflill any of the above requirements,
+it is not allowed to show up in the ``dependencies`` list of ``der(x)``.
+Currently, when the model is exported as an FMU, the XML declares that ``der(x)`` depends
+on ``x`` which is correct according to the current specifification. 
+
+.. note::
+  
+  Should we include this as an additional requirement? 
+  This will require to extend the definition of ``dependencies`` variable.
+
+  One proposed workaround is to use the zero crossing dependency information. 
+  The zero crossing function which triggers the update of ``y`` depends on ``x``.
+  If QSS assumes that a change of the zero crossing implies a change of its dependencies,
+  then this information could be used to trigger the update of ``der(x)``. This is however
+  not efficient and will lead to zero crossing dependent variables being unecessary updated.
+
+
+consider the following model,  
 
 .. code-block:: modelica
 
@@ -527,6 +570,9 @@ Furtherore, the FMU must declare in the XML the priority sequence of the event i
 which is dicated in the Modelica model by the priority of ``when``/``elsewhen``.
 This is required to trigger the computation of the "right" ``y`` when a state event happens.
 This could be done by requiring the index of the EventIndicators to be the order of the priority sequence.
+
+
+
 
 .. note::
 
