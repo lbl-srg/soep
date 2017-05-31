@@ -423,7 +423,7 @@ For example, consider
 
     model Test
       Real x(start=1.1, fixed=true);
-      discrete Real y;
+      discrete Real y(start=0.0, fixed=true);
     equation 
       der(x) = cos(2*3.14*time/2.5);
       when (x > 1) then
@@ -501,9 +501,9 @@ Consider the following model,
 .. code-block:: modelica
 
   model Test
-    Real x;
-    discrete Real y;
-  equation
+    Real x(start=0.0, fixed=true);
+    discrete Real y(start=0.0, fixed=true);
+  equation 
     der(x) = y + 1;
     when (x > 0.5) then
       y = -1.0;
@@ -536,7 +536,7 @@ Consider the following model,
 
     model Test
       Real x(start=1.1, fixed=true);
-      discrete Real y;
+      discrete Real y(start=0.0, fixed=true);
     equation 
       der(x) = cos(2*3.14*time/2.5);
     when (x > 1) then
@@ -561,9 +561,6 @@ Furtherore, the FMU must declare in the XML the priority sequence of the event i
 which is dicated in the Modelica model by the priority of ``when``/``elsewhen``.
 This is required to trigger the computation of the "right" ``y`` when a state event happens.
 This could be done by requiring the index of the EventIndicators to be the order of the priority sequence.
-
-
-
 
 .. note::
 
