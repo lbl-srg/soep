@@ -557,7 +557,7 @@ trigger the update of ``y`` when its event indicator dependent variable change.
 This will remove the need of calling ``fmi2EnterEventMode()`` and ``fmi2NewDiscreteStates()``,
 and ensure that ``y`` is updated when a state event happens.
 
-Furtherore, the FMU must declare in the XML the priority sequence of the event indicators
+Furthermore, the FMU must declare in the XML the priority sequence of the event indicators
 which is dicated in the Modelica model by the priority of ``when``/``elsewhen``.
 This is required to trigger the computation of the "right" ``y`` when a state event happens.
 This could be done by requiring the index of the EventIndicators to be the order of the priority sequence.
