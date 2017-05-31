@@ -1187,7 +1187,7 @@ This will require to extend the definition of the <code class="docutils literal"
 trigger the update of <code class="docutils literal"><span class="pre">y</span></code> when its event indicator dependent variable change.
 This will remove the need of calling <code class="docutils literal"><span class="pre">fmi2EnterEventMode()</span></code> and <code class="docutils literal"><span class="pre">fmi2NewDiscreteStates()</span></code>,
 and ensure that <code class="docutils literal"><span class="pre">y</span></code> is updated when a state event happens.</p>
-<p>Furtherore, the FMU must declare in the XML the priority sequence of the event indicators
+<p>Furthermore, the FMU must declare in the XML the priority sequence of the event indicators
 which is dicated in the Modelica model by the priority of <code class="docutils literal"><span class="pre">when</span></code>/<code class="docutils literal"><span class="pre">elsewhen</span></code>.
 This is required to trigger the computation of the &#8220;right&#8221; <code class="docutils literal"><span class="pre">y</span></code> when a state event happens.
 This could be done by requiring the index of the EventIndicators to be the order of the priority sequence.</p>
