@@ -1060,7 +1060,7 @@ make them available in the <code class="docutils literal"><span class="pre">mode
 <p>For example, consider</p>
 <div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">Test</span>
   <span class="nb">Real</span> <span class="n">x</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">);</span>
-  <span class="kr">discrete</span> <span class="nb">Real</span> <span class="n">y</span><span class="p">;</span>
+  <span class="kr">discrete</span> <span class="nb">Real</span> <span class="n">y</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">);</span>
 <span class="kr">equation</span>
   <span class="kr">der</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="nb">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mf">3.14</span><span class="o">*</span><span class="nb">time</span><span class="o">/</span><span class="mf">2.5</span><span class="p">);</span>
   <span class="kr">when</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="kr">then</span>
@@ -1135,8 +1135,8 @@ to adapt the check on the number of event indicators variables.</p>
 These measure will be investigated, prioritized, and implemented in SOEP.</p>
 <p>Consider the following model,</p>
 <div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">Test</span>
-  <span class="nb">Real</span> <span class="n">x</span><span class="p">;</span>
-  <span class="kr">discrete</span> <span class="nb">Real</span> <span class="n">y</span><span class="p">;</span>
+  <span class="nb">Real</span> <span class="n">x</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">);</span>
+  <span class="kr">discrete</span> <span class="nb">Real</span> <span class="n">y</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">);</span>
 <span class="kr">equation</span>
   <span class="kr">der</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
   <span class="kr">when</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">)</span> <span class="kr">then</span>
@@ -1167,7 +1167,7 @@ This will require to extend the definition of the <code class="docutils literal"
 <p>Consider the following model,</p>
 <div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">Test</span>
   <span class="nb">Real</span> <span class="n">x</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">);</span>
-  <span class="kr">discrete</span> <span class="nb">Real</span> <span class="n">y</span><span class="p">;</span>
+  <span class="kr">discrete</span> <span class="nb">Real</span> <span class="n">y</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">);</span>
 <span class="kr">equation</span>
   <span class="kr">der</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="nb">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mf">3.14</span><span class="o">*</span><span class="nb">time</span><span class="o">/</span><span class="mf">2.5</span><span class="p">);</span>
 <span class="kr">when</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="kr">then</span>
@@ -1187,7 +1187,7 @@ This will require to extend the definition of the <code class="docutils literal"
 trigger the update of <code class="docutils literal"><span class="pre">y</span></code> when its event indicator dependent variable change.
 This will remove the need of calling <code class="docutils literal"><span class="pre">fmi2EnterEventMode()</span></code> and <code class="docutils literal"><span class="pre">fmi2NewDiscreteStates()</span></code>,
 and ensure that <code class="docutils literal"><span class="pre">y</span></code> is updated when a state event happens.</p>
-<p>Furtherore, the FMU must declare in the XML the priority sequence of the event indicators
+<p>Furthermore, the FMU must declare in the XML the priority sequence of the event indicators
 which is dicated in the Modelica model by the priority of <code class="docutils literal"><span class="pre">when</span></code>/<code class="docutils literal"><span class="pre">elsewhen</span></code>.
 This is required to trigger the computation of the &#8220;right&#8221; <code class="docutils literal"><span class="pre">y</span></code> when a state event happens.
 This could be done by requiring the index of the EventIndicators to be the order of the priority sequence.</p>
