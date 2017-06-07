@@ -251,11 +251,20 @@ is given to provide context, it remains unchanged from the FMI 2.0 standard.]
             <HigherOrder index="5" order="3" value_reference="125" /> <!-- This is d^3 x/dt^3 -->
           </Derivatives>
 
+Events Handling
+"""""""""""""""
+
+.. _subsec_se:
+
+State Events
+<<<<<<<<<<<<
+
 For efficiency, QSS requires to know what states trigger
 which element of the event indicator function. Also, it will need to
 have access to, or else approximate numerically, the time derivatives of the
 event indicators. FMI 2.0 outputs an array of real-valued event indicators,
 but no variable dependencies.
+
 Therefore, we introduce the following xml section, which assumes we have
 three event indicator functions.
 
@@ -277,14 +286,13 @@ three event indicator functions.
           </ModelStructure>
 
 
-Furthermore, FMU needs to expose the variables which depend on the event indicators
-in the model description file.
-
-As an example, consider  
+For efficiency, FMUs need to expose variables which depend on event indicators
+in the model description file. We call these variables **event indicator handler**.
+The rationale is illustrated in the following model  
 
 .. code-block:: modelica
 
-    model Test
+    model StateEvent1
       Real x(start=1.1, fixed=true);
       discrete Real y;
     equation 
@@ -294,17 +302,20 @@ As an example, consider
       elsewhen (x <= 1) then
         y = 0;
       end when;
-    end Test;
+    end StateEvent1;
 
 This model has one implicit event indicator ``z``  which equals ``x-1``.
 
-For QSS to be efficient, the FMU which exports this model must declare 
-in the model description file that variable ``y`` depends on the event indicator variable 
-``z``. This is needed so ``y`` can be updated when a state event happens. 
+For QSS, the FMU which exports this model must declare 
+in the model description file that the event indicator handler ``y`` 
+depends on the event indicator variable ``z``. This is needed so ``y`` 
+can be updated when a state event happens. 
 
-This leads to the requirement that all variables which depend 
-on event indicator variables must be listed in the model description file with their dependencies information. 
-Therefore, we introduce the following xml section, which lists variables which depend on event indicator variables.
+Therefore we require that all variables which depend 
+on event indicator variables are listed in the 
+model description file with their dependencies information. 
+
+We propose to introduce the following xml section which lists these variables.
 
 .. code-block:: xml
 
@@ -314,6 +325,85 @@ Therefore, we introduce the following xml section, which lists variables which d
               <Unknown index="9" dependencies="1 2" value_reference="300" />
             </EventIndicatorHandlers>
           </ModelStructure>
+
+
+For efficiency, FMUs need to add additional variables to 
+dependencies list of state variables. 
+This is illustrated with the following model
+
+.. code-block:: modelica
+
+  model StateEvent4
+    Real x(start=0.0, fixed=true);
+    discrete Real y(start=0.0, fixed=true);
+  equation 
+    der(x) = y + 1;
+    when (x > 0.5) then
+      y = -1.0;
+    end when;
+  end StateEvent4;
+
+QSS requires the FMU which exports this model to declare in its model description file
+the dependency of ``der(x)`` on ``y``. This allows ``der(x)`` to update when ``y`` changes.
+This information should be encoded in the ``dependencies`` attribute of ``der(x)``.
+However, FMI states on page 61 that ``dependencies`` are optional attribute 
+defining the dependencies of the unknown (directly or indirectly via auxiliary variables) 
+with respect to known.
+For state derivatives and outputs, known variables are
+
+- inputs (variables with causality = "input") 
+- continuous-time states
+- independent variable (usually time; causality = "independent")
+
+Since ``y`` does not fuflill any of the above requirements,
+it is not allowed to show up in the ``dependencies`` list of ``der(x)``.
+
+Therefore, we require the FMU to expose in the model description file 
+the dependency for any variable (discrete or continuous) modified by 
+a zero crossing condition. That is, for the ``StateEvent4`` example, variable ``y``
+should appear in the dependencies list of ``der(x)``.
+
+Time Events
+<<<<<<<<<<<<
+
+The next section discusses additional requirements for handling time events with QSS.
+
+Consider following model
+
+.. code-block:: modelica
+
+  model TimeEvent
+    Real x(start=0.0, fixed=true);
+    Real y;
+  equation 
+    der(x) = y + 1;
+    if (time >= 2.0) then
+      y = -x + time;
+    else
+      y = -x - time;
+    end if;
+  end TimeEvent;
+
+Similar to the case with ``StateEvent4``, QSS requires the FMU which exports 
+this model to declare in its model description file the dependency of 
+``der(x)`` on ``y``.
+This is addressed by the requirement proposed for  ``StateEvent4``.
+
+Furthermore, QSS needs to know that ``y`` needs to be updated
+when a time event happens. It also needs to know the dependent variables of ``y``
+so it can update them especially if they are are continuous state variables.
+
+We therefore propose to add time event handlers along with their dependencies 
+to the ``EventIndicatorHandlers`` introduced in :ref:`subsec_se`. 
+
+.. note::
+  
+  How do we distinguish between time event handler, and state event handler?
+  Should we have an attribute (``se`` for state event and ``te`` for time event to distinguish them?).
+
+  QSS needs to know the exact handler which will be trigger when there is a time event.
+  The ordering of the time event handler could be used to return the index of the 
+  time event handler which is to be updated. I added this to the optimization Measures section.
 
 
 :numref:`fig_sof_arc_qss_jmod2` shows the software architecture
@@ -421,7 +511,7 @@ For example, consider
 
 .. code-block:: modelica
 
-    model Test
+    model StateEvent2
       Real x(start=1.1, fixed=true);
       discrete Real y(start=0.0, fixed=true);
     equation 
@@ -431,7 +521,7 @@ For example, consider
       elsewhen (x <= 1) then
         y = 0;
       end when;
-    end Test;
+    end StateEvent2;
 
 For such a model, JModelica would
 
@@ -454,7 +544,7 @@ inputs of the model. Consider
 
 .. code-block:: modelica
 
-   model Test
+   model StateEvent3
     input Real u;
     output Real y;
    equation
@@ -463,7 +553,7 @@ inputs of the model. Consider
      else
        y = 0;
      end if;
-   end Test;
+   end StateEvent3;
 
 Then, ``z = u`` and ``der_z = der(u)``. Hence,
 it is not possible to create an FMU of this model unless an additional
@@ -496,45 +586,11 @@ QSS Optimization Measures
 This section lists a number of measures which should improve the performance of QSS.
 These measure will be investigated, prioritized, and implemented in SOEP.
 
-Consider the following model,
-
-.. code-block:: modelica
-
-  model Test
-    Real x(start=0.0, fixed=true);
-    discrete Real y(start=0.0, fixed=true);
-  equation 
-    der(x) = y + 1;
-    when (x > 0.5) then
-      y = -1.0;
-    end when;
-  end Test;
-
-QSS requires the FMU which exports this model to declare in its model description file
-the dependency of ``der(x)`` on ``y``. This will allow ``der(x)`` to update when ``y`` changes.
-This information should be encoded in the ``dependencies`` attribute of ``der(x)``.
-However, FMI states on page 61 that ``dependencies`` are optional attribute 
-defining the dependencies of the unknown (directly or indirectly via auxiliary variables) 
-with respect to known.
-For state derivatives and outputs, known variables are
-
-- inputs (variables with causality = "input") 
-- continuous-time states
-- independent variable (usually time; causality = "independent")
-
-Since ``y`` does not fuflill any of the above requirements,
-it is not allowed to show up in the ``dependencies`` list of ``der(x)``.
-
-.. note::
-  
-  Should we include this as an additional requirement? 
-  This will require to extend the definition of the ``dependencies`` attribute.
-
 Consider the following model,  
 
 .. code-block:: modelica
 
-    model Test
+    model StateEvent5
       Real x(start=1.1, fixed=true);
       discrete Real y(start=0.0, fixed=true);
     equation 
@@ -547,7 +603,7 @@ Consider the following model,
       y = 0;
     reinit(x, 3);
     end when;
-    end Test;
+    end StateEvent5;
 
 which has three implicit event indicators ``z1 =x-1``,
 ``z2 =x+1``, ``z3 =x-5``.
@@ -562,8 +618,13 @@ which is dicated in the Modelica model by the priority of ``when``/``elsewhen``.
 This is required to trigger the computation of the "right" ``y`` when a state event happens.
 This could be done by requiring the index of the EventIndicators to be the order of the priority sequence.
 
-.. note::
+For efficiency, QSS needs to know the time event handler which will be trigger when there is a time event.
+The ordering of the time event handler in the EventIndicatorhandlers could be used to return the index of the 
+time event handler which is to be updated. 
 
-  Needs to integrate the issue with ``time`` not being declared in the XML once Stuart figures whether that is needed or not?
+The ``EventIndicatorHandlers`` will need to have a list 
+of event indicators handlers for state events followed by a list 
+with event indicator handlers for time events.
+
 
 
