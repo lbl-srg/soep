@@ -268,8 +268,6 @@ latex_additional_files = ['_static/latex-note.png', '_static/latex-warning.png']
 # The paper size ('letter' or 'a4').
 #latex_paper_size = 'letter'
 
-# The font size ('10pt', '11pt' or '12pt').
-latex_font_size = '11pt'
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
@@ -287,7 +285,8 @@ latex_documents = [
 #'babel': '\\usepackage[english]{babel}'           : suppress error message caused by undefined language.
 #'maketitle': '\\pagenumbering{gobble}\\maketitle' : switch off the page numbering in the tile and the index.
 latex_elements = {'babel': '\\usepackage[english]{babel}', \
-                  'releasename': 'Final Report'}
+                  'releasename': 'Final Report',
+                  'pointsize': 11}
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
