@@ -22,7 +22,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.0',
+        VERSION:     '',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -114,7 +114,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="benchmarks.html">8. Benchmarks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="acknowledgments.html">9. Acknowledgments</a></li>
-<li class="toctree-l1"><a class="reference internal" href="bibliography.html">10. References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zreferences.html">10. References</a></li>
 </ul>
 </ul>
 </li>
@@ -203,9 +203,8 @@
 <span id="sec-soft-arch"></span><h1>5. Software Architecture<a class="headerlink" href="#software-architecture" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="openstudio-integration">
 <h2>5.1. OpenStudio integration<a class="headerlink" href="#openstudio-integration" title="Permalink to this headline">¶</a></h2>
-<p><a class="reference internal" href="#fig-overall-software-architecture-one-editor"><span class="std std-numref">Fig. 5.1</span></a>
-shows the overall
-software architecture of SOEP.</p>
+<p><a class="reference internal" href="#fig-overall-software-architecture"><span class="std std-numref">Fig. 5.1</span></a>
+shows the overall software architecture of SOEP.</p>
 <p>The <cite>Application</cite> on top of the figure may be an
 equipment sales tool that uses an open, or a proprietary,
 Modelica model library of their product line, which allows
@@ -230,21 +229,9 @@ Our integration will generate a representation of the
 Modelica library that allows OpenStudio to
 dynamic load models for the SOEP mode.
 Note that the JModelica distribution includes a C++ compiler.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<ol class="last arabic simple">
-<li>Whether the <cite>Conversion Script</cite> and the <cite>Schematic Editor</cite>
-access <cite>JModelica</cite> to get the AST, or whether they read
-the AST from <cite>Modelica Library AST</cite> does not affect
-the functionality, but it affects the architecture.
-In <code class="xref std std-numref docutils literal"><span class="pre">fig_overall_software_architecture_two_editors</span></code>
-we show the architecture if the <cite>Modelica Library AST</cite> is parsed
-directly using JModelica rather than storing it in a file.</li>
-</ol>
-</div>
 <div class="figure" id="id12">
-<span id="fig-overall-software-architecture-one-editor"></span><p class="plantuml">
-<object data="_images/plantuml-ef0086246e13fcc3ebb36d14ffb15a59b5eb6217.svg" type="image/svg+xml" style="width:1813px;height:1314px;">
+<span id="fig-overall-software-architecture"></span><p class="plantuml">
+<object data="_images/plantuml-ef0086246e13fcc3ebb36d14ffb15a59b5eb6217.svg" type="image/svg+xml" style="width:1813px;height:1299px;">
 <img src="_images/plantuml-ef0086246e13fcc3ebb36d14ffb15a59b5eb6217.png" alt="title Overall software architecture
 
 skinparam componentStyle uml2
@@ -329,7 +316,6 @@ end note" />
 </object></p>
 <p class="caption"><span class="caption-number">Fig. 5.1 </span>: Overall software architecture.<a class="headerlink" href="#id12" title="Permalink to this image">¶</a></p>
 </div>
-<p><strong>fixme: more design to be added</strong></p>
 <div class="section" id="automated-documentation-ast-support-tool">
 <h3>5.1.1. Automated Documentation/AST Support Tool<a class="headerlink" href="#automated-documentation-ast-support-tool" title="Permalink to this headline">¶</a></h3>
 <p>This section describes an agreed-upon workflow, toolchain and process to
@@ -393,15 +379,13 @@ available to OpenStudio, they could be pulled into the MBL and annotated
 <p>We propose to build a stand-alone batch-process program that will transform any
 Modelica input file or library (specifically, the Modelica Buildings Library in
 particular) into an XML document. The XML document will contain:</p>
-<ul>
-<li><p class="first">identification of which models, classes, connectors, functions, etc. exist</p>
-</li>
-<li><p class="first">identification of the relative hierarchy of the above components within the
-package structure of the library</p>
-</li>
+<ul class="simple">
+<li>identification of which models, classes, connectors, functions, etc. exist</li>
+<li>identification of the relative hierarchy of the above components within the
+package structure of the library</li>
 <li><dl class="first docutils">
 <dt>for each package, to know</dt>
-<dd><ul class="first last simple">
+<dd><ul class="first last">
 <li>what models are available</li>
 <li>what connection &#8220;ports&#8221; are available</li>
 <li>for fluid ports, which ports carry the same fluid (so that media
@@ -774,17 +758,17 @@ Example: Electrical Components</a>):</p>
 </pre></div>
 </div>
 <p>There have been several attempts to represent or use XML in relation to
-Modelica in the past (<a class="reference internal" href="references.html#landin2014" id="id2">[Lan14]</a>, <a class="reference internal" href="references.html#fritzson2003g" id="id3">[Fri03]</a>, <a class="reference internal" href="references.html#pop2003" id="id4">[PF03]</a>, <a class="reference internal" href="references.html#pop2005" id="id5">[PSAssmannF05]</a>, and <a class="reference internal" href="references.html#reisenbichler2006" id="id6">[RKH+06]</a>).</p>
+Modelica in the past (<a class="reference internal" href="zreferences.html#landin2014" id="id2">[Lan14]</a>, <a class="reference internal" href="zreferences.html#fritzson2003g" id="id3">[Fri03]</a>, <a class="reference internal" href="zreferences.html#pop2003" id="id4">[PF03]</a>, <a class="reference internal" href="zreferences.html#pop2005" id="id5">[PSAssmannF05]</a>, and <a class="reference internal" href="zreferences.html#reisenbichler2006" id="id6">[RKH+06]</a>).</p>
 <p>In particular, N. Landin did work with Modelon using JModelica to export XML for
-the purpose of model exchange <a class="reference internal" href="references.html#landin2014" id="id7">[Lan14]</a> &#8211; this is very similar to our use case.
+the purpose of model exchange <a class="reference internal" href="zreferences.html#landin2014" id="id7">[Lan14]</a> &#8211; this is very similar to our use case.
 Unfortunately, this work deals only with &#8220;flattened&#8221; models &#8211; Modelica models
 that have been instantiated with all of the hierarchy removed. For our use
 case, the hierarchy must be preserved so that the OpenStudio team can
 build a new model through instantiation of models from the MBL.</p>
 <p>The paper by Reisenbichler 2006 motivates the usage of XML in association with
-Modelica without getting into specifics <a class="reference internal" href="references.html#reisenbichler2006" id="id8">[RKH+06]</a>. The remaining work by Pop and Fritzson
+Modelica without getting into specifics <a class="reference internal" href="zreferences.html#reisenbichler2006" id="id8">[RKH+06]</a>. The remaining work by Pop and Fritzson
 is thus the only comprehensive work on an XML representation of Modelica
-<em>source</em> AST that appears in the literature (<a class="reference internal" href="references.html#pop2003" id="id9">[PF03]</a>, <a class="reference internal" href="references.html#pop2005" id="id10">[PSAssmannF05]</a>, and <a class="reference internal" href="references.html#fritzson2003g" id="id11">[Fri03]</a>). The purpose of the XML work by Pop
+<em>source</em> AST that appears in the literature (<a class="reference internal" href="zreferences.html#pop2003" id="id9">[PF03]</a>, <a class="reference internal" href="zreferences.html#pop2005" id="id10">[PSAssmannF05]</a>, and <a class="reference internal" href="zreferences.html#fritzson2003g" id="id11">[Fri03]</a>). The purpose of the XML work by Pop
 and Fritzson was to create a complete XML representation of the entire Modelica
 source. It is generally a good reference but we note that it is, perhaps
 unnecessarily, verbose for our current needs. As such, although we will refer
@@ -905,11 +889,11 @@ it must be allowed to call <code class="docutils literal"><span class="pre">fmi2
 <p>To retrieve individual state derivatives, we introduce the following extensions
 to the <code class="docutils literal"><span class="pre">modelDescription.xml</span></code> file. [In the code below, <code class="docutils literal"><span class="pre">ScalarVariables</span></code>
 is given to provide context, it remains unchanged from the FMI 2.0 standard.]</p>
-<div class="highlight-xml"><div class="highlight"><pre><span></span>&lt;ScalarVariables&gt;
+<div class="code highlight-default"><div class="highlight"><pre><span></span>&lt;ScalarVariables&gt;
   ...
-  &lt;ScalarVariable name=&quot;x1&quot;,      ...&gt; ... &lt;/ScalarVariable&gt; &lt;!—- index=&quot;5&quot; --&gt;
+  &lt;ScalarVariable name=&quot;x1&quot;,      ...&gt; ... &lt;/ScalarVariable&gt; &lt;!-- index=&quot;5&quot; --&gt;
   ...
-  &lt;ScalarVariable name=&quot;der(x1)&quot;, ...&gt; ... &lt;/ScalarVariable&gt; &lt;!-— index=&quot;8&quot; --&gt;
+  &lt;ScalarVariable name=&quot;der(x1)&quot;, ...&gt; ... &lt;/ScalarVariable&gt; &lt;!-- index=&quot;8&quot; --&gt;
  &lt;/ScalarVariables&gt;
 
 &lt;Derivatives&gt;
@@ -974,7 +958,8 @@ model description file with their dependencies information.</p>
 <p>We propose to introduce the following xml section which lists these variables.</p>
 <div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;ModelStructure&gt;</span>
   <span class="nt">&lt;EventIndicatorHandlers&gt;</span>
-    <span class="c">&lt;!-- This is variable with index 9 which depends on event indicator variables with index 1 and 2 --&gt;</span>
+    <span class="c">&lt;!-- This is variable with index 9 which depends on</span>
+<span class="c">         event indicator variables with index 1 and 2 --&gt;</span>
     <span class="nt">&lt;Unknown</span> <span class="na">index=</span><span class="s">&quot;9&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;1 2&quot;</span> <span class="na">value_reference=</span><span class="s">&quot;300&quot;</span> <span class="nt">/&gt;</span>
   <span class="nt">&lt;/EventIndicatorHandlers&gt;</span>
 <span class="nt">&lt;/ModelStructure&gt;</span>
@@ -1016,7 +1001,7 @@ should appear in the dependencies list of <code class="docutils literal"><span c
 <div class="section" id="time-events">
 <h5>5.2.1.1.2. Time Events<a class="headerlink" href="#time-events" title="Permalink to this headline">¶</a></h5>
 <p>The next section discusses additional requirements for handling time events with QSS.</p>
-<p>Consider following model</p>
+<p>Consider the following model</p>
 <div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">TimeEvent</span>
   <span class="nb">Real</span> <span class="n">x</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">);</span>
   <span class="nb">Real</span> <span class="n">y</span><span class="p">;</span>
@@ -1053,7 +1038,7 @@ For simplicity the figure only
 shows single FMUs, but we anticipated having multiple interconnected FMUs.</p>
 <div class="figure" id="id14">
 <span id="fig-sof-arc-qss-jmod2"></span><p class="plantuml">
-<object data="_images/plantuml-d3ab43b4760911a14ec67218d35277eb19092c30.svg" type="image/svg+xml" style="width:875px;height:421px;">
+<object data="_images/plantuml-d3ab43b4760911a14ec67218d35277eb19092c30.svg" type="image/svg+xml" style="width:873px;height:417px;">
 <img src="_images/plantuml-d3ab43b4760911a14ec67218d35277eb19092c30.png" alt="title Software architecture for QSS integration with JModelica with extended FMI API
 
 skinparam componentStyle uml2
