@@ -95,7 +95,7 @@ The general form is :cite:`Wetter2005:1`
 .. math::
    :label: eq_DAEPhy
 
-   [\dot x_c(t), x_d(t)] & = f(x_c(t), x_d(t), u_c(t), u_d(t), p, t),
+   [ \dot x_c(t), x_d(t)] & = f(x_c(t), x_d(t), u_c(t), u_d(t), p, t),
 
    [y_c(t), y_d(t)] & = g(x_c(t), x_d(t), u_c(t), u_d(t), p, t),
 

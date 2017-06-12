@@ -306,7 +306,8 @@ We propose to introduce the following xml section which lists these variables.
 
           <ModelStructure>
             <EventIndicatorHandlers>
-              <!-- This is variable with index 9 which depends on event indicator variables with index 1 and 2 -->
+              <!-- This is variable with index 9 which depends on 
+                   event indicator variables with index 1 and 2 -->
               <Unknown index="9" dependencies="1 2" value_reference="300" />
             </EventIndicatorHandlers>
           </ModelStructure>
@@ -353,7 +354,7 @@ Time Events
 
 The next section discusses additional requirements for handling time events with QSS.
 
-Consider following model
+Consider the following model
 
 .. code-block:: modelica
 
