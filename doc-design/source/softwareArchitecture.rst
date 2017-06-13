@@ -147,7 +147,7 @@ For this discussion, we consider a system of initial value ODEs of the form
 
 where
 :math:`x(\cdot)` is the continuous-time state vector, with superscript
-:math:`c` denoting continuous-time states and :math:`d` denoting discrete-time variables,
+:math:`c` denoting continuous-time states and :math:`d` denoting discrete variables and states,
 :math:`u(\cdot)` is the external input,
 :math:`p` are parameters,
 :math:`f(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)` is the derivative function,
@@ -210,13 +210,13 @@ We therefore propose that the standard is being changed as follows:
 
  * ``fmi2SetReal`` can be called during the continuous time mode
    and during event mode not only for inputs,
-   as is allowed in FMI-ME 2.0, but also for continuous-time states and discrete-time output variables.
+   as is allowed in FMI-ME 2.0, but also for continuous-time states and discrete output variables.
  * ``fmi2SetReal`` shall re-initialize caching
    of all variables which depend on the arguments of the function.
 
-.. note:: Calling ``fmi2SetReal`` for discrete-time output variables is needed if an FMU-ME
+.. note:: Calling ``fmi2SetReal`` for discrete output variables is needed if an FMU-ME
           contains the QSS solver, in which cases it exposes the quantized states as 
-          discrete-time output variables. Because discrete-time variables can only be changed 
+          discrete output variables. Because discrete variables can only be changed 
           during event mode, it must be allowed to call ``fmi2SetReal`` during event mode.
 
 To retrieve individual state derivatives, we introduce the following extensions
