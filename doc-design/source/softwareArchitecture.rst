@@ -147,12 +147,12 @@ For this discussion, we consider a system of initial value ODEs of the form
 
 where
 :math:`x(\cdot)` is the continuous-time state vector, with superscript
-:math:`c` denoting continuous-time states and :math:`d` denoting discrete variables and states,
+:math:`c` denoting continuous-time states and :math:`d` denoting discrete variables or states,
 :math:`u(\cdot)` is the external input,
 :math:`p` are parameters,
 :math:`f(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)` is the derivative function,
-:math:`g(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)` is the output function.
-:math:`z(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)` is the event indicator function (sometimes called zero crossing function) and
+:math:`g(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)` is the output function,
+:math:`z(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)` is the event indicator function (sometimes called zero crossing function).
 
 Because we anticipate that the FMU can have
 direct feed-through from the input
@@ -216,8 +216,7 @@ We therefore propose that the standard is being changed as follows:
 
 .. note:: Calling ``fmi2SetReal`` for discrete output variables is needed if an FMU-ME
           contains the QSS solver, in which cases it exposes the quantized states as 
-          discrete output variables. Because discrete variables can only be changed 
-          during event mode, it must be allowed to call ``fmi2SetReal`` during event mode.
+          discrete output variables. 
 
 To retrieve individual state derivatives, we introduce the following extensions
 to the ``modelDescription.xml`` file. [In the code below, ``ScalarVariables``
@@ -312,7 +311,7 @@ We propose to introduce the following xml section which lists these variables.
               <!-- This is variable with index 9 in the ModelVariables section 
                    which depends on event indicator variables with index 1 and 2. 
                    The event_type is a list which specifies the type of the event.
-                   event_type could be "state" for state event, "time", for time event,
+                   event_type can be "state" for state event, "time", for time event,
                    "step" for step event or any combination of the three, e.g. "time state"
                    to indicate that the event indicator handler is for both time and state event -->
               <Unknown index="9" dependencies="1 2" value_reference="300", event_type="state" />
@@ -351,7 +350,7 @@ For state derivatives and outputs, known variables are
 Since ``y`` does not fulfill any of the above requirements,
 it is not allowed to show up in the ``dependencies`` list of ``der(x)``.
 Therefore, we require the FMU to declare in the model description file
-the dependency for all variables that depend on an event indicator function. 
+the dependency for all event indicator handlers. 
 That is, for the ``StateEvent4`` example, variable ``y``
 should appear in the dependencies list of ``der(x)``.
 
