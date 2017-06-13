@@ -137,19 +137,22 @@ For this discussion, we consider a system of initial value ODEs of the form
 .. math::
    :label: eqn_ini_val
 
-   \dot x(t) & = f(x(t), d(t), u(t), t), \\
-   y(t)      & = g(x(t), u(t), t), \\
-   0         & = z(x(t), u(t), t, d(t)), \\
-   x(0)      & = x_0,
+   [ \dot x_c(t), x_d(t)] & = f(x_c(t), x_d(t), u_c(t), u_d(t), p, t),
 
-where :math:`x(\cdot)` is the vector of continuous state variables,
-:math:`d(\cdot)` is a discrete variable,
-:math:`u(\cdot)` is an external input,
-:math:`f(\cdot, \cdot, \cdot, \cdot)` is the derivative function,
-:math:`g(\cdot, \cdot, \cdot, \cdot)` is the output function,
-:math:`z(\cdot, \cdot, \cdot)` is the event indicator function (sometimes called zero crossing function) and
-:math:`d(t)` is a discrete state. For example, for a thermostat,
-:math:`d(t) \in \{0, \, 1\}` depending on the controlled temperature.
+   [y_c(t), y_d(t)] & = g(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\\
+
+   0         & = z(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\\
+   
+   [x_c(t_0), x_d(t_0)] & = [x_{c,0}, x_{d,0}],
+
+where
+:math:`x(\cdot)` is the continuous-time state vector, with superscript
+:math:`c` denoting continuous-time states and :math:`d` denoting discrete-time variables,
+:math:`u(\cdot)` is the external input,
+:math:`p` are parameters,
+:math:`f(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)` is the derivative function,
+:math:`g(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)` is the output function.
+:math:`z(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)` is the event indicator function (sometimes called zero crossing function) and
 
 Because we anticipate that the FMU can have
 direct feed-through from the input
@@ -165,19 +168,19 @@ The QSS solvers require the derivatives shown in :numref:`tab_qss_der`.
 .. table:: Derivatives required by QSS algorithms. One asteriks indicates
            that they are provided by FMI-ME 2.0, and two asteriks indicate
            that they can optionally be computed exactly if directional
-           derivative are provided by the FMU.
+           derivatives are provided by the FMU.
            The others cannot be provided through the FMI API.
 
 
-   +-------------+-----------------------------------------------------------+-----------------------------------------------------+
-   | Type of QSS | State derivative                                          | Event indicator function derivative                 |
-   +=============+===========================================================+=====================================================+
-   | QSS1        | :math:`dx/dt` *                                           | :math:`dz/dt`                                       |
-   +-------------+-----------------------------------------------------------+-----------------------------------------------------+
-   | QSS2        | :math:`dx/dt` * , :math:`d^2x/dt^2` **                    | :math:`dz/dt` , :math:`d^2z/dt^2`                   |
-   +-------------+-----------------------------------------------------------+-----------------------------------------------------+
-   | QSS3        | :math:`dx/dt` * , :math:`d^2x/dt^2` ** , :math:`d^3x/dt^3`| :math:`dz/dt` , :math:`d^2z/dt^2`, :math:`d^3z/dt^3`|
-   +-------------+-----------------------------------------------------------+-----------------------------------------------------+
+   +-------------+-----------------------------------------------------------------+-----------------------------------------------------+
+   | Type of QSS | continuous-time state derivative                                | Event indicator function derivative                 |
+   +=============+=================================================================+=====================================================+
+   | QSS1        | :math:`dx_c/dt` *                                               | :math:`dz/dt`                                       |
+   +-------------+-----------------------------------------------------------------+-----------------------------------------------------+
+   | QSS2        | :math:`dx_c/dt` * , :math:`d^2x_c/dt^2` **                      | :math:`dz/dt` , :math:`d^2z/dt^2`                   |
+   +-------------+-----------------------------------------------------------------+-----------------------------------------------------+
+   | QSS3        | :math:`dx_c/dt` * , :math:`d^2x_c/dt^2` ** , :math:`d^3x_c/dt^3`| :math:`dz/dt` , :math:`d^2z/dt^2`, :math:`d^3z/dt^3`|
+   +-------------+-----------------------------------------------------------------+-----------------------------------------------------+
 
 Because the FMI API does not provide access to the required derivatives,
 we discuss below two proposals that are needed for an efficient implementation of QSS.
@@ -190,7 +193,7 @@ we discuss below two proposals that are needed for an efficient implementation o
 Proposal of LBNL
 ~~~~~~~~~~~~~~~~
 
-QSS generally requires to only update a subset of the state vector. We therefore
+QSS generally requires to only update a subset of the continuous-time state vector. We therefore
 propose to use the function
 
 .. code-block:: c
@@ -207,14 +210,14 @@ We therefore propose that the standard is being changed as follows:
 
  * ``fmi2SetReal`` can be called during the continuous time mode
    and during event mode not only for inputs,
-   as is allowed in FMI-ME 2.0, but also for continuous time and discrete states.
+   as is allowed in FMI-ME 2.0, but also for continuous-time states and discrete-time output variables.
  * ``fmi2SetReal`` shall re-initialize caching
    of all variables which depend on the arguments of the function.
 
-.. note:: Calling ``fmi2SetReal`` for discrete states is needed if an FMU-ME
-          contains the QSS solver, in which cases it exposes discrete states.
-          Because discrete states can only be changed during event mode,
-          it must be allowed to call ``fmi2SetReal`` during event mode.
+.. note:: Calling ``fmi2SetReal`` for discrete-time output variables is needed if an FMU-ME
+          contains the QSS solver, in which cases it exposes the quantized states as 
+          discrete-time output variables. Because discrete-time variables can only be changed 
+          during event mode, it must be allowed to call ``fmi2SetReal`` during event mode.
 
 To retrieve individual state derivatives, we introduce the following extensions
 to the ``modelDescription.xml`` file. [In the code below, ``ScalarVariables``
@@ -236,8 +239,8 @@ is given to provide context, it remains unchanged from the FMI 2.0 standard.]
             <HigherOrder index="5" order="3" value_reference="125" /> <!-- This is d^3 x/dt^3 -->
           </Derivatives>
 
-Events Handling
-"""""""""""""""
+Event Handling
+""""""""""""""
 
 .. _subsec_se:
 
@@ -247,7 +250,7 @@ State Events
 For efficiency, QSS requires to know what states trigger
 which element of the event indicator function. Also, it will need to
 have access to, or else approximate numerically, the time derivatives of the
-event indicators. FMI 2.0 outputs an array of real-valued event indicators,
+event indicator. FMI 2.0 outputs an array of real-valued event indicators,
 but no variable dependencies.
 
 Therefore, we introduce the following xml section, which assumes we have
@@ -289,11 +292,11 @@ The rationale is illustrated in the following model
       end when;
     end StateEvent1;
 
-This model has one implicit event indicator ``z``  which equals ``x-1``.
+This model has one event indicator function :math:`z=x-1`.
 
 For QSS, the FMU which exports this model must declare
 in the model description file that the event indicator handler ``y``
-depends on the event indicator variable ``z``. This is needed so ``y``
+depends on the event indicator function ``z``. This is needed so ``y``
 can be updated when a state event happens.
 
 Therefore we require that all variables which depend
@@ -306,9 +309,13 @@ We propose to introduce the following xml section which lists these variables.
 
           <ModelStructure>
             <EventIndicatorHandlers>
-              <!-- This is variable with index 9 which depends on 
-                   event indicator variables with index 1 and 2 -->
-              <Unknown index="9" dependencies="1 2" value_reference="300" />
+              <!-- This is variable with index 9 in the ModelVariables section 
+                   which depends on event indicator variables with index 1 and 2. 
+                   The event_type is a list which specifies the type of the event.
+                   event_type could be "state" for state event, "time", for time event,
+                   "step" for step event or any combination of the three, e.g. "time state"
+                   to indicate that the event indicator handler is for both time and state event -->
+              <Unknown index="9" dependencies="1 2" value_reference="300", event_type="state" />
             </EventIndicatorHandlers>
           </ModelStructure>
 
@@ -341,18 +348,19 @@ For state derivatives and outputs, known variables are
 - continuous-time states
 - independent variable (usually time; causality = "independent")
 
-Since ``y`` does not fuflill any of the above requirements,
+Since ``y`` does not fulfill any of the above requirements,
 it is not allowed to show up in the ``dependencies`` list of ``der(x)``.
-
-Therefore, we require the FMU to expose in the model description file
-the dependency for any variable (discrete or continuous) modified by
-a zero crossing condition. That is, for the ``StateEvent4`` example, variable ``y``
+Therefore, we require the FMU to declare in the model description file
+the dependency for all variables that depend on an event indicator function. 
+That is, for the ``StateEvent4`` example, variable ``y``
 should appear in the dependencies list of ``der(x)``.
+
+.. _subsec_te:
 
 Time Events
 <<<<<<<<<<<<
 
-The next section discusses additional requirements for handling time events with QSS.
+This section discusses additional requirements for handling time events with QSS.
 
 Consider the following model
 
@@ -376,21 +384,11 @@ this model to declare in its model description file the dependency of
 This is addressed by the requirement proposed for  ``StateEvent4``.
 
 Furthermore, QSS needs to know that ``y`` needs to be updated
-when a time event happens. It also needs to know the dependent variables of ``y``
-so it can update them especially if they are are continuous state variables.
+when :math:`time >= 2`. It also needs to know what variables depend in ``y``
+so it can update them.
 
 We therefore propose to add time event handlers along with their dependencies
 to the ``EventIndicatorHandlers`` introduced in :ref:`subsec_se`.
-
-.. note::
-
-  How do we distinguish between time event handler, and state event handler?
-  Should we have an attribute (``se`` for state event and ``te`` for time event to distinguish them?).
-
-  QSS needs to know the exact handler which will be trigger when there is a time event.
-  The ordering of the time event handler could be used to return the index of the
-  time event handler which is to be updated. I added this to the optimization Measures section.
-
 
 :numref:`fig_sof_arc_qss_jmod2` shows the software architecture
 with the extended FMI API.
@@ -481,16 +479,16 @@ This approach has following drawbacks:
   ScalarVariables, a directional derivative with
   respect to this variable can be computed.
   Hence if ``Time`` has ``causality= "independent"``,
-  then the directional derivative of the derivative function
-  with respect to time (second derivative of the state) can be computed.
+  then the time derivative of the derivative function 
+  :math:`f(\cdot)` 
+  (second derivative of the continuous-time state) can be computed.
   Therefore, LBNL sees no reason to add ``Time`` as a state variable.
 
 
 **Add event indicators and first derivative of event indicators as output variables**:
 
 To get access to the event indicator functions and their derivatives,
-the JModelica
-compiler would need to introduce additional variables and
+the JModelica compiler would need to introduce additional variables and
 make them available in the ``modelDescription.xml`` file.
 
 For example, consider
@@ -521,6 +519,20 @@ For such a model, JModelica would
 
     [in order for QSS to schedule an event at zero crossing, rather than simply integrating it].
 
+.. note::
+
+   This approach will work but will require to add additional equations 
+   and variables to the Modelica model, annotate the variables,
+   include them in the XML with correct dependency information,
+   and develop custom code to extract the annotated encoded information. 
+   LBNL hence believes that extending the XML file is the correct path to follow.
+
+.. note::
+
+  While developping the QSS solver, LBNL added additional requirements for the 
+  FMI specification (see :ref:`subsec_se` and :ref:`subsec_te` sections). 
+  These requirements haven't been reviewed by Modelon yet and 
+  hence do not not have any counter proposal from Modelon.
 
 Event indicators that depend on the input
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -556,58 +568,13 @@ The names of event indicators variables will start with ``__zc_``. The names of 
 indicators will start with ``__zc_der_``.  As an example, ``__zc_z1`` and ``__zc_der_z1``
 are the names of the event indicator ``z1`` with its derivative ``der_z1``.
 
-If the number of event indicators variables matches the ``numberOfEventIndicators`` attribute,
+If the number of event indicators functions is equal to the ``numberOfEventIndicators`` attribute,
 then only __zc_ and __zc_der_ need to be used by QSS,
 If the number of event indicators does not match, the FMU need to be rejected with an error message.
 
 .. note::
 
   Per design, Dymola (2017 FD01) generates twice as many event indicators as actually existing in the model.
-  Hence the master algorithm needs to detect if the tool which exported the FMU is Dymola
-  to adapt the check on the number of event indicators variables.
+  Hence the master algorithm needs to detect if the tool which exported the FMU is Dymola, and if it is, the 
+  number of event indicator functions must be equal to half the value of the``numberOfEventIndicators`` attribute.
 
-QSS Optimization Measures
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-This section lists a number of measures which should improve the performance of QSS.
-These measure will be investigated, prioritized, and implemented in SOEP.
-
-Consider the following model,
-
-.. code-block:: modelica
-
-    model StateEvent5
-      Real x(start=1.1, fixed=true);
-      discrete Real y(start=0.0, fixed=true);
-    equation
-      der(x) = cos(2*3.14*time/2.5);
-    when (x > 1) then
-      y = 1;
-    elsewhen (x > -2) then
-      y = 2;
-    elsewhen (x > 5) then
-      y = 0;
-    reinit(x, 3);
-    end when;
-    end StateEvent5;
-
-which has three implicit event indicators ``z1 =x-1``,
-``z2 =x+1``, ``z3 =x-5``.
-
-For QSS efficiency, the FMI specification should provide an API which allows to
-trigger the update of ``y`` when its event indicator dependent variable change.
-This will remove the need of calling ``fmi2EnterEventMode()`` and ``fmi2NewDiscreteStates()``,
-and ensure that ``y`` is updated when a state event happens.
-
-Furthermore, the FMU must declare in the XML the priority sequence of the event indicators
-which is dicated in the Modelica model by the priority of ``when``/``elsewhen``.
-This is required to trigger the computation of the "right" ``y`` when a state event happens.
-This could be done by requiring the index of the EventIndicators to be the order of the priority sequence.
-
-For efficiency, QSS needs to know the time event handler which will be trigger when there is a time event.
-The ordering of the time event handler in the EventIndicatorhandlers could be used to return the index of the
-time event handler which is to be updated.
-
-The ``EventIndicatorHandlers`` will need to have a list
-of event indicators handlers for state events followed by a list
-with event indicator handlers for time events.
