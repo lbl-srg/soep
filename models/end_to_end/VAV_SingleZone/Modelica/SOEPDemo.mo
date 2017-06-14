@@ -190,15 +190,6 @@ package SOEPDemo
         annotation (Placement(transformation(extent={{-40,-76},{-50,-66}})));
       Buildings.BoundaryConditions.WeatherData.Bus weaBus
         annotation (Placement(transformation(extent={{-98,96},{-82,112}})));
-      replaceable parameter
-        Buildings.ThermalZones.Detailed.Validation.BESTEST.Data.StandardResultsFreeFloating
-          staRes(
-            minT( Min=-18.8+273.15, Max=-15.6+273.15, Mean=-17.6+273.15),
-            maxT( Min=64.9+273.15,  Max=69.5+273.15,  Mean=66.2+273.15),
-            meanT(Min=24.2+273.15,  Max=25.9+273.15,  Mean=25.1+273.15))
-              constrainedby Modelica.Icons.Record
-        "Reference results from ASHRAE/ANSI Standard 140"
-        annotation (Placement(transformation(extent={{80,40},{94,54}})));
       Modelica.Blocks.Math.MultiSum multiSum(nu=1)
         annotation (Placement(transformation(extent={{-78,-80},{-66,-68}})));
 
@@ -557,15 +548,6 @@ First implementation.
         annotation (Placement(transformation(extent={{-40,-76},{-50,-66}})));
       Buildings.BoundaryConditions.WeatherData.Bus weaBus
         annotation (Placement(transformation(extent={{-98,96},{-82,112}})));
-      replaceable parameter
-        Buildings.ThermalZones.Detailed.Validation.BESTEST.Data.StandardResultsFreeFloating
-          staRes(
-            minT( Min=-18.8+273.15, Max=-15.6+273.15, Mean=-17.6+273.15),
-            maxT( Min=64.9+273.15,  Max=69.5+273.15,  Mean=66.2+273.15),
-            meanT(Min=24.2+273.15,  Max=25.9+273.15,  Mean=25.1+273.15))
-              constrainedby Modelica.Icons.Record
-        "Reference results from ASHRAE/ANSI Standard 140"
-        annotation (Placement(transformation(extent={{80,40},{94,54}})));
       Modelica.Blocks.Math.MultiSum multiSum(nu=1)
         annotation (Placement(transformation(extent={{-78,-80},{-66,-68}})));
 
@@ -879,12 +861,25 @@ First implementation.
       connect(returnAirTemp.port_a, roo.ports[5]) annotation (Line(points={{28,
               68},{32,68},{34,68},{34,10},{4,10},{4,-22.5},{15.75,-22.5}},
             color={0,127,255}));
-      connect(tSetCoo.y[1], TcoolSetpoint) annotation (Line(points={{81,-80},{
-              110,-80},{110,-80}}, color={0,0,127}));
+      connect(tSetCoo.y[1], TcoolSetpoint) annotation (Line(points={{81,-80},{110,-80}},
+                                   color={0,0,127}));
       connect(tSetHea.y[1], TheatSetpoint) annotation (Line(points={{81,-50},{
               90,-50},{90,-60},{110,-60}}, color={0,0,127}));
       connect(roo.heaPorAir, heaPorAir) annotation (Line(points={{26.25,-15},{
               38.125,-15},{38.125,10},{70,10}}, color={191,0,0}));
+    annotation (Documentation(info="<html>
+<p>
+This is a single zone model based on the envelope of the BESTEST Case 600 
+building, though it has some modifications.  Supply and return air ports are
+included for simulation with air-based HVAC systems.  Heating and cooling 
+setpoints and internal loads are time-varying according to an assumed 
+occupancy schedule.
+</p>
+<p>
+This zone model utilizes schedules and constructions from
+the <code>Schedules</code> and <code>Constructions</code> packages.  
+</p>
+</html>"));
     end Case600_AirHVAC;
 
     block FMI_Case600_AirHVAC
@@ -988,6 +983,13 @@ First implementation.
         table=[0,0.1; 8*3600,0.1; 8*3600,1.0; 18*3600,1.0; 18*3600,0.1; 24*3600,0.1],
         columns={2});
     end IntLoad;
+
+    model CoolingAvailability "Schedule for cooling coil availability"
+      extends Modelica.Blocks.Sources.CombiTimeTable(
+        extrapolation=Modelica.Blocks.Types.Extrapolation.Periodic,
+        table=[0,0.0; 8*3600,0.0; 8*3600,1.0; 18*3600,1.0; 18*3600,0.0; 24*3600,0.0],
+        columns={2});
+    end CoolingAvailability;
   end Schedules;
 
   package HVACSystems "Package containing HVAC models and controls"
@@ -2743,7 +2745,8 @@ First implementation.
         use_inputFilter=false,
         redeclare package Medium = MediumAir)
         annotation (Placement(transformation(extent={{-32,38},{-12,58}})));
-      Controllers.HeatingCooling control(
+      Controllers.HeatingCooling_CoolingAvailability
+                                 control(
         designAirFlow=designAirFlow,
         minAirFlow=minAirFlow,
         sensitivityGainHeat=sensitivityGainHeat,
@@ -3262,8 +3265,9 @@ First implementation.
       parameter Modelica.SIunits.Power designCoolingCapacity "Design heating capacity of cooling coil";
       parameter Real sensitivityGainHeat = 2 "[K] Gain sensitivity on heating controller";
       parameter Real sensitivityGainCool = 2 "[K] Gain sensitivity on cooling controller";
-      Modelica.Blocks.Interfaces.RealInput Tmea
-        "Measured mean zone air temperature" annotation (Placement(
+      parameter Real sensitivityGainEco = 0.25 "[K] Gain sensitivity on economizer controller";
+      Modelica.Blocks.Interfaces.RealInput Tmea "Zone temperature measurement"
+                                             annotation (Placement(
             transformation(
             extent={{-20,-20},{20,20}},
             rotation=0,
@@ -3274,7 +3278,7 @@ First implementation.
         annotation (Placement(transformation(extent={{190,-20},{210,60}}),
             iconTransformation(extent={{190,-20},{210,60}})));
       Modelica.Fluid.Interfaces.FluidPorts_b returnAir[1](redeclare package Medium =
-            MediumAir)                                   "Return air"
+            MediumAir) "Return air port"
         annotation (Placement(transformation(extent={{190,-140},{210,-60}}),
             iconTransformation(extent={{190,-140},{210,-60}})));
       Modelica.Blocks.Interfaces.RealInput TheatSetpoint
@@ -3317,13 +3321,13 @@ First implementation.
         energyDynamics=Modelica.Fluid.Types.Dynamics.SteadyState,
         allowFlowReversal=false,
         use_inputFilter=false,
-        redeclare package Medium = MediumAir)
+        redeclare package Medium = MediumAir) "Supply fan"
         annotation (Placement(transformation(extent={{-32,38},{-12,58}})));
       Controllers.HeatingCooling control(
         designAirFlow=designAirFlow,
         minAirFlow=minAirFlow,
         sensitivityGainHeat=sensitivityGainHeat,
-        sensitivityGainCool=sensitivityGainCool)
+        sensitivityGainCool=sensitivityGainCool) "Heating and cooling control"
         annotation (Placement(transformation(extent={{-140,0},{-120,20}})));
       Buildings.Fluid.FixedResistances.PressureDrop totalRes(
         m_flow_nominal=designAirFlow,
@@ -3386,7 +3390,7 @@ First implementation.
         m_flow_small=1E-4,
         redeclare package Medium = MediumAir)
         annotation (Placement(transformation(extent={{-80,-110},{-100,-90}})));
-      Buildings.Fluid.HeatExchangers.DryEffectivenessNTU dryEffectivenessNTU(
+      Buildings.Fluid.HeatExchangers.DryEffectivenessNTU coolCoil(
         redeclare package Medium1 = MediumWater,
         redeclare package Medium2 = MediumAir,
         dp1_nominal=0,
@@ -3504,13 +3508,14 @@ First implementation.
           TEvaLvgMax=293.15,
           TConEnt_nominal=302.55,
           TConEntMin=274.15,
-          TConEntMax=323.15))
+          TConEntMax=323.15)) "Air cooled chiller"
         annotation (Placement(transformation(extent={{110,-132},{90,-152}})));
       Modelica.Blocks.Sources.Constant chwsTempSetConst(k=chwsTempSet)
         annotation (Placement(transformation(extent={{160,-126},{140,-106}})));
       Modelica.Blocks.Sources.Constant chwsMassFlowConst(k=m_flow_chws)
         annotation (Placement(transformation(extent={{160,-80},{140,-60}})));
-      Modelica.Blocks.Interfaces.RealOutput pumpPower "Electrical power consumed"
+      Modelica.Blocks.Interfaces.RealOutput pumpPower
+        "Electrical power consumed by the pumps"
         annotation (Placement(transformation(extent={{200,70},{220,90}})));
       Modelica.Blocks.Sources.BooleanConstant on
         annotation (Placement(transformation(extent={{198,-150},{178,-130}})));
@@ -3522,7 +3527,8 @@ First implementation.
       Buildings.Fluid.Sources.FixedBoundary fixedBou(redeclare package Medium =
             MediumWater, nPorts=1)
         annotation (Placement(transformation(extent={{40,-140},{60,-120}})));
-      Controllers.Economizer economizer(sensitivityGainEco=0.25)
+      Controllers.Economizer economizer(sensitivityGainEco=sensitivityGainEco)
+        "Economizer control"
         annotation (Placement(transformation(extent={{-140,-40},{-120,-20}})));
       Modelica.Blocks.Math.Product ecoProduct
         annotation (Placement(transformation(extent={{-40,-50},{-60,-30}})));
@@ -3569,7 +3575,7 @@ First implementation.
       connect(heatCoil.Q_flow, eff.u) annotation (Line(points={{73,54},{80,54},{80,100},
               {86,100},{108,100},{118,100}},          color={0,0,127}));
       connect(control.heaterSet, heatCoil.u) annotation (Line(points={{-119,16},
-              {-100,16},{-100,82},{40,82},{46,82},{46,54},{50,54}},
+              {-104,16},{-104,82},{38,82},{44,82},{44,54},{50,54}},
                                                             color={0,0,127}));
       connect(idealSourceExhaust.m_flow_in, supplyFan.m_flow_in) annotation (
           Line(points={{36,-92},{36,-60},{-98,-60},{-98,80},{-22.2,80},{-22.2,
@@ -3583,7 +3589,7 @@ First implementation.
         annotation (Line(points={{-80,-100},{-70,-100},{-60,-100},{-40,-100}},
                                                        color={0,127,255}));
       connect(idealSourceRelief.port_b, out.ports[2]) annotation (Line(points={{-100,
-              -100},{-106,-100},{-106,46},{-120,46}},     color={0,127,255}));
+              -100},{-108,-100},{-108,46},{-120,46}},     color={0,127,255}));
       connect(returnAirFlow.port_a, exhaustAirFlow.port_b) annotation (Line(
             points={{-66,-16},{-66,-100},{-40,-100}},
                                                     color={0,127,255}));
@@ -3597,18 +3603,20 @@ First implementation.
         annotation (Line(points={{120,-30},{120,-30},{120,-10}},
                                                               color={0,0,255},
           thickness=0.5));
-      connect(heatCoil.port_b,dryEffectivenessNTU. port_a2)
+      connect(heatCoil.port_b, coolCoil.port_a2)
         annotation (Line(points={{72,48},{90,48}}, color={0,127,255}));
-      connect(dryEffectivenessNTU.port_b2, supplyAirTemp.port_a) annotation (
-          Line(points={{110,48},{120,48},{128,48}}, color={0,127,255}));
+      connect(coolCoil.port_b2, supplyAirTemp.port_a)
+        annotation (Line(points={{110,48},{120,48},{128,48}}, color={0,127,255}));
       connect(val.port_3, chwsFlow.port_a) annotation (Line(points={{90,-20},{
               120,-20},{120,-10}}, color={0,0,255},
           thickness=0.5));
-      connect(chwsFlow.port_b,dryEffectivenessNTU. port_a1) annotation (Line(
-            points={{120,10},{120,36},{110,36}}, color={0,0,255},
+      connect(chwsFlow.port_b, coolCoil.port_a1) annotation (Line(
+          points={{120,10},{120,36},{110,36}},
+          color={0,0,255},
           thickness=0.5));
-      connect(dryEffectivenessNTU.port_b1, val.port_1)
-        annotation (Line(points={{90,36},{80,36},{80,-10}}, color={0,0,255},
+      connect(coolCoil.port_b1, val.port_1) annotation (Line(
+          points={{90,36},{80,36},{80,-10}},
+          color={0,0,255},
           thickness=0.5));
       connect(supplyAirTemp.T, conP.u_m) annotation (Line(points={{138,59},{138,
               59},{138,70},{156,70},{156,20},{0,20},{0,12}},
@@ -3656,7 +3664,7 @@ First implementation.
               -151},{84,-128},{98,-128},{98,-50},{178,-50},{178,100},{210,100}},
             color={0,0,127}));
       connect(pumpPower, pumpPower)
-        annotation (Line(points={{210,80},{210,80},{210,80}}, color={0,0,127}));
+        annotation (Line(points={{210,80},{210,80}},          color={0,0,127}));
       connect(fixedBou.ports[1], chwrTemp.port_b) annotation (Line(
           points={{60,-130},{70,-130},{70,-136},{80,-136},{80,-60}},
           color={0,0,255},
@@ -3674,9 +3682,16 @@ First implementation.
       connect(supplyAirTempSetConst.y, economizer.T_mixSet) annotation (Line(points=
              {{-19,0},{-16,0},{-16,-18},{-146,-18},{-146,-22},{-141,-22}}, color={0,
               0,127}));
-      connect(control.coolSignal, economizer.coolSignal) annotation (Line(
-            points={{-119,12},{-88,12},{-88,-10},{-148,-10},{-148,-34},{-141,
-              -34}}, color={0,0,127}));
+      connect(weaBus.TDryBul, economizer.T_oa) annotation (Line(
+          points={{-170,168},{-172,168},{-172,-36},{-172,-34},{-141,-34}},
+          color={255,204,51},
+          thickness=0.5), Text(
+          string="%first",
+          index=-1,
+          extent={{-6,3},{-6,3}}));
+      connect(control.heaterSet, economizer.heaterSet) annotation (Line(points=
+              {{-119,16},{-104,16},{-104,-8},{-164,-8},{-164,-38},{-141,-38}},
+            color={0,0,127}));
       annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-200,-160},
                 {200,160}}), graphics={
             Rectangle(
@@ -3830,7 +3845,34 @@ First implementation.
           StopTime=518400,
           Interval=3600,
           Tolerance=1e-06,
-          __Dymola_Algorithm="Radau"));
+          __Dymola_Algorithm="Radau"),
+          Documentation(info="<html>
+<p>
+This is a conventional single zone VAV HVAC system model.  The system contains
+a variable speed supply fan, electric heating coil, water-based cooling coil, 
+economizer, and air-cooled chiller.  The control of the system is that of 
+conventional VAV heating and cooling.  During cooling, the supply air 
+temperature is held constant while the supply air flow is modulated from 
+maximum to minimum according to zone load.  This is done by modulating the 
+fan speed.  During heating, the supply air flow is held at a constant minimum 
+while the heating coil is modulated accoding to zone load.  The mass flow of 
+chilled water through the cooling coil is controlled by a three-way valve to 
+maintain the supply air temperature setpoint during cooling.  
+The mixing box maintains the minimum outside airflow fraction unless 
+conditions for economizer are met, in which case the economizer controller 
+adjusts the outside airflow fraction to meet a mixed air temperature setpoint.  
+The economizer is enabled if the outside air drybulb temperature is lower 
+than the return air temperature and the system is not in heating mode.  
+</p>
+<p>
+There are a number of assumptions in the model.  Pressure drops through the 
+system are collected into a single component.  The mass flow of return air
+is equal to the mass flow of supply air.  The mass flow of outside air and 
+relief air in the mixing box is ideally controlled so that the supply air is 
+composed of the specified outside airflow fraction, rather than having
+feedback control of damper positions.  The cooling coil is a dry coil model.  
+</p>
+</html>"));
     end VAV_SingleZone_drycoil_fan_mix_chiller_eco;
 
     block FMI_SingleZoneVAVWithChiller
@@ -3936,6 +3978,92 @@ First implementation.
         parameter Modelica.SIunits.MassFlowRate minAirFlow "Minimum airflow rate of system";
         parameter Real sensitivityGainHeat(unit="K") =  1 "Gain sensitivity on heating controller";
         parameter Real sensitivityGainCool(unit="K") =  0.3 "Gain sensitivity on cooling controller";
+        Modelica.Blocks.Interfaces.RealInput TcoolSet "Zone cooling setpoint"
+                                                      annotation (Placement(
+              transformation(rotation=0, extent={{-210,70},{-190,90}})));
+        Modelica.Blocks.Interfaces.RealInput Tmea
+          "Zone temperature measurement"          annotation (Placement(
+              transformation(rotation=0, extent={{-210,-22},{-190,-2}})));
+        Modelica.Blocks.Interfaces.RealInput TheatSet "Zone heating setpoint"
+                                                      annotation (Placement(
+              transformation(rotation=0, extent={{-210,120},{-190,140}})));
+        Modelica.Blocks.Interfaces.RealOutput fanSet(start=minAirFlow)
+          "Control signal for fan"
+          annotation (Placement(transformation(rotation=0, extent={{10,-10},{30,
+                  10}})));
+        Modelica.Blocks.Interfaces.RealOutput heaterSet
+          "Control signal for heating coil"             annotation (Placement(
+              transformation(rotation=0, extent={{10,110},{30,130}})));
+        Modelica.Blocks.Interfaces.RealOutput coolSignal "Cooling mode"
+                                                        annotation (Placement(
+              transformation(rotation=0, extent={{10,70},{30,90}})));
+        Buildings.Utilities.Math.SmoothMax smoothMax(deltaX=1)
+          annotation (Placement(transformation(extent={{-40,70},{-20,90}})));
+        Modelica.Blocks.Sources.Constant const(k=0)
+          annotation (Placement(transformation(extent={{-80,50},{-60,70}})));
+        Modelica.Blocks.Math.Sign sign1
+          annotation (Placement(transformation(extent={{-80,80},{-60,100}})));
+      equation
+        connect(heatError.y,heatGain. u) annotation (Line(points={{-141,130},{-141,130},
+                {-122,130}}, color={0,0,127}));
+        connect(coolAirGain.y,limiterAirCool. u)
+          annotation (Line(points={{-95,30},{-92,30},{-90,30},{-86,30}},
+                                                       color={0,0,127}));
+        connect(coolError.y,coolGain. u)
+          annotation (Line(points={{-161,30},{-154,30}}, color={0,0,127}));
+        connect(coolAirGain.u,coolGain. y)
+          annotation (Line(points={{-118,30},{-131,30}}, color={0,0,127}));
+        connect(TcoolSet, coolError.u1) annotation (Line(points={{-200,80},{
+                -184,80},{-184,30},{-178,30}},
+                                color={0,0,127}));
+        connect(Tmea, coolError.u2) annotation (Line(points={{-200,-12},{-200,-12},
+                {-170,-12},{-170,22}}, color={0,0,127}));
+        connect(TheatSet, heatError.u1)
+          annotation (Line(points={{-200,130},{-158,130}}, color={0,0,127}));
+        connect(Tmea, heatError.u2) annotation (Line(points={{-200,-12},{-200,-12},
+                {-170,-12},{-150,-12},{-150,122}}, color={0,0,127}));
+        connect(heatGain.y, limiterHeat.u) annotation (Line(points={{-99,130},{
+                -76,130},{-76,120},{-54,120},{-62,120}},
+                                     color={0,0,127}));
+        connect(limiterHeat.y, heaterSet) annotation (Line(points={{-39,120},{
+                20,120}},       color={0,0,127}));
+        connect(limiterAirCool.y, fanSet) annotation (Line(points={{-63,30},{-44,
+                30},{-44,0},{20,0}}, color={0,0,127}));
+        connect(const.y, smoothMax.u2) annotation (Line(points={{-59,60},{-52,
+                60},{-52,74},{-42,74}}, color={0,0,127}));
+        connect(sign1.u, limiterAirCool.u) annotation (Line(points={{-82,90},{
+                -90,90},{-90,30},{-86,30}}, color={0,0,127}));
+        connect(sign1.y, smoothMax.u1) annotation (Line(points={{-59,90},{-52,
+                90},{-52,86},{-42,86}}, color={0,0,127}));
+        connect(smoothMax.y, coolSignal)
+          annotation (Line(points={{-19,80},{20,80}}, color={0,0,127}));
+        annotation (Diagram(coordinateSystem(extent={{-190,-40},{10,160}})), Icon(
+              coordinateSystem(extent={{-190,-40},{10,160}})));
+      end HeatingCooling;
+
+      model HeatingCooling_new
+
+        Modelica.Blocks.Math.Gain heatGain(k=1/sensitivityGainHeat)
+          annotation (Placement(transformation(extent={{-120,120},{-100,140}})));
+        Modelica.Blocks.Math.Gain coolAirGain(k=-designAirFlow)
+          annotation (Placement(transformation(extent={{-116,20},{-96,40}})));
+        Modelica.Blocks.Math.Feedback heatError
+          annotation (Placement(transformation(extent={{-160,120},{-140,140}})));
+        Modelica.Blocks.Math.Feedback coolError
+          annotation (Placement(transformation(extent={{-180,20},{-160,40}})));
+        Modelica.Blocks.Nonlinear.Limiter limiterAirCool(
+          uMax=designAirFlow,
+          uMin=minAirFlow,
+          y(start=minAirFlow))
+          annotation (Placement(transformation(extent={{-84,20},{-64,40}})));
+        Modelica.Blocks.Math.Gain coolGain(k=1/sensitivityGainCool)
+          annotation (Placement(transformation(extent={{-152,20},{-132,40}})));
+        Modelica.Blocks.Nonlinear.Limiter limiterHeat(uMin=0, uMax=1)
+          annotation (Placement(transformation(extent={{-60,110},{-40,130}})));
+        parameter Modelica.SIunits.MassFlowRate designAirFlow "Design airflow rate of system";
+        parameter Modelica.SIunits.MassFlowRate minAirFlow "Minimum airflow rate of system";
+        parameter Real sensitivityGainHeat(unit="K") =  1 "Gain sensitivity on heating controller";
+        parameter Real sensitivityGainCool(unit="K") =  0.3 "Gain sensitivity on cooling controller";
         Modelica.Blocks.Interfaces.RealInput TcoolSet annotation (Placement(
               transformation(rotation=0, extent={{-210,70},{-190,90}})));
         Modelica.Blocks.Interfaces.RealInput Tmea annotation (Placement(
@@ -3950,12 +4078,11 @@ First implementation.
         Modelica.Blocks.Interfaces.RealOutput coolSignal
                                                         annotation (Placement(
               transformation(rotation=0, extent={{10,70},{30,90}})));
-        Modelica.Blocks.Math.Sign sign1
-          annotation (Placement(transformation(extent={{-60,80},{-40,100}})));
-        Buildings.Utilities.Math.SmoothMax smoothMax(deltaX=1)
-          annotation (Placement(transformation(extent={{-20,70},{0,90}})));
-        Modelica.Blocks.Sources.Constant zero(k=0)
-          annotation (Placement(transformation(extent={{-60,50},{-40,70}})));
+        Modelica.Blocks.Math.BooleanToReal booleanToReal1
+          annotation (Placement(transformation(extent={{-70,70},{-50,90}})));
+        Modelica.Blocks.Logical.Hysteresis hysteresis(uLow=-sensitivityGainCool,
+            uHigh=sensitivityGainCool)
+          annotation (Placement(transformation(extent={{-110,70},{-90,90}})));
       equation
         connect(heatError.y,heatGain. u) annotation (Line(points={{-141,130},{-141,130},
                 {-122,130}}, color={0,0,127}));
@@ -3966,8 +4093,9 @@ First implementation.
           annotation (Line(points={{-161,30},{-154,30}}, color={0,0,127}));
         connect(coolAirGain.u,coolGain. y)
           annotation (Line(points={{-118,30},{-131,30}}, color={0,0,127}));
-        connect(TcoolSet, coolError.u1) annotation (Line(points={{-200,80},{-178,
-                80},{-178,30}}, color={0,0,127}));
+        connect(TcoolSet, coolError.u1) annotation (Line(points={{-200,80},{
+                -184,80},{-184,30},{-178,30},{-178,30}},
+                                color={0,0,127}));
         connect(Tmea, coolError.u2) annotation (Line(points={{-200,-12},{-200,-12},
                 {-170,-12},{-170,22}}, color={0,0,127}));
         connect(TheatSet, heatError.u1)
@@ -3977,23 +4105,190 @@ First implementation.
         connect(heatGain.y, limiterHeat.u) annotation (Line(points={{-99,130},{
                 -76,130},{-76,120},{-54,120},{-62,120}},
                                      color={0,0,127}));
-        connect(sign1.y, smoothMax.u1) annotation (Line(points={{-39,90},{-26,90},
-                {-26,86},{-22,86}}, color={0,0,127}));
-        connect(coolSignal, smoothMax.y)
-          annotation (Line(points={{20,80},{4,80},{1,80}}, color={0,0,127}));
-        connect(zero.y, smoothMax.u2) annotation (Line(points={{-39,60},{-39,60},
-                {-32,60},{-32,74},{-22,74}}, color={0,0,127}));
-        connect(sign1.u, limiterAirCool.u) annotation (Line(points={{-62,90},{-90,
-                90},{-90,30},{-86,30}}, color={0,0,127}));
         connect(limiterHeat.y, heaterSet) annotation (Line(points={{-39,120},{
                 20,120}},       color={0,0,127}));
         connect(limiterAirCool.y, fanSet) annotation (Line(points={{-63,30},{-44,
                 30},{-44,0},{20,0}}, color={0,0,127}));
+        connect(booleanToReal1.y, coolSignal) annotation (Line(points={{-49,80},
+                {20,80},{20,80}}, color={0,0,127}));
+        connect(hysteresis.y, booleanToReal1.u)
+          annotation (Line(points={{-89,80},{-72,80}}, color={255,0,255}));
+        connect(hysteresis.u, coolGain.y) annotation (Line(points={{-112,80},{
+                -126,80},{-126,30},{-131,30}}, color={0,0,127}));
         annotation (Diagram(coordinateSystem(extent={{-190,-40},{10,160}})), Icon(
               coordinateSystem(extent={{-190,-40},{10,160}})));
-      end HeatingCooling;
+      end HeatingCooling_new;
+
+      model HeatingCooling_CoolingAvailability
+
+        Modelica.Blocks.Math.Gain heatGain(k=1/sensitivityGainHeat)
+          annotation (Placement(transformation(extent={{-120,120},{-100,140}})));
+        Modelica.Blocks.Math.Gain coolAirGain(k=-designAirFlow)
+          annotation (Placement(transformation(extent={{-116,20},{-96,40}})));
+        Modelica.Blocks.Math.Feedback heatError
+          annotation (Placement(transformation(extent={{-160,120},{-140,140}})));
+        Modelica.Blocks.Math.Feedback coolError
+          annotation (Placement(transformation(extent={{-180,20},{-160,40}})));
+        Modelica.Blocks.Nonlinear.Limiter limiterAirCool(
+          uMax=designAirFlow,
+          uMin=minAirFlow,
+          y(start=minAirFlow))
+          annotation (Placement(transformation(extent={{-84,20},{-64,40}})));
+        Modelica.Blocks.Math.Gain coolGain(k=1/sensitivityGainCool)
+          annotation (Placement(transformation(extent={{-152,20},{-132,40}})));
+        Modelica.Blocks.Nonlinear.Limiter limiterHeat(uMin=0, uMax=1)
+          annotation (Placement(transformation(extent={{-60,110},{-40,130}})));
+        parameter Modelica.SIunits.MassFlowRate designAirFlow "Design airflow rate of system";
+        parameter Modelica.SIunits.MassFlowRate minAirFlow "Minimum airflow rate of system";
+        parameter Real sensitivityGainHeat(unit="K") =  1 "Gain sensitivity on heating controller";
+        parameter Real sensitivityGainCool(unit="K") =  0.3 "Gain sensitivity on cooling controller";
+        Modelica.Blocks.Interfaces.RealInput TcoolSet annotation (Placement(
+              transformation(rotation=0, extent={{-210,70},{-190,90}})));
+        Modelica.Blocks.Interfaces.RealInput Tmea annotation (Placement(
+              transformation(rotation=0, extent={{-210,-22},{-190,-2}})));
+        Modelica.Blocks.Interfaces.RealInput TheatSet annotation (Placement(
+              transformation(rotation=0, extent={{-210,120},{-190,140}})));
+        Modelica.Blocks.Interfaces.RealOutput fanSet(start=minAirFlow)
+          annotation (Placement(transformation(rotation=0, extent={{10,-10},{30,
+                  10}})));
+        Modelica.Blocks.Interfaces.RealOutput heaterSet annotation (Placement(
+              transformation(rotation=0, extent={{10,110},{30,130}})));
+        Modelica.Blocks.Interfaces.RealOutput coolSignal
+                                                        annotation (Placement(
+              transformation(rotation=0, extent={{10,70},{30,90}})));
+        Schedules.CoolingAvailability coolingAvailability
+          annotation (Placement(transformation(extent={{-60,40},{-40,60}})));
+        Modelica.Blocks.Logical.And and1
+          annotation (Placement(transformation(extent={{-14,60},{-6,68}})));
+        Modelica.Blocks.Math.RealToBoolean realToBoolean
+          annotation (Placement(transformation(extent={{-28,46},{-20,54}})));
+        Modelica.Blocks.Logical.Not not1
+          annotation (Placement(transformation(extent={{-14,76},{-6,84}})));
+        Modelica.Blocks.Math.BooleanToReal realToBoolean2
+          annotation (Placement(transformation(extent={{-2,60},{6,68}})));
+        Modelica.Blocks.Logical.Hysteresis hysteresis(uHigh=0.02, uLow=0.00)
+          annotation (Placement(transformation(extent={{-80,80},{-60,100}})));
+      equation
+        connect(heatError.y,heatGain. u) annotation (Line(points={{-141,130},{-141,130},
+                {-122,130}}, color={0,0,127}));
+        connect(coolAirGain.y,limiterAirCool. u)
+          annotation (Line(points={{-95,30},{-92,30},{-90,30},{-86,30}},
+                                                       color={0,0,127}));
+        connect(coolError.y,coolGain. u)
+          annotation (Line(points={{-161,30},{-154,30}}, color={0,0,127}));
+        connect(coolAirGain.u,coolGain. y)
+          annotation (Line(points={{-118,30},{-131,30}}, color={0,0,127}));
+        connect(TcoolSet, coolError.u1) annotation (Line(points={{-200,80},{
+                -184,80},{-184,30},{-178,30},{-178,30}},
+                                color={0,0,127}));
+        connect(Tmea, coolError.u2) annotation (Line(points={{-200,-12},{-200,-12},
+                {-170,-12},{-170,22}}, color={0,0,127}));
+        connect(TheatSet, heatError.u1)
+          annotation (Line(points={{-200,130},{-158,130}}, color={0,0,127}));
+        connect(Tmea, heatError.u2) annotation (Line(points={{-200,-12},{-200,-12},
+                {-170,-12},{-150,-12},{-150,122}}, color={0,0,127}));
+        connect(heatGain.y, limiterHeat.u) annotation (Line(points={{-99,130},{
+                -76,130},{-76,120},{-54,120},{-62,120}},
+                                     color={0,0,127}));
+        connect(limiterHeat.y, heaterSet) annotation (Line(points={{-39,120},{
+                20,120}},       color={0,0,127}));
+        connect(limiterAirCool.y, fanSet) annotation (Line(points={{-63,30},{-44,
+                30},{-44,0},{20,0}}, color={0,0,127}));
+        connect(coolingAvailability.y[1], realToBoolean.u) annotation (Line(
+              points={{-39,50},{-39,50},{-28.8,50}}, color={0,0,127}));
+        connect(realToBoolean2.y, coolSignal) annotation (Line(points={{6.4,64},
+                {8,64},{8,80},{20,80}}, color={0,0,127}));
+        connect(and1.y, realToBoolean2.u) annotation (Line(points={{-5.6,64},{
+                -2.8,64}},           color={255,0,255}));
+        connect(realToBoolean.y, and1.u2) annotation (Line(points={{-19.6,50},{
+                -10,50},{-10,58},{-20,58},{-20,60.8},{-14.8,60.8}}, color={255,
+                0,255}));
+        connect(not1.y, and1.u1) annotation (Line(points={{-5.6,80},{-4,80},{-4,
+                72},{-20,72},{-20,66},{-20,64},{-14.8,64}}, color={255,0,255}));
+        connect(heatGain.y, hysteresis.u) annotation (Line(points={{-99,130},{
+                -90,130},{-90,90},{-82,90}}, color={0,0,127}));
+        connect(hysteresis.y, not1.u) annotation (Line(points={{-59,90},{-40,90},
+                {-40,80},{-14.8,80}}, color={255,0,255}));
+        annotation (Diagram(coordinateSystem(extent={{-190,-40},{10,160}})), Icon(
+              coordinateSystem(extent={{-190,-40},{10,160}})));
+      end HeatingCooling_CoolingAvailability;
 
       model Economizer
+        parameter Real sensitivityGainEco = 0.25 "Controller gain";
+        Modelica.Blocks.Interfaces.RealInput T_mixSet
+          "Mixed air setpoint temperature"            annotation (Placement(
+              transformation(rotation=0, extent={{-120,70},{-100,90}})));
+        Modelica.Blocks.Interfaces.RealInput T_mix "Measured mixed air temperature"
+                                                   annotation (Placement(
+              transformation(rotation=0, extent={{-120,30},{-100,50}})));
+        Modelica.Blocks.Math.Feedback coolError
+          annotation (Placement(transformation(extent={{-80,70},{-60,90}})));
+        Modelica.Blocks.Math.Gain ecoGain(k=-1/sensitivityGainEco)
+          annotation (Placement(transformation(extent={{-40,70},{-20,90}})));
+        Modelica.Blocks.Interfaces.RealOutput oaFra
+          "Control signal for outside air fraction"
+          annotation (Placement(transformation(extent={{100,70},{120,90}})));
+        Modelica.Blocks.Interfaces.RealInput minOAFra "Minimum outside air fraction"
+                                                      annotation (Placement(
+              transformation(rotation=0, extent={{-120,-10},{-100,10}})));
+        Modelica.Blocks.Nonlinear.VariableLimiter Limiter(strict=true)
+          annotation (Placement(transformation(extent={{40,70},{60,90}})));
+        Modelica.Blocks.Sources.Constant const(k=1)
+          annotation (Placement(transformation(extent={{-40,40},{-20,60}})));
+        Modelica.Blocks.Interfaces.RealInput T_oa "Measured outside air temperature"
+                                                  annotation (Placement(
+              transformation(rotation=0, extent={{-120,-50},{-100,-30}})));
+        Modelica.Blocks.Logical.Switch switch1
+          annotation (Placement(transformation(extent={{-2,10},{18,30}})));
+        Modelica.Blocks.Interfaces.RealInput heaterSet(start=0)
+          "Control signal for heating coil"                     annotation (Placement(
+              transformation(rotation=0, extent={{-120,-90},{-100,-70}})));
+        Modelica.Blocks.Logical.Greater greater
+          annotation (Placement(transformation(extent={{-60,-30},{-40,-10}})));
+        Modelica.Blocks.Logical.And and1
+          annotation (Placement(transformation(extent={{-22,-30},{-2,-10}})));
+        Modelica.Blocks.Logical.Hysteresis hysteresis(uLow=0.05, uHigh=0.15)
+          annotation (Placement(transformation(extent={{-70,-90},{-50,-70}})));
+        Modelica.Blocks.Logical.Not not1
+          annotation (Placement(transformation(extent={{-40,-90},{-20,-70}})));
+      equation
+        connect(T_mixSet, coolError.u1)
+          annotation (Line(points={{-110,80},{-94,80},{-78,80}}, color={0,0,127}));
+        connect(T_mix, coolError.u2) annotation (Line(points={{-110,40},{-90,40},{-70,
+                40},{-70,72}}, color={0,0,127}));
+        connect(coolError.y, ecoGain.u)
+          annotation (Line(points={{-61,80},{-42,80}}, color={0,0,127}));
+        connect(Limiter.limit2, minOAFra) annotation (Line(points={{38,72},{26,
+                72},{26,0},{-110,0}}, color={0,0,127}));
+        connect(const.y, Limiter.limit1) annotation (Line(points={{-19,50},{20,
+                50},{20,88},{38,88}}, color={0,0,127}));
+        connect(Limiter.y, oaFra)
+          annotation (Line(points={{61,80},{110,80}}, color={0,0,127}));
+        connect(ecoGain.y, switch1.u1) annotation (Line(points={{-19,80},{-12,
+                80},{-12,28},{-4,28}}, color={0,0,127}));
+        connect(minOAFra, switch1.u3) annotation (Line(points={{-110,0},{-12,0},
+                {-12,12},{-4,12}}, color={0,0,127}));
+        connect(switch1.y, Limiter.u) annotation (Line(points={{19,20},{24,20},
+                {24,80},{38,80}}, color={0,0,127}));
+        connect(T_mix, greater.u1) annotation (Line(points={{-110,40},{-96,40},
+                {-80,40},{-80,-20},{-62,-20}}, color={0,0,127}));
+        connect(T_oa, greater.u2) annotation (Line(points={{-110,-40},{-80,-40},
+                {-80,-28},{-62,-28}}, color={0,0,127}));
+        connect(greater.y, and1.u1)
+          annotation (Line(points={{-39,-20},{-24,-20}}, color={255,0,255}));
+        connect(and1.y, switch1.u2) annotation (Line(points={{-1,-20},{8,-20},{8,-4},{
+                -24,-4},{-24,20},{-4,20}}, color={255,0,255}));
+        connect(heaterSet, hysteresis.u) annotation (Line(points={{-110,-80},{
+                -92,-80},{-72,-80}}, color={0,0,127}));
+        connect(hysteresis.y, not1.u) annotation (Line(points={{-49,-80},{-46,
+                -80},{-42,-80}}, color={255,0,255}));
+        connect(not1.y, and1.u2) annotation (Line(points={{-19,-80},{-10,-80},{
+                -10,-50},{-30,-50},{-30,-28},{-24,-28}}, color={255,0,255}));
+        annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+              coordinateSystem(preserveAspectRatio=false)));
+      end Economizer;
+
+      model Economizer_simple
         parameter Real sensitivityGainEco "Controller gain";
         Modelica.Blocks.Interfaces.RealInput T_mixSet annotation (Placement(
               transformation(rotation=0, extent={{-120,70},{-100,90}})));
@@ -4009,12 +4304,12 @@ First implementation.
               transformation(rotation=0, extent={{-120,-10},{-100,10}})));
         Modelica.Blocks.Nonlinear.VariableLimiter Limiter(strict=true)
           annotation (Placement(transformation(extent={{40,70},{60,90}})));
+        Modelica.Blocks.Sources.Constant const(k=1)
+          annotation (Placement(transformation(extent={{-40,40},{-20,60}})));
         Modelica.Blocks.Interfaces.RealInput coolSignal annotation (Placement(
               transformation(rotation=0, extent={{-120,-50},{-100,-30}})));
         Modelica.Blocks.Math.Product product
-          annotation (Placement(transformation(extent={{-8,70},{12,90}})));
-        Modelica.Blocks.Sources.Constant const(k=1)
-          annotation (Placement(transformation(extent={{-40,40},{-20,60}})));
+          annotation (Placement(transformation(extent={{-4,70},{16,90}})));
       equation
         connect(T_mixSet, coolError.u1)
           annotation (Line(points={{-110,80},{-94,80},{-78,80}}, color={0,0,127}));
@@ -4022,21 +4317,22 @@ First implementation.
                 40},{-70,72}}, color={0,0,127}));
         connect(coolError.y, ecoGain.u)
           annotation (Line(points={{-61,80},{-42,80}}, color={0,0,127}));
-        connect(Limiter.u, product.y)
-          annotation (Line(points={{38,80},{38,80},{13,80}}, color={0,0,127}));
-        connect(ecoGain.y, product.u1) annotation (Line(points={{-19,80},{-16,
-                80},{-16,86},{-10,86}}, color={0,0,127}));
-        connect(product.u2, coolSignal) annotation (Line(points={{-10,74},{-16,
-                74},{-16,-40},{-110,-40}}, color={0,0,127}));
         connect(Limiter.limit2, minOAFra) annotation (Line(points={{38,72},{26,
                 72},{26,0},{-110,0}}, color={0,0,127}));
         connect(const.y, Limiter.limit1) annotation (Line(points={{-19,50},{20,
                 50},{20,88},{38,88}}, color={0,0,127}));
         connect(Limiter.y, oaFra)
           annotation (Line(points={{61,80},{110,80}}, color={0,0,127}));
+        connect(ecoGain.y, product.u1) annotation (Line(points={{-19,80},{-12,
+                80},{-12,86},{-6,86}}, color={0,0,127}));
+        connect(coolSignal, product.u2) annotation (Line(points={{-110,-40},{
+                -72,-40},{-12,-40},{-12,74},{-6,74}}, color={0,0,127}));
+        connect(product.y, Limiter.u) annotation (Line(points={{17,80},{27.5,80},
+                {38,80}}, color={0,0,127}));
         annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
               coordinateSystem(preserveAspectRatio=false)));
-      end Economizer;
+      end Economizer_simple;
+
     end Controllers;
   end HVACSystems;
 
@@ -4765,8 +5061,7 @@ First implementation.
       extends Modelica.Icons.Example;
       package MediumAir = Buildings.Media.Air "Buildings library air media package";
       package MediumWater = Buildings.Media.Water "Buildings library air media package";
-      HVACSystems.VAV_SingleZone_drycoil_fan_mix_chiller_eco
-                                                         vAV_SingleZone(
+      HVACSystems.VAV_SingleZone_drycoil_fan_mix_chiller_eco HVAC(
         designAirFlow=0.75,
         minAirFlow=0.2*0.75,
         designHeatingEfficiency=0.99,
@@ -4778,10 +5073,11 @@ First implementation.
         sensitivityGainCool=0.25,
         minOAFra=0.2,
         supplyAirTempSet=286.15,
-        chwsTempSet=279.15)
+        chwsTempSet=279.15,
+        sensitivityGainEco=0.25) "Single Zone VAV system"
         annotation (Placement(transformation(extent={{-40,-10},{0,22}})));
-      ThermalEnvelope.Case600_AirHVAC   singleZoneAirHVAC(
-          designAirFlow=0.75, lat=weaDat.lat)
+      ThermalEnvelope.Case600_AirHVAC Zone(designAirFlow=0.75, lat=weaDat.lat)
+        "Thermal envelope of single zone"
         annotation (Placement(transformation(extent={{32,-4},{52,16}})));
       Buildings.BoundaryConditions.WeatherData.ReaderTMY3 weaDat(
           computeWetBulbTemperature=false, filNam=
@@ -4798,37 +5094,30 @@ First implementation.
       Modelica.Blocks.Continuous.Integrator totalPumpEnergy
         annotation (Placement(transformation(extent={{20,-100},{40,-80}})));
     equation
-      connect(weaDat.weaBus, singleZoneAirHVAC.weaBus) annotation (Line(
+      connect(weaDat.weaBus, Zone.weaBus) annotation (Line(
           points={{-80,90},{-26,90},{33,90},{33,16.4}},
           color={255,204,51},
           thickness=0.5));
-      connect(vAV_SingleZone.supplyAir, singleZoneAirHVAC.supplyAir)
-        annotation (Line(points={{0,8},{4,8},{14,8},{14,26},{38,26},{38,17}},
-                                     color={0,127,255}));
-      connect(singleZoneAirHVAC.zoneMeanAirTemperature, vAV_SingleZone.Tmea)
-        annotation (Line(points={{53,6},{60,6},{70,6},{70,-16},{-64,-16},{-64,6},
-              {-42,6}},         color={0,0,127}));
-      connect(singleZoneAirHVAC.TcoolSetpoint, vAV_SingleZone.TcoolSetpoint)
-        annotation (Line(points={{53,-2},{62,-2},{62,-14},{-60,-14},{-60,14},{-42,14}},
-                           color={0,0,127}));
-      connect(singleZoneAirHVAC.TheatSetpoint, vAV_SingleZone.TheatSetpoint)
-        annotation (Line(points={{53,0},{64,0},{64,-12},{-54,-12},{-54,20},{-42,20}},
-                    color={0,0,127}));
-      connect(singleZoneAirHVAC.returnAir, vAV_SingleZone.returnAir[1])
-        annotation (Line(points={{44,17},{44,24},{18,24},{18,-4},{0,-4}},
-                                                                        color={
-              0,127,255}));
-      connect(weaDat.weaBus, vAV_SingleZone.weaBus) annotation (Line(
+      connect(HVAC.supplyAir, Zone.supplyAir) annotation (Line(points={{0,8},{4,8},{
+              14,8},{14,26},{38,26},{38,17}}, color={0,127,255}));
+      connect(Zone.zoneMeanAirTemperature, HVAC.Tmea) annotation (Line(points={{53,6},
+              {60,6},{70,6},{70,-16},{-64,-16},{-64,6},{-42,6}}, color={0,0,127}));
+      connect(Zone.TcoolSetpoint, HVAC.TcoolSetpoint) annotation (Line(points={{53,-2},
+              {62,-2},{62,-14},{-60,-14},{-60,14},{-42,14}}, color={0,0,127}));
+      connect(Zone.TheatSetpoint, HVAC.TheatSetpoint) annotation (Line(points={{53,0},
+              {64,0},{64,-12},{-54,-12},{-54,20},{-42,20}}, color={0,0,127}));
+      connect(Zone.returnAir, HVAC.returnAir[1]) annotation (Line(points={{44,17},{44,
+              24},{18,24},{18,-4},{0,-4}}, color={0,127,255}));
+      connect(weaDat.weaBus, HVAC.weaBus) annotation (Line(
           points={{-80,90},{-37,90},{-37,23}},
           color={255,204,51},
           thickness=0.5));
-      connect(vAV_SingleZone.fanPower, totalFanEnergy.u) annotation (Line(
-            points={{1,20},{10,20},{10,-30},{18,-30}},
-                                                     color={0,0,127}));
-      connect(vAV_SingleZone.heatPower, totalHeatingEnergy.u) annotation (Line(
-            points={{1,18},{8,18},{8,-50},{18,-50}}, color={0,0,127}));
-      connect(vAV_SingleZone.coolPower, totalCoolingEnergy.u) annotation (Line(
-            points={{1,16},{6,16},{6,-70},{18,-70}}, color={0,0,127}));
+      connect(HVAC.fanPower, totalFanEnergy.u) annotation (Line(points={{1,20},{10,20},
+              {10,-30},{18,-30}}, color={0,0,127}));
+      connect(HVAC.heatPower, totalHeatingEnergy.u) annotation (Line(points={{1,18},
+              {8,18},{8,-50},{18,-50}}, color={0,0,127}));
+      connect(HVAC.coolPower, totalCoolingEnergy.u) annotation (Line(points={{1,16},
+              {6,16},{6,-70},{18,-70}}, color={0,0,127}));
       connect(totalFanEnergy.y, totalHVACEnergy.u[1]) annotation (Line(points={{41,-30},
               {48,-30},{48,-71.5},{58,-71.5}},                color={0,0,127}));
       connect(totalHeatingEnergy.y, totalHVACEnergy.u[2]) annotation (Line(
@@ -4839,8 +5128,8 @@ First implementation.
               127}));
       connect(totalPumpEnergy.y, totalHVACEnergy.u[4]) annotation (Line(points=
               {{41,-90},{48,-90},{48,-68.5},{58,-68.5}}, color={0,0,127}));
-      connect(totalPumpEnergy.u, vAV_SingleZone.pumpPower) annotation (Line(
-            points={{18,-90},{4,-90},{4,14},{1,14}}, color={0,0,127}));
+      connect(totalPumpEnergy.u, HVAC.pumpPower) annotation (Line(points={{18,-90},{
+              4,-90},{4,14},{1,14}}, color={0,0,127}));
       annotation (
         Icon(coordinateSystem(preserveAspectRatio=false)),
         Diagram(coordinateSystem(preserveAspectRatio=false)),
@@ -4848,7 +5137,14 @@ First implementation.
           StopTime=504800,
           Interval=3600,
           Tolerance=1e-06,
-          __Dymola_Algorithm="Radau"));
+          __Dymola_Algorithm="Radau"),
+         Documentation(info="<html>
+<p>
+The thermal zone is based on the BESTEST Case 600 envelope, while the HVAC 
+system is based on a conventional VAV system with air cooled chiller and 
+economizer.  See documentation for the specific models for more information.
+</p>
+</html>"));
     end VAV_SingleZone_drycoil_fan_mix_chiller_eco;
 
     model FMI
@@ -4912,6 +5208,22 @@ First implementation.
             coordinateSystem(preserveAspectRatio=false)));
     end FMI_T_X_Only;
   end Examples;
+
+  package MVP
+    extends Modelica.Icons.ExamplesPackage;
+    model SingleZoneVAV
+      "Single Zone VAV HVAC systems with a dry cooling coil, air-cooled chiller, electric heating coil, variable speed fan, and mixing box with economizer."
+      extends Examples.VAV_SingleZone_drycoil_fan_mix_chiller_eco;
+    annotation (Documentation(info="<html>
+<p>
+This model is to be used in the minimum viable product for the SOEP project.
+It simulates a model of a single thermal zone, VAV distribution system, and 
+central plant.  For more information on the models, please see the model from
+which this is extended.
+</p>
+</html>"));
+    end SingleZoneVAV;
+  end MVP;
 
   package Icons
 
