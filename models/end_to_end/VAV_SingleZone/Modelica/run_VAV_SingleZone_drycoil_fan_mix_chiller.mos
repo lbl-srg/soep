@@ -25,6 +25,12 @@ var_names = {"Time",
              "vAV_SingleZone.supplyFan.m_flow",
              "vAV_SingleZone.supplyAirTemp.T",
              "vAV_SingleZone.oaAirFlow.m_flow", 
-             "vAV_SingleZone.minOAFra"};
+             "vAV_SingleZone.minOAFra",
+             "vAV_SingleZone.mixedAirTemp.T",
+             "vAV_SingleZone.heatCoil.Q_flow", 
+             "vAV_SingleZone.dryEffectivenessNTU.Q1_flow",
+             "vAV_SingleZone.dryEffectivenessNTU.Q2_flow",
+             "vAV_SingleZone.control.coolSignal", 
+             "vAV_SingleZone.weaBus.TDryBul"};
 trajectories=readTrajectory("VAV_SingleZone_drycoil_fan_mix_chiller.mat", var_names, n);
 DataFiles.writeCSVmatrix("VAV_SingleZone_drycoil_fan_mix_chiller.csv",var_names,transpose(trajectories)); 
