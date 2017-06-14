@@ -22,7 +22,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.0',
+        VERSION:     '',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -114,7 +114,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="benchmarks.html">8. Benchmarks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="acknowledgments.html">9. Acknowledgments</a></li>
-<li class="toctree-l1"><a class="reference internal" href="bibliography.html">10. References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zreferences.html">10. References</a></li>
 </ul>
 </ul>
 </li>
@@ -190,7 +190,7 @@
   <div class="section" id="numerical-methods-of-the-master-algorithm">
 <h1>6. Numerical Methods of the Master Algorithm<a class="headerlink" href="#numerical-methods-of-the-master-algorithm" title="Permalink to this headline">¶</a></h1>
 <p>This section describes the numerical methods that are used by the master algorithm.</p>
-<p>First, we note that conventional continuous time integration algorithms have the following fundamental properties in common <a class="reference internal" href="references.html#cellierkofman2006" id="id1">[CK06]</a>: Given a time <span class="math">\(t_{k+1}\)</span>, a polynomial approximation is performed to determine the values
+<p>First, we note that conventional continuous time integration algorithms have the following fundamental properties in common <a class="reference internal" href="zreferences.html#cellierkofman2006" id="id1">[CK06]</a>: Given a time <span class="math">\(t_{k+1}\)</span>, a polynomial approximation is performed to determine the values
 of all state variables at that time instant. If an error estimate is too large, the computation is repeated with a shorter time step. If an event happened, an iteration takes place across
 all states to determine when the event occurred. At the event, the approximations of the higher-order derivatives, which are the basis for multi-step methods, become invalid.
 Hence multi-step methods need to be restarted with a low-order method. This is very expensive as it involves a global event iteration followed by an integrator reset to a low order method.
@@ -206,10 +206,10 @@ hence communication is local. We thus selected for the SOEP QSS as our integrati
 The volume of literature about QSS methods is today where ODE solvers were about 30 years ago.
 QSS methods have interesting properties as they naturally lead to asynchronous integration with minimal communication among state variables.
 They also handle state events explicitly without requiring an iteration in time to solve zero-crossing functions.</p>
-<p>The first order QSS method, QSS1, first appeared in the literature in 1998 <a class="reference internal" href="references.html#zeiglerlee1998" id="id2">[ZL98]</a>. QSS1 methods have been extended to second and third order methods (QSS2, QSS3).
-On non-stiff problems, QSS3 has been shown to be significantly faster than QSS, and in some cases were faster than DASSL in Dymola <a class="reference internal" href="references.html#florosetal2011-1" id="id3">[FBCK11]</a>.
-To address performance issues observed in QSS, the class of Linear Implicit QSS methods (LIQSS) have been developed for stiff systems <a class="reference internal" href="references.html#kofman2006-1" id="id4">[Kof06]</a> <a class="reference internal" href="references.html#migonibortolottokofmancellier2013-1" id="id5">[MBKC13]</a>.
-For stiff systems, the 3rd order implementation of LIQSS seems to perform best as shown in <a class="pageref" href="#fig-liqss-migoni">Figure  1</a>, which is from <a class="reference internal" href="references.html#migonibortolottokofmancellier2013-1" id="id6">[MBKC13]</a>.</p>
+<p>The first order QSS method, QSS1, first appeared in the literature in 1998 <a class="reference internal" href="zreferences.html#zeiglerlee1998" id="id2">[ZL98]</a>. QSS1 methods have been extended to second and third order methods (QSS2, QSS3).
+On non-stiff problems, QSS3 has been shown to be significantly faster than QSS, and in some cases were faster than DASSL in Dymola <a class="reference internal" href="zreferences.html#florosetal2011-1" id="id3">[FBCK11]</a>.
+To address performance issues observed in QSS, the class of Linear Implicit QSS methods (LIQSS) have been developed for stiff systems <a class="reference internal" href="zreferences.html#kofman2006-1" id="id4">[Kof06]</a> <a class="reference internal" href="zreferences.html#migonibortolottokofmancellier2013-1" id="id5">[MBKC13]</a>.
+For stiff systems, the 3rd order implementation of LIQSS seems to perform best as shown in <a class="pageref" href="#fig-liqss-migoni">Figure  1</a>, which is from <a class="reference internal" href="zreferences.html#migonibortolottokofmancellier2013-1" id="id6">[MBKC13]</a>.</p>
 <div class="figure" id="id14">
 <span id="fig-liqss-migoni"></span><a class="reference internal image-reference" href="_images/liqss.png"><img alt="_images/liqss.png" src="_images/liqss.png" style="width: 1396.8px; height: 728.8px;" /></a>
 <p class="caption"><span class="caption-number">Fig. 6.1 </span>: LIQSS method have linear growth of computing time, whereas ode15 (MATLAB) and esdirk23a (Dymola) have cubic growth.</span></p>
@@ -329,9 +329,9 @@ for <span class="math">\(j \in \{1, \ldots, K-1\}\)</span>, for the first order 
 <h3>6.1.4. Discussion of QSS<a class="headerlink" href="#discussion-of-qss" title="Permalink to this headline">¶</a></h3>
 <p>QSS1, QSS2, and QSS3 are efficient for the simulation of non-stiff ODEs.</p>
 <p>The number of integration steps of QSS1 is inversely proportional
-to the quantum. For QSS2, it is inversely proportional to the square root of the quantum. For QSS3, it is inversely proportional to the cubic root of the quantum. See <a class="reference internal" href="references.html#kofman2006-1" id="id7">[Kof06]</a> for a derivation.</p>
-<p>However, they have been shown to exhibit oscillatory behavior, with high computing time, if applied to stiff ODEs <a class="reference internal" href="references.html#migonibortolottokofmancellier2013-1" id="id8">[MBKC13]</a>.
-In <a class="reference internal" href="references.html#migonibortolottokofmancellier2013-1" id="id9">[MBKC13]</a>, they were extended to LIQSS methods.
+to the quantum. For QSS2, it is inversely proportional to the square root of the quantum. For QSS3, it is inversely proportional to the cubic root of the quantum. See <a class="reference internal" href="zreferences.html#kofman2006-1" id="id7">[Kof06]</a> for a derivation.</p>
+<p>However, they have been shown to exhibit oscillatory behavior, with high computing time, if applied to stiff ODEs <a class="reference internal" href="zreferences.html#migonibortolottokofmancellier2013-1" id="id8">[MBKC13]</a>.
+In <a class="reference internal" href="zreferences.html#migonibortolottokofmancellier2013-1" id="id9">[MBKC13]</a>, they were extended to LIQSS methods.
 As building simulation models can be stiff, we will now present these methods.</p>
 </div>
 <div class="section" id="liqss">
@@ -339,7 +339,7 @@ As building simulation models can be stiff, we will now present these methods.</
 <p>We will now focus our discussion on LIQSS methods, which seem to be the most applicable classes of QSS methods for building simulation.
 We will start our discussion with the first order LIQSS (LIQSS1) and expand the discussion to higher order LIQSS methods. The basic idea of LIQSS1 is to select the value of <span class="math">\(q_i(t)\)</span> so that <span class="math">\(x_i(t)\)</span> approaches <span class="math">\(q_i(t)\)</span>.
 This implies that <span class="math">\((q_i(t)-x_i(t)) \, \dot {x}_i(t) \geq 0\)</span> for <span class="math">\(t_j \leq t &lt; t_{j+1}\)</span>.
-Given the ODE defined in <a class="reference internal" href="#equation-eq_ode">(1)</a>, LIQSS1 approximates it by <a class="reference internal" href="#equation-eq_odeQSS">(2)</a>, where each <span class="math">\(q_i(t)\)</span> is defined in <a class="reference internal" href="references.html#migonikofman2007-1" id="id10">[MK07]</a> as</p>
+Given the ODE defined in <a class="reference internal" href="#equation-eq_ode">(1)</a>, LIQSS1 approximates it by <a class="reference internal" href="#equation-eq_odeQSS">(2)</a>, where each <span class="math">\(q_i(t)\)</span> is defined in <a class="reference internal" href="zreferences.html#migonikofman2007-1" id="id10">[MK07]</a> as</p>
 <div class="math">
 \[\begin{split}q_i(t) =
 \begin{cases}
@@ -362,13 +362,13 @@ Given the ODE defined in <a class="reference internal" href="#equation-eq_ode">(
                   \end{cases}\end{split}\]</div>
 <p>where <span class="math">\(A_{i,i}\)</span> is an estimate of the <span class="math">\(i\)</span>-th diagonal element of the Jacobian.
 For its computation, and for how to compute
-<span class="math">\(\bar {q}^i(t)\)</span>, we refer to <a class="reference internal" href="references.html#migonikofman2007-1" id="id11">[MK07]</a>.</p>
-<p>Higher order LIQSS methods (e.g. LIQSS2, LIQSS3) combine the ideas of higher order QSS methods and LIQSS. Reference <a class="reference internal" href="references.html#migonibortolottokofmancellier2013-1" id="id12">[MBKC13]</a> gives a detailed formal definition of such methods.
+<span class="math">\(\bar {q}^i(t)\)</span>, we refer to <a class="reference internal" href="zreferences.html#migonikofman2007-1" id="id11">[MK07]</a>.</p>
+<p>Higher order LIQSS methods (e.g. LIQSS2, LIQSS3) combine the ideas of higher order QSS methods and LIQSS. Reference <a class="reference internal" href="zreferences.html#migonibortolottokofmancellier2013-1" id="id12">[MBKC13]</a> gives a detailed formal definition of such methods.
 Rather than using the first order condition, the <span class="math">\(N\)</span>-th order method LIQSSN uses <span class="math">\((q_i(t)-x_i(t)) \, x_i^{(N)}(t) \geq 0\)</span>, where <span class="math">\(x_i^{(N)}: \Re \rightarrow \Re\)</span> is the <span class="math">\(N\)</span>-th order derivative of <span class="math">\(x_i( \cdot)\)</span> with respect to time.</p>
 </div>
 <div class="section" id="discussion-of-liqss">
 <h3>6.1.6. Discussion of LIQSS<a class="headerlink" href="#discussion-of-liqss" title="Permalink to this headline">¶</a></h3>
-<p>LIQSS methods are efficient for stiff systems where the stiffness is reflected in large diagonal elements of the Jacobian matrix. This is due to the fact that LIQSS solvers avoid fast oscillations by using information derived from the diagonal of the Jacobian matrix. When stiffness is not due to the diagonal elements of the Jacobian matrix, then LIQSS can also exhibit oscillatory behavior <a class="reference internal" href="references.html#migonibortolottokofmancellier2013-1" id="id13">[MBKC13]</a>.</p>
+<p>LIQSS methods are efficient for stiff systems where the stiffness is reflected in large diagonal elements of the Jacobian matrix. This is due to the fact that LIQSS solvers avoid fast oscillations by using information derived from the diagonal of the Jacobian matrix. When stiffness is not due to the diagonal elements of the Jacobian matrix, then LIQSS can also exhibit oscillatory behavior <a class="reference internal" href="zreferences.html#migonibortolottokofmancellier2013-1" id="id13">[MBKC13]</a>.</p>
 </div>
 </div>
 <div class="section" id="algebraic-loops">

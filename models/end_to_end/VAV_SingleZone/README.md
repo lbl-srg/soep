@@ -1,6 +1,6 @@
 # General
 
-Models for the end-to-end tests have been developed in Modelica and OpenStudio and are located in the folders ``/Modelica`` and ``/OpenStudio`` respectively.  The Modelica models can be found in the ``SOEPDemo.Examples`` package in the ``SOEPDemo.mo`` file and are compatible with the *Buildings Library *v4.0.  The models for each platform have been developed simultaneously, with each model having a corresponding counterpart in the other platform.
+Models for the end-to-end tests have been developed in Modelica and OpenStudio and are located in the folders ``/Modelica`` and ``/OpenStudio`` respectively.  The Modelica models can be found in the ``SOEPDemo.Examples`` package in the ``SOEPDemo.mo`` file and are compatible with the *Buildings Library* v4.0.  The models for each platform have been developed simultaneously, with each model having a corresponding counterpart in the other platform.
 <br>
 
 # Single Zone Models
@@ -30,15 +30,15 @@ All models contain an HVAC system that supplies air to a single Case 600 BESTEST
 *Modelica Model* : SOEPDemo.Examples.VAV_SingleZone_drycoil_fan_mix_chiller
 
 *OpenStudio Model* : Case600FF_drycoil_Fan_mix_setsched_int_chw.osm
-
 <br>
+
 # FMI Containers
 
 *Modelica Model* : SOEPDemo.Examples.FMI
 
 This section uses model 4) to test use of the FMU containers added in the *Buildings Library* v4.0., giving insight into how the model may be split into FMUs for simulation within SOEP.  For this, the model ``SOEPDemo.HVACSystems.VAV_SingleZone_drycoil_fan_mix_chiller`` was packaged inside an FMI Container by extending ``Buildings.Fluid.FMI.ExportContainers.HVACZone`` and connecting ports as necessary.  Similarly, ``SOEPDemo.ThermalEnvelope.Case600_AirHVAC`` was packaged inside an FMI container by extending ``Buildings.Fluid.FMI.ExportContainers.ThermalZone`` and connecting ports as necessary.  The two resulting FMI containers were connected in the model ``SOEPDemo.Examples.FMI``.
-
 <br>
+
 # HVAC System Isolation
 
 *Modelica Model* : SOEPDemo.Examples.FMI_T_X_Only

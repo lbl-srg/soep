@@ -1,0 +1,1 @@
+This directory contains test case for OpenStudio to Modelica translations.

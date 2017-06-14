@@ -22,7 +22,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.0',
+        VERSION:     '',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -114,7 +114,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="benchmarks.html">8. Benchmarks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="acknowledgments.html">9. Acknowledgments</a></li>
-<li class="toctree-l1"><a class="reference internal" href="bibliography.html">10. References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zreferences.html">10. References</a></li>
 </ul>
 </ul>
 </li>
@@ -140,10 +140,18 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#jmodelica-integration">5.2. JModelica Integration</a><ul>
-<li><a class="reference internal" href="#proposal-of-lbnl">5.2.1. Proposal of LBNL</a></li>
+<li><a class="reference internal" href="#proposal-of-lbnl">5.2.1. Proposal of LBNL</a><ul>
+<li><a class="reference internal" href="#events-handling">5.2.1.1. Events Handling</a><ul>
+<li><a class="reference internal" href="#state-events">5.2.1.1.1. State Events</a></li>
+<li><a class="reference internal" href="#time-events">5.2.1.1.2. Time Events</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li><a class="reference internal" href="#proposal-of-modelon">5.2.2. Proposal of Modelon</a></li>
 <li><a class="reference internal" href="#event-indicators-that-depend-on-the-input">5.2.3. Event indicators that depend on the input</a></li>
 <li><a class="reference internal" href="#workaround-for-implementing-event-indicators">5.2.4. Workaround for implementing event indicators</a></li>
+<li><a class="reference internal" href="#qss-optimization-measures">5.2.5. QSS Optimization Measures</a></li>
 </ul>
 </li>
 </ul>
@@ -195,9 +203,8 @@
 <span id="sec-soft-arch"></span><h1>5. Software Architecture<a class="headerlink" href="#software-architecture" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="openstudio-integration">
 <h2>5.1. OpenStudio integration<a class="headerlink" href="#openstudio-integration" title="Permalink to this headline">¶</a></h2>
-<p><a class="reference internal" href="#fig-overall-software-architecture-one-editor"><span class="std std-numref">Fig. 5.1</span></a>
-shows the overall
-software architecture of SOEP.</p>
+<p><a class="reference internal" href="#fig-overall-software-architecture"><span class="std std-numref">Fig. 5.1</span></a>
+shows the overall software architecture of SOEP.</p>
 <p>The <cite>Application</cite> on top of the figure may be an
 equipment sales tool that uses an open, or a proprietary,
 Modelica model library of their product line, which allows
@@ -222,21 +229,9 @@ Our integration will generate a representation of the
 Modelica library that allows OpenStudio to
 dynamic load models for the SOEP mode.
 Note that the JModelica distribution includes a C++ compiler.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<ol class="last arabic simple">
-<li>Whether the <cite>Conversion Script</cite> and the <cite>Schematic Editor</cite>
-access <cite>JModelica</cite> to get the AST, or whether they read
-the AST from <cite>Modelica Library AST</cite> does not affect
-the functionality, but it affects the architecture.
-In <code class="xref std std-numref docutils literal"><span class="pre">fig_overall_software_architecture_two_editors</span></code>
-we show the architecture if the <cite>Modelica Library AST</cite> is parsed
-directly using JModelica rather than storing it in a file.</li>
-</ol>
-</div>
 <div class="figure" id="id12">
-<span id="fig-overall-software-architecture-one-editor"></span><p class="plantuml">
-<object data="_images/plantuml-ef0086246e13fcc3ebb36d14ffb15a59b5eb6217.svg" type="image/svg+xml" style="width:1813px;height:1314px;">
+<span id="fig-overall-software-architecture"></span><p class="plantuml">
+<object data="_images/plantuml-ef0086246e13fcc3ebb36d14ffb15a59b5eb6217.svg" type="image/svg+xml" style="width:1813px;height:1299px;">
 <img src="_images/plantuml-ef0086246e13fcc3ebb36d14ffb15a59b5eb6217.png" alt="title Overall software architecture
 
 skinparam componentStyle uml2
@@ -321,7 +316,6 @@ end note" />
 </object></p>
 <p class="caption"><span class="caption-number">Fig. 5.1 </span>: Overall software architecture.<a class="headerlink" href="#id12" title="Permalink to this image">¶</a></p>
 </div>
-<p><strong>fixme: more design to be added</strong></p>
 <div class="section" id="automated-documentation-ast-support-tool">
 <h3>5.1.1. Automated Documentation/AST Support Tool<a class="headerlink" href="#automated-documentation-ast-support-tool" title="Permalink to this headline">¶</a></h3>
 <p>This section describes an agreed-upon workflow, toolchain and process to
@@ -764,17 +758,17 @@ Example: Electrical Components</a>):</p>
 </pre></div>
 </div>
 <p>There have been several attempts to represent or use XML in relation to
-Modelica in the past (<a class="reference internal" href="references.html#landin2014" id="id2">[Lan14]</a>, <a class="reference internal" href="references.html#fritzson2003g" id="id3">[Fri03]</a>, <a class="reference internal" href="references.html#pop2003" id="id4">[PF03]</a>, <a class="reference internal" href="references.html#pop2005" id="id5">[PSAssmannF05]</a>, and <a class="reference internal" href="references.html#reisenbichler2006" id="id6">[RKH+06]</a>).</p>
+Modelica in the past (<a class="reference internal" href="zreferences.html#landin2014" id="id2">[Lan14]</a>, <a class="reference internal" href="zreferences.html#fritzson2003g" id="id3">[Fri03]</a>, <a class="reference internal" href="zreferences.html#pop2003" id="id4">[PF03]</a>, <a class="reference internal" href="zreferences.html#pop2005" id="id5">[PSAssmannF05]</a>, and <a class="reference internal" href="zreferences.html#reisenbichler2006" id="id6">[RKH+06]</a>).</p>
 <p>In particular, N. Landin did work with Modelon using JModelica to export XML for
-the purpose of model exchange <a class="reference internal" href="references.html#landin2014" id="id7">[Lan14]</a> &#8211; this is very similar to our use case.
+the purpose of model exchange <a class="reference internal" href="zreferences.html#landin2014" id="id7">[Lan14]</a> &#8211; this is very similar to our use case.
 Unfortunately, this work deals only with &#8220;flattened&#8221; models &#8211; Modelica models
 that have been instantiated with all of the hierarchy removed. For our use
 case, the hierarchy must be preserved so that the OpenStudio team can
 build a new model through instantiation of models from the MBL.</p>
 <p>The paper by Reisenbichler 2006 motivates the usage of XML in association with
-Modelica without getting into specifics <a class="reference internal" href="references.html#reisenbichler2006" id="id8">[RKH+06]</a>. The remaining work by Pop and Fritzson
+Modelica without getting into specifics <a class="reference internal" href="zreferences.html#reisenbichler2006" id="id8">[RKH+06]</a>. The remaining work by Pop and Fritzson
 is thus the only comprehensive work on an XML representation of Modelica
-<em>source</em> AST that appears in the literature (<a class="reference internal" href="references.html#pop2003" id="id9">[PF03]</a>, <a class="reference internal" href="references.html#pop2005" id="id10">[PSAssmannF05]</a>, and <a class="reference internal" href="references.html#fritzson2003g" id="id11">[Fri03]</a>). The purpose of the XML work by Pop
+<em>source</em> AST that appears in the literature (<a class="reference internal" href="zreferences.html#pop2003" id="id9">[PF03]</a>, <a class="reference internal" href="zreferences.html#pop2005" id="id10">[PSAssmannF05]</a>, and <a class="reference internal" href="zreferences.html#fritzson2003g" id="id11">[Fri03]</a>). The purpose of the XML work by Pop
 and Fritzson was to create a complete XML representation of the entire Modelica
 source. It is generally a good reference but we note that it is, perhaps
 unnecessarily, verbose for our current needs. As such, although we will refer
@@ -895,11 +889,11 @@ it must be allowed to call <code class="docutils literal"><span class="pre">fmi2
 <p>To retrieve individual state derivatives, we introduce the following extensions
 to the <code class="docutils literal"><span class="pre">modelDescription.xml</span></code> file. [In the code below, <code class="docutils literal"><span class="pre">ScalarVariables</span></code>
 is given to provide context, it remains unchanged from the FMI 2.0 standard.]</p>
-<div class="highlight-xml"><div class="highlight"><pre><span></span>&lt;ScalarVariables&gt;
+<div class="code highlight-default"><div class="highlight"><pre><span></span>&lt;ScalarVariables&gt;
   ...
-  &lt;ScalarVariable name=&quot;x1&quot;,      ...&gt; ... &lt;/ScalarVariable&gt; &lt;!—- index=&quot;5&quot; --&gt;
+  &lt;ScalarVariable name=&quot;x1&quot;,      ...&gt; ... &lt;/ScalarVariable&gt; &lt;!-- index=&quot;5&quot; --&gt;
   ...
-  &lt;ScalarVariable name=&quot;der(x1)&quot;, ...&gt; ... &lt;/ScalarVariable&gt; &lt;!-— index=&quot;8&quot; --&gt;
+  &lt;ScalarVariable name=&quot;der(x1)&quot;, ...&gt; ... &lt;/ScalarVariable&gt; &lt;!-- index=&quot;8&quot; --&gt;
  &lt;/ScalarVariables&gt;
 
 &lt;Derivatives&gt;
@@ -910,12 +904,16 @@ is given to provide context, it remains unchanged from the FMI 2.0 standard.]</p
 &lt;/Derivatives&gt;
 </pre></div>
 </div>
+<div class="section" id="events-handling">
+<h4>5.2.1.1. Events Handling<a class="headerlink" href="#events-handling" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="state-events">
+<span id="subsec-se"></span><h5>5.2.1.1.1. State Events<a class="headerlink" href="#state-events" title="Permalink to this headline">¶</a></h5>
 <p>For efficiency, QSS requires to know what states trigger
 which element of the event indicator function. Also, it will need to
 have access to, or else approximate numerically, the time derivatives of the
 event indicators. FMI 2.0 outputs an array of real-valued event indicators,
-but no variable dependencies.
-Therefore, we introduce the following xml section, which assumes we have
+but no variable dependencies.</p>
+<p>Therefore, we introduce the following xml section, which assumes we have
 three event indicator functions.</p>
 <div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;ModelStructure&gt;</span>
   <span class="nt">&lt;EventIndicators&gt;</span>
@@ -933,13 +931,114 @@ three event indicator functions.</p>
 <span class="nt">&lt;/ModelStructure&gt;</span>
 </pre></div>
 </div>
+<p>For efficiency, FMUs need to expose variables which depend on event indicators
+in the model description file. We call these variables <strong>event indicator handler</strong>.
+The rationale is illustrated in the following model</p>
+<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">StateEvent1</span>
+  <span class="nb">Real</span> <span class="n">x</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">);</span>
+  <span class="kr">discrete</span> <span class="nb">Real</span> <span class="n">y</span><span class="p">;</span>
+<span class="kr">equation</span>
+  <span class="kr">der</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="nb">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mf">3.14</span><span class="o">*</span><span class="nb">time</span><span class="o">/</span><span class="mf">2.5</span><span class="p">);</span>
+  <span class="kr">when</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="kr">then</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="kr">elsewhen</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">)</span> <span class="kr">then</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="kr">end</span> <span class="kr">when</span><span class="p">;</span>
+<span class="kr">end</span> <span class="nc">StateEvent1</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>This model has one implicit event indicator <code class="docutils literal"><span class="pre">z</span></code>  which equals <code class="docutils literal"><span class="pre">x-1</span></code>.</p>
+<p>For QSS, the FMU which exports this model must declare
+in the model description file that the event indicator handler <code class="docutils literal"><span class="pre">y</span></code>
+depends on the event indicator variable <code class="docutils literal"><span class="pre">z</span></code>. This is needed so <code class="docutils literal"><span class="pre">y</span></code>
+can be updated when a state event happens.</p>
+<p>Therefore we require that all variables which depend
+on event indicator variables are listed in the
+model description file with their dependencies information.</p>
+<p>We propose to introduce the following xml section which lists these variables.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;ModelStructure&gt;</span>
+  <span class="nt">&lt;EventIndicatorHandlers&gt;</span>
+    <span class="c">&lt;!-- This is variable with index 9 which depends on</span>
+<span class="c">         event indicator variables with index 1 and 2 --&gt;</span>
+    <span class="nt">&lt;Unknown</span> <span class="na">index=</span><span class="s">&quot;9&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;1 2&quot;</span> <span class="na">value_reference=</span><span class="s">&quot;300&quot;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;/EventIndicatorHandlers&gt;</span>
+<span class="nt">&lt;/ModelStructure&gt;</span>
+</pre></div>
+</div>
+<p>For efficiency, FMUs need to add additional variables to
+dependencies list of state variables.
+This is illustrated with the following model</p>
+<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">StateEvent4</span>
+  <span class="nb">Real</span> <span class="n">x</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">);</span>
+  <span class="kr">discrete</span> <span class="nb">Real</span> <span class="n">y</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">);</span>
+<span class="kr">equation</span>
+  <span class="kr">der</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="kr">when</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">)</span> <span class="kr">then</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">;</span>
+  <span class="kr">end</span> <span class="kr">when</span><span class="p">;</span>
+<span class="kr">end</span> <span class="nc">StateEvent4</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>QSS requires the FMU which exports this model to declare in its model description file
+the dependency of <code class="docutils literal"><span class="pre">der(x)</span></code> on <code class="docutils literal"><span class="pre">y</span></code>. This allows <code class="docutils literal"><span class="pre">der(x)</span></code> to update when <code class="docutils literal"><span class="pre">y</span></code> changes.
+This information should be encoded in the <code class="docutils literal"><span class="pre">dependencies</span></code> attribute of <code class="docutils literal"><span class="pre">der(x)</span></code>.
+However, FMI states on page 61 that <code class="docutils literal"><span class="pre">dependencies</span></code> are optional attribute
+defining the dependencies of the unknown (directly or indirectly via auxiliary variables)
+with respect to known.
+For state derivatives and outputs, known variables are</p>
+<ul class="simple">
+<li>inputs (variables with causality = &#8220;input&#8221;)</li>
+<li>continuous-time states</li>
+<li>independent variable (usually time; causality = &#8220;independent&#8221;)</li>
+</ul>
+<p>Since <code class="docutils literal"><span class="pre">y</span></code> does not fuflill any of the above requirements,
+it is not allowed to show up in the <code class="docutils literal"><span class="pre">dependencies</span></code> list of <code class="docutils literal"><span class="pre">der(x)</span></code>.</p>
+<p>Therefore, we require the FMU to expose in the model description file
+the dependency for any variable (discrete or continuous) modified by
+a zero crossing condition. That is, for the <code class="docutils literal"><span class="pre">StateEvent4</span></code> example, variable <code class="docutils literal"><span class="pre">y</span></code>
+should appear in the dependencies list of <code class="docutils literal"><span class="pre">der(x)</span></code>.</p>
+</div>
+<div class="section" id="time-events">
+<h5>5.2.1.1.2. Time Events<a class="headerlink" href="#time-events" title="Permalink to this headline">¶</a></h5>
+<p>The next section discusses additional requirements for handling time events with QSS.</p>
+<p>Consider the following model</p>
+<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">TimeEvent</span>
+  <span class="nb">Real</span> <span class="n">x</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">);</span>
+  <span class="nb">Real</span> <span class="n">y</span><span class="p">;</span>
+<span class="kr">equation</span>
+  <span class="kr">der</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="kr">if</span> <span class="p">(</span><span class="nb">time</span> <span class="o">&gt;=</span> <span class="mf">2.0</span><span class="p">)</span> <span class="kr">then</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="o">-</span><span class="n">x</span> <span class="o">+</span> <span class="nb">time</span><span class="p">;</span>
+  <span class="kr">else</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="o">-</span><span class="n">x</span> <span class="o">-</span> <span class="nb">time</span><span class="p">;</span>
+  <span class="kr">end</span> <span class="kr">if</span><span class="p">;</span>
+<span class="kr">end</span> <span class="nc">TimeEvent</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Similar to the case with <code class="docutils literal"><span class="pre">StateEvent4</span></code>, QSS requires the FMU which exports
+this model to declare in its model description file the dependency of
+<code class="docutils literal"><span class="pre">der(x)</span></code> on <code class="docutils literal"><span class="pre">y</span></code>.
+This is addressed by the requirement proposed for  <code class="docutils literal"><span class="pre">StateEvent4</span></code>.</p>
+<p>Furthermore, QSS needs to know that <code class="docutils literal"><span class="pre">y</span></code> needs to be updated
+when a time event happens. It also needs to know the dependent variables of <code class="docutils literal"><span class="pre">y</span></code>
+so it can update them especially if they are are continuous state variables.</p>
+<p>We therefore propose to add time event handlers along with their dependencies
+to the <code class="docutils literal"><span class="pre">EventIndicatorHandlers</span></code> introduced in <a class="reference internal" href="#subsec-se"><span class="std std-ref">State Events</span></a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>How do we distinguish between time event handler, and state event handler?
+Should we have an attribute (<code class="docutils literal"><span class="pre">se</span></code> for state event and <code class="docutils literal"><span class="pre">te</span></code> for time event to distinguish them?).</p>
+<p class="last">QSS needs to know the exact handler which will be trigger when there is a time event.
+The ordering of the time event handler could be used to return the index of the
+time event handler which is to be updated. I added this to the optimization Measures section.</p>
+</div>
 <p><a class="reference internal" href="#fig-sof-arc-qss-jmod2"><span class="std std-numref">Fig. 5.2</span></a> shows the software architecture
 with the extended FMI API.
 For simplicity the figure only
 shows single FMUs, but we anticipated having multiple interconnected FMUs.</p>
 <div class="figure" id="id14">
 <span id="fig-sof-arc-qss-jmod2"></span><p class="plantuml">
-<object data="_images/plantuml-d3ab43b4760911a14ec67218d35277eb19092c30.svg" type="image/svg+xml" style="width:875px;height:421px;">
+<object data="_images/plantuml-d3ab43b4760911a14ec67218d35277eb19092c30.svg" type="image/svg+xml" style="width:873px;height:417px;">
 <img src="_images/plantuml-d3ab43b4760911a14ec67218d35277eb19092c30.png" alt="title Software architecture for QSS integration with JModelica with extended FMI API
 
 skinparam componentStyle uml2
@@ -983,6 +1082,8 @@ cross multiple FMUs.</p>
 Modelon proposes an alternative approach which is
 discussed in the next sections.</p>
 </div>
+</div>
+</div>
 <div class="section" id="proposal-of-modelon">
 <h3>5.2.2. Proposal of Modelon<a class="headerlink" href="#proposal-of-modelon" title="Permalink to this headline">¶</a></h3>
 <p>Modelon proposes to allow setting <code class="docutils literal"><span class="pre">fmi2SetReal()</span></code> on continuous states (as
@@ -1024,22 +1125,24 @@ the JModelica
 compiler would need to introduce additional variables and
 make them available in the <code class="docutils literal"><span class="pre">modelDescription.xml</span></code> file.</p>
 <p>For example, consider</p>
-<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">Test</span>
-  <span class="nb">Real</span> <span class="n">x</span><span class="p">;</span>
+<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">StateEvent2</span>
+  <span class="nb">Real</span> <span class="n">x</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">);</span>
+  <span class="kr">discrete</span> <span class="nb">Real</span> <span class="n">y</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">);</span>
 <span class="kr">equation</span>
-  <span class="kr">if</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">)</span> <span class="kr">then</span>
-    <span class="kr">der</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-  <span class="kr">else</span>
-    <span class="kr">der</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
-  <span class="kr">end</span> <span class="kr">if</span><span class="p">;</span>
-<span class="kr">end</span> <span class="nc">Test</span><span class="p">;</span>
+  <span class="kr">der</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="nb">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mf">3.14</span><span class="o">*</span><span class="nb">time</span><span class="o">/</span><span class="mf">2.5</span><span class="p">);</span>
+  <span class="kr">when</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="kr">then</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="kr">elsewhen</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">)</span> <span class="kr">then</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="kr">end</span> <span class="kr">when</span><span class="p">;</span>
+<span class="kr">end</span> <span class="nc">StateEvent2</span><span class="p">;</span>
 </pre></div>
 </div>
 <p>For such a model, JModelica would</p>
 <blockquote>
 <div><ol class="arabic">
 <li><p class="first">need to add an equation of the form
-<code class="docutils literal"><span class="pre">z</span> <span class="pre">=</span> <span class="pre">x</span> <span class="pre">-</span> <span class="pre">2</span></code> and <code class="docutils literal"><span class="pre">der_z</span> <span class="pre">=</span> <span class="pre">der(x)</span></code>,</p>
+<code class="docutils literal"><span class="pre">z</span> <span class="pre">=</span> <span class="pre">x</span> <span class="pre">-</span> <span class="pre">1</span></code> and <code class="docutils literal"><span class="pre">der_z</span> <span class="pre">=</span> <span class="pre">der(x)</span></code>,</p>
 </li>
 <li><p class="first">expose <code class="docutils literal"><span class="pre">z</span></code> and <code class="docutils literal"><span class="pre">der_z</span></code> as output variables, and</p>
 </li>
@@ -1059,7 +1162,7 @@ make them available in the <code class="docutils literal"><span class="pre">mode
 <h3>5.2.3. Event indicators that depend on the input<a class="headerlink" href="#event-indicators-that-depend-on-the-input" title="Permalink to this headline">¶</a></h3>
 <p>A challenge arises if the event indicator function depends on the
 inputs of the model. Consider</p>
-<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">Test</span>
+<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">StateEvent3</span>
  <span class="kr">input</span> <span class="nb">Real</span> <span class="n">u</span><span class="p">;</span>
  <span class="kr">output</span> <span class="nb">Real</span> <span class="n">y</span><span class="p">;</span>
 <span class="kr">equation</span>
@@ -1068,7 +1171,7 @@ inputs of the model. Consider</p>
   <span class="kr">else</span>
     <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
   <span class="kr">end</span> <span class="kr">if</span><span class="p">;</span>
-<span class="kr">end</span> <span class="nc">Test</span><span class="p">;</span>
+<span class="kr">end</span> <span class="nc">StateEvent3</span><span class="p">;</span>
 </pre></div>
 </div>
 <p>Then, <code class="docutils literal"><span class="pre">z</span> <span class="pre">=</span> <span class="pre">u</span></code> and <code class="docutils literal"><span class="pre">der_z</span> <span class="pre">=</span> <span class="pre">der(u)</span></code>. Hence,
@@ -1092,6 +1195,44 @@ If the number of event indicators does not match, the FMU need to be rejected wi
 Hence the master algorithm needs to detect if the tool which exported the FMU is Dymola
 to adapt the check on the number of event indicators variables.</p>
 </div>
+</div>
+<div class="section" id="qss-optimization-measures">
+<h3>5.2.5. QSS Optimization Measures<a class="headerlink" href="#qss-optimization-measures" title="Permalink to this headline">¶</a></h3>
+<p>This section lists a number of measures which should improve the performance of QSS.
+These measure will be investigated, prioritized, and implemented in SOEP.</p>
+<p>Consider the following model,</p>
+<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">StateEvent5</span>
+  <span class="nb">Real</span> <span class="n">x</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">);</span>
+  <span class="kr">discrete</span> <span class="nb">Real</span> <span class="n">y</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">);</span>
+<span class="kr">equation</span>
+  <span class="kr">der</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="nb">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mf">3.14</span><span class="o">*</span><span class="nb">time</span><span class="o">/</span><span class="mf">2.5</span><span class="p">);</span>
+<span class="kr">when</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="kr">then</span>
+  <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="kr">elsewhen</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span> <span class="kr">then</span>
+  <span class="n">y</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+<span class="kr">elsewhen</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">)</span> <span class="kr">then</span>
+  <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="nb">reinit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span>
+<span class="kr">end</span> <span class="kr">when</span><span class="p">;</span>
+<span class="kr">end</span> <span class="nc">StateEvent5</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>which has three implicit event indicators <code class="docutils literal"><span class="pre">z1</span> <span class="pre">=x-1</span></code>,
+<code class="docutils literal"><span class="pre">z2</span> <span class="pre">=x+1</span></code>, <code class="docutils literal"><span class="pre">z3</span> <span class="pre">=x-5</span></code>.</p>
+<p>For QSS efficiency, the FMI specification should provide an API which allows to
+trigger the update of <code class="docutils literal"><span class="pre">y</span></code> when its event indicator dependent variable change.
+This will remove the need of calling <code class="docutils literal"><span class="pre">fmi2EnterEventMode()</span></code> and <code class="docutils literal"><span class="pre">fmi2NewDiscreteStates()</span></code>,
+and ensure that <code class="docutils literal"><span class="pre">y</span></code> is updated when a state event happens.</p>
+<p>Furthermore, the FMU must declare in the XML the priority sequence of the event indicators
+which is dicated in the Modelica model by the priority of <code class="docutils literal"><span class="pre">when</span></code>/<code class="docutils literal"><span class="pre">elsewhen</span></code>.
+This is required to trigger the computation of the &#8220;right&#8221; <code class="docutils literal"><span class="pre">y</span></code> when a state event happens.
+This could be done by requiring the index of the EventIndicators to be the order of the priority sequence.</p>
+<p>For efficiency, QSS needs to know the time event handler which will be trigger when there is a time event.
+The ordering of the time event handler in the EventIndicatorhandlers could be used to return the index of the
+time event handler which is to be updated.</p>
+<p>The <code class="docutils literal"><span class="pre">EventIndicatorHandlers</span></code> will need to have a list
+of event indicators handlers for state events followed by a list
+with event indicator handlers for time events.</p>
 </div>
 </div>
 </div>
