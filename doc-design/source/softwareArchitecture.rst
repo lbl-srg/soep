@@ -208,7 +208,7 @@ continuous-time state variables during the initialization.
 
 We therefore propose that the standard is being changed as follows:
 
- * ``fmi2SetReal`` can be called during the continuous time mode
+   ``fmi2SetReal`` can be called during the continuous time mode
    and during event mode not only for inputs,
    as is allowed in FMI-ME 2.0, but also for continuous-time states and discrete output variables.
 
@@ -317,7 +317,7 @@ We propose to introduce the following xml section which lists these variables.
                    event_type can be "state" for state event, "time", for time event,
                    "step" for step event, or any combination of the three (e.g. "time state"
                    indicates that the event indicator handler is for both time and state event) -->
-              <Unknown index="9" dependencies="1 2" value_reference="300", event_type="state" />
+              <Unknown index="9" dependencies="1 2" value_reference="300" event_type="state" />
             </EventIndicatorHandlers>
           </ModelStructure>
 
@@ -341,7 +341,7 @@ This is illustrated with the following model
 QSS requires the FMU which exports this model to declare in its model description file
 the dependency of ``der(x)`` on ``y``. This allows ``der(x)`` to update when ``y`` changes.
 This information should be encoded in the ``dependencies`` attribute of ``der(x)``.
-However, FMI states on page 61 that ``dependencies`` are optional attribute
+However, FMI states on page 61 that ``dependencies`` are optional attributes
 defining the dependencies of the unknown (directly or indirectly via auxiliary variables)
 with respect to known.
 For state derivatives and outputs, known variables are
@@ -411,13 +411,19 @@ It shall be allowed to call ``fmi2SetReal()`` for individual state variables.
 This approach requires a modification of the FMI standard,
 and is identical with our proposed change above.
 
+.. note::
+
+    ``fmi2SetReal`` must be extended to be called during the continuous time mode
+    and during event mode not only for inputs,
+    as is allowed in FMI-ME 2.0, but also for discrete output variables.
+
 
 **Add Time as a state variable**:
 
 JModelica provides directional derivatives.
 If ``Time`` (used with capital ``T`` as ``time`` is a reserved Modelica keyword)
 is added as a state variable, then the directional
-derivatives will allow to get second derivative of states
+derivatives will allow to get second derivative of continuous states
 with respect to time.
 
 This approach has following drawbacks:
@@ -430,7 +436,7 @@ This approach has following drawbacks:
 
   The FMI specification says on page 26 that If a variable with
   ``causality= "independent"`` is explicitely defined under
-  ScalarVariables, a directional derivative with
+  ``ScalarVariables``, a directional derivative with
   respect to this variable can be computed.
   Hence if ``Time`` has ``causality= "independent"``,
   then the time derivative of the derivative function 
