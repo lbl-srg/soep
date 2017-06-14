@@ -211,8 +211,6 @@ We therefore propose that the standard is being changed as follows:
  * ``fmi2SetReal`` can be called during the continuous time mode
    and during event mode not only for inputs,
    as is allowed in FMI-ME 2.0, but also for continuous-time states and discrete output variables.
- * ``fmi2SetReal`` shall re-initialize caching
-   of all variables which depend on the arguments of the function.
 
 .. note:: Calling ``fmi2SetReal`` for discrete output variables is needed if an FMU-ME
           contains the QSS solver, in which cases it exposes the quantized states as 
@@ -274,8 +272,8 @@ three event indicator functions.
 
 .. note::
   
-   The ``index`` uses in the ``<EventIndicators>`` is different from the ``index`` 
-   used in the ``<ModelVariables>``. The first event indicator has an ``index`` 1, 
+   The ``index`` uses in the ``<EventIndicators>`` element is different from the ``index`` 
+   used in the ``<ModelVariables>`` element. The first event indicator has an ``index`` 1, 
    the second has an ``index`` 2, and so on.
 
 For efficiency, FMUs need to expose variables which depend on event indicators
@@ -394,54 +392,6 @@ so it can update them.
 We therefore propose to add time event handlers along with their dependencies
 to the ``EventIndicatorHandlers`` introduced in :ref:`subsec_se`.
 
-:numref:`fig_sof_arc_qss_jmod2` shows the software architecture
-with the extended FMI API.
-For simplicity the figure only
-shows single FMUs, but we anticipated having multiple interconnected FMUs.
-
-.. _fig_sof_arc_qss_jmod2:
-
-.. uml::
-   :caption: Software architecture for QSS integration with JModelica
-             with extended FMI API.
-
-   title Software architecture for QSS integration with JModelica with extended FMI API
-
-   skinparam componentStyle uml2
-
-   package FMU-ME {
-     [QSS solver] as qss_sol
-     [FMU-ME] as FMU_QSS
-   }
-
-   package PyFMI {
-   [Master algorithm] -> qss_sol : "inputs, time"
-   [Master algorithm] <- qss_sol : "next event time, states"
-   [Master algorithm] -- [Sundials]
-   }
-
-   [Sundials] --> [FMU-ME] : "(x, t)"
-   [Sundials] <-- [FMU-ME] : "dx/dt"
-   [Master algorithm] --> [FMU-CS] : "hRequested"
-   [Master algorithm] <-- [FMU-CS] : "(x, hMax)"
-
-   package Optimica {
-   [JModelica compiler] as jmc
-   }
-
-   jmc --> FMU_QSS
-
-   FMU_QSS --> qss_sol : "derivatives"
-   qss_sol --> FMU_QSS : "inputs, time, states"
-
-
-.. note::
-
-   We still need to design how to handle algebraic loops inside the FMU
-   (see also Cellier's and Kofman's book) and algebraic loops that
-   cross multiple FMUs.
-
-
 To avoid having to change the FMI specification,
 Modelon proposes an alternative approach which is
 discussed in the next sections.
@@ -450,7 +400,7 @@ Proposal of Modelon
 ~~~~~~~~~~~~~~~~~~~
 
 Modelon proposes to allow setting ``fmi2SetReal()`` on continuous states (as
-we do above), adding ``Time`` as a state (which we believe is not needed)
+we do above), adding ``Time`` as a state (which we believe is not needed),
 and adding event indicators and first derivative of event indicators as output variables.
 
 Below we summarize and comment on these three changes.
@@ -484,8 +434,7 @@ This approach has following drawbacks:
   respect to this variable can be computed.
   Hence if ``Time`` has ``causality= "independent"``,
   then the time derivative of the derivative function 
-  :math:`f(\cdot)` 
-  (second derivative of the continuous-time state) can be computed.
+  :math:`f(\cdot)` can be computed.
   Therefore, LBNL sees no reason to add ``Time`` as a state variable.
 
 
@@ -573,12 +522,59 @@ indicators will start with ``__zc_der_``.  As an example, ``__zc_z1`` and ``__zc
 are the names of the event indicator ``z1`` with its derivative ``der_z1``.
 
 If the number of event indicators functions is equal to the ``numberOfEventIndicators`` attribute,
-then only __zc_ and __zc_der_ need to be used by QSS,
-If the number of event indicators does not match, the FMU need to be rejected with an error message.
+then only ``__zc_`` and ``__zc_der_`` need to be used by QSS,
+If the number of event indicators does not match, the FMU needs to be rejected with an error message.
 
 .. note::
 
   Per design, Dymola (2017 FD01) generates twice as many event indicators as actually existing in the model.
   Hence the master algorithm needs to detect if the tool which exported the FMU is Dymola, and if it is, the 
   number of event indicator functions must be equal to half the value of the ``numberOfEventIndicators`` attribute.
+
+:numref:`fig_sof_arc_qss_jmod2` shows the software architecture
+with the extended FMI API.
+For simplicity the figure only
+shows single FMUs, but we anticipated having multiple interconnected FMUs.
+
+.. _fig_sof_arc_qss_jmod2:
+
+.. uml::
+   :caption: Software architecture for QSS integration with JModelica
+             with extended FMI API.
+
+   title Software architecture for QSS integration with JModelica with extended FMI API
+
+   skinparam componentStyle uml2
+
+   package FMU-ME {
+     [QSS solver] as qss_sol
+     [FMU-ME] as FMU_QSS
+   }
+
+   package PyFMI {
+   [Master algorithm] -> qss_sol : "inputs, time"
+   [Master algorithm] <- qss_sol : "next event time, states"
+   [Master algorithm] -- [Sundials]
+   }
+
+   [Sundials] --> [FMU-ME] : "(x, t)"
+   [Sundials] <-- [FMU-ME] : "dx/dt"
+   [Master algorithm] --> [FMU-CS] : "hRequested"
+   [Master algorithm] <-- [FMU-CS] : "(x, hMax)"
+
+   package Optimica {
+   [JModelica compiler] as jmc
+   }
+
+   jmc --> FMU_QSS
+
+   FMU_QSS --> qss_sol : "derivatives"
+   qss_sol --> FMU_QSS : "inputs, time, states"
+
+
+.. note::
+
+   We still need to design how to handle algebraic loops inside the FMU
+   (see also Cellier's and Kofman's book) and algebraic loops that
+   cross multiple FMUs.
 
