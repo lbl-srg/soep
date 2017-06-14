@@ -806,13 +806,13 @@ the tool should also work for other Modelica libraries.</td></tr>
 <p>This section describes the integration of the QSS solver in JModelica.
 For this discussion, we consider a system of initial value ODEs of the form</p>
 <div class="math" id="equation-eqn_ini_val">
-<span class="eqno">(1)</span>\[\begin{split}[ \dot x_c(t), x_d(t)] &amp; = f(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\end{split}\]\[\begin{split}[y_c(t), y_d(t)] &amp; = g(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\\\end{split}\]\[\begin{split}0         &amp; = z(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\\\end{split}\]\[\begin{split}[x_c(t_0), x_d(t_0)] &amp; = [x_{c,0}, x_{d,0}],\end{split}\]</div>
+<span class="eqno">(1)</span>\[\begin{split}[\dot x_c(t), x_d(t)] &amp; = f(x_c(t), x_d(t^-), u_c(t), u_d(t), p, t),\end{split}\]\[\begin{split}[y_c(t), y_d(t)] &amp; = g(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\\\end{split}\]\[\begin{split}0         &amp; = z(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\\\end{split}\]\[\begin{split}[x_c(t_0), x_d(t_0)] &amp; = [x_{c,0}, x_{d,0}],\end{split}\]</div>
 <p>where
 <span class="math">\(x(\cdot)\)</span> is the continuous-time state vector, with superscript
 <span class="math">\(c\)</span> denoting continuous-time states and <span class="math">\(d\)</span> denoting discrete variables or states,
 <span class="math">\(u(\cdot)\)</span> is the external input,
 <span class="math">\(p\)</span> are parameters,
-<span class="math">\(f(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)\)</span> is the derivative function,
+<span class="math">\(f(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)\)</span> is the state transitions function,
 <span class="math">\(g(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)\)</span> is the output function,
 <span class="math">\(z(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)\)</span> is the event indicator function (sometimes called zero crossing function).</p>
 <p>Because we anticipate that the FMU can have
@@ -1069,8 +1069,7 @@ This probably needs a new attribute in the <code class="docutils literal"><span 
 <code class="docutils literal"><span class="pre">ScalarVariables</span></code>, a directional derivative with
 respect to this variable can be computed.
 Hence if <code class="docutils literal"><span class="pre">Time</span></code> has <code class="docutils literal"><span class="pre">causality=</span> <span class="pre">&quot;independent&quot;</span></code>,
-then the time derivative of the derivative function
-<span class="math">\(f(\cdot)\)</span> can be computed.
+then the time derivative of the derivative function can be computed.
 Therefore, LBNL sees no reason to add <code class="docutils literal"><span class="pre">Time</span></code> as a state variable.</p>
 </div>
 <p><strong>Add event indicators and first derivative of event indicators as output variables</strong>:</p>

@@ -137,7 +137,7 @@ For this discussion, we consider a system of initial value ODEs of the form
 .. math::
    :label: eqn_ini_val
 
-   [ \dot x_c(t), x_d(t)] & = f(x_c(t), x_d(t), u_c(t), u_d(t), p, t),
+   [\dot x_c(t), x_d(t)] & = f(x_c(t), x_d(t^-), u_c(t), u_d(t), p, t),
 
    [y_c(t), y_d(t)] & = g(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\\
 
@@ -150,7 +150,7 @@ where
 :math:`c` denoting continuous-time states and :math:`d` denoting discrete variables or states,
 :math:`u(\cdot)` is the external input,
 :math:`p` are parameters,
-:math:`f(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)` is the derivative function,
+:math:`f(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)` is the state transitions function,
 :math:`g(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)` is the output function,
 :math:`z(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)` is the event indicator function (sometimes called zero crossing function).
 
@@ -439,8 +439,7 @@ This approach has following drawbacks:
   ``ScalarVariables``, a directional derivative with
   respect to this variable can be computed.
   Hence if ``Time`` has ``causality= "independent"``,
-  then the time derivative of the derivative function 
-  :math:`f(\cdot)` can be computed.
+  then the time derivative of the derivative function can be computed.
   Therefore, LBNL sees no reason to add ``Time`` as a state variable.
 
 

@@ -95,7 +95,7 @@ The general form is :cite:`Wetter2005:1`
 .. math::
    :label: eq_DAEPhy
 
-   [ \dot x_c(t), x_d(t)] & = f(x_c(t), x_d(t), u_c(t), u_d(t), p, t),
+   [ \dot x_c(t), x_d(t)] & = f(x_c(t), x_d(t^-), u_c(t), u_d(t), p, t),
 
    [y_c(t), y_d(t)] & = g(x_c(t), x_d(t), u_c(t), u_d(t), p, t),
 
@@ -108,7 +108,7 @@ where
 :math:`c` denoting continuous and :math:`d` denoting discrete states,
 :math:`u(\cdot)` is the control input,
 :math:`p` are parameters,
-:math:`f(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)` is the state transitions,
+:math:`f(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)` is the state transitions function,
 :math:`g(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)` is the output function and
 :math:`0 = \gamma(\cdot, \cdot, \cdot)` are the algebraic constraints.
 This represents algebraic loops that can be formed when connecting FMUs in a loop.
