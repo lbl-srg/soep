@@ -204,7 +204,7 @@ propose to use the function
                          size_t nx);
 
 This function exists in FMI-ME 2.0, but the standard only allows to call it for
-state variables during the initialization.
+continuous-time state variables during the initialization.
 
 We therefore propose that the standard is being changed as follows:
 
@@ -272,6 +272,11 @@ three event indicator functions.
             </EventIndicators>
           </ModelStructure>
 
+.. note::
+  
+   The ``index`` uses in the ``<EventIndicators>`` is different from the ``index`` 
+   used in the ``<ModelVariables>``. The first event indicator has an ``index`` 1, 
+   the second has an ``index`` 2, and so on.
 
 For efficiency, FMUs need to expose variables which depend on event indicators
 in the model description file. We call these variables **event indicator handler**.
@@ -310,10 +315,10 @@ We propose to introduce the following xml section which lists these variables.
             <EventIndicatorHandlers>
               <!-- This is variable with index 9 in the ModelVariables section 
                    which depends on event indicator variables with index 1 and 2. 
-                   The event_type is a list which specifies the type of the event.
+                   The event_type is a list which specifies the type of event.
                    event_type can be "state" for state event, "time", for time event,
-                   "step" for step event or any combination of the three, e.g. "time state"
-                   to indicate that the event indicator handler is for both time and state event -->
+                   "step" for step event, or any combination of the three (e.g. "time state"
+                   indicates that the event indicator handler is for both time and state event) -->
               <Unknown index="9" dependencies="1 2" value_reference="300", event_type="state" />
             </EventIndicatorHandlers>
           </ModelStructure>
@@ -383,7 +388,7 @@ this model to declare in its model description file the dependency of
 This is addressed by the requirement proposed for  ``StateEvent4``.
 
 Furthermore, QSS needs to know that ``y`` needs to be updated
-when :math:`time >= 2`. It also needs to know what variables depend in ``y``
+when :math:`time >= 2`. It also needs to know what variables depend on ``y``
 so it can update them.
 
 We therefore propose to add time event handlers along with their dependencies
@@ -531,7 +536,7 @@ For such a model, JModelica would
   While developping the QSS solver, LBNL added additional requirements for the 
   FMI specification (see :ref:`subsec_se` and :ref:`subsec_te` sections). 
   These requirements haven't been reviewed by Modelon yet and 
-  hence do not not have any counter proposal from Modelon.
+  hence do not not have any alternative proposal from Modelon.
 
 Event indicators that depend on the input
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -575,5 +580,5 @@ If the number of event indicators does not match, the FMU need to be rejected wi
 
   Per design, Dymola (2017 FD01) generates twice as many event indicators as actually existing in the model.
   Hence the master algorithm needs to detect if the tool which exported the FMU is Dymola, and if it is, the 
-  number of event indicator functions must be equal to half the value of the``numberOfEventIndicators`` attribute.
+  number of event indicator functions must be equal to half the value of the ``numberOfEventIndicators`` attribute.
 
