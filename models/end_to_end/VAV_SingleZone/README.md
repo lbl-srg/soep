@@ -1,6 +1,6 @@
 # General
 
-Models for the end-to-end tests have been developed in Modelica and OpenStudio and are located in the folders ``/Modelica`` and ``/OpenStudio`` respectively.  The Modelica models can be found in the ``SOEPDemo.Examples`` package in the ``SOEPDemo.mo`` file and are compatible with the *Buildings Library* v4.0.  The models for each platform have been developed simultaneously, with each model having a corresponding counterpart in the other platform.
+Models for the end-to-end tests have been developed in Modelica and OpenStudio and are located in the folders ``/Modelica`` and ``/OpenStudio`` respectively.  The Modelica models can be found in the ``SOEPDemo.Examples`` and ``SOEPDemo.MVP`` packages in the ``SOEPDemo.mo`` file and are compatible with the *Buildings Library* v5.0.  The ``/Modelica`` folder also contains .mos scripts to simulate the Modelica models for a year.  The models for each platform have been developed simultaneously, with each model having a corresponding counterpart in the other platform.  For the end-to-end minimum viable product (MVP), the ``SOEPDemo.MVP.SingleZoneVAV`` modelica and ``SingleZoneVAV_MVP OpenStudio models should be used.
 <br>
 
 # Single Zone Models
