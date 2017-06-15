@@ -2096,14 +2096,14 @@ OS:AirTerminal:SingleDuct:VAV:Reheat,
   Normal,                                 !- Damper Heating Action
   Autocalculate,                          !- Maximum Flow per Zone Floor Area During Reheat {m3/s-m2}
   Autocalculate,                          !- Maximum Flow Fraction During Reheat
-  35,                                     !- Maximum Reheat Air Temperature {C}
+  50,                                     !- Maximum Reheat Air Temperature {C}
   No;                                     !- Control For Outdoor Air
 
 OS:Coil:Heating:Electric,
   {e75aab7b-342c-45a0-9fcd-577a12f71a7c}, ! Handle
   VAV Elec Rht Coil,                      ! Name
   {9ff1c96f-d8d1-454c-9764-8eb09ff0bd02}, ! Availability Schedule Name
-  ,                                       ! Efficiency
+  0.99,                                   ! Efficiency
   ,                                       ! Nominal Capacity {W}
   ,                                       ! Air Inlet Node Name
   ,                                       ! Air Outlet Node Name
@@ -2138,14 +2138,6 @@ OS:Connection,
   12,                                     !- Outlet Port
   {cfbb4e2f-aee6-4195-8188-277aa648a908}, !- Target Object
   2;                                      !- Inlet Port
-
-OS:SetpointManager:SingleZone:Reheat,
-  {f83a8dbf-2a4a-4fc8-bcb8-9ff5dba6ddfe}, ! Handle
-  Single Zone Reheat Temp,                ! Name
-  13,                                     ! Minimum Supply Air Temperature {C}
-  50,                                     ! Maximum Supply Air Temperature {C}
-  {2f9739ec-7ae0-463d-b35a-73e73e1880ac}, ! Control Zone Name
-  {944a89d2-2b1e-4640-a95c-5025333cf8f7}; ! Setpoint Node or NodeList Name
 
 OS:AirLoopHVAC:OutdoorAirSystem,
   {26672df5-9ef5-45c3-9354-16dd9b0e31ac}, !- Handle
@@ -2972,7 +2964,7 @@ OS:Pump:ConstantSpeed,
   autosize,                               !- Rated Power Consumption {W}
   0.9,                                    !- Motor Efficiency
   0,                                      !- Fraction of Motor Inefficiencies to Fluid Stream
-  Intermittent,                           !- Pump Control Type
+  Continuous,                             !- Pump Control Type
   ,                                       !- Pump Flow Rate Schedule
   ,                                       !- Pump Curve
   ,                                       !- Impeller Diameter {m}
@@ -3023,4 +3015,12 @@ OS:WeatherFile,
   1611,                                   !- Elevation {m}
   file:files/DRYCOLDTMY.epw,              !- Url
   08DEB5B3;                               !- Checksum
+
+OS:SetpointManager:SingleZone:Reheat,
+  {3c0fda96-d6ea-4c2a-a52b-d066d5639a0b}, ! Handle
+  Single Zone Reheat Temp,                ! Name
+  13,                                     ! Minimum Supply Air Temperature {C}
+  50,                                     ! Maximum Supply Air Temperature {C}
+  {2f9739ec-7ae0-463d-b35a-73e73e1880ac}, ! Control Zone Name
+  {944a89d2-2b1e-4640-a95c-5025333cf8f7}; ! Setpoint Node or NodeList Name
 

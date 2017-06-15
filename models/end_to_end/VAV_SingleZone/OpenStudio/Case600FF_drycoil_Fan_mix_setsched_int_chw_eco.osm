@@ -1010,7 +1010,7 @@ OS:Schedule:Day,
 
 OS:HeatBalanceAlgorithm,
   {af20a96d-deef-430b-839a-ec834c87c13d}, !- Handle
-  ConductionTransferFunction,             !- Algorithm
+  ConductionFiniteDifference,             !- Algorithm
   200,                                    !- Surface Temperature Upper Limit {C}
   0.1,                                    !- Minimum Surface Convection Heat Transfer Coefficient Value {W/m2-K}
   1000;                                   !- Maximum Surface Convection Heat Transfer Coefficient Value {W/m2-K}
@@ -2096,14 +2096,14 @@ OS:AirTerminal:SingleDuct:VAV:Reheat,
   Normal,                                 !- Damper Heating Action
   Autocalculate,                          !- Maximum Flow per Zone Floor Area During Reheat {m3/s-m2}
   Autocalculate,                          !- Maximum Flow Fraction During Reheat
-  35,                                     !- Maximum Reheat Air Temperature {C}
+  50,                                     !- Maximum Reheat Air Temperature {C}
   No;                                     !- Control For Outdoor Air
 
 OS:Coil:Heating:Electric,
   {e75aab7b-342c-45a0-9fcd-577a12f71a7c}, ! Handle
   VAV Elec Rht Coil,                      ! Name
   {9ff1c96f-d8d1-454c-9764-8eb09ff0bd02}, ! Availability Schedule Name
-  ,                                       ! Efficiency
+  0.99,                                   ! Efficiency
   ,                                       ! Nominal Capacity {W}
   ,                                       ! Air Inlet Node Name
   ,                                       ! Air Outlet Node Name
