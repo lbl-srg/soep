@@ -1,0 +1,37 @@
+﻿cd("/home/dhblum/git/soep/soep/models/end_to_end/VAV_SingleZone/Modelica");
+Evaluate = true;
+experimentSetupOutput(events=false,equidistant=true);
+simulateModel("SOEPDemo.MVP.SingleZoneVAV",
+              startTime=0,
+              stopTime=31536000, 
+              numberOfIntervals=0, 
+              outputInterval=3600, 
+              method="Dassl", 
+              tolerance=1e-04, 
+              resultFile="MVP");
+n = readTrajectorySize("MVP.mat");
+var_names = {"Time", 
+             "totalFanEnergy.y",
+             "totalHeatingEnergy.y",
+             "totalCoolingEnergy.y",
+             "totalPumpEnergy.y",
+             "Zone.TheatSetpoint",
+             "Zone.TcoolSetpoint",
+             "Zone.zoneMeanAirTemperature",
+             "HVAC.fanPower",
+             "HVAC.heatPower", 
+             "HVAC.coolPower", 
+             "HVAC.pumpPower", 
+             "HVAC.supplyFan.m_flow",
+             "HVAC.supplyAirTemp.T",
+             "HVAC.oaAirFlow.m_flow", 
+             "HVAC.economizer.T_mixSet", 
+             "HVAC.mixedAirTemp.T", 
+             "HVAC.economizer.oaFra", 
+             "HVAC.heatCoil.Q_flow", 
+             "HVAC.coolCoil.Q1_flow",
+             "HVAC.coolCoil.Q2_flow", 
+             "HVAC.control.coolSignal", 
+             "HVAC.weaBus.TDryBul"};
+trajectories=readTrajectory("MVP.mat", var_names, n);
+DataFiles.writeCSVmatrix("MVP.csv",var_names,transpose(trajectories)); 
