@@ -6,8 +6,8 @@ simulateModel("SOEPDemo.MVP.SingleZoneVAV",
               stopTime=31536000, 
               numberOfIntervals=0, 
               outputInterval=3600, 
-              method="Dassl", 
-              tolerance=1e-04, 
+              method="Radau", 
+              tolerance=1e-06, 
               resultFile="MVP");
 n = readTrajectorySize("MVP.mat");
 var_names = {"Time", 
