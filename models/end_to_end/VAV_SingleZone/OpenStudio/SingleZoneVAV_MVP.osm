@@ -2139,6 +2139,14 @@ OS:Connection,
   {cfbb4e2f-aee6-4195-8188-277aa648a908}, !- Target Object
   2;                                      !- Inlet Port
 
+OS:SetpointManager:SingleZone:Reheat,
+  {f83a8dbf-2a4a-4fc8-bcb8-9ff5dba6ddfe}, ! Handle
+  Single Zone Reheat Temp,                ! Name
+  13,                                     ! Minimum Supply Air Temperature {C}
+  50,                                     ! Maximum Supply Air Temperature {C}
+  {2f9739ec-7ae0-463d-b35a-73e73e1880ac}, ! Control Zone Name
+  {944a89d2-2b1e-4640-a95c-5025333cf8f7}; ! Setpoint Node or NodeList Name
+
 OS:AirLoopHVAC:OutdoorAirSystem,
   {26672df5-9ef5-45c3-9354-16dd9b0e31ac}, !- Handle
   OA System,                              !- Name
@@ -2159,7 +2167,7 @@ OS:Controller:OutdoorAir,
   ,                                       !- Actuator Node Name
   0.125,                                  !- Minimum Outdoor Air Flow Rate {m3/s}
   0.625,                                  !- Maximum Outdoor Air Flow Rate {m3/s}
-  NoEconomizer,                           !- Economizer Control Type
+  DifferentialDryBulb,                    !- Economizer Control Type
   ModulateFlow,                           !- Economizer Control Action Type
   28,                                     !- Economizer Maximum Limit Dry-Bulb Temperature {C}
   64000,                                  !- Economizer Maximum Limit Enthalpy {J/kg}
@@ -2418,14 +2426,14 @@ OS:Connector:Mixer,
   Connector Mixer 2,                      !- Name
   {13adda64-943b-4ccd-90ec-7b63af7f4753}, !- Outlet Branch Name
   {f0ef0935-e0df-4725-8beb-93ad9ce26b4a}, !- Inlet Branch Name 1
-  {22fee65c-342f-4a00-be45-cacf080dbfed}; !- Inlet Branch Name 2
+  ;                                       !- Inlet Branch Name 2
 
 OS:Connector:Splitter,
   {6fab860c-a2bb-4c0e-b8b0-7e142215acd3}, !- Handle
   Connector Splitter 2,                   !- Name
   {29b315f0-16d6-4467-9ffc-89b9a1f0e0c3}, !- Inlet Branch Name
   {a2a213db-86ca-49a1-83c8-cf1ed20984ec}, !- Outlet Branch Name 1
-  {35cdcb96-d074-44d5-a3a6-e24c7c6b31de}; !- Outlet Branch Name 2
+  ;                                       !- Outlet Branch Name 2
 
 OS:Connection,
   {88e7dd15-3845-46b1-8a1b-569b5523a405}, !- Handle
@@ -2512,7 +2520,7 @@ OS:Chiller:Electric:EIR,
   {d3e9b05b-a4ae-4527-991a-6fc28f44fd60}, ! Electric Input to Cooling Output Ratio Function of Temperature Curve Name
   {edcf4613-b8cc-4566-9217-8d05ef0c7b68}, ! Electric Input to Cooling Output Ratio Function of Part Load Ratio Curve Name
   0.1,                                    ! Minimum Part Load Ratio
-  1,                                      ! Maximum Part Load Ratio
+  1.2,                                    ! Maximum Part Load Ratio
   ,                                       ! Optimum Part Load Ratio
   0.1,                                    ! Minimum Unloading Ratio
   {4d23ef97-9ba8-4a33-b60f-842d58778e6e}, ! Chilled Water Inlet Node Name
@@ -2854,56 +2862,6 @@ OS:Curve:Biquadratic,
   Dimensionless,                          !- Input Unit Type for Y
   Dimensionless;                          !- Output Unit Type
 
-OS:Pipe:Adiabatic,
-  {d2f37b9f-4aed-4a1e-9f07-c437bc9215dc}, ! Handle
-  Adiabatic Pipe,                         ! Name
-  {9d69cd71-2325-4565-870a-9bdca7a34c0c}, ! Inlet Node Name
-  {e1bdbc25-fa7f-43c1-8a52-c589c09f7f72}; ! Outlet Node Name
-
-OS:Node,
-  {72dede09-6406-4260-9e69-17802e449750}, !- Handle
-  Node 26,                                !- Name
-  {35cdcb96-d074-44d5-a3a6-e24c7c6b31de}, !- Inlet Port
-  {9d69cd71-2325-4565-870a-9bdca7a34c0c}; !- Outlet Port
-
-OS:Connection,
-  {35cdcb96-d074-44d5-a3a6-e24c7c6b31de}, !- Handle
-  {95f3c943-a34b-4f9e-85b0-10fafb8aef79}, !- Name
-  {6fab860c-a2bb-4c0e-b8b0-7e142215acd3}, !- Source Object
-  4,                                      !- Outlet Port
-  {72dede09-6406-4260-9e69-17802e449750}, !- Target Object
-  2;                                      !- Inlet Port
-
-OS:Node,
-  {7e6e7a65-3a9f-4c6f-b226-a88b352e1f00}, !- Handle
-  Node 27,                                !- Name
-  {e1bdbc25-fa7f-43c1-8a52-c589c09f7f72}, !- Inlet Port
-  {22fee65c-342f-4a00-be45-cacf080dbfed}; !- Outlet Port
-
-OS:Connection,
-  {9d69cd71-2325-4565-870a-9bdca7a34c0c}, !- Handle
-  {7cbdd7ae-44b9-4a3c-a610-47bec7287b2d}, !- Name
-  {72dede09-6406-4260-9e69-17802e449750}, !- Source Object
-  3,                                      !- Outlet Port
-  {d2f37b9f-4aed-4a1e-9f07-c437bc9215dc}, !- Target Object
-  2;                                      !- Inlet Port
-
-OS:Connection,
-  {e1bdbc25-fa7f-43c1-8a52-c589c09f7f72}, !- Handle
-  {2d27fbe4-4da5-45cf-b6fa-953f84e0b6e2}, !- Name
-  {d2f37b9f-4aed-4a1e-9f07-c437bc9215dc}, !- Source Object
-  3,                                      !- Outlet Port
-  {7e6e7a65-3a9f-4c6f-b226-a88b352e1f00}, !- Target Object
-  2;                                      !- Inlet Port
-
-OS:Connection,
-  {22fee65c-342f-4a00-be45-cacf080dbfed}, !- Handle
-  {2957eb11-e26a-4210-b570-360aea74dad5}, !- Name
-  {7e6e7a65-3a9f-4c6f-b226-a88b352e1f00}, !- Source Object
-  3,                                      !- Outlet Port
-  {527aef39-c67d-4599-ab5f-95a85b1c86d6}, !- Target Object
-  4;                                      !- Inlet Port
-
 OS:SetpointManager:Scheduled,
   {2fcc64cc-b417-4537-9cbf-f00188c8bb78}, ! Handle
   Scheduled CHW Temp,                     ! Name
@@ -2961,7 +2919,7 @@ OS:Pump:ConstantSpeed,
   {4f0077e8-0631-4bc1-947c-2de514161d82}, !- Outlet Node Name
   0.00041826,                             !- Rated Flow Rate {m3/s}
   12000,                                  !- Rated Pump Head {Pa}
-  autosize,                               !- Rated Power Consumption {W}
+  24,                                     !- Rated Power Consumption {W}
   0.9,                                    !- Motor Efficiency
   0,                                      !- Fraction of Motor Inefficiencies to Fluid Stream
   Continuous,                             !- Pump Control Type
@@ -3016,11 +2974,10 @@ OS:WeatherFile,
   file:files/DRYCOLDTMY.epw,              !- Url
   08DEB5B3;                               !- Checksum
 
-OS:SetpointManager:SingleZone:Reheat,
-  {3c0fda96-d6ea-4c2a-a52b-d066d5639a0b}, ! Handle
-  Single Zone Reheat Temp,                ! Name
-  13,                                     ! Minimum Supply Air Temperature {C}
-  50,                                     ! Maximum Supply Air Temperature {C}
-  {2f9739ec-7ae0-463d-b35a-73e73e1880ac}, ! Control Zone Name
-  {944a89d2-2b1e-4640-a95c-5025333cf8f7}; ! Setpoint Node or NodeList Name
+OS:Output:Variable,
+  {1e558952-eaf3-4aba-ac08-5b5e11c050bd}, !- Handle
+  Output Variable 6,                      !- Name
+  *,                                      !- Key Value
+  Zone Outdoor Air Drybulb Temperature,   !- Variable Name
+  Hourly;                                 !- Reporting Frequency
 

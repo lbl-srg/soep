@@ -230,20 +230,23 @@ dynamic load models for the SOEP mode.
 Note that the JModelica distribution includes a C++ compiler.</p>
 <div class="figure" id="id12">
 <span id="fig-overall-software-architecture"></span><p class="plantuml">
-<object data="_images/plantuml-ef0086246e13fcc3ebb36d14ffb15a59b5eb6217.svg" type="image/svg+xml" style="width:1813px;height:1314px;">
-<img src="_images/plantuml-ef0086246e13fcc3ebb36d14ffb15a59b5eb6217.png" alt="title Overall software architecture
+
+<object data="_images/plantuml-5486606fbb23a0acfe9312301b4718ea77d3ed51.svg" type="image/svg+xml" style="width:1006px;height:1052px;">
+<img src="_images/plantuml-5486606fbb23a0acfe9312301b4718ea77d3ed51.png" alt="title Overall software architecture
+
+scale max 1024 width
 
 skinparam componentStyle uml2
 
 package OpenStudio {
 interface API
-API -- [Core]
+API - [Core]
 
 package Legacy-Mode {
 database &quot;Legacy\nModel Library&quot;
-[Core] --&gt; [Legacy\nModel Library]: integrates
-[Core] --&gt; [HVAC Systems Editor\n(Legacy Mode)]: integrates
-[Core] --&gt; [EnergyPlus\nSimulator Interface]: integrates
+[Core] -&gt; [Legacy\nModel Library]: integrates
+[Core] -&gt; [HVAC Systems Editor\n(Legacy Mode)]: integrates
+[Core] -&gt; [EnergyPlus\nSimulator Interface]: integrates
 }
 
 package SOEP-Mode {
@@ -261,12 +264,12 @@ package SOEP {
 [HVAC Systems Editor\n(SOEP Mode)] ..&gt; [JModelica] : parses\nAST
 [SOEP\nModel Library] &lt;.. [Conversion Script]: augments library\nby generating C++ code
 
-[Conversion Script] ..&gt; [JModelica]: parses\nAST
-[SOEP\nSimulator Interface] ..&gt; [JModelica] : writes inputs,\nruns simulation,\nreads outputs
+[Conversion Script] .&gt; [JModelica]: parses\nAST
+[SOEP\nSimulator Interface] .&gt; [JModelica] : writes inputs,\nruns simulation,\nreads outputs
 database &quot;Modelica\nLibrary AST&quot; as mod_AST
-mod_AST &lt;- [Conversion Script] : generates
+[Conversion Script] -&gt; mod_AST: generates
 database &quot;Modelica\nBuildings Library&quot;
-[JModelica] --&gt; [Modelica\nBuildings Library]: imports
+[JModelica] -&gt; [Modelica\nBuildings Library]: imports
 }
 
 actor &quot;Developer or User&quot; as modev
@@ -286,9 +289,9 @@ database &quot;User-Provided\nModelica Library&quot;
 [JModelica] --&gt; [User-Provided\nModelica Library]: imports
 
 EnergyPlus &lt;.. [EnergyPlus\nSimulator Interface]: writes inputs,\nruns simulation,\nreads outputs
+
 package EnergyPlus {
-  [in.idf] -&gt; [EnergyPlus.exe]
-  [EnergyPlus.exe] -&gt; [eplusout.sql]
+  [EnergyPlus.exe]
 }
 
 note left of mod_AST
@@ -1026,6 +1029,62 @@ when <span class="math">\(time &gt;= 2\)</span>. It also needs to know what vari
 so it can update them.</p>
 <p>We therefore propose to add time event handlers along with their dependencies
 to the <code class="docutils literal"><span class="pre">EventIndicatorHandlers</span></code> introduced in <a class="reference internal" href="#subsec-se"><span class="std std-ref">State Events</span></a>.</p>
+
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>How do we distinguish between time event handler, and state event handler?
+Should we have an attribute (<code class="docutils literal"><span class="pre">se</span></code> for state event and <code class="docutils literal"><span class="pre">te</span></code> for time event to distinguish them?).</p>
+<p class="last">QSS needs to know the exact handler which will be trigger when there is a time event.
+The ordering of the time event handler could be used to return the index of the
+time event handler which is to be updated. I added this to the optimization Measures section.</p>
+</div>
+<p><a class="reference internal" href="#fig-sof-arc-qss-jmod2"><span class="std std-numref">Fig. 5.2</span></a> shows the software architecture
+with the extended FMI API.
+For simplicity the figure only
+shows single FMUs, but we anticipated having multiple interconnected FMUs.</p>
+<div class="figure" id="id14">
+<span id="fig-sof-arc-qss-jmod2"></span><p class="plantuml">
+<object data="_images/plantuml-57d091db0cbd1e6c27ed9db53ebabf1df03d02da.svg" type="image/svg+xml" style="width:1091px;height:920px;">
+<img src="_images/plantuml-57d091db0cbd1e6c27ed9db53ebabf1df03d02da.png" alt="title Software architecture for QSS integration with JModelica with extended FMI API
+
+skinparam componentStyle uml2
+
+package FMU-ME {
+  [QSS solver] as qss_sol
+  [FMU-ME] as FMU_QSS
+}
+
+package PyFMI {
+[Master algorithm] -&gt; qss_sol : &quot;inputs, time&quot;
+[Master algorithm] &lt;- qss_sol : &quot;next event time, states&quot;
+[Master algorithm] - [Sundials]
+}
+
+[Sundials] -&gt; [FMU-ME] : &quot;(x, t)&quot;
+[Sundials] &lt;- [FMU-ME] : &quot;dx/dt&quot;
+[Master algorithm] -&gt; [FMU-CS] : &quot;hRequested&quot;
+[Master algorithm] &lt;- [FMU-CS] : &quot;(x, hMax)&quot;
+
+package Optimica {
+[JModelica compiler] as jmc
+}
+
+jmc -&gt; FMU_QSS
+
+FMU_QSS -down-&gt; qss_sol : &quot;derivatives&quot;
+qss_sol -down-&gt; FMU_QSS : &quot;inputs, time, states&quot;" />
+
+</object></p>
+<p class="caption"><span class="caption-number">Fig. 5.2 </span>: Software architecture for QSS integration with JModelica
+with extended FMI API.<a class="headerlink" href="#id14" title="Permalink to this image">¶</a></p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">We still need to design how to handle algebraic loops inside the FMU
+(see also Cellier&#8217;s and Kofman&#8217;s book) and algebraic loops that
+cross multiple FMUs.</p>
+</div>
+
 <p>To avoid having to change the FMI specification,
 Modelon proposes an alternative approach which is
 discussed in the next sections.</p>

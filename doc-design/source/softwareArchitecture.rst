@@ -46,17 +46,19 @@ Note that the JModelica distribution includes a C++ compiler.
 
    title Overall software architecture
 
+   scale max 1024 width
+
    skinparam componentStyle uml2
 
    package OpenStudio {
    interface API
-   API -- [Core]
+   API - [Core]
 
    package Legacy-Mode {
    database "Legacy\nModel Library"
-   [Core] --> [Legacy\nModel Library]: integrates
-   [Core] --> [HVAC Systems Editor\n(Legacy Mode)]: integrates
-   [Core] --> [EnergyPlus\nSimulator Interface]: integrates
+   [Core] -> [Legacy\nModel Library]: integrates
+   [Core] -> [HVAC Systems Editor\n(Legacy Mode)]: integrates
+   [Core] -> [EnergyPlus\nSimulator Interface]: integrates
    }
 
    package SOEP-Mode {
@@ -74,12 +76,12 @@ Note that the JModelica distribution includes a C++ compiler.
    [HVAC Systems Editor\n(SOEP Mode)] ..> [JModelica] : parses\nAST
    [SOEP\nModel Library] <.. [Conversion Script]: augments library\nby generating C++ code
 
-   [Conversion Script] ..> [JModelica]: parses\nAST
-   [SOEP\nSimulator Interface] ..> [JModelica] : writes inputs,\nruns simulation,\nreads outputs
+   [Conversion Script] .> [JModelica]: parses\nAST
+   [SOEP\nSimulator Interface] .> [JModelica] : writes inputs,\nruns simulation,\nreads outputs
    database "Modelica\nLibrary AST" as mod_AST
-   mod_AST <- [Conversion Script] : generates
+   [Conversion Script] -> mod_AST: generates
    database "Modelica\nBuildings Library"
-   [JModelica] --> [Modelica\nBuildings Library]: imports
+   [JModelica] -> [Modelica\nBuildings Library]: imports
    }
 
    actor "Developer or User" as modev
@@ -99,9 +101,9 @@ Note that the JModelica distribution includes a C++ compiler.
    [JModelica] --> [User-Provided\nModelica Library]: imports
 
    EnergyPlus <.. [EnergyPlus\nSimulator Interface]: writes inputs,\nruns simulation,\nreads outputs
+
    package EnergyPlus {
-     [in.idf] -> [EnergyPlus.exe]
-     [EnergyPlus.exe] -> [eplusout.sql]
+     [EnergyPlus.exe]
    }
 
    note left of mod_AST
@@ -242,7 +244,7 @@ Event Handling
 .. _subsec_se:
 
 State Events
-<<<<<<<<<<<<
+............
 
 For efficiency, QSS requires to know what states trigger
 which element of the event indicator function. Also, it will need to
@@ -360,7 +362,7 @@ should appear in the dependencies list of ``der(x)``.
 .. _subsec_te:
 
 Time Events
-<<<<<<<<<<<<
+...........
 
 This section discusses additional requirements for handling time events with QSS.
 
@@ -391,6 +393,64 @@ so it can update them.
 
 We therefore propose to add time event handlers along with their dependencies
 to the ``EventIndicatorHandlers`` introduced in :ref:`subsec_se`.
+
+.. note::
+
+  How do we distinguish between time event handler, and state event handler?
+  Should we have an attribute (``se`` for state event and ``te`` for time event to distinguish them?).
+
+  QSS needs to know the exact handler which will be trigger when there is a time event.
+  The ordering of the time event handler could be used to return the index of the
+  time event handler which is to be updated. I added this to the optimization Measures section.
+
+
+:numref:`fig_sof_arc_qss_jmod2` shows the software architecture
+with the extended FMI API.
+For simplicity the figure only
+shows single FMUs, but we anticipated having multiple interconnected FMUs.
+
+.. _fig_sof_arc_qss_jmod2:
+
+.. uml::
+   :caption: Software architecture for QSS integration with JModelica
+             with extended FMI API.
+
+   title Software architecture for QSS integration with JModelica with extended FMI API
+
+   skinparam componentStyle uml2
+
+   package FMU-ME {
+     [QSS solver] as qss_sol
+     [FMU-ME] as FMU_QSS
+   }
+
+   package PyFMI {
+   [Master algorithm] -> qss_sol : "inputs, time"
+   [Master algorithm] <- qss_sol : "next event time, states"
+   [Master algorithm] - [Sundials]
+   }
+
+   [Sundials] -> [FMU-ME] : "(x, t)"
+   [Sundials] <- [FMU-ME] : "dx/dt"
+   [Master algorithm] -> [FMU-CS] : "hRequested"
+   [Master algorithm] <- [FMU-CS] : "(x, hMax)"
+
+   package Optimica {
+   [JModelica compiler] as jmc
+   }
+
+   jmc -> FMU_QSS
+
+   FMU_QSS -down-> qss_sol : "derivatives"
+   qss_sol -down-> FMU_QSS : "inputs, time, states"
+
+
+.. note::
+
+   We still need to design how to handle algebraic loops inside the FMU
+   (see also Cellier's and Kofman's book) and algebraic loops that
+   cross multiple FMUs.
+
 
 To avoid having to change the FMI specification,
 Modelon proposes an alternative approach which is
