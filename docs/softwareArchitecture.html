@@ -230,7 +230,6 @@ dynamic load models for the SOEP mode.
 Note that the JModelica distribution includes a C++ compiler.</p>
 <div class="figure" id="id12">
 <span id="fig-overall-software-architecture"></span><p class="plantuml">
-
 <object data="_images/plantuml-5486606fbb23a0acfe9312301b4718ea77d3ed51.svg" type="image/svg+xml" style="width:1006px;height:1052px;">
 <img src="_images/plantuml-5486606fbb23a0acfe9312301b4718ea77d3ed51.png" alt="title Overall software architecture
 
@@ -381,15 +380,13 @@ available to OpenStudio, they could be pulled into the MBL and annotated
 <p>We propose to build a stand-alone batch-process program that will transform any
 Modelica input file or library (specifically, the Modelica Buildings Library in
 particular) into an XML document. The XML document will contain:</p>
-<ul>
-<li><p class="first">identification of which models, classes, connectors, functions, etc. exist</p>
-</li>
-<li><p class="first">identification of the relative hierarchy of the above components within the
-package structure of the library</p>
-</li>
+<ul class="simple">
+<li>identification of which models, classes, connectors, functions, etc. exist</li>
+<li>identification of the relative hierarchy of the above components within the
+package structure of the library</li>
 <li><dl class="first docutils">
 <dt>for each package, to know</dt>
-<dd><ul class="first last simple">
+<dd><ul class="first last">
 <li>what models are available</li>
 <li>what connection &#8220;ports&#8221; are available</li>
 <li>for fluid ports, which ports carry the same fluid (so that media
@@ -837,7 +834,7 @@ standard does not allow a zero time step size as needed for direct feed-through.
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Type of QSS</th>
-<th class="head">continuous-time state derivative</th>
+<th class="head">Continuous-time state derivative</th>
 <th class="head">Event indicator function derivative</th>
 </tr>
 </thead>
@@ -1029,7 +1026,6 @@ when <span class="math">\(time &gt;= 2\)</span>. It also needs to know what vari
 so it can update them.</p>
 <p>We therefore propose to add time event handlers along with their dependencies
 to the <code class="docutils literal"><span class="pre">EventIndicatorHandlers</span></code> introduced in <a class="reference internal" href="#subsec-se"><span class="std std-ref">State Events</span></a>.</p>
-
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p>How do we distinguish between time event handler, and state event handler?
@@ -1084,7 +1080,6 @@ with extended FMI API.<a class="headerlink" href="#id14" title="Permalink to thi
 (see also Cellier&#8217;s and Kofman&#8217;s book) and algebraic loops that
 cross multiple FMUs.</p>
 </div>
-
 <p>To avoid having to change the FMI specification,
 Modelon proposes an alternative approach which is
 discussed in the next sections.</p>
@@ -1220,46 +1215,6 @@ If the number of event indicators does not match, the FMU needs to be rejected w
 <p class="last">Per design, Dymola (2017 FD01) generates twice as many event indicators as actually existing in the model.
 Hence the master algorithm needs to detect if the tool which exported the FMU is Dymola, and if it is, the
 number of event indicator functions must be equal to half the value of the <code class="docutils literal"><span class="pre">numberOfEventIndicators</span></code> attribute.</p>
-</div>
-<p><a class="reference internal" href="#fig-sof-arc-qss-jmod2"><span class="std std-numref">Fig. 5.2</span></a> shows the software architecture
-with the extended FMI API.
-For simplicity the figure only
-shows single FMUs, but we anticipated having multiple interconnected FMUs.</p>
-<div class="figure" id="id14">
-<span id="fig-sof-arc-qss-jmod2"></span><p class="plantuml">
-<object data="_images/plantuml-d3ab43b4760911a14ec67218d35277eb19092c30.svg" type="image/svg+xml" style="width:875px;height:421px;">
-<img src="_images/plantuml-d3ab43b4760911a14ec67218d35277eb19092c30.png" alt="title Software architecture for QSS integration with JModelica with extended FMI API
-
-skinparam componentStyle uml2
-
-package FMU-ME {
-  [QSS solver] as qss_sol
-  [FMU-ME] as FMU_QSS
-}
-
-package PyFMI {
-[Master algorithm] -&gt; qss_sol : &quot;inputs, time&quot;
-[Master algorithm] &lt;- qss_sol : &quot;next event time, states&quot;
-[Master algorithm] -- [Sundials]
-}
-
-[Sundials] --&gt; [FMU-ME] : &quot;(x, t)&quot;
-[Sundials] &lt;-- [FMU-ME] : &quot;dx/dt&quot;
-[Master algorithm] --&gt; [FMU-CS] : &quot;hRequested&quot;
-[Master algorithm] &lt;-- [FMU-CS] : &quot;(x, hMax)&quot;
-
-package Optimica {
-[JModelica compiler] as jmc
-}
-
-jmc --&gt; FMU_QSS
-
-FMU_QSS --&gt; qss_sol : &quot;derivatives&quot;
-qss_sol --&gt; FMU_QSS : &quot;inputs, time, states&quot;" />
-
-</object></p>
-<p class="caption"><span class="caption-number">Fig. 5.2 </span>: Software architecture for QSS integration with JModelica
-with extended FMI API.<a class="headerlink" href="#id14" title="Permalink to this image">¶</a></p>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>

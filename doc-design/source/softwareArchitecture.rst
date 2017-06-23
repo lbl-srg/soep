@@ -144,7 +144,7 @@ For this discussion, we consider a system of initial value ODEs of the form
    [y_c(t), y_d(t)] & = g(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\\
 
    0         & = z(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\\
-   
+
    [x_c(t_0), x_d(t_0)] & = [x_{c,0}, x_{d,0}],
 
 where
@@ -175,7 +175,7 @@ The QSS solvers require the derivatives shown in :numref:`tab_qss_der`.
 
 
    +-------------+-----------------------------------------------------------------+-----------------------------------------------------+
-   | Type of QSS | continuous-time state derivative                                | Event indicator function derivative                 |
+   | Type of QSS | Continuous-time state derivative                                | Event indicator function derivative                 |
    +=============+=================================================================+=====================================================+
    | QSS1        | :math:`dx_c/dt` *                                               | :math:`dz/dt`                                       |
    +-------------+-----------------------------------------------------------------+-----------------------------------------------------+
@@ -215,8 +215,8 @@ We therefore propose that the standard is being changed as follows:
    as is allowed in FMI-ME 2.0, but also for continuous-time states and discrete output variables.
 
 .. note:: Calling ``fmi2SetReal`` for discrete output variables is needed if an FMU-ME
-          contains the QSS solver, in which cases it exposes the quantized states as 
-          discrete output variables. 
+          contains the QSS solver, in which cases it exposes the quantized states as
+          discrete output variables.
 
 To retrieve individual state derivatives, we introduce the following extensions
 to the ``modelDescription.xml`` file. [In the code below, ``ScalarVariables``
@@ -273,9 +273,9 @@ three event indicator functions.
           </ModelStructure>
 
 .. note::
-  
-   The ``index`` uses in the ``<EventIndicators>`` element is different from the ``index`` 
-   used in the ``<ModelVariables>`` element. The first event indicator has an ``index`` 1, 
+
+   The ``index`` uses in the ``<EventIndicators>`` element is different from the ``index``
+   used in the ``<ModelVariables>`` element. The first event indicator has an ``index`` 1,
    the second has an ``index`` 2, and so on.
 
 For efficiency, FMUs need to expose variables which depend on event indicators
@@ -313,8 +313,8 @@ We propose to introduce the following xml section which lists these variables.
 
           <ModelStructure>
             <EventIndicatorHandlers>
-              <!-- This is variable with index 9 in the ModelVariables section 
-                   which depends on event indicator variables with index 1 and 2. 
+              <!-- This is variable with index 9 in the ModelVariables section
+                   which depends on event indicator variables with index 1 and 2.
                    The event_type is a list which specifies the type of event.
                    event_type can be "state" for state event, "time", for time event,
                    "step" for step event, or any combination of the three (e.g. "time state"
@@ -355,7 +355,7 @@ For state derivatives and outputs, known variables are
 Since ``y`` does not fulfill any of the above requirements,
 it is not allowed to show up in the ``dependencies`` list of ``der(x)``.
 Therefore, we require the FMU to declare in the model description file
-the dependency for all event indicator handlers. 
+the dependency for all event indicator handlers.
 That is, for the ``StateEvent4`` example, variable ``y``
 should appear in the dependencies list of ``der(x)``.
 
@@ -539,17 +539,17 @@ For such a model, JModelica would
 
 .. note::
 
-   This approach will work but will require to add additional equations 
+   This approach will work but will require to add additional equations
    and variables to the Modelica model, annotate the variables,
    include them in the XML with correct dependency information,
-   and develop custom code to extract the annotated encoded information. 
+   and develop custom code to extract the annotated encoded information.
    LBNL hence believes that extending the XML file is the correct path to follow.
 
 .. note::
 
-  While developping the QSS solver, LBNL added additional requirements for the 
-  FMI specification (see :ref:`subsec_se` and :ref:`subsec_te` sections). 
-  These requirements haven't been reviewed by Modelon yet and 
+  While developping the QSS solver, LBNL added additional requirements for the
+  FMI specification (see :ref:`subsec_se` and :ref:`subsec_te` sections).
+  These requirements haven't been reviewed by Modelon yet and
   hence do not not have any alternative proposal from Modelon.
 
 Event indicators that depend on the input
@@ -593,53 +593,11 @@ If the number of event indicators does not match, the FMU needs to be rejected w
 .. note::
 
   Per design, Dymola (2017 FD01) generates twice as many event indicators as actually existing in the model.
-  Hence the master algorithm needs to detect if the tool which exported the FMU is Dymola, and if it is, the 
+  Hence the master algorithm needs to detect if the tool which exported the FMU is Dymola, and if it is, the
   number of event indicator functions must be equal to half the value of the ``numberOfEventIndicators`` attribute.
-
-:numref:`fig_sof_arc_qss_jmod2` shows the software architecture
-with the extended FMI API.
-For simplicity the figure only
-shows single FMUs, but we anticipated having multiple interconnected FMUs.
-
-.. _fig_sof_arc_qss_jmod2:
-
-.. uml::
-   :caption: Software architecture for QSS integration with JModelica
-             with extended FMI API.
-
-   title Software architecture for QSS integration with JModelica with extended FMI API
-
-   skinparam componentStyle uml2
-
-   package FMU-ME {
-     [QSS solver] as qss_sol
-     [FMU-ME] as FMU_QSS
-   }
-
-   package PyFMI {
-   [Master algorithm] -> qss_sol : "inputs, time"
-   [Master algorithm] <- qss_sol : "next event time, states"
-   [Master algorithm] -- [Sundials]
-   }
-
-   [Sundials] --> [FMU-ME] : "(x, t)"
-   [Sundials] <-- [FMU-ME] : "dx/dt"
-   [Master algorithm] --> [FMU-CS] : "hRequested"
-   [Master algorithm] <-- [FMU-CS] : "(x, hMax)"
-
-   package Optimica {
-   [JModelica compiler] as jmc
-   }
-
-   jmc --> FMU_QSS
-
-   FMU_QSS --> qss_sol : "derivatives"
-   qss_sol --> FMU_QSS : "inputs, time, states"
-
 
 .. note::
 
    We still need to design how to handle algebraic loops inside the FMU
    (see also Cellier's and Kofman's book) and algebraic loops that
    cross multiple FMUs.
-
