@@ -231,20 +231,22 @@ dynamic load models for the SOEP mode.
 Note that the JModelica distribution includes a C++ compiler.</p>
 <div class="figure" id="id12">
 <span id="fig-overall-software-architecture"></span><p class="plantuml">
-<object data="_images/plantuml-ef0086246e13fcc3ebb36d14ffb15a59b5eb6217.svg" type="image/svg+xml" style="width:1813px;height:1299px;">
-<img src="_images/plantuml-ef0086246e13fcc3ebb36d14ffb15a59b5eb6217.png" alt="title Overall software architecture
+<object data="_images/plantuml-5486606fbb23a0acfe9312301b4718ea77d3ed51.svg" type="image/svg+xml" style="width:1006px;height:1052px;">
+<img src="_images/plantuml-5486606fbb23a0acfe9312301b4718ea77d3ed51.png" alt="title Overall software architecture
+
+scale max 1024 width
 
 skinparam componentStyle uml2
 
 package OpenStudio {
 interface API
-API -- [Core]
+API - [Core]
 
 package Legacy-Mode {
 database &quot;Legacy\nModel Library&quot;
-[Core] --&gt; [Legacy\nModel Library]: integrates
-[Core] --&gt; [HVAC Systems Editor\n(Legacy Mode)]: integrates
-[Core] --&gt; [EnergyPlus\nSimulator Interface]: integrates
+[Core] -&gt; [Legacy\nModel Library]: integrates
+[Core] -&gt; [HVAC Systems Editor\n(Legacy Mode)]: integrates
+[Core] -&gt; [EnergyPlus\nSimulator Interface]: integrates
 }
 
 package SOEP-Mode {
@@ -262,12 +264,12 @@ package SOEP {
 [HVAC Systems Editor\n(SOEP Mode)] ..&gt; [JModelica] : parses\nAST
 [SOEP\nModel Library] &lt;.. [Conversion Script]: augments library\nby generating C++ code
 
-[Conversion Script] ..&gt; [JModelica]: parses\nAST
-[SOEP\nSimulator Interface] ..&gt; [JModelica] : writes inputs,\nruns simulation,\nreads outputs
+[Conversion Script] .&gt; [JModelica]: parses\nAST
+[SOEP\nSimulator Interface] .&gt; [JModelica] : writes inputs,\nruns simulation,\nreads outputs
 database &quot;Modelica\nLibrary AST&quot; as mod_AST
-mod_AST &lt;- [Conversion Script] : generates
+[Conversion Script] -&gt; mod_AST: generates
 database &quot;Modelica\nBuildings Library&quot;
-[JModelica] --&gt; [Modelica\nBuildings Library]: imports
+[JModelica] -&gt; [Modelica\nBuildings Library]: imports
 }
 
 actor &quot;Developer or User&quot; as modev
@@ -287,9 +289,9 @@ database &quot;User-Provided\nModelica Library&quot;
 [JModelica] --&gt; [User-Provided\nModelica Library]: imports
 
 EnergyPlus &lt;.. [EnergyPlus\nSimulator Interface]: writes inputs,\nruns simulation,\nreads outputs
+
 package EnergyPlus {
-  [in.idf] -&gt; [EnergyPlus.exe]
-  [EnergyPlus.exe] -&gt; [eplusout.sql]
+  [EnergyPlus.exe]
 }
 
 note left of mod_AST
@@ -1038,8 +1040,8 @@ For simplicity the figure only
 shows single FMUs, but we anticipated having multiple interconnected FMUs.</p>
 <div class="figure" id="id14">
 <span id="fig-sof-arc-qss-jmod2"></span><p class="plantuml">
-<object data="_images/plantuml-d3ab43b4760911a14ec67218d35277eb19092c30.svg" type="image/svg+xml" style="width:873px;height:417px;">
-<img src="_images/plantuml-d3ab43b4760911a14ec67218d35277eb19092c30.png" alt="title Software architecture for QSS integration with JModelica with extended FMI API
+<object data="_images/plantuml-57d091db0cbd1e6c27ed9db53ebabf1df03d02da.svg" type="image/svg+xml" style="width:1091px;height:920px;">
+<img src="_images/plantuml-57d091db0cbd1e6c27ed9db53ebabf1df03d02da.png" alt="title Software architecture for QSS integration with JModelica with extended FMI API
 
 skinparam componentStyle uml2
 
@@ -1051,22 +1053,22 @@ package FMU-ME {
 package PyFMI {
 [Master algorithm] -&gt; qss_sol : &quot;inputs, time&quot;
 [Master algorithm] &lt;- qss_sol : &quot;next event time, states&quot;
-[Master algorithm] -- [Sundials]
+[Master algorithm] - [Sundials]
 }
 
-[Sundials] --&gt; [FMU-ME] : &quot;(x, t)&quot;
-[Sundials] &lt;-- [FMU-ME] : &quot;dx/dt&quot;
-[Master algorithm] --&gt; [FMU-CS] : &quot;hRequested&quot;
-[Master algorithm] &lt;-- [FMU-CS] : &quot;(x, hMax)&quot;
+[Sundials] -&gt; [FMU-ME] : &quot;(x, t)&quot;
+[Sundials] &lt;- [FMU-ME] : &quot;dx/dt&quot;
+[Master algorithm] -&gt; [FMU-CS] : &quot;hRequested&quot;
+[Master algorithm] &lt;- [FMU-CS] : &quot;(x, hMax)&quot;
 
 package Optimica {
 [JModelica compiler] as jmc
 }
 
-jmc --&gt; FMU_QSS
+jmc -&gt; FMU_QSS
 
-FMU_QSS --&gt; qss_sol : &quot;derivatives&quot;
-qss_sol --&gt; FMU_QSS : &quot;inputs, time, states&quot;" />
+FMU_QSS -down-&gt; qss_sol : &quot;derivatives&quot;
+qss_sol -down-&gt; FMU_QSS : &quot;inputs, time, states&quot;" />
 
 </object></p>
 <p class="caption"><span class="caption-number">Fig. 5.2 </span>: Software architecture for QSS integration with JModelica

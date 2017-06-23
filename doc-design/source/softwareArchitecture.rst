@@ -46,17 +46,19 @@ Note that the JModelica distribution includes a C++ compiler.
 
    title Overall software architecture
 
+   scale max 1024 width
+
    skinparam componentStyle uml2
 
    package OpenStudio {
    interface API
-   API -- [Core]
+   API - [Core]
 
    package Legacy-Mode {
    database "Legacy\nModel Library"
-   [Core] --> [Legacy\nModel Library]: integrates
-   [Core] --> [HVAC Systems Editor\n(Legacy Mode)]: integrates
-   [Core] --> [EnergyPlus\nSimulator Interface]: integrates
+   [Core] -> [Legacy\nModel Library]: integrates
+   [Core] -> [HVAC Systems Editor\n(Legacy Mode)]: integrates
+   [Core] -> [EnergyPlus\nSimulator Interface]: integrates
    }
 
    package SOEP-Mode {
@@ -74,12 +76,12 @@ Note that the JModelica distribution includes a C++ compiler.
    [HVAC Systems Editor\n(SOEP Mode)] ..> [JModelica] : parses\nAST
    [SOEP\nModel Library] <.. [Conversion Script]: augments library\nby generating C++ code
 
-   [Conversion Script] ..> [JModelica]: parses\nAST
-   [SOEP\nSimulator Interface] ..> [JModelica] : writes inputs,\nruns simulation,\nreads outputs
+   [Conversion Script] .> [JModelica]: parses\nAST
+   [SOEP\nSimulator Interface] .> [JModelica] : writes inputs,\nruns simulation,\nreads outputs
    database "Modelica\nLibrary AST" as mod_AST
-   mod_AST <- [Conversion Script] : generates
+   [Conversion Script] -> mod_AST: generates
    database "Modelica\nBuildings Library"
-   [JModelica] --> [Modelica\nBuildings Library]: imports
+   [JModelica] -> [Modelica\nBuildings Library]: imports
    }
 
    actor "Developer or User" as modev
@@ -99,9 +101,9 @@ Note that the JModelica distribution includes a C++ compiler.
    [JModelica] --> [User-Provided\nModelica Library]: imports
 
    EnergyPlus <.. [EnergyPlus\nSimulator Interface]: writes inputs,\nruns simulation,\nreads outputs
+
    package EnergyPlus {
-     [in.idf] -> [EnergyPlus.exe]
-     [EnergyPlus.exe] -> [eplusout.sql]
+     [EnergyPlus.exe]
    }
 
    note left of mod_AST
@@ -306,7 +308,7 @@ We propose to introduce the following xml section which lists these variables.
 
           <ModelStructure>
             <EventIndicatorHandlers>
-              <!-- This is variable with index 9 which depends on 
+              <!-- This is variable with index 9 which depends on
                    event indicator variables with index 1 and 2 -->
               <Unknown index="9" dependencies="1 2" value_reference="300" />
             </EventIndicatorHandlers>
@@ -415,22 +417,22 @@ shows single FMUs, but we anticipated having multiple interconnected FMUs.
    package PyFMI {
    [Master algorithm] -> qss_sol : "inputs, time"
    [Master algorithm] <- qss_sol : "next event time, states"
-   [Master algorithm] -- [Sundials]
+   [Master algorithm] - [Sundials]
    }
 
-   [Sundials] --> [FMU-ME] : "(x, t)"
-   [Sundials] <-- [FMU-ME] : "dx/dt"
-   [Master algorithm] --> [FMU-CS] : "hRequested"
-   [Master algorithm] <-- [FMU-CS] : "(x, hMax)"
+   [Sundials] -> [FMU-ME] : "(x, t)"
+   [Sundials] <- [FMU-ME] : "dx/dt"
+   [Master algorithm] -> [FMU-CS] : "hRequested"
+   [Master algorithm] <- [FMU-CS] : "(x, hMax)"
 
    package Optimica {
    [JModelica compiler] as jmc
    }
 
-   jmc --> FMU_QSS
+   jmc -> FMU_QSS
 
-   FMU_QSS --> qss_sol : "derivatives"
-   qss_sol --> FMU_QSS : "inputs, time, states"
+   FMU_QSS -down-> qss_sol : "derivatives"
+   qss_sol -down-> FMU_QSS : "inputs, time, states"
 
 
 .. note::
