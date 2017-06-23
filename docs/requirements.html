@@ -265,13 +265,13 @@ nonlinear DAE system with index one
 <span class="math">\(x_d(\cdot)\)</span> and <span class="math">\(u_d(\cdot)\)</span>.
 The general form is <a class="reference internal" href="zreferences.html#wetter2005-1" id="id2">[Wet05]</a></p>
 <div class="math" id="equation-eq_DAEPhy">
-<span class="eqno">(1)</span>\[\begin{split}[ \dot x_c(t), x_d(t)] &amp; = f(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\end{split}\]\[\begin{split}[y_c(t), y_d(t)] &amp; = g(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\end{split}\]\[\begin{split}0 &amp; = \gamma\bigl(u_c(t), y_c(t), y_d(t) \bigr),\end{split}\]\[\begin{split}[x_c(t_0), x_d(t_0)] &amp; = [x_{c,0}, x_{d,0}],\end{split}\]</div>
+<span class="eqno">(1)</span>\[\begin{split}[ \dot x_c(t), x_d(t)] &amp; = f(x_c(t), x_d(t^-), u_c(t), u_d(t), p, t),\end{split}\]\[\begin{split}[y_c(t), y_d(t)] &amp; = g(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\end{split}\]\[\begin{split}0 &amp; = \gamma\bigl(u_c(t), y_c(t), y_d(t) \bigr),\end{split}\]\[\begin{split}[x_c(t_0), x_d(t_0)] &amp; = [x_{c,0}, x_{d,0}],\end{split}\]</div>
 <p>where
 <span class="math">\(x(\cdot)\)</span> is the state vector, with superscript
 <span class="math">\(c\)</span> denoting continuous and <span class="math">\(d\)</span> denoting discrete states,
 <span class="math">\(u(\cdot)\)</span> is the control input,
 <span class="math">\(p\)</span> are parameters,
-<span class="math">\(f(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)\)</span> is the state transitions,
+<span class="math">\(f(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)\)</span> is the state transitions function,
 <span class="math">\(g(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)\)</span> is the output function and
 <span class="math">\(0 = \gamma(\cdot, \cdot, \cdot)\)</span> are the algebraic constraints.
 This represents algebraic loops that can be formed when connecting FMUs in a loop.</p>
