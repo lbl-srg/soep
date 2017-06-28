@@ -192,6 +192,30 @@ The `ast_doc_diff` tool would be of use in particular when new versions of the
 MBL are released and the OpenStudio team would like to check if there are
 non-trivial changes they need to integrate.
 
+
+Literature review
+"""""""""""""""""
+
+There have been several attempts to represent or use XML in relation to
+Modelica in the past (:cite:`Landin2014`, :cite:`Fritzson2003G`, :cite:`Pop2003`, :cite:`Pop2005`, and :cite:`Reisenbichler2006`).
+
+In particular, N. Landin did work with Modelon using JModelica to export XML for
+the purpose of model exchange :cite:`Landin2014` -- this is very similar to our use case.
+Unfortunately, this work deals only with "flattened" models -- Modelica models
+that have been instantiated with all of the hierarchy removed. For our use
+case, the hierarchy must be preserved so that the OpenStudio team can
+build a new model through instantiation of models from the MBL.
+
+The paper by Reisenbichler 2006 motivates the usage of XML in association with
+Modelica without getting into specifics :cite:`Reisenbichler2006`. The remaining work by Pop and Fritzson
+is thus the only comprehensive work on an XML representation of Modelica
+*source* AST that appears in the literature (:cite:`Pop2003`, :cite:`Pop2005`, and :cite:`Fritzson2003G`). The purpose of the XML work by Pop
+and Fritzson was to create a complete XML representation of the entire Modelica
+source. It is generally a good reference but we note that it is, perhaps
+unnecessarily, verbose for our current needs. As such, although we will refer
+to this work, we do not plan to duplicate it.
+
+
 Discussion and Details
 """"""""""""""""""""""
 
@@ -227,257 +251,301 @@ use, we must remember that we are dealing with a library, not a model
 instantiate. Especially due to Modelica's configuration mechanism, it would be
 dangerous to treat object *classes* as *instances*.
 
-Therefore, we will aim at delivering something closer to the source AST but
+Therefore, we delivered something closer to the source AST but
 with a mind to construct the data model such that it is easy to trace
 dependencies such as class extensions (i.e., inheritance) and replaceable
 components.
 
-For an example, consider the following model (adapted from `Modelica by
-Example: Electrical Components
-<http://book.xogeny.com/components/components/elec_comps/>`_):
+For an example, consider the following model
 
-::
+.. code-block:: modelica
 
-    package Ex1
-      connector PositivePin "Positive pin of an electric component"
-        Modelica.SIunits.Voltage v "Potential at the pin";
-        flow Modelica.SIunits.Current i "Current flowing into the pin";
-      end PositivePin;
+   within Buildings.Fluid.HeatExchangers;
+   model HeaterCooler_T
+     "Ideal heater or cooler with a prescribed outlet temperature"
+     extends Buildings.Fluid.Interfaces.PartialTwoPortInterface;
+     extends Buildings.Fluid.Interfaces.TwoPortFlowResistanceParameters(
+       final computeFlowResistance=(abs(dp_nominal) > Modelica.Constants.eps));
+     extends Buildings.Fluid.Interfaces.PrescribedOutletStateParameters(
+       T_start=Medium.T_default);
+   
+     parameter Boolean homotopyInitialization = true "= true, use homotopy method"
+       annotation(Evaluate=true, Dialog(tab="Advanced"));
+   
+     Modelica.Blocks.Interfaces.RealInput TSet(unit="K", displayUnit="degC")
+       "Set point temperature of the fluid that leaves port_b"
+       annotation (Placement(transformation(extent={{-140,40},{-100,80}})));
+   
+     Modelica.Blocks.Interfaces.RealOutput Q_flow(unit="W")
+       "Heat added to the fluid (if flow is from port_a to port_b)"
+       annotation (Placement(transformation(extent={{100,50},{120,70}})));
+   
+   protected
+     Buildings.Fluid.FixedResistances.PressureDrop preDro(
+       redeclare final package Medium = Medium,
+       final m_flow_nominal=m_flow_nominal,
+       final deltaM=deltaM,
+       final allowFlowReversal=allowFlowReversal,
+       final show_T=false,
+       final from_dp=from_dp,
+       final linearized=linearizeFlowResistance,
+       final homotopyInitialization=homotopyInitialization,
+       final dp_nominal=dp_nominal) "Flow resistance"
+       annotation (Placement(transformation(extent={{-50,-10},{-30,10}})));
+   
+     Buildings.Fluid.Interfaces.PrescribedOutletState heaCoo(
+       redeclare final package Medium = Medium,
+       final allowFlowReversal=allowFlowReversal,
+       final m_flow_small=m_flow_small,
+       final show_T=false,
+       final show_V_flow=false,
+       final Q_flow_maxHeat=Q_flow_maxHeat,
+       final Q_flow_maxCool=Q_flow_maxCool,
+       final m_flow_nominal=m_flow_nominal,
+       final tau=tau,
+       final T_start=T_start,
+       final energyDynamics=energyDynamics) "Heater or cooler"
+       annotation (Placement(transformation(extent={{20,-10},{40,10}})));
+   equation
+     connect(port_a, preDro.port_a) annotation (Line(
+         points={{-100,0},{-50,0}},
+         color={0,127,255}));
+     connect(preDro.port_b, heaCoo.port_a) annotation (Line(
+         points={{-30,0},{20,0}},
+         color={0,127,255}));
+     connect(heaCoo.port_b, port_b) annotation (Line(
+         points={{40,0},{100,0}},
+         color={0,127,255}));
+     connect(heaCoo.TSet, TSet) annotation (Line(
+         points={{18,8},{0,8},{0,60},{-120,60}},
+         color={0,0,127}));
+     connect(heaCoo.Q_flow, Q_flow) annotation (Line(
+         points={{41,8},{72,8},{72,60},{110,60}},
+         color={0,0,127}));
+     annotation (Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,
+               -100},{100,100}}), graphics={
+           Rectangle(
+             extent={{-70,60},{60,-60}},
+             lineColor={0,0,255},
+             pattern=LinePattern.None,
+             fillColor={95,95,95},
+             fillPattern=FillPattern.Solid),
+           Rectangle(
+             extent={{-102,5},{99,-5}},
+             lineColor={0,0,255},
+             pattern=LinePattern.None,
+             fillColor={0,0,0},
+             fillPattern=FillPattern.Solid),
+           Rectangle(
+             extent={{-100,60},{-70,58}},
+             lineColor={0,0,255},
+             pattern=LinePattern.None,
+             fillColor={0,0,127},
+             fillPattern=FillPattern.Solid),
+           Text(
+             extent={{-106,98},{-62,70}},
+             lineColor={0,0,127},
+             textString="T"),
+           Rectangle(
+             extent={{60,60},{100,58}},
+             lineColor={0,0,255},
+             pattern=LinePattern.None,
+             fillColor={0,0,127},
+             fillPattern=FillPattern.Solid),
+           Text(
+             extent={{72,96},{116,68}},
+             lineColor={0,0,127},
+             textString="Q_flow")}),
+   defaultComponentName="hea",
+   Documentation(info="<html>
+   <p>
+   Model for an ideal heater or cooler with a prescribed outlet temperature.
+   </p>
+   <p>
+   This model forces the outlet temperature at <code>port_b</code> to be equal to the temperature
+   of the input signal <code>TSet</code>, subject to optional limits on the
+   heating or cooling capacity <code>Q_flow_max</code> and <code>Q_flow_min</code>.
+   For unlimited capacity, set <code>Q_flow_maxHeat = Modelica.Constant.inf</code>
+   and <code>Q_flow_maxCool=-Modelica.Constant.inf</code>.
+   </p>
+   <p>
+   The output signal <code>Q_flow</code> is the heat added (for heating) or subtracted (for cooling)
+   to the medium if the flow rate is from <code>port_a</code> to <code>port_b</code>.
+   If the flow is reversed, then <code>Q_flow=0</code>.
+   The outlet temperature at <code>port_a</code> is not affected by this model.
+   </p>
+   <p>
+   If the parameter <code>energyDynamics</code> is not equal to
+   <code>Modelica.Fluid.Types.Dynamics.SteadyState</code>,
+   the component models the dynamic response using a first order differential equation.
+   The time constant of the component is equal to the parameter <code>tau</code>.
+   This time constant is adjusted based on the mass flow rate using
+   </p>
+   <p align=\"center\" style=\"font-style:italic;\">
+   &tau;<sub>eff</sub> = &tau; |m&#775;| &frasl; m&#775;<sub>nom</sub>
+   </p>
+   <p>
+   where
+   <i>&tau;<sub>eff</sub></i> is the effective time constant for the given mass flow rate
+   <i>m&#775;</i> and
+   <i>&tau;</i> is the time constant at the nominal mass flow rate
+   <i>m&#775;<sub>nom</sub></i>.
+   This type of dynamics is equal to the dynamics that a completely mixed
+   control volume would have.
+   </p>
+   <p>
+   Optionally, this model can have a flow resistance.
+   If no flow resistance is requested, set <code>dp_nominal=0</code>.
+   </p>
+   <p>
+   For a model that uses a control signal <i>u &isin; [0, 1]</i> and multiplies
+   this with the nominal heating or cooling power, use
+   <a href=\"modelica://Buildings.Fluid.HeatExchangers.HeaterCooler_u\">
+   Buildings.Fluid.HeatExchangers.HeaterCooler_u</a>
+   </p>
+   <h4>Limitations</h4>
+   <p>
+   This model only adds or removes heat for the flow from
+   <code>port_a</code> to <code>port_b</code>.
+   The enthalpy of the reverse flow is not affected by this model.
+   </p>
+   <p>
+   This model does not affect the humidity of the air. Therefore,
+   if used to cool air below the dew point temperature, the water mass fraction
+   will not change.
+   </p>
+   <h4>Validation</h4>
+   <p>
+   The model has been validated against the analytical solution in
+   the examples
+   <a href=\"modelica://Buildings.Fluid.HeatExchangers.Validation.HeaterCooler_T\">
+   Buildings.Fluid.HeatExchangers.Validation.HeaterCooler_T</a>
+   and
+   <a href=\"modelica://Buildings.Fluid.HeatExchangers.Validation.HeaterCooler_T_dynamic\">
+   Buildings.Fluid.HeatExchangers.Validation.HeaterCooler_T_dynamic</a>.
+   </p>
+   </html>",
+   revisions="<html>
+   <ul>
+   <li>
+   December 1, 2016, by Michael Wetter:<br/>
+   Updated model as <code>use_dh</code> is no longer a parameter in the pressure drop model.<br/>
+   This is for
+   <a href=\"https://github.com/ibpsa/modelica/issues/480\">#480</a>.
+   </li>
+   <li>
+   November 11, 2014, by Michael Wetter:<br/>
+   Revised implementation.
+   </li>
+   <li>
+   March 19, 2014, by Christoph Nytsch-Geusen:<br/>
+   First implementation.
+   </li>
+   </ul>
+   </html>"));
+   end HeaterCooler_T;
 
-      connector NegativePin "Negative pin of an electric component"
-        Modelica.SIunits.Voltage v "Potential at the pin";
-        flow Modelica.SIunits.Current i "Current flowing into the pin";
-      end NegativePin;
 
-      partial model TwoPin "Common elements of two pin electrical components"
-        parameter Bool useTheMod=false "If true, use thermal model";
-        PositivePin p
-          annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
-        NegativePin n
-          annotation (Placement(transformation(extent={{90,-10},{110,10}})));
-      protected
-        Modelica.SIunits.Voltage v = p.v-n.v;
-        Modelica.SIunits.Current i = p.i;
-      equation
-        p.i + n.i = 0 "Conservation of charge";
-      end TwoPin;
+When parse to a json representation, the output of its public declarations is as follows:
 
-      model Resistor "A DRY resistor model"
-        extends TwoPin;
-        parameter Modelica.SIunits.Resistance R;
-      equation
-        v = i*R "Ohm's law";
-      end Resistor;
-    end Example1;
+.. code-block:: javascript
 
-In this (very simple) model described above, a possible XML representation might be::
+   "Buildings.Fluid.HeatExchangers.HeaterCooler_T": {
+       "name": "Buildings.Fluid.HeatExchangers.HeaterCooler_T",
+       "comment": "Ideal heater or cooler with a prescribed outlet temperature",
+       "qualifiers": [
+           "model"
+       ],
+       "superClasses": [
+           {
+               "nameOfExtendedClass": "Buildings.Fluid.Interfaces.PartialTwoPortInterface"
+           },
+           {
+               "nameOfExtendedClass": "Buildings.Fluid.Interfaces.TwoPortFlowResistanceParameters",
+               "modifications": [
+                   {
+                       "name": "computeFlowResistance",
+                       "qualifiers": [
+                           "final"
+                       ],
+                       "value": "abs(dp_nominal)>Modelica.Constants.eps"
+                   }
+               ]
+           },
+           {
+               "nameOfExtendedClass": "Buildings.Fluid.Interfaces.PrescribedOutletStateParameters",
+               "modifications": [
+                   {
+                       "name": "T_start",
+                       "value": "Medium.T_default"
+                   }
+               ]
+           }
+       ],
+       "components": [
+           {
+               "className": "Boolean",
+               "qualifiers": [
+                   "parameter"
+               ],
+               "name": "homotopyInitialization",
+               "comment": "= true, use homotopy method",
+               "value": "true",
+               "annotations": {
+                   "dialog": "Dialog(tab = \"Advanced\")"
+               }
+           },
+           {
+               "className": "Modelica.Blocks.Interfaces.RealInput",
+               "name": "TSet",
+               "comment": "Set point temperature of the fluid that leaves port_b",
+               "modifications": [
+                   {
+                       "name": "unit",
+                       "value": "\"K\""
+                   },
+                   {
+                       "name": "displayUnit",
+                       "value": "\"degC\""
+                   }
+               ],
+               "annotations": {
+                   "placement": "Placement(transformation(extent = {{-140,40},{-100,80}}))"
+               }
+           },
+           {
+               "className": "Modelica.Blocks.Interfaces.RealOutput",
+               "name": "Q_flow",
+               "comment": "Heat added to the fluid (if flow is from port_a to port_b)",
+               "modifications": [
+                   {
+                       "name": "unit",
+                       "value": "\"W\""
+                   }
+               ],
+               "annotations": {
+                   "placement": "Placement(transformation(extent = {{100,50},{120,70}}))"
+               }
+           }
+       ],
+       "annotations": {
+           "documentationInfo": "info = \"<html>\n<p>\nModel for an ideal heater or cooler with 
+           a prescribed outlet temperature.\n</p>\n<p>\nThis model forces the outlet temperature at <code>port_b</code> 
+           [further text has been omitted]
+           </html>\"",
+           "icon": "Icon(coordinateSystem(preserveAspectRatio = false, 
+                          extent = {{-100,-100},{100,100}}), 
+                          graphics = {Rectangle(),Rectangle(),Rectangle(),Text(),Rectangle(),Text()})"
+       }
+   }
 
-    <?xml version="1.0" encoding="UTF-8"?>
-    <!--
-      A library could be given a different ID than the top level package
-      name. For example, the "Modelica Buildings Library"'s top level package
-      is "Buildings". Here, we use Example1 for the library name and
-      "Ex1" for the top-level package name. Presumably, the "Example1" meta
-      data has been passed in out-of-band or via the annotation mechanism.
-    -->
-    <lib id="Example1">
-      <package id="Ex1">
-        <!-- specify package order by top-level model ids -->
-        <order>Ex1.PositivePin,Ex1.NegativePin,Ex1.TwoPin,Ex1.Resistor</order>
-        <connectors>
-          <!--
-            below, we derive a unique "hash-key" for the type that will allow
-            us to identify that PositivePin connectors can be connected to
-            NegativePin connectors
 
-            Note: we use the fully qualified names for IDs both because XML
-            requires unique ids and also for our identification purposes.
+Hence, OpenStudio can reads its parameters from the json file. Note that it also will need to parse the json
+representation from the ``superClasses``, for example
+to obtain the connectors and parameters, including their modifications, from
+``Buildings.Fluid.Interfaces.PartialTwoPortInterface``.
 
-            The "f:" and "p:" prefixes indicate f: as "flow" and p as
-            "potential" variables. An "s:" prefix would indicate a "stream"
-            variable. The hash is the listing of all types in a connection with
-            prefixes put together in alphabetical order separated by
-            semicolons. Comparing on these type hashes would allow a tool to
-            know which connectors could be connected together.
-          -->
-          <connector
-            id="Ex1.PositivePin"
 
-            todo: what does type add? This information is already in the children.
-
-                  mok: That is true that the information is in the children.
-                  The 'type' information was proposed as a pre-processing step
-                  that could assist OpenStudio in determining which connectors
-                  (or other models) can be connected together. However, it may
-                  be better to move this logic elsewhere.
-
-            type="f:Modelica.SIunits.Current;p:Modelica.SIunits.Voltage">
-            <variable
-
-              todo: is it required that id below repeats the id of the parent?
-                     It seems to give a conflict if a model from a different
-                     package is extended, as then, the first part of the name
-                     may change (say A extends B, B contains parameter p.
-                     Then this is called A.p, and not A.B.p)
-
-                    mok: We don't need to use the 'id' attribute but if we
-                    do, each 'id' in a well-formed XML document must be unique:
-
-                    https://www.w3.org/TR/2006/REC-xml11-20060816/#id
-
-                    Regarding your example, one way this could be handled is
-                    as follows:
-
-                        <model id="A"><extends>B</extends></model>
-                        <model id="B">
-                          <variable id="B.p" ...></variable>
-                        </model>
-                    
-                    In the above, one would have to "walk" the datastructure
-                    to know of A.p's existance. We're definitely open to
-                    handling this differently. We could perhaps go with
-                    using a "name" attribute which does not echo the
-                    entire path -- this would save space but would require
-                    those consuming the data to recreate the paths.
-
-              id="Ex1.PositivePin.v"
-              type="Modelica.SIunits.Voltage"
-              connect_type="potential"
-              doc="Potential at the pin"/>
-            <variable
-              id="Ex1.PositivePin.i"
-              type="Modelica.SIunits.Current"
-              connect_type="flow"
-              doc="Potential at the pin"/>
-          </connector>
-          <connector
-            id="Ex1.NegativePin"
-            type="f:Modelica.SIunits.Current;p:Modelica.SIunits.Voltage">
-            <variable
-              id="Ex1.NegativePin.v"
-              type="Modelica.SIunits.Voltage"
-              connect_type="potential"
-              doc="Potential at the pin"/>
-            <variable
-              id="Ex1.NegativePin.i"
-              type="Modelica.SIunits.Current"
-              connect_type="flow"
-              doc="Potential at the pin"/>
-          </connector>
-        </connectors>
-        <models>
-          <model
-            id="Ex1.TwoPin"
-            type="partial"
-            doc="Common elements of two pin electrical components">
-
-            todo: above we used variable, but here we use var. Is this a typo?
-
-                  mok: Yes, fixed below. Note that I don't want this example
-                  to reflect the exact tag names and data model -- we still
-                  need to discuss first; this is only a suggestion. Note: we
-                  may want to investigate using more "terse" names as a means
-                  of reducing file size (e.g., "v" instead of "variable" as an
-                  extreme case); compression technology may make long variable
-                  names a non-issue but we need to measure. There is also the
-                  question of what data should appear as nested tags and what
-                  should appear as attributes.
-
-            <variable
-              type="Bool"
-              id="Ex1.TwoPin.useTheMod"
-              variability="parameter">
-              false
-            </variable>
-            <variable
-              type="Ex1.PositivePin"
-              id="Ex1.TwoPin.p"
-              variability="continuous">
-              <!--
-                Note: "Placement" annotation downcased
-              -->
-              <annotation>
-                <placement>
-                  <transformation>
-                    <extent>{{-110,-10},{-90,10}}</extent>
-                  </transformation>
-                </placement>
-              </annotation>
-            </variable>
-            <variable
-              type="Ex1.NegativePin"
-              id="Ex1.TwoPin.n"
-              variability="continuous">
-              <annotation>
-                <placement>
-                  <transformation>
-                    <extent>{{90,-10},{110,10}}</extent>
-                  </transformation>
-                </placement>
-              </annotation>
-            </variable>
-            <variable
-              type="Modelica.SIunits.Voltage"
-              id="Ex1.TwoPin.v"
-              variability="continuous"
-              visibility="protected">
-              <annotation>
-                <placement>
-                  <transformation>
-                    <extent>{{90,-10},{110,10}}</extent>
-                  </transformation>
-                </placement>
-              </annotation>
-            </variable>
-            <variable
-              type="Modelica.SIunits.Current"
-              id="Ex1.TwoPin.i"
-              variability="continuous"
-              visibility="protected">
-              <annotation>
-                <placement>
-                  <transformation>
-                    <extent>{{90,-10},{110,10}}</extent>
-                  </transformation>
-                </placement>
-              </annotation>
-            </variable>
-            <!-- equation section elided... -->
-          </model>
-          <!-- OK, and finally the Resistor -->
-          <model
-            id="Ex1.Resistor"
-            doc="A DRY resistor model">
-            <extends>Ex1.TwoPin</extends>
-            <variable
-              type="Modelica.SIunits.Resistance"
-              id="Ex1.Resistor.R"
-              variability="parameter">
-            </variable>
-            <!-- equation section elided... -->
-          </model>
-        </models>
-      </package>
-    </lib>
-
-There have been several attempts to represent or use XML in relation to
-Modelica in the past (:cite:`Landin2014`, :cite:`Fritzson2003G`, :cite:`Pop2003`, :cite:`Pop2005`, and :cite:`Reisenbichler2006`).
-
-In particular, N. Landin did work with Modelon using JModelica to export XML for
-the purpose of model exchange :cite:`Landin2014` -- this is very similar to our use case.
-Unfortunately, this work deals only with "flattened" models -- Modelica models
-that have been instantiated with all of the hierarchy removed. For our use
-case, the hierarchy must be preserved so that the OpenStudio team can
-build a new model through instantiation of models from the MBL.
-
-The paper by Reisenbichler 2006 motivates the usage of XML in association with
-Modelica without getting into specifics :cite:`Reisenbichler2006`. The remaining work by Pop and Fritzson
-is thus the only comprehensive work on an XML representation of Modelica
-*source* AST that appears in the literature (:cite:`Pop2003`, :cite:`Pop2005`, and :cite:`Fritzson2003G`). The purpose of the XML work by Pop
-and Fritzson was to create a complete XML representation of the entire Modelica
-source. It is generally a good reference but we note that it is, perhaps
-unnecessarily, verbose for our current needs. As such, although we will refer
-to this work, we do not plan to duplicate it.
 
 Summary of Questions and Next Steps
 """""""""""""""""""""""""""""""""""
