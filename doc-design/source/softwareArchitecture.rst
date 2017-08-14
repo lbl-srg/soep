@@ -606,24 +606,25 @@ SmoothToken for QSS
 ~~~~~~~~~~~~~~~~~~~
 
 
-This section discusses a proposal for a new data type which should be used for input and output variables of FMU-QS.
-FMU-QSS is an FMU which uses QSS to integrate an imported FMU for Model Exchange (FMU-ME).
-We propose that an FMU-QSS communicates with other FMUs using a SmoothToken data type.
-A smooth token is a timestamped event that has a real value (approximated as a double) that represents the current sample of a real-valued smooth signal. But in addition to the sample value, the smooth token contains zero or more derivatives, representing the value of a function of time at a particular time.
-For example, in the figure below, a regular FMU has a real input :math:`u` and a real output :math:`y`, a smooth token of the input variable will be a variable :math:`u^*=[u, nds, du/dt, d^2u/dt^2, t_u]`,
-where :math:`nds` is a parameter that defines the number of derivatives which will be present in the smooth token.  In this example where :math:`nds=2`, :math:`du/dt`, and :math:`d^2u/dt^2` are first and second input derivatives with respect to time. :math:`t_u` is the time at which :math:`u^*` was evaluated. If :math:`u^*` has a discontinuity at :math:`t_u`, then the derivatives are the derivatives from above, e.g, for :math:`t^-> t_u`, with :math:`t > t_u`.
+This section discusses a proposal for a new data type which should be used for input and output variables of FMU-QSS.
+FMU-QSS is an FMU which uses QSS to integrate an imported FMU for model exchange (FMU-ME).
+We propose that FMU-QSS communicates with other FMUs using a SmoothToken data type.
 
-At runtime, FMU-QSS will receive :math:`u^*`, and convert it to a real signal :math:`y_s` using a SmoothToken to Double method. The real signal  is computed as  :math:`y_s = u + du/dt * (t - t_u) + ½ * d^2u/dt^2 *(t-t_u)^2`, with :math:`t` being the current time, and :math:`t_u` being the time stamped of the input signal.
+A smooth token is a timestamped event that has a real value (approximated as a double) that represents the current sample of a real-valued smooth signal. But in addition to the sample value, the smooth token contains zero or more derivatives, representing the value of a function of time at a particular time.
+For example, in the figure below, FMU-ME has a real input :math:`u` and a real output :math:`y`. A smooth token of the input variable will be a variable :math:`u^*=[u, nds, du/dt, d^2u/dt^2, t_u]`,
+where :math:`nds` is a parameter that defines the number of input derivatives present in the smooth token.  In this example `nds` equals 2. Hence :math:`du/dt`, and :math:`d^2u/dt^2` are first and second input derivatives with respect to time. :math:`t_u` is the time at which :math:`u^*` was evaluated. If :math:`u^*` has a discontinuity at :math:`t_u`, then the derivatives are the derivatives from above.
+
+At runtime, FMU-QSS will receive :math:`u^*` and convert it to a real signal :math:`y_s` using a SmoothToken to Double method. The real signal  is computed as  :math:`y_s = u + du/dt * (t - t_u) + ½ * d^2u/dt^2 *(t-t_u)^2`, with :math:`t` being the current time, and :math:`t_u` being the time stamped of the input signal.
 
 
 .. _fig-fmu-qss:
 
 .. figure:: img/fmu-qss.*
-   :scale: 35 %
+   :scale: 55 %
 
 
-For now given an FMU which has a real input signal,  FMU-QSS will assume that the master algorithm provides it with the value and zero or more derivatives of the input signal. 
-FMU-QSS will convert this signal into a real signal prior to setting it in the regular FMU.
+For now given an FMU which has a real input signal, FMU-QSS will assume that the master algorithm provides it with the value and zero or more derivatives of the input signal. 
+FMU-QSS will convert this signal into a real signal prior to setting it in FMU-ME.
 To avoid frequent changes in the input signal, each input signal will have a quantum defined.
 The quantum :math:`dq` will be computed at runtime as 
     :math:`dq = relTol * u^-`, 
@@ -632,8 +633,6 @@ The input signal will be updated only if it has changed by more than a quantum. 
 
 
 .. note::
-
-    We need to handle cases when :math:`u_0=0` or :math:`u^-=0` since it will lead to a zero quantum.
 
     We need to figure what the C-format of :math:`u^*` will need to be (struct)?
 
