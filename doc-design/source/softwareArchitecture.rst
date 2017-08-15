@@ -614,6 +614,10 @@ A smooth token is a timestamped event that has a real value (approximated as a d
 For example, in the figure below, FMU-ME has a real input :math:`u` and a real output :math:`y`. A smooth token of the input variable will be a variable :math:`u^*=[u, nds, du/dt, d^2u/dt^2, t_u]`,
 where :math:`nds` is a parameter that defines the number of input derivatives present in the smooth token.  In this example `nds` equals 2. Hence :math:`du/dt`, and :math:`d^2u/dt^2` are first and second input derivatives with respect to time. :math:`t_u` is the time at which :math:`u^*` was evaluated. If :math:`u^*` has a discontinuity at :math:`t_u`, then the derivatives are the derivatives from above.
 
+.. note::
+
+   Michael: Could you please clarify whether the derivatives from above you mentioned in the text is the right derivative? If yes, then I am not totally clear above how PyFMI will a) detect the discontnuity and b) compute the derivative?
+
 At runtime, FMU-QSS will receive :math:`u^*` and convert it to a real signal :math:`y_s` using a SmoothToken to Double method. The real signal  is computed as  :math:`y_s = u + du/dt * (t - t_u) + ½ * d^2u/dt^2 *(t-t_u)^2`, with :math:`t` being the current time, and :math:`t_u` being the time stamped of the input signal.
 
 
