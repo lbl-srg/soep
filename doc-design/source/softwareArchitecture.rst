@@ -607,18 +607,32 @@ SmoothToken for QSS
 
 
 This section discusses a proposal for a new data type which should be used for input and output variables of FMU-QSS.
-FMU-QSS is an FMU which uses QSS to integrate an imported FMU for model exchange (FMU-ME).
+FMU-QSS is an FMU for Model Exchange (FMU-ME) which uses QSS to integrate an imported FMU-ME.
 We propose that FMU-QSS communicates with other FMUs using a SmoothToken data type.
 
-A smooth token is a timestamped event that has a real value (approximated as a double) that represents the current sample of a real-valued smooth signal. But in addition to the sample value, the smooth token contains zero or more derivatives, representing the value of a function of time at a particular time.
-For example, in the figure below, FMU-ME has a real input :math:`u` and a real output :math:`y`. A smooth token of the input variable will be a variable :math:`u^*=[u, nds, du/dt, d^2u/dt^2, t_u]`,
-where :math:`nds` is a parameter that defines the number of input derivatives present in the smooth token.  In this example `nds` equals 2. Hence :math:`du/dt`, and :math:`d^2u/dt^2` are first and second input derivatives with respect to time. :math:`t_u` is the time at which :math:`u^*` was evaluated. If :math:`u^*` has a discontinuity at :math:`t_u`, then the derivatives are the derivatives from above.
+A smooth token is a timestamped event that has a real value (approximated as a ``double``)
+that represents the current sample of a real-valued smooth signal. But in addition to the sample value,
+the smooth token contains zero or more time-derivatives of the signal at the stored timestamp.
+For example, in the figure below, FMU-ME has a real input :math:`u` and a real output :math:`y`.
+A smooth token of the input variable will be a variable :math:`u^* \triangleq [u, n, du/dt, ...,  d^n u/dt^n, t_u]`,
+where :math:`n \in \{0, 1, 2, \ldots \}` is a parameter that defines the number of time derivatives that are present in the smooth token and
+:math:`t_u` is the timestamp of the smooth token.
+If :math:`u^*` has a discontinuity at :math:`t_u`,
+then the derivatives are the derivatives from above, e.g., :math:`du/dt \triangleq \lim_{s \downarrow 0} (u(t_u+s)-u(t_u))/s`.
 
 .. note::
 
    Michael: Could you please clarify whether the derivatives from above you mentioned in the text is the right derivative? If yes, then I am not totally clear above how PyFMI will a) detect the discontnuity and b) compute the derivative?
 
-At runtime, FMU-QSS will receive :math:`u^*` and convert it to a real signal :math:`y_s` using a SmoothToken to Double method. The real signal  is computed as  :math:`y_s = u + du/dt * (t - t_u) + ½ * d^2u/dt^2 *(t-t_u)^2`, with :math:`t` being the current time, and :math:`t_u` being the time stamped of the input signal.
+At simulation time :math:`t`, FMU-QSS will receive :math:`u^*` and convert it to a real signal
+using the Taylor expansion
+
+.. math::
+
+   y_s(t) = \frac{u^{(n)}(t_u)}{n!} \, (t-t_u)^n,
+
+where :math:`u^{(n)}` denotes the :math:`n`-th derivative. As shown in :numref:`fig-fmu-qss`, the FMU-ME will receive
+the value :math:`y_s(t)`.
 
 
 .. _fig-fmu-qss:
@@ -626,19 +640,27 @@ At runtime, FMU-QSS will receive :math:`u^*` and convert it to a real signal :ma
 .. figure:: img/fmu-qss.*
    :scale: 55 %
 
+   Conversion of input signal between FMU-QSS and FMU-ME.
 
-For now given an FMU which has a real input signal, FMU-QSS will assume that the master algorithm provides it with the value and zero or more derivatives of the input signal. 
-FMU-QSS will convert this signal into a real signal prior to setting it in FMU-ME.
+
 To avoid frequent changes in the input signal, each input signal will have a quantum defined.
-The quantum :math:`dq` will be computed at runtime as 
-    :math:`dq = relTol * u^-`, 
-where :math:`relTol` is the relative tolerance and :math:`u^-` is the last value seen at the input of FMU-ME. The initial value :math:`dq_0 = relTol * u_0`.
-The input signal will be updated only if it has changed by more than a quantum. This can be detected for instance by checking if :math:`y_s` crosses the quantum.
+The quantum :math:`dq` will be computed at runtime as
+:math:`\delta q = \epsilon_{rel} \, |u^-|`,
+where :math:`\epsilon_{rel}` is the relative tolerance and :math:`u^-`
+is the last value seen at the input of FMU-ME. The initial value is :math:`\delta q_0 = \epsilon_{rel} \, u_0`.
+The input signal will be updated only if it has changed by more than a quantum,
+
+.. math::
+
+   |y_s(t) - u^-| \ge \delta q = \epsilon_{rel} \, |u^-|.
 
 
 .. note::
 
-    We need to figure what the C-format of :math:`u^*` will need to be (struct)?
+   This won't work if :math:`u^- \approx 0`. We need to use :math:`\delta q = \max(\epsilon_{rel} \, |u^-|, \epsilon_{abs})`,
+   where :math:`\epsilon_{abs}` is the absolute tolerance, set to :math:`\epsilon_{abs} \triangleq \epsilon_{rel} \, |u_{nom}|`,
+   where :math:`u_{nom}` is the nominal value of the variable :math:`u`.
+
+    We need to figure what the C-format of :math:`u^*` will need to be (struct)? -- Yes, please define it.
 
     We need to figure the FMI function which will be needed  to set this type of variable.
-
