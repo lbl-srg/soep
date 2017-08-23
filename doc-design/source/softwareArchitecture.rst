@@ -620,10 +620,6 @@ where :math:`n \in \{0, 1, 2, \ldots \}` is a parameter that defines the number 
 If :math:`u^*` has a discontinuity at :math:`t_u`,
 then the derivatives are the derivatives from above, e.g., :math:`du/dt \triangleq \lim_{s \downarrow 0} (u(t_u+s)-u(t_u))/s`.
 
-.. note::
-
-   Michael: Could you please clarify whether the derivatives from above you mentioned in the text is the right derivative? If yes, then I am not totally clear above how PyFMI will a) detect the discontnuity and b) compute the derivative?
-
 At simulation time :math:`t`, FMU-QSS will receive :math:`u^*` and convert it to a real signal
 using the Taylor expansion
 
@@ -652,15 +648,14 @@ The input signal will be updated only if it has changed by more than a quantum,
 
 .. math::
 
-   |y_s(t) - u^-| \ge \delta q = \epsilon_{rel} \, |u^-|.
+   |y_s(t) - u^-| \ge \delta q = \max(\epsilon_{rel} \, |u^-|, \epsilon_{abs}),
+
+where :math:`\epsilon_{abs}` is the absolute tolerance, set to :math:`\epsilon_{abs} \triangleq \epsilon_{rel} \, |u_{nom}|`,
+where :math:`u_{nom}` is the nominal value of the variable :math:`u`.
 
 
 .. note::
 
-   This won't work if :math:`u^- \approx 0`. We need to use :math:`\delta q = \max(\epsilon_{rel} \, |u^-|, \epsilon_{abs})`,
-   where :math:`\epsilon_{abs}` is the absolute tolerance, set to :math:`\epsilon_{abs} \triangleq \epsilon_{rel} \, |u_{nom}|`,
-   where :math:`u_{nom}` is the nominal value of the variable :math:`u`.
+    We still need to design the C-format of :math:`u^*`.
 
-    We need to figure what the C-format of :math:`u^*` will need to be (struct)? -- Yes, please define it.
-
-    We need to figure the FMI function which will be needed  to set this type of variable.
+    We still need to design the FMI function which will be needed to set `u^*`.
