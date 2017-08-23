@@ -601,3 +601,61 @@ If the number of event indicators does not match, the FMU needs to be rejected w
    We still need to design how to handle algebraic loops inside the FMU
    (see also Cellier's and Kofman's book) and algebraic loops that
    cross multiple FMUs.
+
+SmoothToken for QSS
+~~~~~~~~~~~~~~~~~~~
+
+
+This section discusses a proposal for a new data type which should be used for input and output variables of FMU-QSS.
+FMU-QSS is an FMU for Model Exchange (FMU-ME) which uses QSS to integrate an imported FMU-ME.
+We propose that FMU-QSS communicates with other FMUs using a SmoothToken data type.
+
+A smooth token is a timestamped event that has a real value (approximated as a ``double``)
+that represents the current sample of a real-valued smooth signal. But in addition to the sample value,
+the smooth token contains zero or more time-derivatives of the signal at the stored timestamp.
+For example, in the figure below, FMU-ME has a real input :math:`u` and a real output :math:`y`.
+A smooth token of the input variable will be a variable :math:`u^* \triangleq [u, n, du/dt, ...,  d^n u/dt^n, t_u]`,
+where :math:`n \in \{0, 1, 2, \ldots \}` is a parameter that defines the number of time derivatives that are present in the smooth token and
+:math:`t_u` is the timestamp of the smooth token.
+If :math:`u^*` has a discontinuity at :math:`t_u`,
+then the derivatives are the derivatives from above, e.g., :math:`du/dt \triangleq \lim_{s \downarrow 0} (u(t_u+s)-u(t_u))/s`.
+
+At simulation time :math:`t`, FMU-QSS will receive :math:`u^*` and convert it to a real signal
+using the Taylor expansion
+
+.. math::
+
+   y_s(t) = \frac{u^{(n)}(t_u)}{n!} \, (t-t_u)^n,
+
+where :math:`u^{(n)}` denotes the :math:`n`-th derivative. As shown in :numref:`fig-fmu-qss`, the FMU-ME will receive
+the value :math:`y_s(t)`.
+
+
+.. _fig-fmu-qss:
+
+.. figure:: img/fmu-qss.*
+   :scale: 55 %
+
+   Conversion of input signal between FMU-QSS and FMU-ME.
+
+
+To avoid frequent changes in the input signal, each input signal will have a quantum defined.
+The quantum :math:`dq` will be computed at runtime as
+:math:`\delta q = \epsilon_{rel} \, |u^-|`,
+where :math:`\epsilon_{rel}` is the relative tolerance and :math:`u^-`
+is the last value seen at the input of FMU-ME. The initial value is :math:`\delta q_0 = \epsilon_{rel} \, u_0`.
+The input signal will be updated only if it has changed by more than a quantum,
+
+.. math::
+
+   |y_s(t) - u^-| \ge \delta q = \max(\epsilon_{rel} \, |u^-|, \epsilon_{abs}),
+
+where :math:`\epsilon_{abs}` is the absolute tolerance, set to :math:`\epsilon_{abs} \triangleq \epsilon_{rel} \, |u_{nom}|`,
+where :math:`u_{nom}` is the nominal value of the variable :math:`u`.
+
+
+.. note::
+
+    We still need to design the C-format of :math:`u^*`.
+
+    We still need to design the FMI function which will be needed to set `u^*`.
