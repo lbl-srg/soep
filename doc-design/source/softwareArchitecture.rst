@@ -478,7 +478,7 @@ where :math:`u_{nom}` is the nominal value of the variable :math:`u`.
 
 **Adding a new data type and two new FMI functions for SmoothToken**:
 
-To support the smooth token data type, we propose to add following data-type to the FMI specification
+To support the smooth token data type, we propose to add following data type to the FMI specification
 
 .. code::
 
@@ -500,7 +500,7 @@ To set the value of a smooth token, we propose to add a new function ``fmi2SetSt
   fmi2Status fmi2SetStruct(fmi2Component c,
                          SmoothToken val);
 
-where ``val`` is the value of the SmoothToken to be set.
+where ``val`` is the value of the smooth token to be set.
 
 To get the value of a smooth token, we propose to add a new function ``fmi2GetStruct`` defined as
 
@@ -510,7 +510,7 @@ To get the value of a smooth token, we propose to add a new function ``fmi2GetSt
                          fmi2ValueReference vr;
                          SmoothToken val);
 
-where ``vr`` is the value reference of the FMU-ME variable to be retrieved, and ``val`` is its corresponding SmoothToken.
+where ``vr`` is the value reference of the FMU-ME variable to be retrieved, and ``val`` is its corresponding smooth token.
 
 
 .. note::
