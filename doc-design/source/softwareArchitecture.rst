@@ -524,7 +524,7 @@ where ``vr`` is the value reference of the FMU-ME variable to be retrieved, and 
 In the above section, we proposed to use smooth token for input and output variables of FMU-QSS.
 Since a smooth token can include derivatives information, we propose to extend the specification to provide 
 a function which can be used to get derivatives of FMU-ME output variables which will be used as inputs 
-of other FMUs. These derivatives can be used to parametrize the smooth token of the FMU inputs variables.
+of other FMUs. These derivatives can be used to parametrize the smooth token of the FMU input variables.
 We propose to extend the FMI for ME API to include the function ``fmi2GetRealOutputDerivatives`` which exists
 for the FMI for co-simulation API.
 
