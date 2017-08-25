@@ -145,8 +145,10 @@
 <li><a class="reference internal" href="#event-handling">5.2.1.1. Event Handling</a><ul>
 <li><a class="reference internal" href="#state-events">5.2.1.1.1. State Events</a></li>
 <li><a class="reference internal" href="#time-events">5.2.1.1.2. Time Events</a></li>
+<li><a class="reference internal" href="#events-with-boolean-expressions">5.2.1.1.3. Events with boolean expressions</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#smoothtoken-for-qss">5.2.1.2. SmoothToken for QSS</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#proposal-of-modelon">5.2.2. Proposal of Modelon</a></li>
@@ -231,7 +233,7 @@ dynamic load models for the SOEP mode.
 Note that the JModelica distribution includes a C++ compiler.</p>
 <div class="figure" id="id12">
 <span id="fig-overall-software-architecture"></span><p class="plantuml">
-<object data="_images/plantuml-5486606fbb23a0acfe9312301b4718ea77d3ed51.svg" type="image/svg+xml" style="width:1006px;height:1052px;">
+<object data="_images/plantuml-5486606fbb23a0acfe9312301b4718ea77d3ed51.svg" type="image/svg+xml" style="width:1005px;height:747px;">
 <img src="_images/plantuml-5486606fbb23a0acfe9312301b4718ea77d3ed51.png" alt="title Overall software architecture
 
 scale max 1024 width
@@ -881,13 +883,59 @@ direct feed-through from the input
 <span class="math">\(u(t)\)</span> to the output <span class="math">\(y(t)\)</span>, we use
 FMI for Model-Exchange (FMI-ME) version 2.0, because the Co-Simulation
 standard does not allow a zero time step size as needed for direct feed-through.</p>
+<p><a class="reference internal" href="#fig-sof-arc-qss-jmod2"><span class="std std-numref">Fig. 5.2</span></a> shows the software architecture
+with the extended FMI API.
+For simplicity the figure only
+shows single FMUs, but we anticipated having multiple interconnected FMUs.</p>
+<div class="figure" id="id13">
+<span id="fig-sof-arc-qss-jmod2"></span><p class="plantuml">
+<object data="_images/plantuml-57d091db0cbd1e6c27ed9db53ebabf1df03d02da.svg" type="image/svg+xml" style="width:820px;height:419px;">
+<img src="_images/plantuml-57d091db0cbd1e6c27ed9db53ebabf1df03d02da.png" alt="title Software architecture for QSS integration with JModelica with extended FMI API
+
+skinparam componentStyle uml2
+
+package FMU-ME {
+  [QSS solver] as qss_sol
+  [FMU-ME] as FMU_QSS
+}
+
+package PyFMI {
+[Master algorithm] -&gt; qss_sol : &quot;inputs, time&quot;
+[Master algorithm] &lt;- qss_sol : &quot;next event time, states&quot;
+[Master algorithm] - [Sundials]
+}
+
+[Sundials] -&gt; [FMU-ME] : &quot;(x, t)&quot;
+[Sundials] &lt;- [FMU-ME] : &quot;dx/dt&quot;
+[Master algorithm] -&gt; [FMU-CS] : &quot;hRequested&quot;
+[Master algorithm] &lt;- [FMU-CS] : &quot;(x, hMax)&quot;
+
+package Optimica {
+[JModelica compiler] as jmc
+}
+
+jmc -&gt; FMU_QSS
+
+FMU_QSS -down-&gt; qss_sol : &quot;derivatives&quot;
+qss_sol -down-&gt; FMU_QSS : &quot;inputs, time, states&quot;" />
+
+</object></p>
+<p class="caption"><span class="caption-number">Fig. 5.2 </span>: Software architecture for QSS integration with JModelica
+with extended FMI API.<a class="headerlink" href="#id13" title="Permalink to this image">¶</a></p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">We still need to design how to handle algebraic loops inside the FMU
+(see also Cellier&#8217;s and Kofman&#8217;s book) and algebraic loops that
+cross multiple FMUs.</p>
+</div>
 <p>The QSS solvers require the derivatives shown in <a class="reference internal" href="#tab-qss-der"><span class="std std-numref">Table 5.1</span></a>.</p>
-<table border="1" class="docutils" id="id13">
+<table border="1" class="docutils" id="id14">
 <span id="tab-qss-der"></span><caption><span class="caption-number">Table 5.1 </span><span class="caption-text">Derivatives required by QSS algorithms. One asteriks indicates
         that they are provided by FMI-ME 2.0, and two asteriks indicate
         that they can optionally be computed exactly if directional
         derivatives are provided by the FMU.
-        The others cannot be provided through the FMI API.</span><a class="headerlink" href="#id13" title="Permalink to this table">¶</a></caption>
+        The others cannot be provided through the FMI API.</span><a class="headerlink" href="#id14" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col width="10%" />
 <col width="50%" />
@@ -1083,72 +1131,159 @@ this model to declare in its model description file the dependency of
 <code class="docutils literal"><span class="pre">der(x)</span></code> on <code class="docutils literal"><span class="pre">y</span></code>.
 This is addressed by the requirement proposed for  <code class="docutils literal"><span class="pre">StateEvent4</span></code>.</p>
 <p>Furthermore, QSS needs to know that <code class="docutils literal"><span class="pre">y</span></code> needs to be updated
-when <span class="math">\(time &gt;= 2\)</span>. It also needs to know what variables depend on <code class="docutils literal"><span class="pre">y</span></code>
+when <span class="math">\(t \ge 2\)</span>. It also needs to know what variables depend on <code class="docutils literal"><span class="pre">y</span></code>
 so it can update them.</p>
 <p>We therefore propose to add time event handlers along with their dependencies
-to the <code class="docutils literal"><span class="pre">EventIndicatorHandlers</span></code> introduced in <a class="reference internal" href="#subsec-se"><span class="std std-ref">State Events</span></a>.</p>
+to the <code class="docutils literal"><span class="pre">EventIndicatorHandlers</span></code> introduced in <a class="reference internal" href="#subsec-se"><span class="std std-numref">Section 5.2.1.1.1</span></a>.</p>
+</div>
+<div class="section" id="events-with-boolean-expressions">
+<h5>5.2.1.1.3. Events with boolean expressions<a class="headerlink" href="#events-with-boolean-expressions" title="Permalink to this headline">¶</a></h5>
+<p>Further investigation is needed to understand how JModelica deals
+with zero crossing functions which have boolean expressions such as</p>
+<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">ZCBoolean</span>
+  <span class="s2">&quot;This model tests state event detection with boolean zero crossing&quot;</span>
+  <span class="kr">extends</span> <span class="n">Modelica</span><span class="o">.</span><span class="n">Icons</span><span class="o">.</span><span class="n">Example</span><span class="p">;</span>
+  <span class="nb">Real</span> <span class="n">x</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">);</span>
+  <span class="nb">Real</span> <span class="n">u</span> <span class="s2">&quot;Internal input signal&quot;</span><span class="p">;</span>
+  <span class="nb">Boolean</span> <span class="n">yBoo</span> <span class="s2">&quot;Boolean variable&quot;</span><span class="p">;</span>
+  <span class="kr">discrete</span> <span class="n">Modelica</span><span class="o">.</span><span class="n">Blocks</span><span class="o">.</span><span class="n">Interfaces</span><span class="o">.</span><span class="n">RealOutput</span> <span class="n">y</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">);</span>
+<span class="kr">initial</span> <span class="kr">equation</span>
+  <span class="nb">pre</span><span class="p">(</span><span class="n">yBoo</span><span class="p">)</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+<span class="kr">equation</span>
+  <span class="n">u</span> <span class="o">=</span> <span class="n">Modelica</span><span class="o">.</span><span class="n">Math</span><span class="o">.</span><span class="nb">sin</span><span class="p">(</span><span class="nb">time</span><span class="p">);</span>
+  <span class="kr">der</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="n">y</span><span class="p">;</span>
+  <span class="kr">when</span> <span class="p">(</span><span class="nb">pre</span><span class="p">(</span><span class="n">yBoo</span><span class="p">)</span> <span class="ow">and</span> <span class="n">u</span> <span class="o">&gt;=</span> <span class="mf">0.5</span><span class="p">)</span> <span class="kr">then</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">;</span>
+    <span class="n">yBoo</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+  <span class="kr">elsewhen</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">pre</span><span class="p">(</span><span class="n">yBoo</span><span class="p">)</span> <span class="ow">and</span> <span class="n">u</span> <span class="o">&lt;=</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">)</span> <span class="kr">then</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">;</span>
+    <span class="n">yBoo</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+  <span class="kr">end</span> <span class="kr">when</span><span class="p">;</span>
+<span class="kr">end</span> <span class="nc">ZCBoolean</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Does JModelica generate two zero crossing functions which represent the
+conditionals?</p>
+</div>
+</div>
+<div class="section" id="smoothtoken-for-qss">
+<h4>5.2.1.2. SmoothToken for QSS<a class="headerlink" href="#smoothtoken-for-qss" title="Permalink to this headline">¶</a></h4>
+<p>This section discusses a proposal for a new data type which should be used for input and output variables of FMU-QSS.
+FMU-QSS is an FMU for Model Exchange (FMU-ME) which uses QSS to integrate an imported FMU-ME.
+We propose that FMU-QSS communicates with other FMUs using a SmoothToken data type.</p>
+<p>A smooth token is a time-stamped event that has a real value (approximated as a <code class="docutils literal"><span class="pre">double</span></code>)
+that represents the current sample of a real-valued smooth signal. But in addition to the sample value,
+the smooth token contains zero or more time-derivatives of the signal at the stored time stamp.
+For example, in the figure below, FMU-ME has a real input <span class="math">\(u\)</span> and a real output <span class="math">\(y\)</span>.
+A smooth token of the input variable will be a variable <span class="math">\(u^* \triangleq [u, n, du/dt, ...,  d^n u/dt^n, t_u]\)</span>,
+where <span class="math">\(n \in \{0, 1, 2, \ldots \}\)</span> is a parameter that defines the number of time derivatives that are present in the smooth token and
+<span class="math">\(t_u\)</span> is the timestamp of the smooth token.
+If <span class="math">\(u^*\)</span> has a discontinuity at <span class="math">\(t_u\)</span>,
+then the derivatives are the derivatives from above, e.g., <span class="math">\(du/dt \triangleq \lim_{s \downarrow 0} (u(t_u+s)-u(t_u))/s\)</span>.</p>
+<p>At simulation time <span class="math">\(t\)</span>, FMU-QSS will receive <span class="math">\(u^*\)</span> and convert it to a real signal
+using the Taylor expansion</p>
+<div class="math">
+\[y_s(t) = \frac{u^{(n)}(t_u)}{n!} \, (t-t_u)^n,\]</div>
+<p>where <span class="math">\(u^{(n)}\)</span> denotes the <span class="math">\(n\)</span>-th derivative. As shown in <a class="reference internal" href="#fig-fmu-qss"><span class="std std-numref">Fig. 5.3</span></a>, the FMU-ME will receive
+the value <span class="math">\(y_s(t)\)</span>.</p>
+<div class="figure" id="id15">
+<span id="fig-fmu-qss"></span><a class="reference internal image-reference" href="_images/fmu-qss.png"><img alt="_images/fmu-qss.png" src="_images/fmu-qss.png" style="width: 1069.2px; height: 392.15px;" /></a>
+<p class="caption"><span class="caption-number">Fig. 5.3 </span>: Conversion of input signal between FMU-QSS and FMU-ME.</span></p>
+</div>
+<p>To avoid frequent changes in the input signal, each input signal will have a quantum defined.
+The quantum <span class="math">\(\delta q\)</span> will be computed at runtime as</p>
+<div class="math">
+\[\delta q = \max(\epsilon_{rel} \, |u^-|, \epsilon_{abs}),\]</div>
+<p>where <span class="math">\(\epsilon_{rel}\)</span> is the relative tolerance,
+<span class="math">\(u^-\)</span> is the last value seen at the input of FMU-ME, and
+<span class="math">\(\epsilon_{abs} \triangleq \epsilon_{rel} \, |u_{nom}|\)</span>,
+where <span class="math">\(u_{nom}\)</span> is the nominal value of the variable <span class="math">\(u\)</span>.
+During initialization, we set <span class="math">\(u^- = u_0\)</span>.
+The input signal will be updated only if it has changed by more than a quantum,</p>
+<div class="math">
+\[|y_s(t) - u^-| \ge \delta q.\]</div>
+<p>To support the smooth token data type, we propose to add following data type to the FMI specification</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">typedef</span> <span class="n">struct</span> <span class="p">{</span>
+  <span class="n">fmi2ValueReference</span> <span class="n">vr</span><span class="p">;</span>
+  <span class="n">size_t</span> <span class="n">n</span><span class="p">;</span>
+  <span class="n">fmi2Real</span> <span class="n">value</span><span class="p">;</span>
+  <span class="n">fmi2Real</span> <span class="n">derivatives</span><span class="p">[];</span>
+  <span class="n">fmi2Real</span> <span class="n">t</span><span class="p">;</span>
+ <span class="p">}</span> <span class="n">fmi2SmoothToken</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>where
+<code class="docutils literal"><span class="pre">vr</span></code> is the value reference of the FMU-ME scalar variable for which a smooth token is constructed,
+<code class="docutils literal"><span class="pre">n</span></code> is is the number of time derivatives of a smooth signal,
+<code class="docutils literal"><span class="pre">value</span></code> is the sample of the smooth signal at time <code class="docutils literal"><span class="pre">t</span></code>,
+<code class="docutils literal"><span class="pre">derivatives</span></code> are the time derivatives of the FMU-ME scalar variable (e.g. <code class="docutils literal"><span class="pre">derivatives[0]</span></code> is the first time derivative, <code class="docutils literal"><span class="pre">derivatives[1]</span></code> is the second time derivative) at the time <code class="docutils literal"><span class="pre">t</span></code>,
+and <code class="docutils literal"><span class="pre">t</span></code> is the time-stamp of the smooth token.</p>
+<p>To set the value of a smooth token, we propose to add a new function <code class="docutils literal"><span class="pre">fmi2SetSmoothToken</span></code> defined as</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">fmi2Status</span> <span class="nf">fmi2SetSmoothToken</span><span class="p">(</span><span class="n">fmi2Component</span> <span class="n">c</span><span class="p">,</span>
+                              <span class="k">const</span> <span class="n">fmi2SmoothToken</span> <span class="n">val</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal"><span class="pre">val</span></code> is the value of the smooth token to be set.</p>
+<p>To get the value of a smooth token, we propose to add a new function <code class="docutils literal"><span class="pre">fmi2GetSmoothToken</span></code> defined as</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">fmi2Status</span> <span class="nf">fmi2GetSmoothToken</span><span class="p">(</span><span class="n">fmi2Component</span> <span class="n">c</span><span class="p">,</span>
+                              <span class="k">const</span> <span class="n">fmi2ValueReference</span> <span class="n">vr</span><span class="p">,</span>
+                              <span class="n">fmi2SmoothToken</span> <span class="n">val</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal"><span class="pre">vr</span></code> is the value reference of the FMU-ME variable to be retrieved, and <code class="docutils literal"><span class="pre">val</span></code> is its corresponding smooth token.</p>
+<div class="admonition-todo admonition" id="index-1">
+<p class="first admonition-title">Todo</p>
+<p class="last">Do we anticipate the need for vector-valued functions?</p>
+</div>
+<div class="admonition-todo admonition" id="index-2">
+<p class="first admonition-title">Todo</p>
+<p>Thierry wrote that &#8220;we need to implement how a smooth token will be modified if its value is for instance multiplied by a scalar or another smooth token.
+This is particularly important for smooth token outputs which will be used as inputs of other FMUs.&#8221;</p>
+<p class="last">I (Michael) don&#8217;t think this is needed as such multiplications will be done inside an FMU and not by the master algorithm.</p>
+</div>
+<p>We will now propose an extension to the FMI specification to get time derivatives of outputs.
+In the above section, we proposed to use <code class="docutils literal"><span class="pre">fmi2SmoothToken</span></code> for input and output variables of FMU-QSS.
+Since <code class="docutils literal"><span class="pre">fmi2SmoothToken</span></code> can include derivatives information, we propose to extend the FMI specification to provide
+a function which can be used to get derivatives of FMU-ME output variables which will be used as inputs
+of other FMUs. These derivatives can be used to parametrize <code class="docutils literal"><span class="pre">fmi2SmoothToken</span></code> of the FMU input variables.
+We propose to extend the FMI for ME API to include the function <code class="docutils literal"><span class="pre">fmi2GetRealOutputDerivatives</span></code> which exists
+for the FMI for co-simulation API.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p>How do we distinguish between time event handler, and state event handler?
-Should we have an attribute (<code class="docutils literal"><span class="pre">se</span></code> for state event and <code class="docutils literal"><span class="pre">te</span></code> for time event to distinguish them?).</p>
-<p class="last">QSS needs to know the exact handler which will be trigger when there is a time event.
-The ordering of the time event handler could be used to return the index of the
-time event handler which is to be updated. I added this to the optimization Measures section.</p>
-</div>
-<p><a class="reference internal" href="#fig-sof-arc-qss-jmod2"><span class="std std-numref">Fig. 5.2</span></a> shows the software architecture
-with the extended FMI API.
-For simplicity the figure only
-shows single FMUs, but we anticipated having multiple interconnected FMUs.</p>
-<div class="figure" id="id14">
-<span id="fig-sof-arc-qss-jmod2"></span><p class="plantuml">
-<object data="_images/plantuml-57d091db0cbd1e6c27ed9db53ebabf1df03d02da.svg" type="image/svg+xml" style="width:1091px;height:920px;">
-<img src="_images/plantuml-57d091db0cbd1e6c27ed9db53ebabf1df03d02da.png" alt="title Software architecture for QSS integration with JModelica with extended FMI API
-
-skinparam componentStyle uml2
-
-package FMU-ME {
-  [QSS solver] as qss_sol
-  [FMU-ME] as FMU_QSS
-}
-
-package PyFMI {
-[Master algorithm] -&gt; qss_sol : &quot;inputs, time&quot;
-[Master algorithm] &lt;- qss_sol : &quot;next event time, states&quot;
-[Master algorithm] - [Sundials]
-}
-
-[Sundials] -&gt; [FMU-ME] : &quot;(x, t)&quot;
-[Sundials] &lt;- [FMU-ME] : &quot;dx/dt&quot;
-[Master algorithm] -&gt; [FMU-CS] : &quot;hRequested&quot;
-[Master algorithm] &lt;- [FMU-CS] : &quot;(x, hMax)&quot;
-
-package Optimica {
-[JModelica compiler] as jmc
-}
-
-jmc -&gt; FMU_QSS
-
-FMU_QSS -down-&gt; qss_sol : &quot;derivatives&quot;
-qss_sol -down-&gt; FMU_QSS : &quot;inputs, time, states&quot;" />
-
-</object></p>
-<p class="caption"><span class="caption-number">Fig. 5.2 </span>: Software architecture for QSS integration with JModelica
-with extended FMI API.<a class="headerlink" href="#id14" title="Permalink to this image">¶</a></p>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">We still need to design how to handle algebraic loops inside the FMU
-(see also Cellier&#8217;s and Kofman&#8217;s book) and algebraic loops that
-cross multiple FMUs.</p>
-</div>
-<p>To avoid having to change the FMI specification,
-Modelon proposes an alternative approach which is
-discussed in the next sections.</p>
+<ul class="last">
+<li><p class="first">If a tool can not provide the derivative of an output variable with respect to time,
+<code class="docutils literal"><span class="pre">fmi2GetRealOutputDerivatives</span></code> should return an error.
+In this case, a master algorithm could approximate the output derivative as follows:</p>
+<ul>
+<li><p class="first">If there was no event, then the time derivatives from below and above are equal, and
+hence past and current output values can be used, e.g.,</p>
+<div class="math">
+\[dy/dt \approx \frac{y(t_k)-y(t_{k-1})}{t_k - t_{k-1}}.\]</div>
+</li>
+<li><p class="first">If there was an event, then the derivative from above need to be approximated.
+This could be done by assuming first <span class="math">\(dy/dt =0\)</span> and then building up derivative
+information in the next step, or by evaluating the FMU for <span class="math">\(t=t_k+\epsilon\)</span>, where
+<span class="math">\(\epsilon\)</span> is a small number, and then computing</p>
+<div class="math">
+\[dy/dt \approx \frac{y(t_k+\epsilon)-y(t_{k})}{\epsilon}.\]</div>
+</li>
+</ul>
+</li>
+<li><p class="first">For FMU-ME, if there is a direct feedthrough, e.g., <span class="math">\(y=f(u)\)</span>,
+then <span class="math">\(dy/dt\)</span> cannot be computed, because by the chain rule,</p>
+<div class="math">
+\[\frac{df(u)}{dt} = \frac{df(u)}{du} \, \frac{du}{dt}\]</div>
+<p>but <span class="math">\(du/dt\)</span> is not available in the FMU.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
 <div class="section" id="proposal-of-modelon">
 <h3>5.2.2. Proposal of Modelon<a class="headerlink" href="#proposal-of-modelon" title="Permalink to this headline">¶</a></h3>
+<p>To avoid having to change the FMI specification,
+Modelon proposes an alternative approach which is
+discussed in the next sections.</p>
 <p>Modelon proposes to allow setting <code class="docutils literal"><span class="pre">fmi2SetReal()</span></code> on continuous states (as
 we do above), adding <code class="docutils literal"><span class="pre">Time</span></code> as a state (which we believe is not needed),
 and adding event indicators and first derivative of event indicators as output variables.</p>
@@ -1276,12 +1411,6 @@ If the number of event indicators does not match, the FMU needs to be rejected w
 <p class="last">Per design, Dymola (2017 FD01) generates twice as many event indicators as actually existing in the model.
 Hence the master algorithm needs to detect if the tool which exported the FMU is Dymola, and if it is, the
 number of event indicator functions must be equal to half the value of the <code class="docutils literal"><span class="pre">numberOfEventIndicators</span></code> attribute.</p>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">We still need to design how to handle algebraic loops inside the FMU
-(see also Cellier&#8217;s and Kofman&#8217;s book) and algebraic loops that
-cross multiple FMUs.</p>
 </div>
 </div>
 </div>
