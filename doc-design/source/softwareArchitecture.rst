@@ -163,6 +163,54 @@ FMI for Model-Exchange (FMI-ME) version 2.0, because the Co-Simulation
 standard does not allow a zero time step size as needed for direct feed-through.
 
 
+:numref:`fig_sof_arc_qss_jmod2` shows the software architecture
+with the extended FMI API.
+For simplicity the figure only
+shows single FMUs, but we anticipated having multiple interconnected FMUs.
+
+.. _fig_sof_arc_qss_jmod2:
+
+.. uml::
+   :caption: Software architecture for QSS integration with JModelica
+             with extended FMI API.
+
+   title Software architecture for QSS integration with JModelica with extended FMI API
+
+   skinparam componentStyle uml2
+
+   package FMU-ME {
+     [QSS solver] as qss_sol
+     [FMU-ME] as FMU_QSS
+   }
+
+   package PyFMI {
+   [Master algorithm] -> qss_sol : "inputs, time"
+   [Master algorithm] <- qss_sol : "next event time, states"
+   [Master algorithm] - [Sundials]
+   }
+
+   [Sundials] -> [FMU-ME] : "(x, t)"
+   [Sundials] <- [FMU-ME] : "dx/dt"
+   [Master algorithm] -> [FMU-CS] : "hRequested"
+   [Master algorithm] <- [FMU-CS] : "(x, hMax)"
+
+   package Optimica {
+   [JModelica compiler] as jmc
+   }
+
+   jmc -> FMU_QSS
+
+   FMU_QSS -down-> qss_sol : "derivatives"
+   qss_sol -down-> FMU_QSS : "inputs, time, states"
+
+
+.. note::
+
+   We still need to design how to handle algebraic loops inside the FMU
+   (see also Cellier's and Kofman's book) and algebraic loops that
+   cross multiple FMUs.
+
+
 The QSS solvers require the derivatives shown in :numref:`tab_qss_der`.
 
 .. _tab_qss_der:
@@ -388,17 +436,18 @@ this model to declare in its model description file the dependency of
 This is addressed by the requirement proposed for  ``StateEvent4``.
 
 Furthermore, QSS needs to know that ``y`` needs to be updated
-when :math:`time >= 2`. It also needs to know what variables depend on ``y``
+when :math:`t \ge 2`. It also needs to know what variables depend on ``y``
 so it can update them.
 
 We therefore propose to add time event handlers along with their dependencies
-to the ``EventIndicatorHandlers`` introduced in :ref:`subsec_se`.
+to the ``EventIndicatorHandlers`` introduced in :numref:`subsec_se`.
 
 
-Events with boolean conditionals
-................................
+Events with boolean expressions
+...............................
 
-How does JModelica deal with zero crossing with conditionals which have boolean expressions such as
+Further investigation is needed to understand how JModelica deals
+with zero crossing functions which have boolean expressions such as
 
 .. code-block:: modelica
 
@@ -409,9 +458,9 @@ How does JModelica deal with zero crossing with conditionals which have boolean 
     Real u "Internal input signal";
     Boolean yBoo "Boolean variable";
     discrete Modelica.Blocks.Interfaces.RealOutput y(start=1.0, fixed=true);
-  initial equation 
+  initial equation
     pre(yBoo) = true;
-  equation 
+  equation
     u = Modelica.Math.sin(time);
     der(x) = y;
     when (pre(yBoo) and u >= 0.5) then
@@ -423,7 +472,7 @@ How does JModelica deal with zero crossing with conditionals which have boolean 
     end when;
   end ZCBoolean;
 
-Does JModelica generate two zero crossing functions which represent the 
+Does JModelica generate two zero crossing functions which represent the
 conditionals?
 
 SmoothToken for QSS
@@ -433,9 +482,9 @@ This section discusses a proposal for a new data type which should be used for i
 FMU-QSS is an FMU for Model Exchange (FMU-ME) which uses QSS to integrate an imported FMU-ME.
 We propose that FMU-QSS communicates with other FMUs using a SmoothToken data type.
 
-A smooth token is a timestamped event that has a real value (approximated as a ``double``)
+A smooth token is a time-stamped event that has a real value (approximated as a ``double``)
 that represents the current sample of a real-valued smooth signal. But in addition to the sample value,
-the smooth token contains zero or more time-derivatives of the signal at the stored timestamp.
+the smooth token contains zero or more time-derivatives of the signal at the stored time stamp.
 For example, in the figure below, FMU-ME has a real input :math:`u` and a real output :math:`y`.
 A smooth token of the input variable will be a variable :math:`u^* \triangleq [u, n, du/dt, ...,  d^n u/dt^n, t_u]`,
 where :math:`n \in \{0, 1, 2, \ldots \}` is a parameter that defines the number of time derivatives that are present in the smooth token and
@@ -462,134 +511,121 @@ the value :math:`y_s(t)`.
    Conversion of input signal between FMU-QSS and FMU-ME.
 
 To avoid frequent changes in the input signal, each input signal will have a quantum defined.
-The quantum :math:`dq` will be computed at runtime as
-:math:`\delta q = \epsilon_{rel} \, |u^-|`,
-where :math:`\epsilon_{rel}` is the relative tolerance and :math:`u^-`
-is the last value seen at the input of FMU-ME. The initial value is :math:`\delta q_0 = \epsilon_{rel} \, u_0`.
+The quantum :math:`\delta q` will be computed at runtime as
+
+.. math::
+
+    \delta q = \max(\epsilon_{rel} \, |u^-|, \epsilon_{abs}),
+
+where :math:`\epsilon_{rel}` is the relative tolerance,
+:math:`u^-` is the last value seen at the input of FMU-ME, and
+:math:`\epsilon_{abs} \triangleq \epsilon_{rel} \, |u_{nom}|`,
+where :math:`u_{nom}` is the nominal value of the variable :math:`u`.
+During initialization, we set :math:`u^- = u_0`.
 The input signal will be updated only if it has changed by more than a quantum,
 
 .. math::
 
-   |y_s(t) - u^-| \ge \delta q = \max(\epsilon_{rel} \, |u^-|, \epsilon_{abs}),
+   |y_s(t) - u^-| \ge \delta q.
 
-where :math:`\epsilon_{abs}` is the absolute tolerance, set to :math:`\epsilon_{abs} \triangleq \epsilon_{rel} \, |u_{nom}|`,
-where :math:`u_{nom}` is the nominal value of the variable :math:`u`.
-
-
-**Adding a new data type and two new FMI functions for SmoothToken**:
 
 To support the smooth token data type, we propose to add following data type to the FMI specification
 
 .. code::
 
     typedef struct {
+      fmi2ValueReference vr;
       size_t n;
       fmi2Real value;
-      fmi2ValueReference vr;
       fmi2Real derivatives[];
       fmi2Real t;
-     } SmoothToken;
+     } fmi2SmoothToken;
 
-where ``n`` is is the number of time derivatives of a smooth signal, ``value`` is the current sample of 
-the smooth signal, ``vr`` is the value reference of the FMU-ME scalar variable for which a smooth token is constructed, ``derivatives`` are the time derivatives of the FMU-ME scalar variable (e.g. ``derivatives[0]`` is the first time derivative, ``derivatives[1]`` is the second time derivative), and ``t`` is the timestamp of the smooth token.
+where
+``vr`` is the value reference of the FMU-ME scalar variable for which a smooth token is constructed,
+``n`` is is the number of time derivatives of a smooth signal,
+``value`` is the sample of the smooth signal at time ``t``,
+``derivatives`` are the time derivatives of the FMU-ME scalar variable (e.g. ``derivatives[0]`` is the first time derivative, ``derivatives[1]`` is the second time derivative) at the time ``t``,
+and ``t`` is the time-stamp of the smooth token.
 
-To set the value of a smooth token, we propose to add a new function ``fmi2SetStruct`` defined as
+To set the value of a smooth token, we propose to add a new function ``fmi2SetSmoothToken`` defined as
 
 .. code-block:: c
 
-  fmi2Status fmi2SetStruct(fmi2Component c,
-                         SmoothToken val);
+  fmi2Status fmi2SetSmoothToken(fmi2Component c,
+                                const fmi2SmoothToken val);
 
 where ``val`` is the value of the smooth token to be set.
 
-To get the value of a smooth token, we propose to add a new function ``fmi2GetStruct`` defined as
+To get the value of a smooth token, we propose to add a new function ``fmi2GetSmoothToken`` defined as
 
 .. code-block:: c
 
-  fmi2Status fmi2GetStruct(fmi2Component c,
-                         fmi2ValueReference vr;
-                         SmoothToken val);
+  fmi2Status fmi2GetSmoothToken(fmi2Component c,
+                                const fmi2ValueReference vr,
+                                fmi2SmoothToken val);
 
 where ``vr`` is the value reference of the FMU-ME variable to be retrieved, and ``val`` is its corresponding smooth token.
 
+.. todo::
 
-.. note::
+    Do we anticipate the need for vector-valued functions?
 
-    We need to implement how a smooth token will be modified if its value is for instance multiplied by a scalar or another smooth token. 
-    This is particularly important for smooth token outputs which will be used as inputs of other FMUs.
+.. todo::
+
+    Thierry wrote that "we need to implement how a smooth token will be modified if its value is for instance multiplied by a scalar or another smooth token.
+    This is particularly important for smooth token outputs which will be used as inputs of other FMUs."
+
+    I (Michael) don't think this is needed as such multiplications will be done inside an FMU and not by the master algorithm.
 
 
-**Add fmi2GetRealOutputDerivatives for FMU for Model Exchange**:
-
-In the above section, we proposed to use smooth token for input and output variables of FMU-QSS.
-Since a smooth token can include derivatives information, we propose to extend the specification to provide 
-a function which can be used to get derivatives of FMU-ME output variables which will be used as inputs 
-of other FMUs. These derivatives can be used to parametrize the smooth token of the FMU input variables.
+We will now propose an extension to the FMI specification to get time derivatives of outputs.
+In the above section, we proposed to use ``fmi2SmoothToken`` for input and output variables of FMU-QSS.
+Since ``fmi2SmoothToken`` can include derivatives information, we propose to extend the FMI specification to provide
+a function which can be used to get derivatives of FMU-ME output variables which will be used as inputs
+of other FMUs. These derivatives can be used to parametrize ``fmi2SmoothToken`` of the FMU input variables.
 We propose to extend the FMI for ME API to include the function ``fmi2GetRealOutputDerivatives`` which exists
 for the FMI for co-simulation API.
 
 .. note::
 
-   - If a tool can not provide the derivative of an ouput variable with respect to time, ``fmi2GetRealOutputDerivatives`` should return an error.
-     In which case, a tool could approximate the output derivative using current and past output values e.g., :math:`dy/dt \triangleq \lim_{s \uparrow 0} (y(t_u)-y(t_u-s))/s`.
+   - If a tool can not provide the derivative of an output variable with respect to time,
+     ``fmi2GetRealOutputDerivatives`` should return an error.
+     In this case, a master algorithm could approximate the output derivative as follows:
 
-   - For FMU-ME, if the ouput ``y`` has a direct feedthrough on the input ``u`` e.g., :math:`y=f(u)`, then :math:`\frac{dy}{dt}` which equals :math:`\frac{df(u)}{dt} \cdot \frac{du}{dt}` cannot be computed since it requires to know the value of :math:`\frac{du}{dt}`.
+     - If there was no event, then the time derivatives from below and above are equal, and
+       hence past and current output values can be used, e.g.,
 
+       .. math::
 
-:numref:`fig_sof_arc_qss_jmod2` shows the software architecture
-with the extended FMI API.
-For simplicity the figure only
-shows single FMUs, but we anticipated having multiple interconnected FMUs.
+          dy/dt \approx \frac{y(t_k)-y(t_{k-1})}{t_k - t_{k-1}}.
 
-.. _fig_sof_arc_qss_jmod2:
+     - If there was an event, then the derivative from above need to be approximated.
+       This could be done by assuming first :math:`dy/dt =0` and then building up derivative
+       information in the next step, or by evaluating the FMU for :math:`t=t_k+\epsilon`, where
+       :math:`\epsilon` is a small number, and then computing
 
-.. uml::
-   :caption: Software architecture for QSS integration with JModelica
-             with extended FMI API.
+       .. math::
 
-   title Software architecture for QSS integration with JModelica with extended FMI API
+          dy/dt \approx \frac{y(t_k+\epsilon)-y(t_{k})}{\epsilon}.
 
-   skinparam componentStyle uml2
+   - For FMU-ME, if there is a direct feedthrough, e.g., :math:`y=f(u)`,
+     then :math:`dy/dt` cannot be computed, because by the chain rule,
 
-   package FMU-ME {
-     [QSS solver] as qss_sol
-     [FMU-ME] as FMU_QSS
-   }
+     .. math::
 
-   package PyFMI {
-   [Master algorithm] -> qss_sol : "inputs, time"
-   [Master algorithm] <- qss_sol : "next event time, states"
-   [Master algorithm] - [Sundials]
-   }
+        \frac{df(u)}{dt} = \frac{df(u)}{du} \, \frac{du}{dt}
 
-   [Sundials] -> [FMU-ME] : "(x, t)"
-   [Sundials] <- [FMU-ME] : "dx/dt"
-   [Master algorithm] -> [FMU-CS] : "hRequested"
-   [Master algorithm] <- [FMU-CS] : "(x, hMax)"
-
-   package Optimica {
-   [JModelica compiler] as jmc
-   }
-
-   jmc -> FMU_QSS
-
-   FMU_QSS -down-> qss_sol : "derivatives"
-   qss_sol -down-> FMU_QSS : "inputs, time, states"
+     but :math:`du/dt` is not available in the FMU.
 
 
-.. note::
-
-   We still need to design how to handle algebraic loops inside the FMU
-   (see also Cellier's and Kofman's book) and algebraic loops that
-   cross multiple FMUs.
-
+Proposal of Modelon
+~~~~~~~~~~~~~~~~~~~
 
 To avoid having to change the FMI specification,
 Modelon proposes an alternative approach which is
 discussed in the next sections.
 
-Proposal of Modelon
-~~~~~~~~~~~~~~~~~~~
 
 Modelon proposes to allow setting ``fmi2SetReal()`` on continuous states (as
 we do above), adding ``Time`` as a state (which we believe is not needed),
@@ -727,8 +763,3 @@ If the number of event indicators does not match, the FMU needs to be rejected w
   Per design, Dymola (2017 FD01) generates twice as many event indicators as actually existing in the model.
   Hence the master algorithm needs to detect if the tool which exported the FMU is Dymola, and if it is, the
   number of event indicator functions must be equal to half the value of the ``numberOfEventIndicators`` attribute.
-
-
-
-
-
