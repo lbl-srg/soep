@@ -539,8 +539,6 @@ To support the smooth token data type, we propose to add following data type to 
       fmi2Real value;
       fmi2Real derivatives[];
       fmi2Real t;
-      fmi2Boolean nextEventTimeDefined;
-      fmi2Real nextEventTime; // next event if nextEventTimeDefined=fmi2True
      } fmi2SmoothToken;
 
 where
