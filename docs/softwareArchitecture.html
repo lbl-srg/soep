@@ -154,6 +154,15 @@
 <li><a class="reference internal" href="#proposal-of-modelon">5.2.2. Proposal of Modelon</a></li>
 <li><a class="reference internal" href="#event-indicators-that-depend-on-the-input">5.2.3. Event indicators that depend on the input</a></li>
 <li><a class="reference internal" href="#workaround-for-implementing-event-indicators">5.2.4. Workaround for implementing event indicators</a></li>
+<li><a class="reference internal" href="#open-topics">5.2.5. Open Topics</a><ul>
+<li><a class="reference internal" href="#atomic-api">5.2.5.1. Atomic API</a></li>
+<li><a class="reference internal" href="#xml-api">5.2.5.2. XML/API</a></li>
+<li><a class="reference internal" href="#higher-derivatives">5.2.5.3. Higher Derivatives</a></li>
+<li><a class="reference internal" href="#input-variables">5.2.5.4. Input Variables</a></li>
+<li><a class="reference internal" href="#annotations">5.2.5.5. Annotations</a></li>
+<li><a class="reference internal" href="#conditional-expressions-and-zero-crossing-functions">5.2.5.6. Conditional Expressions and Zero Crossing Functions</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -1231,15 +1240,9 @@ and <code class="docutils literal"><span class="pre">t</span></code> is the time
 </pre></div>
 </div>
 <p>where <code class="docutils literal"><span class="pre">vr</span></code> is the value reference of the FMU-ME variable to be retrieved, and <code class="docutils literal"><span class="pre">val</span></code> is its corresponding smooth token.</p>
-<div class="admonition-todo admonition" id="index-1">
-<p class="first admonition-title">Todo</p>
-<p class="last">Do we anticipate the need for vector-valued functions?</p>
-</div>
-<div class="admonition-todo admonition" id="index-2">
-<p class="first admonition-title">Todo</p>
-<p>Thierry wrote that &#8220;we need to implement how a smooth token will be modified if its value is for instance multiplied by a scalar or another smooth token.
-This is particularly important for smooth token outputs which will be used as inputs of other FMUs.&#8221;</p>
-<p class="last">I (Michael) don&#8217;t think this is needed as such multiplications will be done inside an FMU and not by the master algorithm.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><code class="docutils literal"><span class="pre">fmi2SetSmoothToken</span></code> and <code class="docutils literal"><span class="pre">fmi2GetSmoothToken</span></code> are not vector-valued functions since a fundamental property of QSS is that it acts on scalar variable.</p>
 </div>
 <p>We will now propose an extension to the FMI specification to get time derivatives of outputs.
 In the above section, we proposed to use <code class="docutils literal"><span class="pre">fmi2SmoothToken</span></code> for input and output variables of FMU-QSS.
@@ -1411,6 +1414,68 @@ If the number of event indicators does not match, the FMU needs to be rejected w
 <p class="last">Per design, Dymola (2017 FD01) generates twice as many event indicators as actually existing in the model.
 Hence the master algorithm needs to detect if the tool which exported the FMU is Dymola, and if it is, the
 number of event indicator functions must be equal to half the value of the <code class="docutils literal"><span class="pre">numberOfEventIndicators</span></code> attribute.</p>
+</div>
+</div>
+<div class="section" id="open-topics">
+<h3>5.2.5. Open Topics<a class="headerlink" href="#open-topics" title="Permalink to this headline">¶</a></h3>
+<p>This section includes a list of measures which could further improve the efficiency of QSS.
+Some of the measures should be implemented and benchmarked to ensure their necessity for QSS.</p>
+<div class="section" id="atomic-api">
+<h4>5.2.5.1. Atomic API<a class="headerlink" href="#atomic-api" title="Permalink to this headline">¶</a></h4>
+<p>A fundamental property of QSS is that variables are advanced at different time rates.
+To make this practically efficient with FMUs, an API for individual values and derivatives is essential.</p>
+</div>
+<div class="section" id="xml-api">
+<h4>5.2.5.2. XML/API<a class="headerlink" href="#xml-api" title="Permalink to this headline">¶</a></h4>
+<p>All variables with non-constant values probably need to be exposed via the xml
+with all their interdependencies. The practicality and benefit of trying
+to hide some variables such as algebraic variables by short-circuiting
+their dependencies in the xml (or doing this short-circuiting on the QSS side)
+should be considered for efficiency reasons.</p>
+</div>
+<div class="section" id="higher-derivatives">
+<h4>5.2.5.3. Higher Derivatives<a class="headerlink" href="#higher-derivatives" title="Permalink to this headline">¶</a></h4>
+<p>Numerical differentiation significantly complicates and slows the QSS code:
+automatic differentiation provided by the FMU will be a major improvement
+and allows practical development of 3rd order QSS solvers.</p>
+</div>
+<div class="section" id="input-variables">
+<h4>5.2.5.4. Input Variables<a class="headerlink" href="#input-variables" title="Permalink to this headline">¶</a></h4>
+<div class="admonition-todo admonition" id="index-1">
+<p class="first admonition-title">Todo</p>
+<p>Stuart wrote &#8220;QSS probably needs input variables limited to deterministic, non-path-dependent functions since it needs to query their value at possibly forward and backward time steps around the current simulation time. Is this an issue in ME?&#8221;</p>
+<p class="last">I (Thierry) think, this shouldn&#8217;t be a problem for ME FMU.</p>
+</div>
+</div>
+<div class="section" id="annotations">
+<h4>5.2.5.5. Annotations<a class="headerlink" href="#annotations" title="Permalink to this headline">¶</a></h4>
+<p>Some per-variable annotations that will allow for more efficient solutions by overriding global settings (which are also needed as annotations) include:</p>
+<ul class="simple">
+<li>Various time steps: <code class="docutils literal"><span class="pre">dt_min</span></code>, <code class="docutils literal"><span class="pre">dt_max</span></code>, <code class="docutils literal"><span class="pre">dt_inf</span></code>, ...</li>
+<li>Various flags: QSS method/order (or traditional ODE method for mixed solutions), inflection point requantization, ...</li>
+<li>Extra variability flags: constant, linear, quadratic, cubic, variable, ...</li>
+</ul>
+</div>
+<div class="section" id="conditional-expressions-and-zero-crossing-functions">
+<h4>5.2.5.6. Conditional Expressions and Zero Crossing Functions<a class="headerlink" href="#conditional-expressions-and-zero-crossing-functions" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li>The xml needs to expose the structure of each conditional block:
+if or when, sequence order of if/when/else conditionals,
+and all the (continuous and discrete/boolean) variables appearing in each conditional.</li>
+<li>Non-input boolean/discrete/integer variables should ideally be altered
+only by zero-crossing handlers or <em>time events</em> that are exposed by the FMU
+(during loop or by direct query?). Are there other ways that
+such variables can change that are only detectable after the fact?
+If so, this leaves the QSS with the bad choices of late detection
+(due to large time steps) or forcing regular time step value checks on them.</li>
+<li>QSS needs non-input boolean/discrete/integer variable dependencies in both directions.</li>
+<li>QSS needs the dependencies of conditional expressions on variables appearing in them.</li>
+<li>QSS needs the dependencies of variables altered when each conditional fires on the conditional expression variables.</li>
+<li>It is not robust for the QSS to try and guess a time point where the FMU will
+reliably detect a zero crossing so we need an API to tell the
+FMU that a zero crossing occurred at a given time (and maybe with crossing direction information).</li>
+<li>If the xml can expose the zero crossing directions of interest that will allow for more efficiency.</li>
+</ul>
 </div>
 </div>
 </div>
