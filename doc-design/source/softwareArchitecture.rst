@@ -567,6 +567,10 @@ To get the value of a smooth token, we propose to add a new function ``fmi2GetSm
 
 where ``vr`` is the value reference of the FMU-ME variable to be retrieved, and ``val`` is its corresponding smooth token.
 
+.. note::
+
+   ``fmi2SetSmoothToken`` and ``fmi2GetSmoothToken`` are not vector-valued functions since a fundamental property of QSS is that it acts on scalar variable. 
+
 We will now propose an extension to the FMI specification to get time derivatives of outputs.
 In the above section, we proposed to use ``fmi2SmoothToken`` for input and output variables of FMU-QSS.
 Since ``fmi2SmoothToken`` can include derivatives information, we propose to extend the FMI specification to provide
