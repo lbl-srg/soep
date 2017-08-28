@@ -539,6 +539,8 @@ To support the smooth token data type, we propose to add following data type to 
       fmi2Real value;
       fmi2Real derivatives[];
       fmi2Real t;
+      fmi2Boolean nextEventTimeDefined;
+      fmi2Real nextEventTime; // next event if nextEventTimeDefined=fmi2True
      } fmi2SmoothToken;
 
 where
@@ -546,7 +548,7 @@ where
 ``n`` is is the number of time derivatives of a smooth signal,
 ``value`` is the sample of the smooth signal at time ``t``,
 ``derivatives`` are the time derivatives of the FMU-ME scalar variable (e.g. ``derivatives[0]`` is the first time derivative, ``derivatives[1]`` is the second time derivative) at the time ``t``,
-and ``t`` is the time-stamp of the smooth token.
+``t`` is the time-stamp of the smooth token, ``nextEventTimeDefined`` is a boolean which specifices if the next event time is defined, and ``nextEventTime`` is the next event time.
 
 To set the value of a smooth token, we propose to add a new function ``fmi2SetSmoothToken`` defined as
 
@@ -566,18 +568,6 @@ To get the value of a smooth token, we propose to add a new function ``fmi2GetSm
                                 fmi2SmoothToken val);
 
 where ``vr`` is the value reference of the FMU-ME variable to be retrieved, and ``val`` is its corresponding smooth token.
-
-.. todo::
-
-    Do we anticipate the need for vector-valued functions?
-
-.. todo::
-
-    Thierry wrote that "we need to implement how a smooth token will be modified if its value is for instance multiplied by a scalar or another smooth token.
-    This is particularly important for smooth token outputs which will be used as inputs of other FMUs."
-
-    I (Michael) don't think this is needed as such multiplications will be done inside an FMU and not by the master algorithm.
-
 
 We will now propose an extension to the FMI specification to get time derivatives of outputs.
 In the above section, we proposed to use ``fmi2SmoothToken`` for input and output variables of FMU-QSS.
@@ -763,3 +753,54 @@ If the number of event indicators does not match, the FMU needs to be rejected w
   Per design, Dymola (2017 FD01) generates twice as many event indicators as actually existing in the model.
   Hence the master algorithm needs to detect if the tool which exported the FMU is Dymola, and if it is, the
   number of event indicator functions must be equal to half the value of the ``numberOfEventIndicators`` attribute.
+
+
+Open Topics
+~~~~~~~~~~~
+
+This section includes a list of measures which could further improve the efficiency of QSS.
+Some of the measures should be implemented and benchmarks to ensure their necessity for QSS.
+
+Atomic API
+""""""""""
+
+A fundamental property of QSS is that variables are advanced at different time rates. To make this practically efficient with FMUs an API for individual values and derivatives is essential.
+
+XML/API
+"""""""
+
+All variables with non-constant values probably need to be exposed via the xml with all their interdependencies. The practicality and benefit of trying to hide some variables such as algebraic variables by short-circuiting their dependencies in the xml (or doing this short-circuiting on the QSS side) should be considered for efficiency reasons.
+Higher Derivatives
+Numerical differentiation significantly complicates and slows the QSS code: automatic differentiation provided by the FMU will be a major improvement and allow practical development of 3rd order QSS solvers.
+
+Input Variables
+"""""""""""""""
+
+.. note::
+   
+   Stuart wrote "QSS probably needs input variables limited to deterministic, non-path-dependent functions since it needs to query their value at possibly forward and backward time steps around the current simulation time. Is this an issue in ME?"
+  
+   I (Thierry) think, this shouldn't be a problem for ME FMU.
+
+
+Annotations
+"""""""""""
+
+Some per-variable annotations that will allow for more efficient solutions by overriding global settings (which are also needed as annotations) include:
+
+- Various time steps: ``dt_min``, ``dt_max``, ``dt_inf``, …
+- Various flags: QSS method/order (or traditional ODE method for mixed solutions), inflection point requantization, …
+- Variable extra variability flags: constant, linear, quadratic, cubic, variable, …
+
+Conditional Expressions and Zero Crossing Functions
+"""""""""""""""""""""""""""""""""""""""""""""""""""
+
+- The xml needs to expose the structure of each conditional block: if or when, sequence order of if/when/else conditionals, and all the (continuous and discrete/boolean) variables appearing in each conditional.
+- Non-input boolean/discrete/integer variables should ideally be altered only by zero-crossing handlers or “time events” that are exposed by the FMU (during loop or by direct query?). Are there other ways that such variables can change that are only detectable after the fact? If so, this leaves the QSS with the bad choices of late detection (due to large time steps) or forcing regular time step value checks on them.
+- QSS needs non-input boolean/discrete/integer variable dependencies in both directions.
+- QSS needs the dependencies of conditional expressions on variables appearing in them.
+- QSS needs the dependencies of variables altered when each conditional fires on the conditional expression variables.
+- It is not robust for the QSS to try and guess a time point where the FMU will reliably detect a zero crossing so we need an API to tell the FMU that a zero crossing occurred at a given time (and maybe with crossing direction information)
+- If the xml can expose the zero crossing directions of interest that will allow for more efficiency.
+
+
