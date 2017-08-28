@@ -548,7 +548,7 @@ where
 ``n`` is is the number of time derivatives of a smooth signal,
 ``value`` is the sample of the smooth signal at time ``t``,
 ``derivatives`` are the time derivatives of the FMU-ME scalar variable (e.g. ``derivatives[0]`` is the first time derivative, ``derivatives[1]`` is the second time derivative) at the time ``t``,
-``t`` is the time-stamp of the smooth token, ``nextEventTimeDefined`` is a boolean which specifies whether the next event time is defined, and ``nextEventTime`` is the next event time.
+and ``t`` is the time-stamp of the smooth token.
 
 To set the value of a smooth token, we propose to add a new function ``fmi2SetSmoothToken`` defined as
 
