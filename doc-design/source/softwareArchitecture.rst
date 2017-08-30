@@ -343,7 +343,7 @@ This model has one event indicator function :math:`z=x-1`.
 For QSS, the FMU which exports this model must declare
 in the model description file that the event indicator handler ``y``
 depends on the event indicator function ``z``. This is needed so the QSS
-solver is notfied that ``y`` was updated because of a state event
+solver is notified when ``y`` is updated because of a state event.
 
 Therefore we require that all variables which depend
 on event indicator variables are listed in the
