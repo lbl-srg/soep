@@ -452,8 +452,6 @@ with zero crossing functions which have boolean expressions such as
     end when;
   end ZCBoolean;
 
-Does JModelica generate two zero crossing functions which represent the
-conditionals?
 
 SmoothToken for QSS
 """""""""""""""""""
