@@ -178,7 +178,7 @@ shows single FMUs, but we anticipated having multiple interconnected FMUs.
 
    skinparam componentStyle uml2
 
-   package FMU-ME {
+   package FMU-QSS {
      [QSS solver] as qss_sol
      [FMU-ME] as FMU_QSS
    }
@@ -260,11 +260,7 @@ We therefore propose that the standard is being changed as follows:
 
    ``fmi2SetReal`` can be called during the continuous time mode
    and during event mode not only for inputs,
-   as is allowed in FMI-ME 2.0, but also for continuous-time states and discrete output variables.
-
-.. note:: Calling ``fmi2SetReal`` for discrete output variables is needed if an FMU-ME
-          contains the QSS solver, in which cases it exposes the quantized states as
-          discrete output variables.
+   as is allowed in FMI-ME 2.0, but also for continuous-time states.
 
 To retrieve individual state derivatives, we introduce the following extensions
 to the ``modelDescription.xml`` file. [In the code below, ``ScalarVariables``
@@ -332,24 +328,22 @@ The rationale is illustrated in the following model
 
 .. code-block:: modelica
 
-    model StateEvent1
-      Real x(start=1.1, fixed=true);
-      discrete Real y;
-    equation
-      der(x) = cos(2*3.14*time/2.5);
-      when (x > 1) then
-        y = 1;
-      elsewhen (x <= 1) then
-        y = 0;
-      end when;
-    end StateEvent1;
+  model StateEvent4
+    Real x(start=0.0, fixed=true);
+    discrete Real y(start=0.0, fixed=true);
+  equation
+    der(x) = y + 1;
+    when (x > 0.5) then
+      y = -1.0;
+    end when;
+  end StateEvent4;
 
 This model has one event indicator function :math:`z=x-1`.
 
 For QSS, the FMU which exports this model must declare
 in the model description file that the event indicator handler ``y``
-depends on the event indicator function ``z``. This is needed so ``y``
-can be updated when a state event happens.
+depends on the event indicator function ``z``. This is needed so the QSS
+solver is notfied that ``y`` was updated because of a state event
 
 Therefore we require that all variables which depend
 on event indicator variables are listed in the
@@ -364,31 +358,17 @@ We propose to introduce the following xml section which lists these variables.
               <!-- This is variable with index 9 in the ModelVariables section
                    which depends on event indicator variables with index 1 and 2.
                    The event_type is a list which specifies the type of event.
-                   event_type can be "state" for state event, "time", for time event,
-                   "step" for step event, or any combination of the three (e.g. "time state"
+                   event_type can be "state" for state event, "time" for time event, 
+                   or any combination of the two (e.g. "time state"
                    indicates that the event indicator handler is for both time and state event) -->
               <Unknown index="9" dependencies="1 2" value_reference="300" event_type="state" />
             </EventIndicatorHandlers>
           </ModelStructure>
 
 
-For efficiency, FMUs need to add additional variables to
-dependencies list of state variables.
-This is illustrated with the following model
-
-.. code-block:: modelica
-
-  model StateEvent4
-    Real x(start=0.0, fixed=true);
-    discrete Real y(start=0.0, fixed=true);
-  equation
-    der(x) = y + 1;
-    when (x > 0.5) then
-      y = -1.0;
-    end when;
-  end StateEvent4;
-
-QSS requires the FMU which exports this model to declare in its model description file
+Furthermore, for efficiency reason, FMUs need to add additional variables to
+dependencies list of state variables. 
+For ``StateEvent4``, QSS requires the FMU which exports this model to declare in its model description file
 the dependency of ``der(x)`` on ``y``. This allows ``der(x)`` to update when ``y`` changes.
 This information should be encoded in the ``dependencies`` attribute of ``der(x)``.
 However, FMI states on page 61 that ``dependencies`` are optional attributes
