@@ -898,12 +898,12 @@ For simplicity the figure only
 shows single FMUs, but we anticipated having multiple interconnected FMUs.</p>
 <div class="figure" id="id13">
 <span id="fig-sof-arc-qss-jmod2"></span><p class="plantuml">
-<object data="_images/plantuml-57d091db0cbd1e6c27ed9db53ebabf1df03d02da.svg" type="image/svg+xml" style="width:820px;height:419px;">
-<img src="_images/plantuml-57d091db0cbd1e6c27ed9db53ebabf1df03d02da.png" alt="title Software architecture for QSS integration with JModelica with extended FMI API
+<object data="_images/plantuml-b3ecc8819a2c8ff59f101d387a12958a807f7582.svg" type="image/svg+xml" style="width:820px;height:419px;">
+<img src="_images/plantuml-b3ecc8819a2c8ff59f101d387a12958a807f7582.png" alt="title Software architecture for QSS integration with JModelica with extended FMI API
 
 skinparam componentStyle uml2
 
-package FMU-ME {
+package FMU-QSS {
   [QSS solver] as qss_sol
   [FMU-ME] as FMU_QSS
 }
@@ -989,13 +989,7 @@ continuous-time state variables during the initialization.</p>
 <blockquote>
 <div><code class="docutils literal"><span class="pre">fmi2SetReal</span></code> can be called during the continuous time mode
 and during event mode not only for inputs,
-as is allowed in FMI-ME 2.0, but also for continuous-time states and discrete output variables.</div></blockquote>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Calling <code class="docutils literal"><span class="pre">fmi2SetReal</span></code> for discrete output variables is needed if an FMU-ME
-contains the QSS solver, in which cases it exposes the quantized states as
-discrete output variables.</p>
-</div>
+as is allowed in FMI-ME 2.0, but also for continuous-time states.</div></blockquote>
 <p>To retrieve individual state derivatives, we introduce the following extensions
 to the <code class="docutils literal"><span class="pre">modelDescription.xml</span></code> file. [In the code below, <code class="docutils literal"><span class="pre">ScalarVariables</span></code>
 is given to provide context, it remains unchanged from the FMI 2.0 standard.]</p>
@@ -1050,44 +1044,6 @@ the second has an <code class="docutils literal"><span class="pre">index</span><
 <p>For efficiency, FMUs need to expose variables which depend on event indicators
 in the model description file. We call these variables <strong>event indicator handler</strong>.
 The rationale is illustrated in the following model</p>
-<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">StateEvent1</span>
-  <span class="nb">Real</span> <span class="n">x</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">);</span>
-  <span class="kr">discrete</span> <span class="nb">Real</span> <span class="n">y</span><span class="p">;</span>
-<span class="kr">equation</span>
-  <span class="kr">der</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="nb">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mf">3.14</span><span class="o">*</span><span class="nb">time</span><span class="o">/</span><span class="mf">2.5</span><span class="p">);</span>
-  <span class="kr">when</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="kr">then</span>
-    <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-  <span class="kr">elsewhen</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">)</span> <span class="kr">then</span>
-    <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-  <span class="kr">end</span> <span class="kr">when</span><span class="p">;</span>
-<span class="kr">end</span> <span class="nc">StateEvent1</span><span class="p">;</span>
-</pre></div>
-</div>
-<p>This model has one event indicator function <span class="math">\(z=x-1\)</span>.</p>
-<p>For QSS, the FMU which exports this model must declare
-in the model description file that the event indicator handler <code class="docutils literal"><span class="pre">y</span></code>
-depends on the event indicator function <code class="docutils literal"><span class="pre">z</span></code>. This is needed so <code class="docutils literal"><span class="pre">y</span></code>
-can be updated when a state event happens.</p>
-<p>Therefore we require that all variables which depend
-on event indicator variables are listed in the
-model description file with their dependencies information.</p>
-<p>We propose to introduce the following xml section which lists these variables.</p>
-<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;ModelStructure&gt;</span>
-  <span class="nt">&lt;EventIndicatorHandlers&gt;</span>
-    <span class="c">&lt;!-- This is variable with index 9 in the ModelVariables section</span>
-<span class="c">         which depends on event indicator variables with index 1 and 2.</span>
-<span class="c">         The event_type is a list which specifies the type of event.</span>
-<span class="c">         event_type can be &quot;state&quot; for state event, &quot;time&quot;, for time event,</span>
-<span class="c">         &quot;step&quot; for step event, or any combination of the three (e.g. &quot;time state&quot;</span>
-<span class="c">         indicates that the event indicator handler is for both time and state event) --&gt;</span>
-    <span class="nt">&lt;Unknown</span> <span class="na">index=</span><span class="s">&quot;9&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;1 2&quot;</span> <span class="na">value_reference=</span><span class="s">&quot;300&quot;</span> <span class="na">event_type=</span><span class="s">&quot;state&quot;</span> <span class="nt">/&gt;</span>
-  <span class="nt">&lt;/EventIndicatorHandlers&gt;</span>
-<span class="nt">&lt;/ModelStructure&gt;</span>
-</pre></div>
-</div>
-<p>For efficiency, FMUs need to add additional variables to
-dependencies list of state variables.
-This is illustrated with the following model</p>
 <div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">StateEvent4</span>
   <span class="nb">Real</span> <span class="n">x</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">);</span>
   <span class="kr">discrete</span> <span class="nb">Real</span> <span class="n">y</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">);</span>
@@ -1099,7 +1055,31 @@ This is illustrated with the following model</p>
 <span class="kr">end</span> <span class="nc">StateEvent4</span><span class="p">;</span>
 </pre></div>
 </div>
-<p>QSS requires the FMU which exports this model to declare in its model description file
+<p>This model has one event indicator function <span class="math">\(z=x-1\)</span>.</p>
+<p>For QSS, the FMU which exports this model must declare
+in the model description file that the event indicator handler <code class="docutils literal"><span class="pre">y</span></code>
+depends on the event indicator function <code class="docutils literal"><span class="pre">z</span></code>. This is needed so the QSS
+solver is notified when <code class="docutils literal"><span class="pre">y</span></code> is updated because of a state event.</p>
+<p>Therefore we require that all variables which depend
+on event indicator variables are listed in the
+model description file with their dependencies information.</p>
+<p>We propose to introduce the following xml section which lists these variables.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;ModelStructure&gt;</span>
+  <span class="nt">&lt;EventIndicatorHandlers&gt;</span>
+    <span class="c">&lt;!-- This is variable with index 9 in the ModelVariables section</span>
+<span class="c">         which depends on event indicator variables with index 1 and 2.</span>
+<span class="c">         The event_type is a list which specifies the type of event.</span>
+<span class="c">         event_type can be &quot;state&quot; for state event, &quot;time&quot; for time event,</span>
+<span class="c">         or any combination of the two (e.g. &quot;time state&quot;</span>
+<span class="c">         indicates that the event indicator handler is for both time and state event) --&gt;</span>
+    <span class="nt">&lt;Unknown</span> <span class="na">index=</span><span class="s">&quot;9&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;1 2&quot;</span> <span class="na">value_reference=</span><span class="s">&quot;300&quot;</span> <span class="na">event_type=</span><span class="s">&quot;state&quot;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;/EventIndicatorHandlers&gt;</span>
+<span class="nt">&lt;/ModelStructure&gt;</span>
+</pre></div>
+</div>
+<p>Furthermore, for efficiency reason, FMUs need to add additional variables to
+dependencies list of state variables.
+For <code class="docutils literal"><span class="pre">StateEvent4</span></code>, QSS requires the FMU which exports this model to declare in its model description file
 the dependency of <code class="docutils literal"><span class="pre">der(x)</span></code> on <code class="docutils literal"><span class="pre">y</span></code>. This allows <code class="docutils literal"><span class="pre">der(x)</span></code> to update when <code class="docutils literal"><span class="pre">y</span></code> changes.
 This information should be encoded in the <code class="docutils literal"><span class="pre">dependencies</span></code> attribute of <code class="docutils literal"><span class="pre">der(x)</span></code>.
 However, FMI states on page 61 that <code class="docutils literal"><span class="pre">dependencies</span></code> are optional attributes
@@ -1171,8 +1151,6 @@ with zero crossing functions which have boolean expressions such as</p>
 <span class="kr">end</span> <span class="nc">ZCBoolean</span><span class="p">;</span>
 </pre></div>
 </div>
-<p>Does JModelica generate two zero crossing functions which represent the
-conditionals?</p>
 </div>
 </div>
 <div class="section" id="smoothtoken-for-qss">

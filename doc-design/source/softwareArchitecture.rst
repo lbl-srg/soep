@@ -178,7 +178,7 @@ shows single FMUs, but we anticipated having multiple interconnected FMUs.
 
    skinparam componentStyle uml2
 
-   package FMU-ME {
+   package FMU-QSS {
      [QSS solver] as qss_sol
      [FMU-ME] as FMU_QSS
    }
