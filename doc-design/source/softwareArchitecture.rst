@@ -233,7 +233,8 @@ The QSS solvers require the derivatives shown in :numref:`tab_qss_der`.
    +-------------+-----------------------------------------------------------------+-----------------------------------------------------+
 
 Because the FMI API does not provide access to the required derivatives,
-we discuss below extensions that are needed for an efficient implementation of QSS.
+and FMi has limited support for QSS, we discuss below extensions 
+that are needed for an efficient implementation of QSS.
 
 FMI Changes for QSS
 ~~~~~~~~~~~~~~~~~~~
@@ -354,7 +355,7 @@ with a new attribute ``ei_dependencies`` which lists
 all event indicator variables which trigger  
 changes to state derivative trajectories.
 
-An excerpt of such a ``<Derivatives>`` element is 
+An excerpt of such a ``<Derivatives>`` element with the new addition is 
 
 .. code-block:: xml
   :emphasize-lines: 3
@@ -379,7 +380,9 @@ Event indicators that depend on the input
 If the event indicator function depends on the
 inputs of the model, then exposing 
 event indicator variables with their time 
-derivatives might fail . Consider
+derivatives might fail . 
+
+Consider
 
 .. literalinclude:: ../../models/modelica_for_qss/QSS/Docs/StateEvent2.mo
    :language: modelica
@@ -429,17 +432,12 @@ but a time event is not described with event indicator,
 it is not possible to use the same approach as done for 
 ``StateEvent1``.
 
-We therefore propose for QSS to extend the FMI specification to
+We therefore propose to extend the FMI specification to
 
 - include a new data structure ``fmi2ExtendedEventInfo`` and a new function ``fmi2ExtendedNewDiscreteStates``. 
   ``fmi2ExtendedNewDiscreteStates`` is similar to ``fmi2NewDiscreteStates`` but includes the value references 
   of all variables changed because of a time event (e.g. the variable ``y``). 
-  We call these variables ``TimEventHandler`` variables.
-
-  .. code-block:: C
-
-    fmi2Status fmi2ExtendedNewDiscreteStates(fmi2Component c,
-     fmi2ExtendedEventInfo* fmi2ExtendedEventInfo);
+  We call these variables ``TimEventHandler`` variables. The data structure and new functions are
 
   .. code-block:: C
     :emphasize-lines: 8
@@ -454,8 +452,15 @@ We therefore propose for QSS to extend the FMI specification to
      fmi2ValueReference valueReferences [];
      } fmi2ExtendeEventInfo;
 
+  .. code-block:: C
+
+    fmi2Status fmi2ExtendedNewDiscreteStates(fmi2Component c,
+     fmi2ExtendedEventInfo* fmi2ExtendedEventInfo);
+
 - **extend the dependencies** information of state derivatives to 
-  include the index of ``TimEventHandler`` variables. 
+  include the indexes of ``TimEventHandler`` variables which are 
+  ``<ScalarVariable>`` listed in the ``<ModelVariables>`` element of the model 
+  description file. 
 
 
 SmoothToken for QSS
