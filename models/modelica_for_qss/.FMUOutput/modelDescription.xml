@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmiModelDescription
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  fmiVersion="2.0"
+  modelName="QSS.Generic.Quadratic"
+  guid="{8bdb8605-8bda-4865-b1dc-6203a7d1bf48}"
+  description="This model simulates a quadratic"
+  generationTool="Dymola Version 2018 (64-bit), 2017-04-10"
+  generationDateAndTime="2017-09-18T23:04:40Z"
+  variableNamingConvention="structured"
+  numberOfEventIndicators="0">
+  <ModelExchange
+    modelIdentifier="QSS_Generic_Quadratic"
+    canGetAndSetFMUstate="true"
+    providesDirectionalDerivative="true"/>
+  <UnitDefinitions>
+    <Unit
+      name="s">
+      <BaseUnit s="1"/>
+    </Unit>
+    <Unit
+      name="s2">
+      <BaseUnit s="2"/>
+    </Unit>
+  </UnitDefinitions>
+  <DefaultExperiment startTime="0.0"
+    stopTime="1.0"
+    tolerance="0.0001"/>
+  <ModelVariables>
+    <!-- Index for next variable = 1 -->
+    <ScalarVariable
+      name="x"
+      valueReference="33554432"
+      description="State variable"
+      initial="exact">
+      <Real
+        unit="s2"
+        start="0"/>
+    </ScalarVariable>
+    <!-- Index for next variable = 2 -->
+    <ScalarVariable
+      name="der(x)"
+      valueReference="587202560"
+      description="der(State variable)">
+      <Real
+        unit="s"
+        derivative="1"/>
+    </ScalarVariable>
+  </ModelVariables>
+  <ModelStructure>
+    <Derivatives>
+      <Unknown index="2"
+        dependencies=""
+        dependenciesKind=""/>
+    </Derivatives>
+    <InitialUnknowns>
+      <Unknown index="2"
+        dependencies=""
+        dependenciesKind=""/>
+    </InitialUnknowns>
+  </ModelStructure>
+</fmiModelDescription>
