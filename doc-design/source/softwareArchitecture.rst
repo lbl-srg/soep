@@ -553,7 +553,7 @@ co-simulation API.
 
 
 Summary of Proposed Changes
-"""""""""""""""""""""""""""
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Here is a list with a summary of proposed changes
 
@@ -563,7 +563,7 @@ Here is a list with a summary of proposed changes
   be extended to include higher order derivatives information.
 
 - A new ``<EventIndicators>`` element wil be added to the model description file.
-  This element will expose event indicators with their time derivatives.
+  This element will expose event indicators with ``dependencies`` and time derivatives.
 
 - The ``dependencies`` attribute of state derivatives will be extended to include
   ``TimeEventHandler`` variables on which they depend on. 
@@ -578,9 +578,9 @@ Here is a list with a summary of proposed changes
 - A new function ``fmi2ExtendedNewDiscreteStates`` will be included to retrieve
   the ``fmi2ExtendedEventInfo``.
 
-- A new function ``fmi2SetRealnputDerivatives`` will be included to parametrize smooth token.
+- A new function ``fmi2SetRealInputDerivatives`` will be included to parametrize smooth token.
 
-- A new function ``fmi2GetReaOutputDerivatives`` will be included to parametrize smooth token.
+- A new function ``fmi2GetRealOutputDerivatives`` will be included to parametrize smooth token.
 
 
 Open Topics
