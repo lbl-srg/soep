@@ -6,8 +6,8 @@ model StateEvent1 "This model tests state event detection"
   discrete Modelica.Blocks.Interfaces.RealOutput y(start=1.0, fixed=true)
     "Ouput variable";
 equation
-  der(x1)  = y + 1;
-  der(x2) =  x2;
+  der(x1) = y + 1;
+  der(x2) = x2;
   when (x1 > 0.5 and x2 > 1.0) then
     y = -1.0;
   end when;

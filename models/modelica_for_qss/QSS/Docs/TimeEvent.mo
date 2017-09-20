@@ -1,8 +1,7 @@
 within QSS.Docs;
 model TimeEvent "This model tests time event detection"
   extends Modelica.Icons.Example;
-  Real x1(start=0.0, fixed=true)
-                                "State variable";
+  Real x1(start=0.0, fixed=true) "State variable";
   Real x2(start=0.0, fixed=true) "State variable";
   discrete Modelica.Blocks.Interfaces.RealOutput y(start=1.0, fixed=true)
     "Output variable";
