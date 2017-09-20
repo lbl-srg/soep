@@ -1,8 +1,9 @@
 within QSS.Docs;
 model StateEvent2 "This model tests state event detection"
   extends Modelica.Icons.Example;
-  Real x(start=-0.5, fixed=true);
-  discrete Real y(start=1.0, fixed=true);
+  Real x(start=-0.5, fixed=true)
+                                "State variable";
+  discrete Real y(start=1.0, fixed=true "Discrete variable");
   Modelica.Blocks.Interfaces.RealInput u
     annotation (Placement(transformation(extent={{-140,-20},{-100,20}})));
 equation

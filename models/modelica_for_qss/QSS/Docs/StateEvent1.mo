@@ -1,9 +1,10 @@
 within QSS.Docs;
 model StateEvent1 "This model tests state event detection"
   extends Modelica.Icons.Example;
-  Real x1(start=0.0, fixed=true);
-  Real x2(start=0.5, fixed=true);
-  discrete Modelica.Blocks.Interfaces.RealOutput y(start=1.0, fixed=true);
+  Real x1(start=0.0, fixed=true) "State variable";
+  Real x2(start=0.5, fixed=true) "State variable";
+  discrete Modelica.Blocks.Interfaces.RealOutput y(start=1.0, fixed=true)
+    "Ouput variable";
 equation
   der(x1)  = y + 1;
   der(x2) =  x2;

@@ -233,7 +233,7 @@ The QSS solvers require the derivatives shown in :numref:`tab_qss_der`.
    +-------------+-----------------------------------------------------------------+-----------------------------------------------------+
 
 Because the FMI API does not provide access to the required derivatives,
-and FMi has limited support for QSS, we discuss below extensions 
+and FMI has limited support for QSS, we discuss extensions 
 that are needed for an efficient implementation of QSS.
 
 FMI Changes for QSS
