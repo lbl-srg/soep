@@ -370,7 +370,7 @@ An excerpt of such a ``<Derivatives>`` element with the new addition is
 .. note::
   
   The indexes of ei_dependencies variables are the indexes of 
-  event indicators specified in the ``<EventIndicator>`` element.
+  event indicators specified in the ``<EventIndicators>`` element.
 
 .. _subsec_te:
 
@@ -550,6 +550,37 @@ co-simulation API.
         \frac{df(u)}{dt} = \frac{df(u)}{du} \, \frac{du}{dt}
 
      but :math:`du/dt` is not available in the FMU.
+
+
+Summary of Proposed Changes
+"""""""""""""""""""""""""""
+
+Here is a list with a summary of proposed changes
+
+- ``fmi2SetReal`` can be called during the continuous, and event time mode for continuous-time states.
+
+- The ``<Derivatives>`` element of the model description file will 
+  be extended to include higher order derivatives information.
+
+- A new ``<EventIndicators>`` element wil be added to the model description file.
+  This element will expose event indicators with their time derivatives.
+
+- The ``dependencies`` attribute of state derivatives will be extended to include
+  ``TimeEventHandler`` variables on which they depend on. 
+  ``TimeEventHandler`` variables are variables which are updated because of a time event.
+
+- A new dependency attribute ``ei_dependencies`` will be added to variables 
+  of the ``<Derivatives>`` element to include event indicator variables on which they depend on. 
+
+- A new data structure ``fmi2ExtendedEventInfo`` will be included to provide
+  additional time event information.
+
+- A new function ``fmi2ExtendedNewDiscreteStates`` will be included to retrieve
+  the ``fmi2ExtendedEventInfo``.
+
+- A new function ``fmi2SetRealnputDerivatives`` will be included to parametrize smooth token.
+
+- A new function ``fmi2GetReaOutputDerivatives`` will be included to parametrize smooth token.
 
 
 Open Topics
