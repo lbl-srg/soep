@@ -4,7 +4,7 @@ model StateEvent2 "This model tests state event detection"
   Real x(start=-0.5, fixed=true)
                                 "State variable";
   discrete Real y(start=1.0, fixed=true "Discrete variable");
-  Modelica.Blocks.Interfaces.RealInput u
+  Modelica.Blocks.Interfaces.RealInput u "Input variable"
     annotation (Placement(transformation(extent={{-140,-20},{-100,20}})));
 equation
   der(x) = y;
