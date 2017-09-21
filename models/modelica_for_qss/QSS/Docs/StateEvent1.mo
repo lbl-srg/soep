@@ -13,8 +13,8 @@ equation
   end when;
   annotation (experiment(StopTime=1), Documentation(info="<html>
 <p>
-This model has 2 state event at t=0.25s
-and t=0.6924 when simulated from 0 to 1s.
+This model has 2 state events, one at t=0.25
+and one at t=0.6924 when simulated from 0 to 1 s.
 </p>
 </html>"));
 end StateEvent1;

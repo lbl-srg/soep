@@ -12,8 +12,8 @@ equation
   end when;
   annotation (experiment(StopTime=1), Documentation(info="<html>
 <p>
-This model has 1 state event 
-at t=0.5s when simulated from 0 to 1s.
+This model has a state event
+when u becomes bigger than x.
 </p>
 </html>"));
 end StateEvent2;
