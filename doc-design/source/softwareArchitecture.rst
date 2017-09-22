@@ -432,7 +432,7 @@ The derivative of the event indicator is :math:`\frac{dz}{dt} = \frac{du}{dt} - 
 
 Hence, a tool will need the derivative of the input ``u`` 
 to compute the derivative of the event indicator.
-Since the derivative of the input u is unkown in the FMU,
+Since the derivative of the input ``u`` is unkown in the FMU,
 we propose for cases where the event indicator 
 has a direct feedthrough on the input to exclude 
 event indicator derivatives from the ``<EventIndicators>``
