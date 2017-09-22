@@ -512,7 +512,7 @@ We therefore propose to extend the FMI specification to
     fmi2Status fmi2ExtendedNewDiscreteStates(fmi2Component c,
      fmi2ExtendedEventInfo* fmi2ExtendedEventInfo);
 
-- **extend the dependencies** information of state derivatives to
+- **extend the ``dependencies``** attribute of state derivatives to
   include the indexes of ``TimeEventHandler`` variables which are
   ``<ScalarVariable>`` listed in the ``<ModelVariables>`` element of the model
   description file.
@@ -618,14 +618,14 @@ Here is a list with a summary of proposed changes
   be extended to include higher order derivatives information.
 
 - A new ``<EventIndicators>`` element wil be added to the model description file.
-  This element will expose event indicators with ``dependencies`` and time derivatives.
+  This element will expose event indicators with their ``dependencies`` and time derivatives.
 
 - The ``dependencies`` attribute of state derivatives will be extended to include
   ``TimeEventHandler`` variables on which they depend on.
   ``TimeEventHandler`` variables are variables which are updated because of a time event.
 
-- A new dependency attribute ``ei_dependencies`` will be added to variables
-  of the ``<Derivatives>`` element to include event indicator variables on which they depend on.
+- A new dependency attribute ``ei_dependencies`` will be added to state derivatives listed
+  in the ``<Derivatives>`` element to include event indicator on which the state derivatives depend on.
 
 - A new data structure ``fmi2ExtendedEventInfo`` will be included to provide
   additional time event information.
