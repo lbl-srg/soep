@@ -9,15 +9,8 @@
     
     <title>7. Application Programming Interface &#8212; Spawn of EnergyPlus</title>
     
-    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootswatch-3.3.6/united/bootstrap.min.css" type="text/css" />
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootstrap.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootstrap-theme.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootstrap_custom.css" type="text/css" />
-    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-    <link rel="stylesheet" href="_static/custom-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -35,7 +28,7 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
     <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="_static/lbl-icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
@@ -199,7 +192,7 @@ to generate the OpenStudio Model API that corresponds to the
 library. <a class="footnote-reference" href="#os-mod-api" id="id2">[2]</a>
 For example, for a boiler, model, vendor annotation in the <code class="docutils literal"><span class="pre">EnergyPlus</span></code>
 namespace may look as shown below.</p>
-<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">Boiler</span> <span class="s2">&quot;Hot water boiler&quot;</span>
+<div class="highlight-modelica"><div class="highlight"><pre><span class="kr">model</span> <span class="nc">Boiler</span> <span class="s2">&quot;Hot water boiler&quot;</span>
   <span class="kr">extends</span> <span class="kr">extends</span> <span class="n">Interfaces</span><span class="o">.</span><span class="n">TwoPortHeatMassExchanger</span><span class="p">(</span><span class="o">...</span><span class="p">);</span>
 
 <span class="kr">parameter</span> <span class="n">Modelica</span><span class="o">.</span><span class="n">SIunits</span><span class="o">.</span><span class="n">Power</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="n">Q_flow_nominal</span>
@@ -218,7 +211,7 @@ namespace may look as shown below.</p>
 </div>
 <p>From such a Modelica model, the OpenStudio model API below
 could be generated.</p>
-<div class="highlight-C++"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MODEL_API</span> <span class="nl">Boiler</span> <span class="p">:</span> <span class="k">public</span> <span class="n">StraightComponent</span> <span class="p">{</span>
+<div class="highlight-C++"><div class="highlight"><pre><span class="k">class</span> <span class="nc">MODEL_API</span> <span class="nl">Boiler</span> <span class="p">:</span> <span class="k">public</span> <span class="n">StraightComponent</span> <span class="p">{</span>
   <span class="k">public</span><span class="o">:</span>
     <span class="kt">void</span> <span class="n">setCapacity</span><span class="p">(</span><span class="kt">double</span> <span class="n">Q_flow_nominal</span><span class="p">);</span> <span class="c1">/// Set nominal heating power</span>
                                              <span class="c1">/// in Watts, and verify</span>
