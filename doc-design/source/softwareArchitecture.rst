@@ -384,6 +384,7 @@ An excerpt of such a ``<Derivatives>`` element with the new addition is
 .. _fig_hig_der:
 
 .. code-block:: xml
+  :caption: Extensions with inclusion of a new attribute for event indicator dependencies. XML additions are marked yellow.
   :emphasize-lines: 3
 
     <Derivatives>
