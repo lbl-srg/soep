@@ -379,6 +379,7 @@ all event indicator variables which trigger
 changes to state derivative trajectories.
 
 An excerpt of such a ``<Derivatives>`` element with the new addition is
+shown in :numref:`fig_hig_der`.
 
 
 .. _fig_hig_der:
@@ -431,14 +432,14 @@ Consider following model
 This model has one event indicator :math:`z = u-x`.
 The derivative of the event indicator is :math:`\frac{dz}{dt} = \frac{du}{dt} - \frac{dx}{dt}`.
 
-Hence, a tool will need the derivative of the input ``u`` 
+Hence, a tool will need the derivative of the input ``u``
 to compute the derivative of the event indicator.
 Since the derivative of the input ``u`` is unkown in the FMU,
-we propose for cases where the event indicator 
-has a direct feedthrough on the input to exclude 
+we propose for cases where the event indicator
+has a direct feedthrough on the input to exclude
 event indicator derivatives from the ``<EventIndicators>``
 element. In this situation, the QSS solver will detect the missing
-information from the XML file and numerically approximate 
+information from the XML file and numerically approximate
 the event indicator derivatives.
 
 Workaround for implementing event indicators
@@ -623,12 +624,12 @@ Here is a list with a summary of proposed changes
 - A new ``<EventIndicators>`` element wil be added to the model description file.
   This element will expose event indicators with their ``dependencies`` and time derivatives.
 
-- If a model has an event indicator, and the event indicator has a direct 
-  feedthrough on an input variable, then JModelica will exclude the derivatives 
-  of that event indicator from the model description file. 
+- If a model has an event indicator, and the event indicator has a direct
+  feedthrough on an input variable, then JModelica will exclude the derivatives
+  of that event indicator from the model description file.
 
 - The ``dependencies`` attribute of state derivatives will be extended to include
-  ``TimeEventHandlers`` on which they depend on. ``TimeEventHandlers`` are variables 
+  ``TimeEventHandlers`` on which they depend on. ``TimeEventHandlers`` are variables
   which are updated because of a time event.
 
 - A new dependency attribute ``ei_dependencies`` will be added to state derivatives listed
