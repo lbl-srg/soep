@@ -700,8 +700,8 @@ Some per-variable annotations that will allow for more efficient solutions by ov
 - Various flags: QSS method/order (or traditional ODE method for mixed solutions), inflection point requantization, ...
 - Extra variability flags: constant, linear, quadratic, cubic, variable, ...
 
-Conditional Expressions and Event Indicator
-"""""""""""""""""""""""""""""""""""""""""""
+Conditional Expressions and Event Indicators
+""""""""""""""""""""""""""""""""""""""""""""
 
 - The xml needs to expose the structure of each conditional block:
   if or when, sequence order of if/when/else conditionals,
