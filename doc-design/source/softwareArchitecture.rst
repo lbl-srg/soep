@@ -457,7 +457,7 @@ The names of event indicators variables will start with ``__zc_``. The names of 
 indicators will start with ``__zc_der_``.  As an example, ``__zc_z1`` and ``__zc_der_z1``
 are the names of the event indicator ``z1`` with its derivative ``der_z1``.
 
-If the number of event indicators functions is equal to the ``numberOfEventIndicators`` attribute,
+If the number of event indicators is equal to the ``numberOfEventIndicators`` attribute,
 then only ``__zc_`` and ``__zc_der_`` need to be used by QSS.
 If the number of event indicators does not match, the FMU needs to be rejected with an error message.
 
@@ -700,8 +700,8 @@ Some per-variable annotations that will allow for more efficient solutions by ov
 - Various flags: QSS method/order (or traditional ODE method for mixed solutions), inflection point requantization, ...
 - Extra variability flags: constant, linear, quadratic, cubic, variable, ...
 
-Conditional Expressions and Zero Crossing Functions
-"""""""""""""""""""""""""""""""""""""""""""""""""""
+Conditional Expressions and Event Indicator
+"""""""""""""""""""""""""""""""""""""""""""
 
 - The xml needs to expose the structure of each conditional block:
   if or when, sequence order of if/when/else conditionals,
