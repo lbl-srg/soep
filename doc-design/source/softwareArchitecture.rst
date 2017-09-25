@@ -707,7 +707,7 @@ Conditional Expressions and Event Indicator
   if or when, sequence order of if/when/else conditionals,
   and all the (continuous and discrete/boolean) variables appearing in each conditional.
 - Non-input boolean/discrete/integer variables should ideally be altered
-  only by zero-crossing handlers or *time events* that are exposed by the FMU
+  only by event indicator handlers or *time events* that are exposed by the FMU
   (during loop or by direct query?). Are there other ways that
   such variables can change that are only detectable after the fact?
   If so, this leaves the QSS with the bad choices of late detection
