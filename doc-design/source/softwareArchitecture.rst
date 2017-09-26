@@ -134,7 +134,22 @@ JModelica Integration
 ^^^^^^^^^^^^^^^^^^^^^
 
 This section describes the integration of the QSS solver in JModelica.
-For this discussion, we consider a system of initial value ODEs of the form
+
+We will first introduce terminology.
+Consider the code-snippet
+
+.. code-block:: modelica
+
+   ...
+   when (x > a) then
+     ...
+   end when;
+   ...
+
+We will say that :math:`z = a - x` is the *event indicator*.
+
+
+For the discussion, we consider a system of initial value ODEs of the form
 
 .. math::
    :label: eqn_ini_val
@@ -154,7 +169,7 @@ where
 :math:`p` are parameters,
 :math:`f(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)` is the state transitions function,
 :math:`g(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)` is the output function,
-:math:`z(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)` is the event indicator function (sometimes called zero crossing function).
+:math:`z(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)` is the event indicator (sometimes called zero crossing function).
 
 Because we anticipate that the FMU can have
 direct feed-through from the input
@@ -223,7 +238,7 @@ The QSS solvers require the derivatives shown in :numref:`tab_qss_der`.
 
 
    +-------------+-----------------------------------------------------------------+-----------------------------------------------------+
-   | Type of QSS | Continuous-time state derivative                                | Event indicator function derivative                 |
+   | Type of QSS | Continuous-time state derivative                                | event indicator derivative                          |
    +=============+=================================================================+=====================================================+
    | QSS1        | :math:`dx_c/dt` *                                               | :math:`dz/dt`                                       |
    +-------------+-----------------------------------------------------------------+-----------------------------------------------------+
@@ -249,6 +264,7 @@ propose to use the function
                          const fmi2ValueReference vr[],
                          size_t nx);
 
+to set a subset of the continuous-time state vector.
 This function exists in FMI-ME 2.0, but the standard only allows to call it for
 continuous-time state variables during the initialization.
 
@@ -270,14 +286,15 @@ to the ``<Derivatives>`` element of the ``modelDescription.xml`` file.
 
     <ModelVariables> <!-- Remains unchanged -->
       ...
-      <ScalarVariable name="x1",      ...> ... </ScalarVariable> <!-- index="5" -->
+      <ScalarVariable name="x",      ...> ... </ScalarVariable> <!-- index="5" -->
       ...
-      <ScalarVariable name="der(x1)", ...> ... </ScalarVariable> <!-- index="8" -->
+      <ScalarVariable name="der(x)", ...> ... </ScalarVariable> <!-- index="8" -->
     </ModelVariables>
 
     <Derivatives>
       <!-- The ScalarVariable with index 8 is der(x) -->
       <Unknown     index="8" dependencies="6" />
+      <!-- index 5 is the index of the state variable x -->
       <HigherOrder index="5" order="2" value_reference="124" /> <!-- This is d^2 x/dt^2 -->
       <HigherOrder index="5" order="3" value_reference="125" /> <!-- This is d^3 x/dt^3 -->
     </Derivatives>
@@ -285,33 +302,19 @@ to the ``<Derivatives>`` element of the ``modelDescription.xml`` file.
 Event Handling
 """"""""""""""
 
-We will first introduce terminology.
-Consider the code-snippet
-
-.. code-block:: modelica
-
-   ...
-   when (x > a) then
-     ...
-   end when;
-   ...
-
-We will say that :math:`z = a - x` is the *event indicator*.
-
-
 .. _subsec_se:
 
 State Events
 ............
 
-For efficiency, QSS requires to know what states trigger
-which element of the event indicator function. Also, it will need to
+For efficiency, QSS requires to know the dependencies
+of event indicators. Also, it will need to
 have access to, or else approximate numerically, the time derivatives of the
 event indicator. FMI 2.0 outputs an array of real-valued event indicators,
 but no variable dependencies.
 
 Therefore, we introduce the following xml section, which assumes we have
-three event indicator functions.
+three event indicators.
 
 .. code-block:: xml
 
@@ -342,7 +345,7 @@ for ``order="0"``. For higher order, QSS does not use the dependencies.
    The ``index`` uses in the ``<EventIndicators>`` element is different from the ``index``
    used in the ``<ModelVariables>`` element. The first event indicator has an ``index`` 1,
    the second has an ``index`` 2, and so on. A new index is introduced because the event
-   indicators do not show up in the list of ``ModelVariables``.
+   indicators do not show up in the list of ``<ModelVariables>``.
 
    The dependencies variables of event indicators are
 
@@ -390,7 +393,9 @@ shown in :numref:`fig_hig_der`.
 
     <Derivatives>
       <!-- The ScalarVariable with index 8 is der(x) -->
+      <!-- ei_dependencies="1" declares that der(x) depends on the event indicator with index 1  -->
       <Unknown     index="8" dependencies="6" ei_dependencies="1"/>
+      <!-- index 5 is the index of the state variable x -->
       <HigherOrder index="5" order="2" value_reference="124" /> <!-- This is d^2 x/dt^2 -->
       <HigherOrder index="5" order="3" value_reference="125" /> <!-- This is d^3 x/dt^3 -->
     </Derivatives>
@@ -411,7 +416,7 @@ for ``Unknown``. For ``HigherOrder``, QSS does not use the
 ``dependencies`` and ``ei_dependencies``.
 
 
-In :numref:`fig_hig_der`, :math:`d^2/dt^2` depends on the event indicator.
+In :numref:`fig_hig_der`, the higher order derivatives depend on the event indicator.
 
 .. note::
 
@@ -452,7 +457,7 @@ The names of event indicators variables will start with ``__zc_``. The names of 
 indicators will start with ``__zc_der_``.  As an example, ``__zc_z1`` and ``__zc_der_z1``
 are the names of the event indicator ``z1`` with its derivative ``der_z1``.
 
-If the number of event indicators functions is equal to the ``numberOfEventIndicators`` attribute,
+If the number of event indicators is equal to the ``numberOfEventIndicators`` attribute,
 then only ``__zc_`` and ``__zc_der_`` need to be used by QSS.
 If the number of event indicators does not match, the FMU needs to be rejected with an error message.
 
@@ -460,7 +465,7 @@ If the number of event indicators does not match, the FMU needs to be rejected w
 
   Per design, Dymola (2018) generates twice as many event indicators as actually existing in the model.
   Hence the master algorithm needs to detect if the tool which exported the FMU is Dymola, and if it is, the
-  number of event indicator functions must be equal to half the value of the ``numberOfEventIndicators`` attribute.
+  number of event indicators must be equal to half the value of the ``numberOfEventIndicators`` attribute.
 
 Time Events
 ...........
@@ -695,14 +700,14 @@ Some per-variable annotations that will allow for more efficient solutions by ov
 - Various flags: QSS method/order (or traditional ODE method for mixed solutions), inflection point requantization, ...
 - Extra variability flags: constant, linear, quadratic, cubic, variable, ...
 
-Conditional Expressions and Zero Crossing Functions
-"""""""""""""""""""""""""""""""""""""""""""""""""""
+Conditional Expressions and Event Indicators
+""""""""""""""""""""""""""""""""""""""""""""
 
 - The xml needs to expose the structure of each conditional block:
   if or when, sequence order of if/when/else conditionals,
   and all the (continuous and discrete/boolean) variables appearing in each conditional.
 - Non-input boolean/discrete/integer variables should ideally be altered
-  only by zero-crossing handlers or *time events* that are exposed by the FMU
+  only by event indicator handlers or *time events* that are exposed by the FMU
   (during loop or by direct query?). Are there other ways that
   such variables can change that are only detectable after the fact?
   If so, this leaves the QSS with the bad choices of late detection
