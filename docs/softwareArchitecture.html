@@ -159,7 +159,7 @@
 <li><a class="reference internal" href="#higher-derivatives">5.2.3.3. Higher Derivatives</a></li>
 <li><a class="reference internal" href="#input-variables">5.2.3.4. Input Variables</a></li>
 <li><a class="reference internal" href="#annotations">5.2.3.5. Annotations</a></li>
-<li><a class="reference internal" href="#conditional-expressions-and-zero-crossing-functions">5.2.3.6. Conditional Expressions and Zero Crossing Functions</a></li>
+<li><a class="reference internal" href="#conditional-expressions-and-event-indicators">5.2.3.6. Conditional Expressions and Event Indicators</a></li>
 </ul>
 </li>
 </ul>
@@ -874,8 +874,18 @@ the tool should also work for other Modelica libraries.</td></tr>
 </div>
 <div class="section" id="jmodelica-integration">
 <h2>5.2. JModelica Integration<a class="headerlink" href="#jmodelica-integration" title="Permalink to this headline">¶</a></h2>
-<p>This section describes the integration of the QSS solver in JModelica.
-For this discussion, we consider a system of initial value ODEs of the form</p>
+<p>This section describes the integration of the QSS solver in JModelica.</p>
+<p>We will first introduce terminology.
+Consider the code-snippet</p>
+<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="o">...</span>
+<span class="kr">when</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="n">a</span><span class="p">)</span> <span class="kr">then</span>
+  <span class="o">...</span>
+<span class="kr">end</span> <span class="kr">when</span><span class="p">;</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>We will say that <span class="math">\(z = a - x\)</span> is the <em>event indicator</em>.</p>
+<p>For the discussion, we consider a system of initial value ODEs of the form</p>
 <div class="math" id="equation-eqn_ini_val">
 <span class="eqno">(1)</span>\[\begin{split}[\dot x_c(t), x_d(t)] &amp; = f(x_c(t), x_d(t^-), u_c(t), u_d(t), p, t),\end{split}\]\[\begin{split}[y_c(t), y_d(t)] &amp; = g(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\\\end{split}\]\[\begin{split}0         &amp; = z(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\\\end{split}\]\[\begin{split}[x_c(t_0), x_d(t_0)] &amp; = [x_{c,0}, x_{d,0}],\end{split}\]</div>
 <p>where
@@ -885,7 +895,7 @@ For this discussion, we consider a system of initial value ODEs of the form</p>
 <span class="math">\(p\)</span> are parameters,
 <span class="math">\(f(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)\)</span> is the state transitions function,
 <span class="math">\(g(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)\)</span> is the output function,
-<span class="math">\(z(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)\)</span> is the event indicator function (sometimes called zero crossing function).</p>
+<span class="math">\(z(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)\)</span> is the event indicator (sometimes called zero crossing function).</p>
 <p>Because we anticipate that the FMU can have
 direct feed-through from the input
 <span class="math">\(u(t)\)</span> to the output <span class="math">\(y(t)\)</span>, we use
@@ -952,7 +962,7 @@ cross multiple FMUs.</p>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Type of QSS</th>
 <th class="head">Continuous-time state derivative</th>
-<th class="head">Event indicator function derivative</th>
+<th class="head">event indicator derivative</th>
 </tr>
 </thead>
 <tbody valign="top">
@@ -983,7 +993,8 @@ propose to use the function</p>
                        <span class="kt">size_t</span> <span class="n">nx</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>This function exists in FMI-ME 2.0, but the standard only allows to call it for
+<p>to set a subset of the continuous-time state vector.
+This function exists in FMI-ME 2.0, but the standard only allows to call it for
 continuous-time state variables during the initialization.</p>
 <p>We therefore propose that the standard is being changed as follows:</p>
 <blockquote>
@@ -997,41 +1008,32 @@ to the <code class="docutils literal"><span class="pre">&lt;Derivatives&gt;</spa
 <span id="fig-der-ext"></span><div class="code-block-caption"><span class="caption-number">Listing 5.1 </span><span class="caption-text">Extensions for obtaining higher order state derivatives. XML additions are marked yellow.</span><a class="headerlink" href="#id15" title="Permalink to this code">¶</a></div>
 <div class="highlight-xml"><div class="highlight"><pre><span></span> &lt;ModelVariables&gt; &lt;!-- Remains unchanged --&gt;
    ...
-   &lt;ScalarVariable name=&quot;x1&quot;,      ...&gt; ... &lt;/ScalarVariable&gt; &lt;!-- index=&quot;5&quot; --&gt;
+   &lt;ScalarVariable name=&quot;x&quot;,      ...&gt; ... &lt;/ScalarVariable&gt; &lt;!-- index=&quot;5&quot; --&gt;
    ...
-   &lt;ScalarVariable name=&quot;der(x1)&quot;, ...&gt; ... &lt;/ScalarVariable&gt; &lt;!-- index=&quot;8&quot; --&gt;
+   &lt;ScalarVariable name=&quot;der(x)&quot;, ...&gt; ... &lt;/ScalarVariable&gt; &lt;!-- index=&quot;8&quot; --&gt;
  &lt;/ModelVariables&gt;
 
  &lt;Derivatives&gt;
    &lt;!-- The ScalarVariable with index 8 is der(x) --&gt;
    &lt;Unknown     index=&quot;8&quot; dependencies=&quot;6&quot; /&gt;
-<span class="hll">   &lt;HigherOrder index=&quot;5&quot; order=&quot;2&quot; value_reference=&quot;124&quot; /&gt; &lt;!-- This is d^2 x/dt^2 --&gt;
-</span><span class="hll">   &lt;HigherOrder index=&quot;5&quot; order=&quot;3&quot; value_reference=&quot;125&quot; /&gt; &lt;!-- This is d^3 x/dt^3 --&gt;
-</span> &lt;/Derivatives&gt;
+<span class="hll">   &lt;!-- index 5 is the index of the state variable x --&gt;
+</span><span class="hll">   &lt;HigherOrder index=&quot;5&quot; order=&quot;2&quot; value_reference=&quot;124&quot; /&gt; &lt;!-- This is d^2 x/dt^2 --&gt;
+</span>   &lt;HigherOrder index=&quot;5&quot; order=&quot;3&quot; value_reference=&quot;125&quot; /&gt; &lt;!-- This is d^3 x/dt^3 --&gt;
+ &lt;/Derivatives&gt;
 </pre></div>
 </div>
 </div>
 <div class="section" id="event-handling">
 <h4>5.2.1.1. Event Handling<a class="headerlink" href="#event-handling" title="Permalink to this headline">¶</a></h4>
-<p>We will first introduce terminology.
-Consider the code-snippet</p>
-<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="o">...</span>
-<span class="kr">when</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="n">a</span><span class="p">)</span> <span class="kr">then</span>
-  <span class="o">...</span>
-<span class="kr">end</span> <span class="kr">when</span><span class="p">;</span>
-<span class="o">...</span>
-</pre></div>
-</div>
-<p>We will say that <span class="math">\(z = a - x\)</span> is the <em>event indicator</em>.</p>
 <div class="section" id="state-events">
 <span id="subsec-se"></span><h5>5.2.1.1.1. State Events<a class="headerlink" href="#state-events" title="Permalink to this headline">¶</a></h5>
-<p>For efficiency, QSS requires to know what states trigger
-which element of the event indicator function. Also, it will need to
+<p>For efficiency, QSS requires to know the dependencies
+of event indicators. Also, it will need to
 have access to, or else approximate numerically, the time derivatives of the
 event indicator. FMI 2.0 outputs an array of real-valued event indicators,
 but no variable dependencies.</p>
 <p>Therefore, we introduce the following xml section, which assumes we have
-three event indicator functions.</p>
+three event indicators.</p>
 <div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;ModelStructure&gt;</span>
   <span class="nt">&lt;EventIndicators&gt;</span>
     <span class="c">&lt;!-- This is z[0] which depends on ScalarVariable with index 2 and 3 --&gt;</span>
@@ -1059,7 +1061,7 @@ for <code class="docutils literal"><span class="pre">order=&quot;0&quot;</span><
 <p>The <code class="docutils literal"><span class="pre">index</span></code> uses in the <code class="docutils literal"><span class="pre">&lt;EventIndicators&gt;</span></code> element is different from the <code class="docutils literal"><span class="pre">index</span></code>
 used in the <code class="docutils literal"><span class="pre">&lt;ModelVariables&gt;</span></code> element. The first event indicator has an <code class="docutils literal"><span class="pre">index</span></code> 1,
 the second has an <code class="docutils literal"><span class="pre">index</span></code> 2, and so on. A new index is introduced because the event
-indicators do not show up in the list of <code class="docutils literal"><span class="pre">ModelVariables</span></code>.</p>
+indicators do not show up in the list of <code class="docutils literal"><span class="pre">&lt;ModelVariables&gt;</span></code>.</p>
 <p>The dependencies variables of event indicators are</p>
 <ul class="last simple">
 <li>inputs (variables with causality = &#8220;input&#8221;)</li>
@@ -1116,8 +1118,10 @@ shown in <a class="reference internal" href="#fig-hig-der"><span class="std std-
 <span id="fig-hig-der"></span><div class="code-block-caption"><span class="caption-number">Listing 5.2 </span><span class="caption-text">Extensions with inclusion of a new attribute for event indicator dependencies. XML additions are marked yellow.</span><a class="headerlink" href="#id16" title="Permalink to this code">¶</a></div>
 <div class="highlight-xml"><div class="highlight"><pre><span></span>  <span class="nt">&lt;Derivatives&gt;</span>
     <span class="c">&lt;!-- The ScalarVariable with index 8 is der(x) --&gt;</span>
-<span class="hll">    <span class="nt">&lt;Unknown</span>     <span class="na">index=</span><span class="s">&quot;8&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;6&quot;</span> <span class="na">ei_dependencies=</span><span class="s">&quot;1&quot;</span><span class="nt">/&gt;</span>
-</span>    <span class="nt">&lt;HigherOrder</span> <span class="na">index=</span><span class="s">&quot;5&quot;</span> <span class="na">order=</span><span class="s">&quot;2&quot;</span> <span class="na">value_reference=</span><span class="s">&quot;124&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- This is d^2 x/dt^2 --&gt;</span>
+<span class="hll">    <span class="c">&lt;!-- ei_dependencies=&quot;1&quot; declares that der(x) depends on the event indicator with index 1  --&gt;</span>
+</span>    <span class="nt">&lt;Unknown</span>     <span class="na">index=</span><span class="s">&quot;8&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;6&quot;</span> <span class="na">ei_dependencies=</span><span class="s">&quot;1&quot;</span><span class="nt">/&gt;</span>
+    <span class="c">&lt;!-- index 5 is the index of the state variable x --&gt;</span>
+    <span class="nt">&lt;HigherOrder</span> <span class="na">index=</span><span class="s">&quot;5&quot;</span> <span class="na">order=</span><span class="s">&quot;2&quot;</span> <span class="na">value_reference=</span><span class="s">&quot;124&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- This is d^2 x/dt^2 --&gt;</span>
     <span class="nt">&lt;HigherOrder</span> <span class="na">index=</span><span class="s">&quot;5&quot;</span> <span class="na">order=</span><span class="s">&quot;3&quot;</span> <span class="na">value_reference=</span><span class="s">&quot;125&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- This is d^3 x/dt^3 --&gt;</span>
   <span class="nt">&lt;/Derivatives&gt;</span>
 </pre></div>
@@ -1137,7 +1141,7 @@ write <code class="docutils literal"><span class="pre">ei_dependencies=&quot;&qu
 Note that for performance reasons, for QSS <code class="docutils literal"><span class="pre">dependencies</span></code> and <code class="docutils literal"><span class="pre">ei_dependencies</span></code> should be declared
 for <code class="docutils literal"><span class="pre">Unknown</span></code>. For <code class="docutils literal"><span class="pre">HigherOrder</span></code>, QSS does not use the
 <code class="docutils literal"><span class="pre">dependencies</span></code> and <code class="docutils literal"><span class="pre">ei_dependencies</span></code>.</p>
-<p>In <a class="reference internal" href="#fig-hig-der"><span class="std std-numref">Listing 5.2</span></a>, <span class="math">\(d^2/dt^2\)</span> depends on the event indicator.</p>
+<p>In <a class="reference internal" href="#fig-hig-der"><span class="std std-numref">Listing 5.2</span></a>, the higher order derivatives depend on the event indicator.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">The indexes of <code class="docutils literal"><span class="pre">ei_dependencies</span></code> are the indexes of the
@@ -1187,14 +1191,14 @@ LBNL will refactor some Modelica models to expose event indicators and their fir
 <p>The names of event indicators variables will start with <code class="docutils literal"><span class="pre">__zc_</span></code>. The names of derivatives of event
 indicators will start with <code class="docutils literal"><span class="pre">__zc_der_</span></code>.  As an example, <code class="docutils literal"><span class="pre">__zc_z1</span></code> and <code class="docutils literal"><span class="pre">__zc_der_z1</span></code>
 are the names of the event indicator <code class="docutils literal"><span class="pre">z1</span></code> with its derivative <code class="docutils literal"><span class="pre">der_z1</span></code>.</p>
-<p>If the number of event indicators functions is equal to the <code class="docutils literal"><span class="pre">numberOfEventIndicators</span></code> attribute,
+<p>If the number of event indicators is equal to the <code class="docutils literal"><span class="pre">numberOfEventIndicators</span></code> attribute,
 then only <code class="docutils literal"><span class="pre">__zc_</span></code> and <code class="docutils literal"><span class="pre">__zc_der_</span></code> need to be used by QSS.
 If the number of event indicators does not match, the FMU needs to be rejected with an error message.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Per design, Dymola (2018) generates twice as many event indicators as actually existing in the model.
 Hence the master algorithm needs to detect if the tool which exported the FMU is Dymola, and if it is, the
-number of event indicator functions must be equal to half the value of the <code class="docutils literal"><span class="pre">numberOfEventIndicators</span></code> attribute.</p>
+number of event indicators must be equal to half the value of the <code class="docutils literal"><span class="pre">numberOfEventIndicators</span></code> attribute.</p>
 </div>
 </div>
 <div class="section" id="time-events">
@@ -1407,14 +1411,14 @@ Is this an issue in ME?&#8221;</p>
 <li>Extra variability flags: constant, linear, quadratic, cubic, variable, ...</li>
 </ul>
 </div>
-<div class="section" id="conditional-expressions-and-zero-crossing-functions">
-<h4>5.2.3.6. Conditional Expressions and Zero Crossing Functions<a class="headerlink" href="#conditional-expressions-and-zero-crossing-functions" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="conditional-expressions-and-event-indicators">
+<h4>5.2.3.6. Conditional Expressions and Event Indicators<a class="headerlink" href="#conditional-expressions-and-event-indicators" title="Permalink to this headline">¶</a></h4>
 <ul class="simple">
 <li>The xml needs to expose the structure of each conditional block:
 if or when, sequence order of if/when/else conditionals,
 and all the (continuous and discrete/boolean) variables appearing in each conditional.</li>
 <li>Non-input boolean/discrete/integer variables should ideally be altered
-only by zero-crossing handlers or <em>time events</em> that are exposed by the FMU
+only by event indicator handlers or <em>time events</em> that are exposed by the FMU
 (during loop or by direct query?). Are there other ways that
 such variables can change that are only detectable after the fact?
 If so, this leaves the QSS with the bad choices of late detection
