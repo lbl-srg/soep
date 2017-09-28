@@ -447,6 +447,27 @@ element. In this situation, the QSS solver will detect the missing
 information from the XML file and numerically approximate
 the event indicator derivatives.
 
+
+Handling of variables reinitialized with ``reinit()``
+.....................................................
+
+
+Consider following model
+
+.. literalinclude:: ../../models/modelica_for_qss/QSS/Docs/StateEvent3.mo
+   :language: modelica
+
+This model has one event indicator :math:`z = time-0.5`.
+When the event indicator changes its domain,
+the variable ``x1`` is renitialized. QSS requires
+``der(x2)`` to be notified so it updates since it 
+depends on ``x1``. FMI specifies that variables
+which are reinitialized during simulation set 
+their ``reinit()`` attribute in the XML file to ``true``.
+We hence propose that QSS updates all state variables which depend
+on variables with ``reinit()=true`` any time when there is a state event.
+
+
 Workaround for implementing event indicators
 ............................................
 
