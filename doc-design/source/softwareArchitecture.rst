@@ -282,7 +282,7 @@ to the ``<Derivatives>`` element of the ``modelDescription.xml`` file.
 
 .. code-block:: xml
    :caption: Extensions for obtaining higher order state derivatives. XML additions are marked yellow.
-   :emphasize-lines: 11,12
+   :emphasize-lines: 12,13
 
     <ModelVariables> <!-- Remains unchanged -->
       ...
