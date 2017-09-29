@@ -520,9 +520,10 @@ its next time event using the ``nextEventTimeDefined`` flag of
 the ``fmi2SetNewDiscreteStates`` function. 
 If ``true``, it will use the event indicators to predict the
 time event, and use the ``ei_dependencies`` information
-of the state derivatives to figure the state derivative that need 
-to be updated. If state derivatives do not declare ``ei_dependencies``
-QSS will assume that all state derivatives need to be updated. 
+of the state derivatives to figure the state derivatives that need 
+to be updated. If a state derivative does not declare ``ei_dependencies``
+QSS will assume that this state derivative needs to be updated anytime 
+when QSS predicts an event. 
 
 .. note ::
 
