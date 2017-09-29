@@ -518,16 +518,17 @@ of state derivatives which depend on them.
 At runtime the QSS solver will check if an FMU has announced
 its next time event using the ``nextEventTimeDefined`` flag of 
 the ``fmi2SetNewDiscreteStates`` function. 
-If ``true``, it will use the ``ei_dependencies`` information
+If ``true``, it will use the event indicators to predict the
+time event, and use the ``ei_dependencies`` information
 of the state derivatives to figure the state derivative that need 
 to be updated. If state derivatives do not declare ``ei_dependencies``
 QSS will assume that all state derivatives need to be updated. 
 
 .. note ::
 
-  If a time event is announced, and ``ei_dependencies`` are defined,
+  If a time event is announced, and ``ei_dependencies`` is defined,
   then the ``nextEventTime`` of the ``fmi2SetNewDiscreteStates`` function
-  could be used to check if the time event which is converted to a state event
+  could be used to check if the time event converted to a state event
   is correctly predicted by QSS. 
 
 SmoothToken for QSS
@@ -651,7 +652,7 @@ Here is a list with a summary of proposed changes
 
   - We need to determine when to efficiently call ``fmi2CompletedIntegratorStep()`` to signalize that
     an integrator step is complete.
-  - We need to determine how an FMU deals with state selection, detect it and reject it 
+  - We need to determine how an FMU deals with state selection, detect it, and reject it 
     on the QSS side.
 
 
