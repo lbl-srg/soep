@@ -457,26 +457,25 @@ Consider following model
 .. literalinclude:: ../../models/modelica_for_qss/QSS/Docs/StateEvent3.mo
    :language: modelica
 
-This model has one event indicator :math:`z = time-0.5`.
-When the event indicator changes its domain,
-variable ``x1`` is renitialized. QSS requires
-``der(x2)`` to be updated since it  depends on ``x1``. 
-FMI specifies that variables which can be reinitialized 
-during simulation declare their ``reinit()`` attribute 
-in the XML file to ``true``.
-We hence propose that anytime when there is
-a state event QSS gets all state 
-variables with ``reinit()=true`` and all 
-state derivatives which depend on these variables 
-so it can restart the time integration with the reinitialized
-values.
-
+This model has a variable ``x1`` which 
+is reinitialized with the ``reinit()`` function. 
+Such variables have in the model description file 
+an attribute ``reinit`` which can be set to 
+``true`` or ``false`` depending on whether they can 
+be reinitialized at an event or not.
+Since  a ``reinit()`` statement is only valid 
+in a ``when-equation`` block, we propose that 
+if a variabe has ``reinit`` set to true,
+then at every state event, the QSS solver will get the value of 
+the variable, update variables which depend on it, and proceed 
+with its calculation.
 
 Workaround for implementing event indicators
 ............................................
 
 While waiting for the implementation of the FMI extensions in JModelica,
-LBNL will refactor some Modelica models to expose event indicators and their first derivatives as FMU output variables.
+LBNL will refactor some Modelica models to expose event indicators and 
+their first derivatives as FMU output variables.
 
 The names of event indicators variables will start with ``__zc_``. The names of derivatives of event
 indicators will start with ``__zc_der_``.  As an example, ``__zc_z1`` and ``__zc_der_z1``
