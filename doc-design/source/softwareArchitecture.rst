@@ -464,10 +464,10 @@ an attribute ``reinit`` which can be set to
 ``true`` or ``false`` depending on whether they can 
 be reinitialized at an event or not.
 Since  a ``reinit()`` statement is only valid 
-in a ``when-equation`` block, we propose that 
-if a variable has ``reinit`` set to true,
-then at every state event, the QSS solver will get the value of 
-the variable, update variables which depend on it, and proceed 
+in a ``when-equation`` block, we propose for 
+variables with ``reinit`` set to true,
+that at every state event, the QSS solver gets the value of 
+the variable, updates variables which depend on it, and proceeds 
 with its calculation.
 
 Workaround for implementing event indicators
