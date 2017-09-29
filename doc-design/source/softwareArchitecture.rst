@@ -465,7 +465,7 @@ an attribute ``reinit`` which can be set to
 be reinitialized at an event or not.
 Since  a ``reinit()`` statement is only valid 
 in a ``when-equation`` block, we propose that 
-if a variabe has ``reinit`` set to true,
+if a variable has ``reinit`` set to true,
 then at every state event, the QSS solver will get the value of 
 the variable, update variables which depend on it, and proceed 
 with its calculation.
@@ -507,7 +507,7 @@ this model to indicate in its model description file
 the dependency of ``der(x1)`` on ``y``.
 However, since ``y`` updates when a time event happens
 but a time event is not described with event indicator,
-it is not possible to euse the same approach as done for
+it is not possible to use the same approach as done for
 ``StateEvent1`` without further modificaton.
 
 We therefore propose that JModelica turns all time events into state events,
