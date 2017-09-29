@@ -459,13 +459,17 @@ Consider following model
 
 This model has one event indicator :math:`z = time-0.5`.
 When the event indicator changes its domain,
-the variable ``x1`` is renitialized. QSS requires
-``der(x2)`` to be notified so it updates since it 
-depends on ``x1``. FMI specifies that variables
-which are reinitialized during simulation set 
-their ``reinit()`` attribute in the XML file to ``true``.
-We hence propose that QSS updates all state variables which depend
-on variables with ``reinit()=true`` any time when there is a state event.
+variable ``x1`` is renitialized. QSS requires
+``der(x2)`` to be updated since it  depends on ``x1``. 
+FMI specifies that variables which can be reinitialized 
+during simulation declare their ``reinit()`` attribute 
+in the XML file to ``true``.
+We hence propose that anytime when there is
+a state event QSS gets all state 
+variables with ``reinit()=true`` and all 
+state derivatives which depend on these variables 
+so it can restart the time integration with the reinitialized
+values.
 
 
 Workaround for implementing event indicators
