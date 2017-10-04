@@ -145,8 +145,9 @@
 <li><a class="reference internal" href="#event-handling">5.2.1.1. Event Handling</a><ul>
 <li><a class="reference internal" href="#state-events">5.2.1.1.1. State Events</a></li>
 <li><a class="reference internal" href="#event-indicators-that-depend-on-the-input">5.2.1.1.2. Event indicators that depend on the input</a></li>
-<li><a class="reference internal" href="#workaround-for-implementing-event-indicators">5.2.1.1.3. Workaround for implementing event indicators</a></li>
-<li><a class="reference internal" href="#time-events">5.2.1.1.4. Time Events</a></li>
+<li><a class="reference internal" href="#handling-of-variables-reinitialized-with-reinit">5.2.1.1.3. Handling of variables reinitialized with <code class="docutils literal"><span class="pre">reinit()</span></code></a></li>
+<li><a class="reference internal" href="#workaround-for-implementing-event-indicators">5.2.1.1.4. Workaround for implementing event indicators</a></li>
+<li><a class="reference internal" href="#time-events">5.2.1.1.5. Time Events</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#smoothtoken-for-qss">5.2.1.2. SmoothToken for QSS</a></li>
@@ -1184,10 +1185,47 @@ element. In this situation, the QSS solver will detect the missing
 information from the XML file and numerically approximate
 the event indicator derivatives.</p>
 </div>
+<div class="section" id="handling-of-variables-reinitialized-with-reinit">
+<h5>5.2.1.1.3. Handling of variables reinitialized with <code class="docutils literal"><span class="pre">reinit()</span></code><a class="headerlink" href="#handling-of-variables-reinitialized-with-reinit" title="Permalink to this headline">¶</a></h5>
+<p>Consider following model</p>
+<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">within</span> <span class="nn">QSS</span><span class="o">.</span><span class="n">Docs</span><span class="p">;</span>
+<span class="kr">model</span> <span class="nc">StateEvent3</span> <span class="s2">&quot;This model tests state event detection&quot;</span>
+  <span class="kr">extends</span> <span class="n">Modelica</span><span class="o">.</span><span class="n">Icons</span><span class="o">.</span><span class="n">Example</span><span class="p">;</span>
+  <span class="nb">Real</span> <span class="n">x1</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">)</span> <span class="s2">&quot;State variable&quot;</span><span class="p">;</span>
+  <span class="nb">Real</span> <span class="n">x2</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">)</span> <span class="s2">&quot;State variable&quot;</span><span class="p">;</span>
+<span class="kr">equation</span>
+  <span class="kr">der</span><span class="p">(</span><span class="n">x1</span><span class="p">)</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="kr">der</span><span class="p">(</span><span class="n">x2</span><span class="p">)</span> <span class="o">=</span> <span class="n">x1</span><span class="p">;</span>
+<span class="kr">when</span> <span class="nb">time</span> <span class="o">&gt;</span> <span class="mf">0.5</span> <span class="kr">then</span>
+  <span class="nb">reinit</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<span class="kr">end</span> <span class="kr">when</span><span class="p">;</span>
+  <span class="kr">annotation</span> <span class="p">(</span><span class="n">experiment</span><span class="p">(</span><span class="n">StopTime</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">Documentation</span><span class="p">(</span><span class="n">info</span><span class="o">=</span><span class="s2">&quot;</span><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>
+This model has 1 state event at t=0.5s
+when simulated from 0 to 1s.
+<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span><span class="s2">&quot;</span><span class="p">));</span>
+<span class="kr">end</span> <span class="nc">StateEvent3</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>This model has a variable <code class="docutils literal"><span class="pre">x1</span></code> which
+is reinitialized with the <code class="docutils literal"><span class="pre">reinit()</span></code> function.
+Such variables have in the model description file
+an attribute <code class="docutils literal"><span class="pre">reinit</span></code> which can be set to
+<code class="docutils literal"><span class="pre">true</span></code> or <code class="docutils literal"><span class="pre">false</span></code> depending on whether they can
+be reinitialized at an event or not.
+Since  a <code class="docutils literal"><span class="pre">reinit()</span></code> statement is only valid
+in a <code class="docutils literal"><span class="pre">when-equation</span></code> block, we propose for
+variables with <code class="docutils literal"><span class="pre">reinit</span></code> set to true,
+that at every state event, the QSS solver gets the value of
+the variable, updates variables which depend on it, and proceeds
+with its calculation.</p>
+</div>
 <div class="section" id="workaround-for-implementing-event-indicators">
-<h5>5.2.1.1.3. Workaround for implementing event indicators<a class="headerlink" href="#workaround-for-implementing-event-indicators" title="Permalink to this headline">¶</a></h5>
+<h5>5.2.1.1.4. Workaround for implementing event indicators<a class="headerlink" href="#workaround-for-implementing-event-indicators" title="Permalink to this headline">¶</a></h5>
 <p>While waiting for the implementation of the FMI extensions in JModelica,
-LBNL will refactor some Modelica models to expose event indicators and their first derivatives as FMU output variables.</p>
+LBNL will refactor some Modelica models to expose event indicators and
+their first derivatives as FMU output variables.</p>
 <p>The names of event indicators variables will start with <code class="docutils literal"><span class="pre">__zc_</span></code>. The names of derivatives of event
 indicators will start with <code class="docutils literal"><span class="pre">__zc_der_</span></code>.  As an example, <code class="docutils literal"><span class="pre">__zc_z1</span></code> and <code class="docutils literal"><span class="pre">__zc_der_z1</span></code>
 are the names of the event indicator <code class="docutils literal"><span class="pre">z1</span></code> with its derivative <code class="docutils literal"><span class="pre">der_z1</span></code>.</p>
@@ -1202,7 +1240,7 @@ number of event indicators must be equal to half the value of the <code class="d
 </div>
 </div>
 <div class="section" id="time-events">
-<h5>5.2.1.1.4. Time Events<a class="headerlink" href="#time-events" title="Permalink to this headline">¶</a></h5>
+<h5>5.2.1.1.5. Time Events<a class="headerlink" href="#time-events" title="Permalink to this headline">¶</a></h5>
 <p>This section discusses additional requirements for handling time events with QSS.</p>
 <p>Consider following model</p>
 <div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">within</span> <span class="nn">QSS</span><span class="o">.</span><span class="n">Docs</span><span class="p">;</span>
@@ -1234,44 +1272,27 @@ the dependency of <code class="docutils literal"><span class="pre">der(x1)</span
 However, since <code class="docutils literal"><span class="pre">y</span></code> updates when a time event happens
 but a time event is not described with event indicator,
 it is not possible to use the same approach as done for
-<code class="docutils literal"><span class="pre">StateEvent1</span></code>.</p>
-<p>We therefore propose to extend the FMI specification to</p>
-<ul>
-<li><p class="first">include a new data structure <code class="docutils literal"><span class="pre">fmi2ExtendedEventInfo</span></code> and a new function <code class="docutils literal"><span class="pre">fmi2ExtendedNewDiscreteStates</span></code>.
-<code class="docutils literal"><span class="pre">fmi2ExtendedNewDiscreteStates</span></code> is similar to <code class="docutils literal"><span class="pre">fmi2NewDiscreteStates</span></code> but includes the value references
-of all variables changed because of a time event (e.g. the variable <code class="docutils literal"><span class="pre">y</span></code>).
-We call these variables <code class="docutils literal"><span class="pre">TimeEventHandlers</span></code>. The data structure and new functions are</p>
-<div class="highlight-C"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span><span class="p">{</span>
- <span class="n">fmi2Boolean</span> <span class="n">newDiscreteStatesNeeded</span><span class="p">;</span>
- <span class="n">fmi2Boolean</span> <span class="n">terminateSimulation</span><span class="p">;</span>
- <span class="n">fmi2Boolean</span> <span class="n">nominalsOfContinuousStatesChanged</span><span class="p">;</span>
- <span class="n">fmi2Boolean</span> <span class="n">valuesOfContinuousStatesChanged</span><span class="p">;</span>
- <span class="n">fmi2Boolean</span> <span class="n">nextEventTimeDefined</span><span class="p">;</span>
- <span class="n">fmi2Real</span> <span class="n">nextEventTime</span><span class="p">;</span> <span class="c1">// next event if nextEventTimeDefined=fmi2True</span>
-<span class="hll"> <span class="n">fmi2ValueReference</span> <span class="n">valueReferences</span> <span class="p">[];</span>
-</span> <span class="kt">size_t</span> <span class="n">nvr</span><span class="p">;</span> <span class="c1">// size of valueReferences</span>
- <span class="p">}</span> <span class="n">fmi2ExtendeEventInfo</span><span class="p">;</span>
-</pre></div>
+<code class="docutils literal"><span class="pre">StateEvent1</span></code> without further modificaton.</p>
+<p>We therefore propose that JModelica turns all time events into state events,
+add new event indicators generated by those state events to the <code class="docutils literal"><span class="pre">&lt;EventIndicators&gt;</span></code>
+element, and include those event indicators to the <code class="docutils literal"><span class="pre">ei_dependencies</span></code> attribute
+of state derivatives which depend on them.</p>
+<p>At runtime the QSS solver will check if an FMU has announced
+its next time event using the <code class="docutils literal"><span class="pre">nextEventTimeDefined</span></code> flag of
+the <code class="docutils literal"><span class="pre">fmi2SetNewDiscreteStates</span></code> function.
+If <code class="docutils literal"><span class="pre">true</span></code>, it will use the event indicators to predict the
+time event, and use the <code class="docutils literal"><span class="pre">ei_dependencies</span></code> information
+of the state derivatives to figure the state derivatives that need
+to be updated. If a state derivative does not declare <code class="docutils literal"><span class="pre">ei_dependencies</span></code>
+QSS will assume that this state derivative needs to be updated anytime
+when QSS predicts an event.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If a time event is announced, and <code class="docutils literal"><span class="pre">ei_dependencies</span></code> is defined,
+then the <code class="docutils literal"><span class="pre">nextEventTime</span></code> of the <code class="docutils literal"><span class="pre">fmi2SetNewDiscreteStates</span></code> function
+could be used to check if the time event converted to a state event
+is correctly predicted by QSS.</p>
 </div>
-<p>If <code class="docutils literal"><span class="pre">nvr</span> <span class="pre">=</span> <span class="pre">0</span></code>, then no state is affected by the time event.
-(<code class="docutils literal"><span class="pre">nvr</span> <span class="pre">=</span> <span class="pre">0</span></code> may be a special case, for example if a model writes to disk.)
-If <code class="docutils literal"><span class="pre">nvr</span> <span class="pre">&gt;</span> <span class="pre">0</span></code>, then <code class="docutils literal"><span class="pre">valueReferences</span></code> contains that value references of
-all variables that are updated at that event. (From the xml file, one can
-see which states then need to be updated.)
-If <code class="docutils literal"><span class="pre">nvr</span> <span class="pre">&lt;</span> <span class="pre">0</span></code>, then a tool does not say what variables are updated. This
-may be required if an FMU protects its variables to protect intellectual property.
-However, for QSS efficiency, we should have <code class="docutils literal"><span class="pre">nvr</span> <span class="pre">&gt;=</span> <span class="pre">0</span></code>.</p>
-<div class="highlight-C"><div class="highlight"><pre><span></span><span class="n">fmi2Status</span> <span class="nf">fmi2ExtendedNewDiscreteStates</span><span class="p">(</span><span class="n">fmi2Component</span> <span class="n">c</span><span class="p">,</span>
- <span class="n">fmi2ExtendedEventInfo</span><span class="o">*</span> <span class="n">fmi2ExtendedEventInfo</span><span class="p">);</span>
-</pre></div>
-</div>
-</li>
-<li><p class="first">extend the <code class="docutils literal"><span class="pre">dependencies</span></code> attribute of state derivatives to
-include the indexes of <code class="docutils literal"><span class="pre">TimeEventHandlers</span></code>. <code class="docutils literal"><span class="pre">TimeEventHandlers</span></code> are
-scalar variables listed in the <code class="docutils literal"><span class="pre">&lt;ModelVariables&gt;</span></code> element of the model
-description file.</p>
-</li>
-</ul>
 </div>
 </div>
 <div class="section" id="smoothtoken-for-qss">
@@ -1356,18 +1377,23 @@ This element will expose event indicators with their <code class="docutils liter
 <li>If a model has an event indicator, and the event indicator has a direct
 feedthrough on an input variable, then JModelica will exclude the derivatives
 of that event indicator from the model description file.</li>
-<li>The <code class="docutils literal"><span class="pre">dependencies</span></code> attribute of state derivatives will be extended to include
-<code class="docutils literal"><span class="pre">TimeEventHandlers</span></code> on which they depend on. <code class="docutils literal"><span class="pre">TimeEventHandlers</span></code> are variables
-which are updated because of a time event.</li>
 <li>A new dependency attribute <code class="docutils literal"><span class="pre">ei_dependencies</span></code> will be added to state derivatives listed
-in the <code class="docutils literal"><span class="pre">&lt;Derivatives&gt;</span></code> element to include event indicator on which the state derivatives depend on.</li>
-<li>A new data structure <code class="docutils literal"><span class="pre">fmi2ExtendedEventInfo</span></code> will be included to provide
-additional time event information.</li>
-<li>A new function <code class="docutils literal"><span class="pre">fmi2ExtendedNewDiscreteStates</span></code> will be included to retrieve
-the <code class="docutils literal"><span class="pre">fmi2ExtendedEventInfo</span></code>.</li>
+in the <code class="docutils literal"><span class="pre">&lt;Derivatives&gt;</span></code> element to include event indicators on which the state derivatives depend on.</li>
+<li>JModelica will convert time event into state events, generate event indicators
+for those state events, and add those event indicators to the <code class="docutils literal"><span class="pre">ei_dependencies</span></code>
+of state derivatives which depend on them.</li>
 <li>A new function <code class="docutils literal"><span class="pre">fmi2SetRealInputDerivatives</span></code> will be included to parametrize smooth token.</li>
 <li>A new function <code class="docutils literal"><span class="pre">fmi2GetRealOutputDerivatives</span></code> will be included to parametrize smooth token.</li>
 </ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<ul class="last simple">
+<li>We need to determine when to efficiently call <code class="docutils literal"><span class="pre">fmi2CompletedIntegratorStep()</span></code> to signalize that
+an integrator step is complete.</li>
+<li>We need to determine how an FMU deals with state selection, detect it, and reject it
+on the QSS side.</li>
+</ul>
+</div>
 </div>
 <div class="section" id="open-topics">
 <h3>5.2.3. Open Topics<a class="headerlink" href="#open-topics" title="Permalink to this headline">¶</a></h3>
@@ -1394,13 +1420,13 @@ and allows practical development of 3rd order QSS solvers.</p>
 </div>
 <div class="section" id="input-variables">
 <h4>5.2.3.4. Input Variables<a class="headerlink" href="#input-variables" title="Permalink to this headline">¶</a></h4>
-<div class="admonition-todo admonition" id="index-1">
-<p class="first admonition-title">Todo</p>
-<p>Stuart wrote &#8220;QSS probably needs input variables limited to deterministic, non-path-dependent functions
-since it needs to query their value at possibly forward and backward time steps around the current simulation time.
-Is this an issue in ME?&#8221;</p>
-<p class="last">I (Thierry) think, this shouldn&#8217;t be a problem for ME FMU.</p>
-</div>
+<ul class="simple">
+<li>Input functions with discontinuities up to the QSS order need to be exposed to
+QSS and provide next event time access to the master algorithm.</li>
+<li>Input functions need to be true (non-path-dependent) functions for
+QSS use or at least provide a way to evaluate without &#8220;memory&#8221;
+to allow numeric differentiation and event trigger stepping.</li>
+</ul>
 </div>
 <div class="section" id="annotations">
 <h4>5.2.3.5. Annotations<a class="headerlink" href="#annotations" title="Permalink to this headline">¶</a></h4>
@@ -1413,23 +1439,54 @@ Is this an issue in ME?&#8221;</p>
 </div>
 <div class="section" id="conditional-expressions-and-event-indicators">
 <h4>5.2.3.6. Conditional Expressions and Event Indicators<a class="headerlink" href="#conditional-expressions-and-event-indicators" title="Permalink to this headline">¶</a></h4>
-<ul class="simple">
-<li>The xml needs to expose the structure of each conditional block:
+<ul>
+<li><p class="first">How to reliably get the FMU to detect an event at the time QSS predicts one?</p>
+<p>QSS predicts zero-crossing event times that, even with Newton refinement,
+may be slightly off. To get the FMU to &#8220;detect&#8221; these events with its
+&#8220;after the fact&#8221; event indicators the QSS currently bumps the time forward
+by some epsilon past the predicted event time in the hopes that the FMU will detect it.
+Even if made smarter about how big a step to take this will never be robust.
+Missing events can invalidate simulations. If there is no good and efficient FMU API
+solution we may need to add the capability for the QSS to handle &#8220;after the fact&#8221; detected
+events but with the potential for large QSS time steps and without rollback
+capability this would give degraded results at best.</p>
+</li>
+<li><p class="first">How much conditional structure should we expose to QSS?</p>
+<p>Without full conditional structure information the QSS must fire events
+that aren&#8217;t relevant in the model/FMU. This will be inefficient
+for models with many/complex conditionals. These non-event events also
+alter the QSS trajectories so, for example, adding a conditional
+clause that never actually fires will change the solution somewhat, which is non-ideal.</p>
+</li>
+<li><p class="first">QSS needs a mechanism similar to zero crossing functions to deal with Modelica&#8217;s event generating functions (such as
+<code class="docutils literal"><span class="pre">div(x,y)</span></code> See <a class="reference external" href="http://book.xogeny.com/behavior/discrete/events/#event-generating-functions">http://book.xogeny.com/behavior/discrete/events/#event-generating-functions</a>) to avoid missing solution discontinuities.</p>
+</li>
+<li><p class="first">Discrete and non-smooth internal variables need to be converted to input variables or exposed (with dependencies) to QSS.</p>
+</li>
+<li><p class="first">QSS need dependency information for algebraic and boolean/discrete variables
+either explicitly or short-circuited through the exposed variables for those the QSS won&#8217;t track.</p>
+</li>
+<li><p class="first">The xml needs to expose the structure of each conditional block:
 if or when, sequence order of if/when/else conditionals,
-and all the (continuous and discrete/boolean) variables appearing in each conditional.</li>
-<li>Non-input boolean/discrete/integer variables should ideally be altered
+and all the (continuous and discrete/boolean) variables appearing in each conditional.</p>
+</li>
+<li><p class="first">Non-input boolean/discrete/integer variables should ideally be altered
 only by event indicator handlers or <em>time events</em> that are exposed by the FMU
 (during loop or by direct query?). Are there other ways that
 such variables can change that are only detectable after the fact?
 If so, this leaves the QSS with the bad choices of late detection
-(due to large time steps) or forcing regular time step value checks on them.</li>
-<li>QSS needs non-input boolean/discrete/integer variable dependencies in both directions.</li>
-<li>QSS needs the dependencies of conditional expressions on variables appearing in them.</li>
-<li>QSS needs the dependencies of variables altered when each conditional fires on the conditional expression variables.</li>
-<li>It is not robust for the QSS to try and guess a time point where the FMU will
+(due to large time steps) or forcing regular time step value checks on them.</p>
+</li>
+<li><p class="first">QSS needs the dependencies of conditional expressions on variables appearing in them.</p>
+</li>
+<li><p class="first">QSS needs the dependencies of variables altered when each conditional fires on the conditional expression variables.</p>
+</li>
+<li><p class="first">It is not robust for the QSS to try and guess a time point where the FMU will
 reliably detect a zero crossing so we need an API to tell the
-FMU that a zero crossing occurred at a given time (and maybe with crossing direction information).</li>
-<li>If the xml can expose the zero crossing directions of interest that will allow for more efficiency.</li>
+FMU that a zero crossing occurred at a given time (and maybe with crossing direction information).</p>
+</li>
+<li><p class="first">If the xml can expose the zero crossing directions of interest that will allow for more efficiency.</p>
+</li>
 </ul>
 </div>
 </div>
