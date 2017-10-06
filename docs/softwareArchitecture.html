@@ -1279,7 +1279,7 @@ element, and include those event indicators to the <code class="docutils literal
 of state derivatives which depend on them.</p>
 <p>At runtime the QSS solver will check if an FMU has announced
 its next time event using the <code class="docutils literal"><span class="pre">nextEventTimeDefined</span></code> flag of
-the <code class="docutils literal"><span class="pre">fmi2SetNewDiscreteStates</span></code> function.
+the <code class="docutils literal"><span class="pre">fmi2NewDiscreteStates</span></code> function.
 If <code class="docutils literal"><span class="pre">true</span></code>, it will use the event indicators to predict the
 time event, and use the <code class="docutils literal"><span class="pre">ei_dependencies</span></code> information
 of the state derivatives to figure the state derivatives that need
@@ -1289,7 +1289,7 @@ when QSS predicts an event.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">If a time event is announced, and <code class="docutils literal"><span class="pre">ei_dependencies</span></code> is defined,
-then the <code class="docutils literal"><span class="pre">nextEventTime</span></code> of the <code class="docutils literal"><span class="pre">fmi2SetNewDiscreteStates</span></code> function
+then the <code class="docutils literal"><span class="pre">nextEventTime</span></code> of the <code class="docutils literal"><span class="pre">fmi2NewDiscreteStates</span></code> function
 could be used to check if the time event converted to a state event
 is correctly predicted by QSS.</p>
 </div>
