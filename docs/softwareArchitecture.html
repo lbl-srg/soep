@@ -1110,7 +1110,7 @@ For state derivatives and outputs, known variables are</p>
 <li>independent variable (usually time; causality = &#8220;independent&#8221;)</li>
 </ul>
 <p>Therefore we require to extend the <code class="docutils literal"><span class="pre">&lt;Derivatives&gt;</span></code> element
-with a new attribute <code class="docutils literal"><span class="pre">ei_dependencies</span></code> which lists
+with a new attribute <code class="docutils literal"><span class="pre">eventIndicatorsDependencies</span></code> which lists
 all event indicator variables which trigger
 changes to state derivative trajectories.</p>
 <p>An excerpt of such a <code class="docutils literal"><span class="pre">&lt;Derivatives&gt;</span></code> element with the new addition is
@@ -1119,8 +1119,8 @@ shown in <a class="reference internal" href="#fig-hig-der"><span class="std std-
 <span id="fig-hig-der"></span><div class="code-block-caption"><span class="caption-number">Listing 5.2 </span><span class="caption-text">Extensions with inclusion of a new attribute for event indicator dependencies. XML additions are marked yellow.</span><a class="headerlink" href="#id16" title="Permalink to this code">¶</a></div>
 <div class="highlight-xml"><div class="highlight"><pre><span></span>  <span class="nt">&lt;Derivatives&gt;</span>
     <span class="c">&lt;!-- The ScalarVariable with index 8 is der(x) --&gt;</span>
-<span class="hll">    <span class="c">&lt;!-- ei_dependencies=&quot;1&quot; declares that der(x) depends on the event indicator with index 1  --&gt;</span>
-</span>    <span class="nt">&lt;Unknown</span>     <span class="na">index=</span><span class="s">&quot;8&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;6&quot;</span> <span class="na">ei_dependencies=</span><span class="s">&quot;1&quot;</span><span class="nt">/&gt;</span>
+<span class="hll">    <span class="c">&lt;!-- eventIndicatorsDependencies=&quot;1&quot; declares that der(x) depends on the event indicator with index 1  --&gt;</span>
+</span>    <span class="nt">&lt;Unknown</span>     <span class="na">index=</span><span class="s">&quot;8&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;6&quot;</span> <span class="na">eventIndicatorsDependencies=</span><span class="s">&quot;1&quot;</span><span class="nt">/&gt;</span>
     <span class="c">&lt;!-- index 5 is the index of the state variable x --&gt;</span>
     <span class="nt">&lt;HigherOrder</span> <span class="na">index=</span><span class="s">&quot;5&quot;</span> <span class="na">order=</span><span class="s">&quot;2&quot;</span> <span class="na">value_reference=</span><span class="s">&quot;124&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- This is d^2 x/dt^2 --&gt;</span>
     <span class="nt">&lt;HigherOrder</span> <span class="na">index=</span><span class="s">&quot;5&quot;</span> <span class="na">order=</span><span class="s">&quot;3&quot;</span> <span class="na">value_reference=</span><span class="s">&quot;125&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- This is d^3 x/dt^3 --&gt;</span>
@@ -1129,23 +1129,23 @@ shown in <a class="reference internal" href="#fig-hig-der"><span class="std std-
 </div>
 </div>
 <p>For the elements <code class="docutils literal"><span class="pre">Unknown</span></code> and <code class="docutils literal"><span class="pre">HigherOrder</span></code>, the
-attributes <code class="docutils literal"><span class="pre">dependencies</span></code> and <code class="docutils literal"><span class="pre">ei_dependencies</span></code> are optional.
+attributes <code class="docutils literal"><span class="pre">dependencies</span></code> and <code class="docutils literal"><span class="pre">eventIndicatorsDependencies</span></code> are optional.
 However, if <code class="docutils literal"><span class="pre">dependencies</span></code> is not declared,
 a tool would need to assume that they
 depend on all variables.
-Similarly, if <code class="docutils literal"><span class="pre">ei_dependencies</span></code> is not declared,
+Similarly, if <code class="docutils literal"><span class="pre">eventIndicatorsDependencies</span></code> is not declared,
 a tool would need to assume that they
 depend on all event indicators.
 Write <code class="docutils literal"><span class="pre">dependencies=&quot;&quot;</span></code> to declare that this derivative depends on no variable.
 Similarly,
-write <code class="docutils literal"><span class="pre">ei_dependencies=&quot;&quot;</span></code> to declare that this derivative depends on no event indicator.
-Note that for performance reasons, for QSS <code class="docutils literal"><span class="pre">dependencies</span></code> and <code class="docutils literal"><span class="pre">ei_dependencies</span></code> should be declared
+write <code class="docutils literal"><span class="pre">eventIndicatorsDependencies=&quot;&quot;</span></code> to declare that this derivative depends on no event indicator.
+Note that for performance reasons, for QSS <code class="docutils literal"><span class="pre">dependencies</span></code> and <code class="docutils literal"><span class="pre">eventIndicatorsDependencies</span></code> should be declared
 for <code class="docutils literal"><span class="pre">Unknown</span></code>. For <code class="docutils literal"><span class="pre">HigherOrder</span></code>, QSS does not use the
-<code class="docutils literal"><span class="pre">dependencies</span></code> and <code class="docutils literal"><span class="pre">ei_dependencies</span></code>.</p>
+<code class="docutils literal"><span class="pre">dependencies</span></code> and <code class="docutils literal"><span class="pre">eventIndicatorsDependencies</span></code>.</p>
 <p>In <a class="reference internal" href="#fig-hig-der"><span class="std std-numref">Listing 5.2</span></a>, the higher order derivatives depend on the event indicator.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The indexes of <code class="docutils literal"><span class="pre">ei_dependencies</span></code> are the indexes of the
+<p class="last">The indexes of <code class="docutils literal"><span class="pre">eventIndicatorsDependencies</span></code> are the indexes of the
 event indicators specified in the <code class="docutils literal"><span class="pre">&lt;EventIndicators&gt;</span></code> element.</p>
 </div>
 </div>
@@ -1275,23 +1275,13 @@ it is not possible to use the same approach as done for
 <code class="docutils literal"><span class="pre">StateEvent1</span></code> without further modificaton.</p>
 <p>We therefore propose that JModelica turns all time events into state events,
 add new event indicators generated by those state events to the <code class="docutils literal"><span class="pre">&lt;EventIndicators&gt;</span></code>
-element, and include those event indicators to the <code class="docutils literal"><span class="pre">ei_dependencies</span></code> attribute
+element, and include those event indicators to the <code class="docutils literal"><span class="pre">eventIndicatorsDependencies</span></code> attribute
 of state derivatives which depend on them.</p>
-<p>At runtime the QSS solver will check if an FMU has announced
-its next time event using the <code class="docutils literal"><span class="pre">nextEventTimeDefined</span></code> flag of
-the <code class="docutils literal"><span class="pre">fmi2NewDiscreteStates</span></code> function.
-If <code class="docutils literal"><span class="pre">true</span></code>, it will use the event indicators to predict the
-time event, and use the <code class="docutils literal"><span class="pre">ei_dependencies</span></code> information
-of the state derivatives to figure the state derivatives that need
-to be updated. If a state derivative does not declare <code class="docutils literal"><span class="pre">ei_dependencies</span></code>
-QSS will assume that this state derivative needs to be updated anytime
-when QSS predicts an event.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">If a time event is announced, and <code class="docutils literal"><span class="pre">ei_dependencies</span></code> is defined,
-then the <code class="docutils literal"><span class="pre">nextEventTime</span></code> of the <code class="docutils literal"><span class="pre">fmi2NewDiscreteStates</span></code> function
-could be used to check if the time event converted to a state event
-is correctly predicted by QSS.</p>
+<p class="last">All proposed XML changes will be initially implemented
+in the <code class="docutils literal"><span class="pre">VendorAnnotation</span></code> element of the model description file until
+they got approved and included in the FMI standard.</p>
 </div>
 </div>
 </div>
@@ -1377,13 +1367,15 @@ This element will expose event indicators with their <code class="docutils liter
 <li>If a model has an event indicator, and the event indicator has a direct
 feedthrough on an input variable, then JModelica will exclude the derivatives
 of that event indicator from the model description file.</li>
-<li>A new dependency attribute <code class="docutils literal"><span class="pre">ei_dependencies</span></code> will be added to state derivatives listed
+<li>A new dependency attribute <code class="docutils literal"><span class="pre">eventIndicatorsDependencies</span></code> will be added to state derivatives listed
 in the <code class="docutils literal"><span class="pre">&lt;Derivatives&gt;</span></code> element to include event indicators on which the state derivatives depend on.</li>
 <li>JModelica will convert time event into state events, generate event indicators
-for those state events, and add those event indicators to the <code class="docutils literal"><span class="pre">ei_dependencies</span></code>
+for those state events, and add those event indicators to the <code class="docutils literal"><span class="pre">eventIndicatorsDependencies</span></code>
 of state derivatives which depend on them.</li>
 <li>A new function <code class="docutils literal"><span class="pre">fmi2SetRealInputDerivatives</span></code> will be included to parametrize smooth token.</li>
 <li>A new function <code class="docutils literal"><span class="pre">fmi2GetRealOutputDerivatives</span></code> will be included to parametrize smooth token.</li>
+<li>All proposed XML changes will be initially implemented in the <code class="docutils literal"><span class="pre">VendorAnnotation</span></code>
+element of the model description file until they got approved and included in the FMI standard.</li>
 </ul>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
