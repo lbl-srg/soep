@@ -3,6 +3,7 @@ def get_settings():
         The cases are stored in this function as they are used for simulation
         case settings and for the post processing.
     '''
+    tools = ["dymola", "JModelica"]
     runSettings = {
         "SOLVER": "radau",
         "END_TIME": 2*24*3600.0,
@@ -78,5 +79,10 @@ def get_settings():
          "solver": runSettings['SOLVER'],
          "start_time": 0,
          "stop_time": runSettings['END_TIME']})
+    settings.append(\
+        {'model': "Buildings.Experimental.DistrictHeatingCooling.Examples.HeatingCoolingHotWater3Clusters",
+         "solver": runSettings['SOLVER'],
+         "start_time": 0,
+         "stop_time": runSettings['END_TIME']})
 
-    return settings, runSettings
+    return settings, tools, runSettings

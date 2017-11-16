@@ -106,7 +106,7 @@ def _profile(setting,tool,JMODELICA_INST,runSpace):
         runJM_file = "runJM.py"
         with open(runJM_file,'w') as rf:
             rf.write(str(runJMOut))
-        # move render simulator script to working directory
+        # move rendered simulator script to working directory
         shutil.move(runJM_file, os.path.join(worDir,'runJM.py'))
         curWorDir=os.getcwd()
         # change working directory
@@ -122,7 +122,7 @@ def _profile(setting,tool,JMODELICA_INST,runSpace):
         simFile.write(logSim)
         simFile.close()
         # --------------------------------------------
-        
+
         # retrieve the compile and simulation time
         compileTime, totSimTim, numStaEve, numTimEve, solTyp  = search_Time('comLog.txt', 'simLog.txt')
         # change back to current work directory containing this .py file
@@ -211,8 +211,8 @@ def search_Time(Compilelog_file, Simlog_file):
     searchComp.append("packUnit()                              :")
 
     simSearch_str = "Elapsed simulation time: "
-    numStaEve_str = "Number of state events                          : "
-    numTimEve_str = "Number of time events                           : "
+    numStaEve_str = "Number of state events"
+    numTimEve_str = "Number of time events"
     solTyp_str = "Solver                   : "
 
     # ------ search and retrieve times from compile log file ------
@@ -225,6 +225,8 @@ def search_Time(Compilelog_file, Simlog_file):
                     compileTime[index] = sect2[0]
 	f.close()
     # ------ search and retrieve times from simulation log file ------
+    numStaEve = 0
+    numTimEve = 0
     with open(Simlog_file, "r") as sf:
         for line in sf:
             if simSearch_str in line:
@@ -248,54 +250,35 @@ def search_Time(Compilelog_file, Simlog_file):
 
 
 if __name__=='__main__':
+    import json
     import caseSettings
 
     # ------ retrieve settings ------
-    settings, runSettings = caseSettings.get_settings()
+    settings, tools, runSettings = caseSettings.get_settings()
     lib_dir = create_working_directory()
     # ------ clone and checkout repository to working folder ------
     checkout_repository(runSettings, lib_dir)
-    # ------ open an empty JSON file logging times ------
-    if os.path.exists('timeLog.json'):
-	    os.remove('timeLog.json')
-    else:
-	    print("%s is not exist. A new file will be created.\r\n" % 'timeLog.json')
-    logFile = open('timeLog.json', 'a')
-    logFile.write("{ \r\n")
-    logFile.write('     "title": "timeLog", \r\n')
-    logFile.write('     "case list": { \r\n')
-    logFile.close()
-    # get list size
-    listLen = len(settings)
 
-    tools = ["dymola", "JModelica"]
+    results = {}
+    results['title'] = 'timeLog'
+    results['case_list'] = {}
     for tool in tools:
         if tool == "dymola":
-            logFile = open('timeLog.json', 'a')
-            logFile.write('         "dymola": { \r\n')
+            results['case_list']['dymola'] = []
             for index, setting in enumerate(settings):
                 setting['lib_dir'] = lib_dir
                 model=setting['model']
                 modelName=model.split(".")[-1]
                 tCPU, nEve, solver \
                     =_profile(setting,tool,runSettings['JMODELICA_INST'], runSettings['Heap_Space'])
-                # write outputs to JSON file
-                logFile.write('                     "'+ modelName + '": { \r\n')
-                logFile.write('                             "tCPU": ' + str(tCPU) + ', \r\n')
-                logFile.write('                             "nEve": ' + str(nEve) + ', \r\n')
-                logFile.write('                             "solver": "' + solver + '"\r\n')
-                if index < (listLen-1):
-                    logFile.write('                                             }, \r\n')
-                else:
-                    logFile.write('                                             } \r\n')
-            if len(tools) > 1:
-                logFile.write('                    }, \r\n')
-            else:
-                logFile.write('                    } \r\n')
-            logFile.close()
+
+                results['case_list']['dymola'].append({
+                    'modelName': modelName,
+                    'tCPU': float(tCPU),
+                    'nEve': float(nEve),
+                    'solver': solver})
         else:
-            logFile = open('timeLog.json', 'a')
-            logFile.write('         "JModelica": { \r\n')
+            results['case_list']['JModelica'] = []
             for index, setting in enumerate(settings):
                 setting['lib_dir'] = lib_dir
                 model=setting['model']
@@ -303,26 +286,24 @@ if __name__=='__main__':
                 totComTim, totSimTim, flaModTim, insModTim, comCTim, \
                 genCodTim, otherComTim, numStaEve, numTimEve, solTyp \
                     = _profile(setting,tool,runSettings['JMODELICA_INST'],runSettings['Heap_Space'])
-                # write outputs to JSON file
-                logFile.write('                     "'+ modelName + '" : { \r\n')
-                logFile.write('                             "tComTim": ' + str(totComTim) + ', \r\n')
-                logFile.write('                             "tSimTim": ' + str(totSimTim) + ', \r\n')
-                logFile.write('                             "tFlaTim": ' + str(flaModTim) + ', \r\n')
-                logFile.write('                             "tInsTim": ' + str(insModTim) + ', \r\n')
-                logFile.write('                             "tComCTim": ' + str(comCTim) + ', \r\n')
-                logFile.write('                             "tGenCodTim": ' + str(genCodTim) + ', \r\n')
-                logFile.write('                             "tOtherTim": ' + str(otherComTim) + ', \r\n')
-                logFile.write('                             "nStaEve": ' + str(numStaEve) + ', \r\n')
-                logFile.write('                             "nTimEve": ' + str(numTimEve) + ', \r\n')
-                logFile.write('                             "solver": "' + solTyp + '" \r\n')
-                if index < (listLen-1):
-                    logFile.write('                                     }, \r\n')
-                else:
-                    logFile.write('                                     } \r\n')
-            logFile.write('                    } \r\n')
-            logFile.close()
 
-    logFile = open('timeLog.json', 'a')
-    logFile.write("     } \r\n")
-    logFile.write("} \r\n")
-    logFile.close()
+                results['case_list']['JModelica'].append({
+                    'modelName': modelName,
+                    'tComTim': float(totComTim),
+                    'tSimTim': float(totSimTim),
+                    'tFlaTim': float(flaModTim),
+                    'tInsTim': float(insModTim),
+                    'tComCTim': float(comCTim),
+                    'tGenCodTim': float(genCodTim),
+                    'tOtherTim': float(otherComTim),
+                    'nStaEve': float(numStaEve),
+                    'nTimEve': float(numTimEve),
+                    'solver': solTyp})
+
+    # ------ open an empty JSON file logging times ------
+    if os.path.exists('results.json'):
+	    os.remove('results.json')
+    else:
+	    print("%s is not exist. A new file will be created.\r\n" % 'results.json')
+    with open('results.json', 'w') as outfile:
+        json.dump(results, outfile)
