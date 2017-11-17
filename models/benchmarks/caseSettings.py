@@ -6,7 +6,7 @@ def get_settings():
     tools = ["dymola", "JModelica"]
     runSettings = {
         "SOLVER": "radau",
-        "END_TIME": 2*24*3600.0,
+        "END_TIME": 2*24*3600,
         "BRANCH": "master",
         "COMMIT": "HEAD",
         "FROM_GIT_HUB": False,

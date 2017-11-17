@@ -32,6 +32,7 @@ def checkout_repository(runSettings, working_directory):
     BRANCH = runSettings['BRANCH']
     LOCAL_BUILDINGS_LIBRARY = runSettings['LOCAL_BUILDINGS_LIBRARY']
     from_git_hub = runSettings['FROM_GIT_HUB']
+    commit = runSettings['COMMIT']
 
     if from_git_hub:
         print("Checking out repository branch {}".format(BRANCH))
@@ -39,6 +40,7 @@ def checkout_repository(runSettings, working_directory):
         Repo.clone_from(git_url, working_directory)
         g = git.Git(working_directory)
         g.checkout(BRANCH)
+        g.checkout(commit)
     else:
         # This is a hack to get the local copy of the repository
         des = os.path.join(working_directory, "Buildings")
