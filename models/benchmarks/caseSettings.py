@@ -4,6 +4,7 @@ def get_settings():
         case settings and for the post processing.
     '''
     tools = ["dymola", "JModelica"]
+    # tools = ["dymola"]
     runSettings = {
         "SOLVER": "radau",
         "END_TIME": 2*24*3600,
@@ -75,14 +76,15 @@ def get_settings():
 
     settings = list()
     settings.append(\
-        {'model': "Buildings.Examples.ScalableBenchmarks.BuildingVAV.Examples.OneFloor_OneZone",
-         "solver": runSettings['SOLVER'],
-         "start_time": 0,
-         "stop_time": runSettings['END_TIME']})
-    settings.append(\
         {'model': "Buildings.Experimental.DistrictHeatingCooling.Examples.HeatingCoolingHotWater3Clusters",
          "solver": runSettings['SOLVER'],
          "start_time": 0,
          "stop_time": runSettings['END_TIME']})
+    settings.append(\
+        {'model': "Buildings.Examples.ScalableBenchmarks.BuildingVAV.Examples.OneFloor_OneZone",
+         "solver": runSettings['SOLVER'],
+         "start_time": 0,
+         "stop_time": runSettings['END_TIME']})
+
 
     return settings, tools, runSettings

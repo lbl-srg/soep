@@ -12,4 +12,7 @@ fmu_name = compile_fmu("{{model}}", "{{model_name}}.mo",
                        compiler_log_level = "{{log_file}}")
 test_model = load_fmu(fmu_name)
 endTime = {{end_time}}
-res = test_model.simulate(final_time=endTime)
+opts = test_model.simulate_options()
+# options specific for CVode: relative tolerance
+opts['CVode_options']['rtol'] = 1.0e-6
+res = test_model.simulate(final_time=endTime, options=opts)

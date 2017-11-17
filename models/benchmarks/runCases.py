@@ -8,12 +8,10 @@ def sh(cmd, path):
     ''' Run the command ```cmd``` command in the directory ```path```
     '''
     import sys
-#    if args.verbose:
-#        print("*** " + path + "> " + '%s' % ' '.join(map(str, cmd)))
     p = subprocess.Popen(cmd, cwd = path)
     p.communicate()
     if p.returncode != 0:
-        print("Error: %s." % p.returncode)
+        print("Error: {}.".format(p.returncode))
         sys.exit(p.returncode)
 
 def create_working_directory():
@@ -22,7 +20,6 @@ def create_working_directory():
     import tempfile
     import getpass
     worDir = tempfile.mkdtemp( prefix='tmp_timeBench_' + getpass.getuser() )
-#    print("Created directory {}".format(worDir))
     return worDir
 
 def checkout_repository(runSettings, working_directory):
@@ -53,6 +50,7 @@ def _profile(setting,tool,JMODELICA_INST,runSpace):
     '''
     import string
     import jinja2 as jja2
+    from datetime import datetime
 
     from buildingspy.simulate.Simulator import Simulator
     from buildingspy.io.outputfile import Reader
@@ -68,15 +66,22 @@ def _profile(setting,tool,JMODELICA_INST,runSpace):
         s.setSolver(setting['solver'])
         s.setStopTime(setting['stop_time'])
         s.setTolerance(1E-6)
-        s.simulate()
+        tstart_tr = datetime.now()
+        s.translate()
+        tend_tr = datetime.now()
+        # tranlation time
+        tTraTim = (tend_tr-tstart_tr).total_seconds()
+        s.simulate_translated()
+        s.deleteTranslateDirectory()
         resultFile = os.path.join(out_dir, model.split(".")[-1] + ".mat")
         r=Reader(resultFile, "dymola")
         tCPU=r.max("CPUtime")
         nEve=r.max('EventCounter')
         solver=setting['solver']
-        print "tCPU = {},  nEve = {},   solver = {},     {}".format(tCPU, nEve, solver, model)
+        print "tTraTim = {}, tCPU = {}, nEve = {}, solver = {},  {}"\
+            .format(tTraTim, tCPU, nEve, solver, model)
         shutil.rmtree("out")
-        return tCPU, nEve, solver
+        return tTraTim, tCPU, nEve, solver
     # ------------------- Run JModelica -------------------
     else:
         worDir = setting['lib_dir']
@@ -258,8 +263,12 @@ def genPlots(resultsFile, genPlot):
     if genPlot:
         with open(resultsFile) as json_file:
             results = json.load(json_file)
-        length = len(results['case_list']['dymola'])
+        if 'dymola' in results['case_list']:
+            length = len(results['case_list']['dymola'])
+        else:
+            length = len(results['case_list']['JModelica'])
         dy_tCPU = np.empty(length)
+        dy_tTraTim = np.empty(length)
         dy_nEve = np.empty(length)
         jm_tComTim = np.empty(length)
         jm_tSimTim = np.empty(length)
@@ -275,56 +284,88 @@ def genPlots(resultsFile, genPlot):
         tGenCBas = np.empty(length)
         dy_modelName = list()
         dy_solver = list()
+        jm_modelName = list()
         jm_solver = list()
         # ------ extract data from Json file ------
-        for index, ele in enumerate(results['case_list']['dymola']):
-            dy_modelName.append(ele['modelName'])
-            dy_tCPU[index] = ele['tCPU']
-            dy_nEve[index] = ele['nEve']
-            dy_solver.append(ele['solver'])
-        for index, ele in enumerate(results['case_list']['JModelica']):
-            jm_tComTim[index] = ele['tComTim']
-            jm_tSimTim[index] = ele['tSimTim']
-            jm_tFlaTim[index] = ele['tFlaTim']
-            jm_tInsTim[index] = ele['tInsTim']
-            tInsTimeBas[index] = jm_tFlaTim[index] + jm_tInsTim[index]
-            jm_tComCTim[index] = ele['tComCTim']
-            tComCBas[index] = tInsTimeBas[index] + jm_tComCTim[index]
-            jm_tGenCodTim[index] = ele['tGenCodTim']
-            tGenCBas[index] = tComCBas[index] + jm_tGenCodTim[index]
-            jm_tOtherTim[index] = ele['tOtherTim']
-            jm_nStaEve[index] = ele['nStaEve']
-            jm_nTimEve[index] = ele['nTimEve']
-            jm_solver.append(ele['solver'])
+        if 'dymola' in results['case_list']:
+            for index, ele in enumerate(results['case_list']['dymola']):
+                dy_modelName.append(ele['modelName'])
+                dy_tTraTim[index] = ele['tTraTim']
+                dy_tCPU[index] = ele['tCPU']
+                dy_nEve[index] = ele['nEve']
+                dy_solver.append(ele['solver'])
+        if 'JModelica' in results['case_list']:
+            for index, ele in enumerate(results['case_list']['JModelica']):
+                jm_modelName.append(ele['modelName'])
+                jm_tComTim[index] = ele['tComTim']
+                jm_tSimTim[index] = ele['tSimTim']
+                jm_tFlaTim[index] = ele['tFlaTim']
+                jm_tInsTim[index] = ele['tInsTim']
+                tInsTimeBas[index] = jm_tFlaTim[index] + jm_tInsTim[index]
+                jm_tComCTim[index] = ele['tComCTim']
+                tComCBas[index] = tInsTimeBas[index] + jm_tComCTim[index]
+                jm_tGenCodTim[index] = ele['tGenCodTim']
+                tGenCBas[index] = tComCBas[index] + jm_tGenCodTim[index]
+                jm_tOtherTim[index] = ele['tOtherTim']
+                jm_nStaEve[index] = ele['nStaEve']
+                jm_nTimEve[index] = ele['nTimEve']
+                jm_solver.append(ele['solver'])
 
         pos = list(range(length))
         width = 0.1
         # ------ generate plot for simulation time ------
         fig, ax = plt.subplots(figsize=(10,5))
-        plt.bar(pos, dy_tCPU, width, color='k', label='Dymola')
-        plt.bar([p+width for p in pos], jm_tSimTim, width, color='b', label='JModelica')
+        if ('dymola' in results['case_list']) and (not 'JModelica' in results['case_list']):
+            plt.bar(pos, dy_tCPU, width, color='b', label='Dymola')
+            plt.xticks(pos, dy_modelName)
+        elif (not 'dymola' in results['case_list']) and ('JModelica' in results['case_list']):
+            plt.bar(pos, jm_tSimTim, width, color='b', label='JModelica')
+            plt.xticks(pos, jm_modelName)
+        else:
+            plt.bar(pos, dy_tCPU, width, color='k', label='Dymola')
+            plt.bar([p+width for p in pos], jm_tSimTim, width, color='b', label='JModelica')
+            plt.xticks([p+width/2 for p in pos], dy_modelName)
         plt.xlabel('Model')
         plt.ylabel('Simulation time')
-        plt.title('Simulation time: Dymola vs. JModelica')
-        plt.xticks([p+width/2 for p in pos], dy_modelName)
-        plt.legend()
+        plt.title('Simulation time')
+        plt.legend(loc = 'upper right')
         plt.grid(linestyle='--', axis='y')
-        plt.savefig("results/SimulationTime.png")
+        plt.savefig(os.path.join("results","SimulationTime.png"))
         # ------ generate plot for compile time ------
         fig, ax = plt.subplots(figsize=(10,5))
-        p1 = plt.bar(pos, jm_tFlaTim, width, color='k')
-        p2 = plt.bar(pos, jm_tInsTim, width, bottom=jm_tFlaTim, color='b')
-        p3 = plt.bar(pos, jm_tComCTim, width, bottom=tInsTimeBas, color='r')
-        p4 = plt.bar(pos, jm_tGenCodTim, width, bottom=tComCBas, color='g')
-        p5 = plt.bar(pos, jm_tOtherTim, width, bottom=tGenCBas, color='c')
+        if ('dymola' in results['case_list']) and (not 'JModelica' in results['case_list']):
+            plt.bar(pos, dy_tTraTim, width, color='m', label='Dymola')
+            plt.xticks(pos, dy_modelName)
+            plt.legend(loc = 'upper right')
+        elif (not 'dymola' in results['case_list']) and ('JModelica' in results['case_list']):
+            p1 = plt.bar(pos, jm_tFlaTim, width, color='k')
+            p2 = plt.bar(pos, jm_tInsTim, width, bottom=jm_tFlaTim, color='b')
+            p3 = plt.bar(pos, jm_tComCTim, width, bottom=tInsTimeBas, color='r')
+            p4 = plt.bar(pos, jm_tGenCodTim, width, bottom=tComCBas, color='g')
+            p5 = plt.bar(pos, jm_tOtherTim, width, bottom=tGenCBas, color='c')
+            plt.xticks(pos, jm_modelName)
+            plt.legend((p5[0],p4[0],p3[0],p2[0],p1[0]),\
+                ('JModelica: Others', 'JModelica: Generate C', \
+                'JModelica: Compile C', 'JModelica: Instantiate', \
+                'JModelica: Flatten'), loc = 'upper right')
+        else:
+            dyP = plt.bar(pos, dy_tTraTim, width, color='m')
+            p1 = plt.bar([p+width for p in pos], jm_tFlaTim, width, color='k')
+            p2 = plt.bar([p+width for p in pos], jm_tInsTim, width, bottom=jm_tFlaTim, color='b')
+            p3 = plt.bar([p+width for p in pos], jm_tComCTim, width, bottom=tInsTimeBas, color='r')
+            p4 = plt.bar([p+width for p in pos], jm_tGenCodTim, width, bottom=tComCBas, color='g')
+            p5 = plt.bar([p+width for p in pos], jm_tOtherTim, width, bottom=tGenCBas, color='c')
+            plt.xticks([p+width/2 for p in pos], dy_modelName)
+            plt.legend(dyP[0],'Dymola', loc = 'upper left')
+            plt.legend((p5[0],p4[0],p3[0],p2[0],p1[0],dyP[0]),\
+                ('JModelica: Others', 'JModelica: Generate C', \
+                'JModelica: Compile C', 'JModelica: Instantiate', \
+                'JModelica: Flatten', 'Dymola'), loc = 'upper right')
         plt.xlabel('Model')
         plt.ylabel('Compile time')
-        plt.title('Compile time: Dymola vs. JModelica')
-        plt.xticks([p for p in pos], dy_modelName)
-        plt.legend((p1[0],p2[0],p3[0],p4[0],p5[0]),\
-            ('Flatten', 'Instantiate', 'Compile C', 'Generate C', 'Others'))
+        plt.title('Compile time')
         plt.grid(linestyle='--', axis='y')
-        plt.savefig("results/CompileTime.png")
+        plt.savefig(os.path.join("results", "CompileTime.png"))
 
 
 if __name__=='__main__':
@@ -338,10 +379,9 @@ if __name__=='__main__':
     # ------ create folder to save results ------
     if os.path.exists("results"):
         shutil.rmtree("results")
-    else:
-        newDir = os.path.join(os.getcwd(),"results")
-        os.makedirs(newDir)
-    resultsFile = 'results/results.json'
+    newDir = os.path.join(os.getcwd(),"results")
+    os.makedirs(newDir)
+    resultsFile = os.path.join("results", "results.json")
 
     results = {}
     results['title'] = 'timeLog'
@@ -353,10 +393,11 @@ if __name__=='__main__':
                 setting['lib_dir'] = lib_dir
                 model=setting['model']
                 modelName=model.split(".")[-1]
-                tCPU, nEve, solver \
+                tTraTim, tCPU, nEve, solver \
                     =_profile(setting,tool,runSettings['JMODELICA_INST'], runSettings['Heap_Space'])
                 results['case_list']['dymola'].append({
                     'modelName': modelName,
+                    'tTraTim': float(tTraTim),
                     'tCPU': float(tCPU),
                     'nEve': float(nEve),
                     'solver': solver})
@@ -385,7 +426,7 @@ if __name__=='__main__':
     if os.path.exists(resultsFile):
 	    os.remove(resultsFile)
     else:
-	    print("%s is not exist. A new file will be created.\r\n" % resultsFile)
+	    print("{} is not exist. A new file will be created.\r\n".format(resultsFile))
     with open(resultsFile, 'w') as outfile:
         json.dump(results, outfile)
     genPlots(resultsFile, True)
