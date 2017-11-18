@@ -67,15 +67,14 @@ def _profile(setting,tool,JMODELICA_INST,runSpace):
         s.setStopTime(setting['stop_time'])
         s.setTolerance(1E-6)
         tstart_tr = datetime.now()
-        s.translate()
+        s.simulate()
         tend_tr = datetime.now()
-        # tranlation time
-        tTraTim = (tend_tr-tstart_tr).total_seconds()
-        s.simulate_translated()
-        s.deleteTranslateDirectory()
+        # total time
+        tTotTim = (tend_tr-tstart_tr).total_seconds()
         resultFile = os.path.join(out_dir, model.split(".")[-1] + ".mat")
         r=Reader(resultFile, "dymola")
         tCPU=r.max("CPUtime")
+        tTraTim = tTotTim-tCPU
         nEve=r.max('EventCounter')
         solver=setting['solver']
         print "tTraTim = {}, tCPU = {}, nEve = {}, solver = {},  {}"\
@@ -316,7 +315,7 @@ def genPlots(resultsFile, genPlot):
         # ------ generate plot for simulation time ------
         fig, ax = plt.subplots(figsize=(10,5))
         if ('dymola' in results['case_list']) and (not 'JModelica' in results['case_list']):
-            plt.bar(pos, dy_tCPU, width, color='b', label='Dymola')
+            plt.bar(pos, dy_tCPU, width, color='k', label='Dymola')
             plt.xticks(pos, dy_modelName)
         elif (not 'dymola' in results['case_list']) and ('JModelica' in results['case_list']):
             plt.bar(pos, jm_tSimTim, width, color='b', label='JModelica')
@@ -326,7 +325,7 @@ def genPlots(resultsFile, genPlot):
             plt.bar([p+width for p in pos], jm_tSimTim, width, color='b', label='JModelica')
             plt.xticks([p+width/2 for p in pos], dy_modelName)
         plt.xlabel('Model')
-        plt.ylabel('Simulation time')
+        plt.ylabel('Simulation time, seconds')
         plt.title('Simulation time')
         plt.legend(loc = 'upper right')
         plt.grid(linestyle='--', axis='y')
@@ -334,14 +333,14 @@ def genPlots(resultsFile, genPlot):
         # ------ generate plot for compile time ------
         fig, ax = plt.subplots(figsize=(10,5))
         if ('dymola' in results['case_list']) and (not 'JModelica' in results['case_list']):
-            plt.bar(pos, dy_tTraTim, width, color='m', label='Dymola')
+            plt.bar(pos, dy_tTraTim, width, color='k', label='Dymola')
             plt.xticks(pos, dy_modelName)
             plt.legend(loc = 'upper right')
         elif (not 'dymola' in results['case_list']) and ('JModelica' in results['case_list']):
-            p1 = plt.bar(pos, jm_tFlaTim, width, color='k')
-            p2 = plt.bar(pos, jm_tInsTim, width, bottom=jm_tFlaTim, color='b')
-            p3 = plt.bar(pos, jm_tComCTim, width, bottom=tInsTimeBas, color='r')
-            p4 = plt.bar(pos, jm_tGenCodTim, width, bottom=tComCBas, color='g')
+            p1 = plt.bar(pos, jm_tFlaTim, width, color='b')
+            p2 = plt.bar(pos, jm_tInsTim, width, bottom=jm_tFlaTim, color='r')
+            p3 = plt.bar(pos, jm_tComCTim, width, bottom=tInsTimeBas, color='g')
+            p4 = plt.bar(pos, jm_tGenCodTim, width, bottom=tComCBas, color='m')
             p5 = plt.bar(pos, jm_tOtherTim, width, bottom=tGenCBas, color='c')
             plt.xticks(pos, jm_modelName)
             plt.legend((p5[0],p4[0],p3[0],p2[0],p1[0]),\
@@ -349,20 +348,21 @@ def genPlots(resultsFile, genPlot):
                 'JModelica: Compile C', 'JModelica: Instantiate', \
                 'JModelica: Flatten'), loc = 'upper right')
         else:
-            dyP = plt.bar(pos, dy_tTraTim, width, color='m')
-            p1 = plt.bar([p+width for p in pos], jm_tFlaTim, width, color='k')
-            p2 = plt.bar([p+width for p in pos], jm_tInsTim, width, bottom=jm_tFlaTim, color='b')
-            p3 = plt.bar([p+width for p in pos], jm_tComCTim, width, bottom=tInsTimeBas, color='r')
-            p4 = plt.bar([p+width for p in pos], jm_tGenCodTim, width, bottom=tComCBas, color='g')
+            dyP = plt.bar(pos, dy_tTraTim, width, color='k')
+            p1 = plt.bar([p+width for p in pos], jm_tFlaTim, width, color='b')
+            p2 = plt.bar([p+width for p in pos], jm_tInsTim, width, bottom=jm_tFlaTim, color='r')
+            p3 = plt.bar([p+width for p in pos], jm_tComCTim, width, bottom=tInsTimeBas, color='g')
+            p4 = plt.bar([p+width for p in pos], jm_tGenCodTim, width, bottom=tComCBas, color='m')
             p5 = plt.bar([p+width for p in pos], jm_tOtherTim, width, bottom=tGenCBas, color='c')
             plt.xticks([p+width/2 for p in pos], dy_modelName)
-            plt.legend(dyP[0],'Dymola', loc = 'upper left')
-            plt.legend((p5[0],p4[0],p3[0],p2[0],p1[0],dyP[0]),\
+            legend1 = plt.legend([dyP[0]],['Dymola'], loc = 'upper left')
+            plt.legend((p5[0],p4[0],p3[0],p2[0],p1[0]),\
                 ('JModelica: Others', 'JModelica: Generate C', \
-                'JModelica: Compile C', 'JModelica: Instantiate', \
-                'JModelica: Flatten', 'Dymola'), loc = 'upper right')
+                 'JModelica: Compile C', 'JModelica: Instantiate', \
+                 'JModelica: Flatten'), loc = 'upper right')
+            plt.gca().add_artist(legend1)
         plt.xlabel('Model')
-        plt.ylabel('Compile time')
+        plt.ylabel('Compile time, seconds')
         plt.title('Compile time')
         plt.grid(linestyle='--', axis='y')
         plt.savefig(os.path.join("results", "CompileTime.png"))
@@ -428,5 +428,5 @@ if __name__=='__main__':
     else:
 	    print("{} is not exist. A new file will be created.\r\n".format(resultsFile))
     with open(resultsFile, 'w') as outfile:
-        json.dump(results, outfile)
+        json.dump(results, outfile, sort_keys=True, indent=4)
     genPlots(resultsFile, True)
