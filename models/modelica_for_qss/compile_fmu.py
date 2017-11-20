@@ -17,8 +17,8 @@ def compileFMUDymola():
                      "Specific.Events.StateEvent3", "Specific.Events.StateEvent4",  \
                      "Specific.Events.StateEvent5", "Specific.Events.StateEvent6", \
                      "Specific.Events.StateEventWithIf1", "Specific.Events.StateEventWithIf2", \
-                     "Specific.Events.StateTimeEventWithIf", "Specific.Events.ZCBoolean1", \
-                     "Specific.Events.ZCBoolean2", "Generic.Achilles", \
+                     "Specific.Events.StateTimeEventWithIf", "Specific.Events.System3", \
+                     "Specific.Events.ZCBoolean1", "Specific.Events.ZCBoolean2", "Generic.Achilles", \
                      "Generic.CoupledSystem", "Generic.ExponentialDecay", \
                      "Generic.Identity", "Generic.InputFunction", "Generic.Quadratic"]
 
