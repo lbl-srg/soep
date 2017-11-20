@@ -22,17 +22,17 @@ def create_working_directory():
     worDir = tempfile.mkdtemp( prefix='tmp_timeBench_' + getpass.getuser() )
     return worDir
 
-def checkout_repository(runSettings, working_directory):
+def checkout_repository(setArgs, local_lib, working_directory):
     from git import Repo
     import git
 
-    BRANCH = runSettings['BRANCH']
-    LOCAL_BUILDINGS_LIBRARY = runSettings['LOCAL_BUILDINGS_LIBRARY']
-    from_git_hub = runSettings['FROM_GIT_HUB']
-    commit = runSettings['COMMIT']
+    BRANCH = setArgs.b
+    LOCAL_BUILDINGS_LIBRARY = local_lib
+    from_git_hub = setArgs.git
+    commit = setArgs.c
 
     if from_git_hub:
-        print("Checking out repository branch {}".format(BRANCH))
+        print("Checking out repository branch {}, commit {}".format(BRANCH, commit))
         git_url = "https://github.com/lbl-srg/modelica-buildings"
         Repo.clone_from(git_url, working_directory)
         g = git.Git(working_directory)
@@ -44,7 +44,7 @@ def checkout_repository(runSettings, working_directory):
         print("*** Copying Buildings library to {}".format(des))
         shutil.copytree(LOCAL_BUILDINGS_LIBRARY, des)
 
-def _profile(setting,tool,JMODELICA_INST,runSpace):
+def _profile(setting,tool,JMODELICA_INST,args):
     ''' Run simulation with both dymola and JModelica. The function returns
         CPU time used for compile and simulation.
     '''
@@ -63,8 +63,8 @@ def _profile(setting,tool,JMODELICA_INST,runSpace):
         # Update MODELICAPATH to get the right library version
         os.environ["MODELICAPATH"] = ":".join([setting['lib_dir'], out_dir])
         s=Simulator(model, "dymola", outputDirectory=out_dir)
-        s.setSolver(setting['solver'])
-        s.setStopTime(setting['stop_time'])
+        s.setSolver(args.s)
+        s.setStopTime(args.runtime)
         s.setTolerance(1E-6)
         tstart_tr = datetime.now()
         s.simulate()
@@ -76,7 +76,7 @@ def _profile(setting,tool,JMODELICA_INST,runSpace):
         tCPU=r.max("CPUtime")
         tTraTim = tTotTim-tCPU
         nEve=r.max('EventCounter')
-        solver=setting['solver']
+        solver=args.s
         print "tTraTim = {}, tCPU = {}, nEve = {}, solver = {},  {}"\
             .format(tTraTim, tCPU, nEve, solver, model)
         shutil.rmtree("out")
@@ -96,7 +96,7 @@ def _profile(setting,tool,JMODELICA_INST,runSpace):
         # create file to log output during compile process
         logFile = 'd:' + worDir + '/comLog.txt'
         # create heap space input
-        heapSpace = '-Xmx' + runSpace
+        heapSpace = '-Xmx' + args.heapSpace
 
         loader = jja2.FileSystemLoader('SimulatorTemplate_JModelica.py')
         env = jja2.Environment(loader=loader)
@@ -108,7 +108,7 @@ def _profile(setting,tool,JMODELICA_INST,runSpace):
                                    fmi_version=2.0,
                                    sim_lib_path=worDir,
                                    log_file=logFile,
-                                   end_time=setting['stop_time'])
+                                   end_time=args.runtime)
         runJM_file = "runJM.py"
         with open(runJM_file,'w') as rf:
             rf.write(str(runJMOut))
@@ -371,11 +371,57 @@ def genPlots(resultsFile, genPlot):
 if __name__=='__main__':
     import json
     import caseSettings
+    import argparse
+
     # ------ retrieve settings ------
     settings, tools, runSettings = caseSettings.get_settings()
     lib_dir = create_working_directory()
+    # ------ user input from console ------
+    parser = argparse.ArgumentParser(
+        description = 'Benchmark study of computing time.',
+        epilog = "Use as benchmarkStudy.py --tool dymola --from_git_hub True --branch master --commit HEAD --solver radau --runtime 7200 --heapSpace 7200m")
+    parser.add_argument(\
+                        '--from_git_hub',
+                        help='Check if clone the repository from Github',
+                        default=runSettings['FROM_GIT_HUB'],
+                        dest='git')
+    parser.add_argument(\
+                        '--branch',
+                        help='Branch name, such as master',
+                        default=runSettings['BRANCH'],
+                        dest='b')
+    parser.add_argument(\
+                        '--commit',
+                        help='Commit number, such as HEAD',
+                        default=runSettings['COMMIT'],
+                        dest='c')
+    parser.add_argument(\
+                        '--solver',
+                        help='Set solver for Dymola simulation. JModelica uses its default solver Cvode',
+                        default=runSettings['SOLVER'],
+                        dest='s')
+    parser.add_argument(\
+                        '--runtime',
+                        help='Total simulation time in seconds, such as 2*24*3600',
+                        default=runSettings['END_TIME'],
+                        dest='runtime')
+    parser.add_argument(\
+                        '--tool',
+                        help='Tools to run simulation, Dymola or JModelica',
+                        nargs="*",
+                        default=tools,
+                        dest='tool')
+    parser.add_argument(\
+                        '--heapSpace',
+                        help='Heap space for running JModelica, such as 7200m',
+                        default=runSettings['Heap_Space'],
+                        dest='heapSpace')
+
+    args = parser.parse_args()
+
     # ------ clone and checkout repository to working folder ------
-    checkout_repository(runSettings, lib_dir)
+    local_lib = runSettings['LOCAL_BUILDINGS_LIBRARY']
+    checkout_repository(args, local_lib, lib_dir)
     # ------ create folder to save results ------
     if os.path.exists("results"):
         shutil.rmtree("results")
@@ -386,7 +432,9 @@ if __name__=='__main__':
     results = {}
     results['title'] = 'timeLog'
     results['case_list'] = {}
-    for tool in tools:
+
+    for tool in args.tool:
+        print ("========== current tool is: {} ==========".format(tool))
         if tool == "dymola":
             results['case_list']['dymola'] = []
             for index, setting in enumerate(settings):
@@ -394,7 +442,7 @@ if __name__=='__main__':
                 model=setting['model']
                 modelName=model.split(".")[-1]
                 tTraTim, tCPU, nEve, solver \
-                    =_profile(setting,tool,runSettings['JMODELICA_INST'], runSettings['Heap_Space'])
+                    =_profile(setting,tool,runSettings['JMODELICA_INST'],args)
                 results['case_list']['dymola'].append({
                     'modelName': modelName,
                     'tTraTim': float(tTraTim),
@@ -409,7 +457,7 @@ if __name__=='__main__':
                 modelName=model.split(".")[-1]
                 totComTim, totSimTim, flaModTim, insModTim, comCTim, \
                 genCodTim, otherComTim, numStaEve, numTimEve, solTyp \
-                    = _profile(setting,tool,runSettings['JMODELICA_INST'],runSettings['Heap_Space'])
+                    = _profile(setting,tool,runSettings['JMODELICA_INST'],args)
                 results['case_list']['JModelica'].append({
                     'modelName': modelName,
                     'tComTim': float(totComTim),

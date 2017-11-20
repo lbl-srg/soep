@@ -10,7 +10,7 @@ def get_settings():
         "END_TIME": 2*24*3600,
         "BRANCH": "master",
         "COMMIT": "HEAD",
-        "FROM_GIT_HUB": False,
+        "FROM_GIT_HUB": True,
         "LOCAL_BUILDINGS_LIBRARY": "/home/jianjun/GitFolder/modelica-buildings/Buildings",
         "JMODELICA_INST": "/home/jianjun/proj/JModelica2.0",
         "Heap_Space": "7200m"
@@ -81,9 +81,13 @@ def get_settings():
          "start_time": 0,
          "stop_time": runSettings['END_TIME']})
     settings.append(\
+        {'model': "Buildings.Examples.ScalableBenchmarks.BuildingVAV.Examples.TwoFloor_TwoZone",
+         "solver": runSettings['SOLVER'],
+         "start_time": 0,
+         "stop_time": runSettings['END_TIME']})
+    settings.append(\
         {'model': "Buildings.Experimental.DistrictHeatingCooling.Examples.HeatingCoolingHotWater3Clusters",
          "solver": runSettings['SOLVER'],
          "start_time": 0,
          "stop_time": runSettings['END_TIME']})
-
     return settings, tools, runSettings
