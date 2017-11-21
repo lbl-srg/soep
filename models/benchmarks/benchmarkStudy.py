@@ -94,7 +94,7 @@ def _profile(setting,tool,JMODELICA_INST,args):
         # Copy .mo file from Building library to current working folder
         shutil.copy2(os.path.join(Base_class, modelName + '.mo'), os.path.join(worDir, modelName + '.mo'))
         # create file to log output during compile process
-        logFile = 'd:' + worDir + '/comLog.txt'
+        logFile = 'd:{}'.format("comLog.txt")
         # create heap space input
         heapSpace = '-Xmx' + args.heapSpace
 
@@ -113,20 +113,19 @@ def _profile(setting,tool,JMODELICA_INST,args):
         with open(runJM_file,'w') as rf:
             rf.write(str(runJMOut))
         # move rendered simulator script to working directory
-        shutil.move(runJM_file, os.path.join(worDir,'runJM.py'))
+        shutil.copy(runJM_file, os.path.join(worDir,'runJM.py'))
         curWorDir=os.getcwd()
         # change working directory
         os.chdir(worDir)
-        # create command line to implement the rendered runJM.py
-        command = JMODELICA_INST + '/JModelica/bin/jm_python.sh'
 
         # ------ implement JModelica simulation ------
         simFile = open('simLog.txt','w')
-        logSim = subprocess.check_output([command, runJM_file])
+        logSim = subprocess.check_output(['jm_ipython.sh', runJM_file])
         os.remove(runJM_file)
         # write out simulation information typically showing on console to "simFile"
         simFile.write(logSim)
         simFile.close()
+
         # --------------------------------------------
 
         # retrieve the compile and simulation time
