@@ -32,6 +32,7 @@ def checkout_repository(setArgs, local_lib, working_directory):
     from_git_hub = setArgs.git
     commit = setArgs.c
 
+    print ("Is from Git hub? {}".format(from_git_hub))
     if from_git_hub:
         print("Checking out repository branch {}, commit {}".format(BRANCH, commit))
         git_url = "https://github.com/lbl-srg/modelica-buildings"
@@ -51,7 +52,8 @@ def _profile(setting,tool,JMODELICA_INST,args):
     '''
     import string
     import jinja2 as jja2
-    from datetime import datetime
+    import datetime
+    import time
 
     from buildingspy.simulate.Simulator import Simulator
     from buildingspy.io.outputfile import Reader
@@ -67,10 +69,9 @@ def _profile(setting,tool,JMODELICA_INST,args):
         s.setSolver(args.s)
         s.setStopTime(args.runtime)
         s.setTolerance(1E-6)
-        s.setTimeOut(36000)
-        tstart_tr = datetime.now()
+        tstart_tr = datetime.datetime.now()
         s.simulate()
-        tend_tr = datetime.now()
+        tend_tr = datetime.datetime.now()
         # total time
         tTotTim = (tend_tr-tstart_tr).total_seconds()
         resultFile = os.path.join(out_dir, model.split(".")[-1] + ".mat")
@@ -137,10 +138,35 @@ def _profile(setting,tool,JMODELICA_INST,args):
         os.chdir(worDir)
         # ------ implement JModelica simulation ------
         simFile = open('simLog.txt','w')
-        logSim = subprocess.check_output(['jm_ipython.sh', runJM_file])
+        timeout = 10
+        try:
+            staTim = datetime.datetime.now()
+            pro = subprocess.Popen(args=['jm_ipython.sh', runJM_file],\
+                                   stdout=subprocess.PIPE,\
+                                   stderr=subprocess.PIPE,\
+                                   shell=False)
+            killedProcess = False
+            if timeout > 0:
+                while pro.poll() is None:
+                    time.sleep(0.01)
+                    elapsedTime = (datetime.datetime.now() - staTim).seconds
+                    print ('current elapsed time: {}'.format(elapsedTime))
+                    if elapsedTime > timeout:
+                        if not killedProcess:
+                            killedProcess = True
+                            print('Terminating JModelica simulation.')
+                            pro.terminate()
+                        else:
+                            print("Killing JModelica simulation due to timeout.")
+                            pro.kill()
+            else:
+                pro.wait()
+            simFile.write(pro.stdout.read())
+        except OSError as e:
+            print("Execution of JModelica failed:", e)
+
         os.remove(runJM_file)
         # write out simulation information typically showing on console to "simFile"
-        simFile.write(logSim)
         simFile.close()
         # --------------------------------------------
         # retrieve the compile and simulation time
@@ -508,6 +534,7 @@ if __name__=='__main__':
 
     args = parser.parse_args()
 
+    print("from GitHub: {}".format(args.git))
     # ------ clone and checkout repository to working folder ------
     local_lib = runSettings['LOCAL_BUILDINGS_LIBRARY']
     checkout_repository(args, local_lib, lib_dir)
