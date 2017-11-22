@@ -3,6 +3,7 @@
 import os
 import shutil
 import subprocess
+import numpy as N
 
 def sh(cmd, path):
     ''' Run the command ```cmd``` command in the directory ```path```
@@ -66,6 +67,7 @@ def _profile(setting,tool,JMODELICA_INST,args):
         s.setSolver(args.s)
         s.setStopTime(args.runtime)
         s.setTolerance(1E-6)
+        s.setTimeOut(36000)
         tstart_tr = datetime.now()
         s.simulate()
         tend_tr = datetime.now()
@@ -77,10 +79,25 @@ def _profile(setting,tool,JMODELICA_INST,args):
         tTraTim = tTotTim-tCPU
         nEve=r.max('EventCounter')
         solver=args.s
-        print "tTraTim = {}, tCPU = {}, nEve = {}, solver = {},  {}"\
-            .format(tTraTim, tCPU, nEve, solver, model)
+
+        eveLog = N.zeros(3)
+        searchEve = list()
+        searchEve.append("Number of (model) time events             :")
+        searchEve.append("Number of time    events                 :")
+        searchEve.append("Number of step     events                 :")
+        # ------ search and retrieve times from compile log file ------
+        with open(os.path.join(out_dir,'dslog.txt'), "r") as f:
+            for line in f:
+                for index, strLin in enumerate(searchEve):
+                    if strLin in line:
+                        sect1 = line.split(": ")
+                        sect2 = sect1[1].split("\n")
+                        eveLog[index] = sect2[0]
+        f.close()
+        print "tTraTim = {}, tCPU = {}, nEve = {}, timeEvent = {}, stateEvent = {}, stepEvent = {}, solver = {},  {}"\
+            .format(tTraTim, tCPU, nEve, eveLog[0], eveLog[1], eveLog[2],  solver, model)
         shutil.rmtree("out")
-        return tTraTim, tCPU, nEve, solver
+        return tTraTim, tCPU, nEve, eveLog, solver
     # ------------------- Run JModelica -------------------
     else:
         worDir = setting['lib_dir']
@@ -114,10 +131,10 @@ def _profile(setting,tool,JMODELICA_INST,args):
             rf.write(str(runJMOut))
         # move rendered simulator script to working directory
         shutil.copy(runJM_file, os.path.join(worDir,'runJM.py'))
+        os.remove(runJM_file)
         curWorDir=os.getcwd()
         # change working directory
         os.chdir(worDir)
-
         # ------ implement JModelica simulation ------
         simFile = open('simLog.txt','w')
         logSim = subprocess.check_output(['jm_ipython.sh', runJM_file])
@@ -125,54 +142,70 @@ def _profile(setting,tool,JMODELICA_INST,args):
         # write out simulation information typically showing on console to "simFile"
         simFile.write(logSim)
         simFile.close()
-
         # --------------------------------------------
-
         # retrieve the compile and simulation time
-        compileTime, totSimTim, numStaEve, numTimEve, solTyp  = search_Time('comLog.txt', 'simLog.txt')
+        translateTime, totSimTim, numStaEve, numTimEve, solTyp  = search_Time('comLog.txt', 'simLog.txt')
         # change back to current work directory containing this .py file
         os.chdir(curWorDir)
         # total compile time
-        totComTim = compileTime[0]
-        # compile time break:
-        # flatten model time
-        flaModTim = compileTime[3]
-        # instantiate model time
-        insModTim = compileTime[2]
-        # compilte C code time
-        comCTim = compileTime[52]
-        # generate code time
-        genCodTim = compileTime[51]
-        # other compile time
-        otherComTim = totComTim - (flaModTim + insModTim + comCTim + genCodTim)
-        print "comTim={}, simTim={}, flaTim={}, insTim={}, comCTim={}, genCodTim={}". \
-              format(totComTim, totSimTim, flaModTim, insModTim, comCTim, genCodTim)
-        return totComTim, totSimTim, \
-               flaModTim, insModTim, comCTim, genCodTim, otherComTim,\
+        totTraTim = translateTime[0]
+        # ------ compile time break ------
+        jmTraTimBre = N.zeros(12)
+        # level 1: instantiate model time
+        jmTraTimBre[0] = translateTime[2]
+        # level 1: flatten model time
+        flaModTim = translateTime[3]
+        # ::::level 2: flattenBreak.flatten
+        jmTraTimBre[1] = translateTime[4]
+        # ::::level 2: flattenBreak.prettyPrintRawFlat
+        jmTraTimBre[2] = translateTime[10]
+        # ::::level 2: flattenBreak.transformCanonical
+        transformCanonical = translateTime[11]
+        # ::::::::level 3: flattenBreak.transformCanonical.scalarize
+        jmTraTimBre[3] = translateTime[14]
+        # ::::::::level 3: flattenBreak.transformCanonical.indexReduction
+        jmTraTimBre[4] = translateTime[36]
+        # ::::::::level 3: flattenBreak.transformCanonical.computeMatchingsAndBLT
+        jmTraTimBre[5] = translateTime[46]
+        # ::::::::level 3: flattenBreak.transformCanonical.others
+        jmTraTimBre[6] = transformCanonical - (jmTraTimBre[3]+jmTraTimBre[4]+jmTraTimBre[5])
+        # ::::level 2: flattenBreak.prettyPrintFlat
+        jmTraTimBre[7] = translateTime[50]
+        # level 1: generate code time
+        jmTraTimBre[8] = translateTime[51]
+        # level 1: compilte C code time
+        jmTraTimBre[9] = translateTime[52]
+        # level 1: other compile time
+        jmTraTimBre[10] = totTraTim - (flaModTim + jmTraTimBre[0] + jmTraTimBre[8] + jmTraTimBre[9])
+        print "simTim={}, traTim={} which includes insTim={}, flaTim={}, genCodTim={}, comCTim={} and others={}.". \
+              format(totSimTim, totTraTim, jmTraTimBre[0], flaModTim, jmTraTimBre[8], jmTraTimBre[9],jmTraTimBre[10])
+        return totTraTim, totSimTim, jmTraTimBre,\
                numStaEve, numTimEve, solTyp
 
 # Retrieve compile and simulation time from log files when running JModelica
 def search_Time(Compilelog_file, Simlog_file):
     ''' This function searchs and returns compile times from the log files.
     '''
-    import numpy as N
-
-    compileTime = N.zeros(54)
+    translateTime = N.zeros(54)
     searchComp = list()
     searchComp.append("Total                                    :")
     searchComp.append("parseModel()                            :")
     searchComp.append("instantiateModel()                      :")
     searchComp.append("flattenModel()                          :")
+    # searchComp[4]
     searchComp.append("flatten()                              :")
     searchComp.append("flattenInstClassDecl()                :")
     searchComp.append("buildConnectionSets()                :")
     searchComp.append("flattenComponents()                  :")
     searchComp.append("updateVariabilityForVariablesInWhen():")
     searchComp.append("genConnectionEquations()             :")
+    # searchComp[10]
     searchComp.append("prettyPrintRawFlat()                   :")
+    # searchComp[11]
     searchComp.append("transformCanonical()                   :")
     searchComp.append("enableIfEquationElimination           :")
     searchComp.append("genInitArrayStatements                :")
+    # searchComp[14]
     searchComp.append("scalarize                             :")
     searchComp.append("MakeReinitedVarsStates                :")
     searchComp.append("enableIfEquationElimination           :")
@@ -195,6 +228,7 @@ def search_Time(Compilelog_file, Simlog_file):
     searchComp.append("eliminateEqualSwitches                :")
     searchComp.append("genInitialEquations                   :")
     searchComp.append("setFDerivativeVariablesPreBLT         :")
+    # searchComp[36]
     searchComp.append("indexReduction                        :")
     searchComp.append("Munkres                              :")
     searchComp.append("aliasEliminationIfSet                :")
@@ -205,10 +239,12 @@ def search_Time(Compilelog_file, Simlog_file):
     searchComp.append("aliasEliminationIfSet                 :")
     searchComp.append("sortDependentParameters               :")
     searchComp.append("addRuntimeOptionParameters            :")
+    # searchComp[46]
     searchComp.append("computeMatchingsAndBLT                :")
     searchComp.append("computeBLT()                         :")
     searchComp.append("computeBLT()                         :")
     searchComp.append("removeUnusedFunctionsAndRecords()     :")
+    # searchComp[50]
     searchComp.append("prettyPrintFlat()                      :")
     searchComp.append("generateCode()                          :")
     searchComp.append("compileCCode()                          :")
@@ -227,7 +263,7 @@ def search_Time(Compilelog_file, Simlog_file):
                 if strLin in line:
                     sect1 = line.split(":")
                     sect2 = sect1[1].split("s,")
-                    compileTime[index] = sect2[0]
+                    translateTime[index] = sect2[0]
 	f.close()
     # ------ search and retrieve times from simulation log file ------
     numStaEve = 0
@@ -251,12 +287,11 @@ def search_Time(Compilelog_file, Simlog_file):
                 sect2 = sect1[1].split("\n")
                 solTyp = sect2[0]
 	sf.close()
-    return compileTime, simTime, numStaEve, numTimEve, solTyp
+    return translateTime, simTime, numStaEve, numTimEve, solTyp
 
 def genPlots(resultsFile, genPlot):
     import json
     import matplotlib.pyplot as plt
-    import numpy as np
 
     if genPlot:
         with open(resultsFile) as json_file:
@@ -265,21 +300,39 @@ def genPlots(resultsFile, genPlot):
             length = len(results['case_list']['dymola'])
         else:
             length = len(results['case_list']['JModelica'])
-        dy_tCPU = np.empty(length)
-        dy_tTraTim = np.empty(length)
-        dy_nEve = np.empty(length)
-        jm_tComTim = np.empty(length)
-        jm_tSimTim = np.empty(length)
-        jm_tFlaTim = np.empty(length)
-        jm_tInsTim = np.empty(length)
-        jm_tComCTim = np.empty(length)
-        jm_tGenCodTim = np.empty(length)
-        jm_tOtherTim = np.empty(length)
-        jm_nStaEve = np.empty(length)
-        jm_nTimEve = np.empty(length)
-        tInsTimeBas = np.empty(length)
-        tComCBas = np.empty(length)
-        tGenCBas = np.empty(length)
+        dy_tCPU = N.empty(length)
+        dy_tTraTim = N.empty(length)
+        dy_nTimEve = N.empty(length)
+        dy_nStaEve = N.empty(length)
+        dy_nSteEve = N.empty(length)
+
+        jm_tSim = N.empty(length)
+        jm_tTra = N.empty(length)
+        jm_tIns = N.empty(length)
+        jm_tTotFla = N.empty(length)
+        jm_tFla = N.empty(length)
+        jm_tPrePriRawFla = N.empty(length)
+        jm_tTraCan_Sca = N.empty(length)
+        jm_tTraCan_IndRed = N.empty(length)
+        jm_tTraCan_ComMatBLT = N.empty(length)
+        jm_tTraCan_Others = N.empty(length)
+        jm_tPrePriFla = N.empty(length)
+        jm_tGenC = N.empty(length)
+        jm_tComC = N.empty(length)
+        jm_tOthTra = N.empty(length)
+        jm_nStaEve = N.empty(length)
+        jm_nTimEve = N.empty(length)
+
+        jm_base1 = N.empty(length)
+        jm_base2 = N.empty(length)
+        jm_base3 = N.empty(length)
+        jm_base4 = N.empty(length)
+        jm_base5 = N.empty(length)
+        jm_base6 = N.empty(length)
+        jm_base7 = N.empty(length)
+        jm_base8 = N.empty(length)
+        jm_base9 = N.empty(length)
+
         dy_modelName = list()
         dy_solver = list()
         jm_modelName = list()
@@ -290,25 +343,42 @@ def genPlots(resultsFile, genPlot):
                 dy_modelName.append(ele['modelName'])
                 dy_tTraTim[index] = ele['tTraTim']
                 dy_tCPU[index] = ele['tCPU']
-                dy_nEve[index] = ele['nEve']
+                dy_nTimEve[index] = ele['nTimeEvent']
+                dy_nStaEve[index] = ele['nStateEvent']
+                dy_nSteEve[index] = ele['nStepEvent']
                 dy_solver.append(ele['solver'])
         if 'JModelica' in results['case_list']:
             for index, ele in enumerate(results['case_list']['JModelica']):
                 jm_modelName.append(ele['modelName'])
-                jm_tComTim[index] = ele['tComTim']
-                jm_tSimTim[index] = ele['tSimTim']
-                jm_tFlaTim[index] = ele['tFlaTim']
-                jm_tInsTim[index] = ele['tInsTim']
-                tInsTimeBas[index] = jm_tFlaTim[index] + jm_tInsTim[index]
-                jm_tComCTim[index] = ele['tComCTim']
-                tComCBas[index] = tInsTimeBas[index] + jm_tComCTim[index]
-                jm_tGenCodTim[index] = ele['tGenCodTim']
-                tGenCBas[index] = tComCBas[index] + jm_tGenCodTim[index]
-                jm_tOtherTim[index] = ele['tOtherTim']
-                jm_nStaEve[index] = ele['nStaEve']
-                jm_nTimEve[index] = ele['nTimEve']
-                jm_solver.append(ele['solver'])
+                jm_tSim[index] = ele['tSim']
 
+                jm_tTra[index] = ele['tTra']
+
+                jm_tIns[index] = ele['tIns']
+                jm_tFla[index] = ele['tFla']
+                jm_base1[index] = jm_tIns[index] + jm_tFla[index]
+                jm_tPrePriRawFla[index] = ele['tPrePriRawFla']
+                jm_base2[index] = jm_base1[index] + jm_tPrePriRawFla[index]
+                jm_tTraCan_Sca[index] = ele['tTraCan_Sca']
+                jm_base3[index] = jm_base2[index] + jm_tTraCan_Sca[index]
+                jm_tTraCan_IndRed[index] = ele['tTraCan_IndRed']
+                jm_base4[index] = jm_base3[index] + jm_tTraCan_IndRed[index]
+                jm_tTraCan_ComMatBLT[index] = ele['tTraCan_ComMatBLT']
+                jm_base5[index] = jm_base4[index] + jm_tTraCan_ComMatBLT[index]
+                jm_tTraCan_Others[index] = ele['tTraCan_Others']
+                jm_base6[index] = jm_base5[index] + jm_tTraCan_Others[index]
+                jm_tPrePriFla[index] = ele['tPrePriFla']
+                jm_base7[index] = jm_base6[index] + jm_tPrePriFla[index]
+                jm_tGenC[index] = ele['tGenC']
+                jm_base8[index] = jm_base7[index] + jm_tGenC[index]
+                jm_tComC[index] = ele['tComC']
+                jm_base9[index] = jm_base8[index] + jm_tComC[index]
+                jm_tOthTra[index] = ele['tOthTra']
+                jm_tTotFla[index] = jm_tTra[index]-\
+                    (jm_tOthTra[index]+jm_tIns[index]+jm_tGenC[index]+jm_tComC[index])
+                jm_nStaEve[index] = ele['nStateEvent']
+                jm_nTimEve[index] = ele['nTimeEvent']
+                jm_solver.append(ele['solver'])
         pos = list(range(length))
         width = 0.1
         # ------ generate plot for simulation time ------
@@ -317,18 +387,18 @@ def genPlots(resultsFile, genPlot):
             plt.bar(pos, dy_tCPU, width, color='k', label='Dymola')
             plt.xticks(pos, dy_modelName)
         elif (not 'dymola' in results['case_list']) and ('JModelica' in results['case_list']):
-            plt.bar(pos, jm_tSimTim, width, color='b', label='JModelica')
+            plt.bar(pos, jm_tSim, width, color='b', label='JModelica')
             plt.xticks(pos, jm_modelName)
         else:
             plt.bar(pos, dy_tCPU, width, color='k', label='Dymola')
-            plt.bar([p+width for p in pos], jm_tSimTim, width, color='b', label='JModelica')
+            plt.bar([p+width for p in pos], jm_tSim, width, color='b', label='JModelica')
             plt.xticks([p+width/2 for p in pos], dy_modelName)
         plt.xlabel('Model')
         plt.ylabel('Simulation time, seconds')
         plt.title('Simulation time')
         plt.legend(loc = 'upper right')
-        plt.grid(linestyle='--', axis='y')
-        plt.savefig(os.path.join("results","SimulationTime.png"))
+        #plt.grid(linestyle='--', axis='y')
+        plt.savefig(os.path.join("results","SimulationTime.pdf"))
         # ------ generate plot for compile time ------
         fig, ax = plt.subplots(figsize=(10,5))
         if ('dymola' in results['case_list']) and (not 'JModelica' in results['case_list']):
@@ -336,35 +406,55 @@ def genPlots(resultsFile, genPlot):
             plt.xticks(pos, dy_modelName)
             plt.legend(loc = 'upper right')
         elif (not 'dymola' in results['case_list']) and ('JModelica' in results['case_list']):
-            p1 = plt.bar(pos, jm_tFlaTim, width, color='b')
-            p2 = plt.bar(pos, jm_tInsTim, width, bottom=jm_tFlaTim, color='r')
-            p3 = plt.bar(pos, jm_tComCTim, width, bottom=tInsTimeBas, color='g')
-            p4 = plt.bar(pos, jm_tGenCodTim, width, bottom=tComCBas, color='m')
-            p5 = plt.bar(pos, jm_tOtherTim, width, bottom=tGenCBas, color='c')
+            p1 = plt.bar(pos, jm_tIns, width, color = 'blue', edgecolor='black')
+            p2 = plt.bar(pos, jm_tFla, width, bottom=jm_tIns, color = 'royalblue')
+            p3 = plt.bar(pos, jm_tPrePriRawFla, width, bottom=jm_base1, color = 'lightcyan')
+            p4 = plt.bar(pos, jm_tTraCan_Sca, width, bottom=jm_base2, color = 'green')
+            p5 = plt.bar(pos, jm_tTraCan_IndRed, width, bottom=jm_base3, color = 'mediumpurple')
+            p6 = plt.bar(pos, jm_tTraCan_ComMatBLT, width, bottom=jm_base4, color = 'midnightblue')
+            p7 = plt.bar(pos, jm_tTraCan_Others, width, bottom=jm_base5, color = 'cornsilk')
+            p8 = plt.bar(pos, jm_tPrePriFla, width, bottom=jm_base6, color = 'paleturquoise')
+            p9 = plt.bar(pos, jm_tGenC, width, bottom=jm_base7, color = 'bisque', edgecolor='black')
+            p10 = plt.bar(pos, jm_tComC, width, bottom=jm_base8, color = 'slategray', edgecolor='black')
+            p11 = plt.bar(pos, jm_tOthTra, width, bottom=jm_base9, color = 'darkcyan', edgecolor='black')
+            p12 = plt.bar(pos, jm_tTotFla, width, bottom=jm_tIns, fill=False, edgecolor='black')
             plt.xticks(pos, jm_modelName)
-            plt.legend((p5[0],p4[0],p3[0],p2[0],p1[0]),\
-                ('JModelica: Others', 'JModelica: Generate C', \
-                'JModelica: Compile C', 'JModelica: Instantiate', \
-                'JModelica: Flatten'), loc = 'upper right')
+            plt.legend((p11[0],p10[0],p9[0],p8[0],p7[0],p6[0],p5[0],p4[0],p3[0],p2[0],p1[0]),\
+                ('JModelica: others', 'JModelica: compile C', \
+                'JModelica: generate C', 'JModelica: prettyPrintFlat', \
+                'JModelica: traCan.Others', 'JModelica: traCan.CompMat&BLT',\
+                'JModelica: traCan.IndexRed', 'JModelica: traCan.Scalarize',\
+                'JModelica: prettyPrintRawFlat', 'JModelica: flatten',\
+                'JModelica: instantiate'), loc = 'upper right')
         else:
             dyP = plt.bar(pos, dy_tTraTim, width, color='k')
-            p1 = plt.bar([p+width for p in pos], jm_tFlaTim, width, color='b')
-            p2 = plt.bar([p+width for p in pos], jm_tInsTim, width, bottom=jm_tFlaTim, color='r')
-            p3 = plt.bar([p+width for p in pos], jm_tComCTim, width, bottom=tInsTimeBas, color='g')
-            p4 = plt.bar([p+width for p in pos], jm_tGenCodTim, width, bottom=tComCBas, color='m')
-            p5 = plt.bar([p+width for p in pos], jm_tOtherTim, width, bottom=tGenCBas, color='c')
+            p1 = plt.bar([p+width for p in pos], jm_tIns, width, color = 'blue', edgecolor='black')
+            p2 = plt.bar([p+width for p in pos], jm_tFla, width, bottom=jm_tIns, color = 'royalblue')
+            p3 = plt.bar([p+width for p in pos], jm_tPrePriRawFla, width, bottom=jm_base1, color = 'lightcyan')
+            p4 = plt.bar([p+width for p in pos], jm_tTraCan_Sca, width, bottom=jm_base2, color = 'green')
+            p5 = plt.bar([p+width for p in pos], jm_tTraCan_IndRed, width, bottom=jm_base3, color = 'mediumpurple')
+            p6 = plt.bar([p+width for p in pos], jm_tTraCan_ComMatBLT, width, bottom=jm_base4, color = 'midnightblue')
+            p7 = plt.bar([p+width for p in pos], jm_tTraCan_Others, width, bottom=jm_base5, color = 'cornsilk')
+            p8 = plt.bar([p+width for p in pos], jm_tPrePriFla, width, bottom=jm_base6, color = 'paleturquoise')
+            p9 = plt.bar([p+width for p in pos], jm_tGenC, width, bottom=jm_base7, color = 'bisque', edgecolor='black')
+            p10 = plt.bar([p+width for p in pos], jm_tComC, width, bottom=jm_base8, color = 'slategray', edgecolor='black')
+            p11 = plt.bar([p+width for p in pos], jm_tOthTra, width, bottom=jm_base9, color = 'darkcyan', edgecolor='black')
+            p12 = plt.bar([p+width for p in pos], jm_tTotFla, width, bottom=jm_tIns, fill=False, edgecolor='black')
             plt.xticks([p+width/2 for p in pos], dy_modelName)
             legend1 = plt.legend([dyP[0]],['Dymola'], loc = 'upper left')
-            plt.legend((p5[0],p4[0],p3[0],p2[0],p1[0]),\
-                ('JModelica: Others', 'JModelica: Generate C', \
-                 'JModelica: Compile C', 'JModelica: Instantiate', \
-                 'JModelica: Flatten'), loc = 'upper right')
+            plt.legend((p11[0],p10[0],p9[0],p8[0],p7[0],p6[0],p5[0],p4[0],p3[0],p2[0],p1[0]),\
+                ('JModelica: others', 'JModelica: compile C', \
+                'JModelica: generate C', 'JModelica: prettyPrintFlat', \
+                'JModelica: traCan.Others', 'JModelica: traCan.CompMat&BLT',\
+                'JModelica: traCan.IndexRed', 'JModelica: traCan.Scalarize',\
+                'JModelica: prettyPrintRawFlat', 'JModelica: flatten',\
+                'JModelica: instantiate'), loc = 'upper right')
             plt.gca().add_artist(legend1)
         plt.xlabel('Model')
-        plt.ylabel('Compile time, seconds')
-        plt.title('Compile time')
-        plt.grid(linestyle='--', axis='y')
-        plt.savefig(os.path.join("results", "CompileTime.png"))
+        plt.ylabel('Translate time, seconds')
+        plt.title('Translate time')
+        #plt.grid(linestyle='--', axis='y')
+        plt.savefig(os.path.join("results", "TranslateTime.pdf"))
 
 
 if __name__=='__main__':
@@ -378,7 +468,7 @@ if __name__=='__main__':
     # ------ user input from console ------
     parser = argparse.ArgumentParser(
         description = 'Benchmark study of computing time.',
-        epilog = "Use as benchmarkStudy.py --tool dymola --from_git_hub True --branch master --commit HEAD --solver radau --runtime 7200 --heapSpace 7200m")
+        epilog = "Use as benchmarkStudy.py --tool dymola JModelica --from_git_hub True --branch master --commit HEAD --solver radau --runtime 7200 --heapSpace 7200m")
     parser.add_argument(\
                         '--from_git_hub',
                         help='Check if clone the repository from Github',
@@ -440,13 +530,15 @@ if __name__=='__main__':
                 setting['lib_dir'] = lib_dir
                 model=setting['model']
                 modelName=model.split(".")[-1]
-                tTraTim, tCPU, nEve, solver \
+                tTraTim, tCPU, nEve, eveLog, solver \
                     =_profile(setting,tool,runSettings['JMODELICA_INST'],args)
                 results['case_list']['dymola'].append({
                     'modelName': modelName,
                     'tTraTim': float(tTraTim),
                     'tCPU': float(tCPU),
-                    'nEve': float(nEve),
+                    'nTimeEvent': float(eveLog[0]),
+                    'nStateEvent': float(eveLog[1]),
+                    'nStepEvent': float(eveLog[2]),
                     'solver': solver})
         else:
             results['case_list']['JModelica'] = []
@@ -454,26 +546,32 @@ if __name__=='__main__':
                 setting['lib_dir'] = lib_dir
                 model=setting['model']
                 modelName=model.split(".")[-1]
-                totComTim, totSimTim, flaModTim, insModTim, comCTim, \
-                genCodTim, otherComTim, numStaEve, numTimEve, solTyp \
+                totTraTim, totSimTim, jmTraTimBre, \
+                numStaEve, numTimEve, solTyp \
                     = _profile(setting,tool,runSettings['JMODELICA_INST'],args)
                 results['case_list']['JModelica'].append({
                     'modelName': modelName,
-                    'tComTim': float(totComTim),
-                    'tSimTim': float(totSimTim),
-                    'tFlaTim': float(flaModTim),
-                    'tInsTim': float(insModTim),
-                    'tComCTim': float(comCTim),
-                    'tGenCodTim': float(genCodTim),
-                    'tOtherTim': float(otherComTim),
-                    'nStaEve': float(numStaEve),
-                    'nTimEve': float(numTimEve),
+                    'tSim': float(totSimTim),
+                    'tTra': float(totTraTim),
+                    'tIns': float(jmTraTimBre[0]),
+                    'tFla': float(jmTraTimBre[1]),
+                    'tPrePriRawFla': float(jmTraTimBre[2]),
+                    'tTraCan_Sca': float(jmTraTimBre[3]),
+                    'tTraCan_IndRed': float(jmTraTimBre[4]),
+                    'tTraCan_ComMatBLT': float(jmTraTimBre[5]),
+                    'tTraCan_Others': float(jmTraTimBre[6]),
+                    'tPrePriFla': float(jmTraTimBre[7]),
+                    'tGenC': float(jmTraTimBre[8]),
+                    'tComC': float(jmTraTimBre[9]),
+                    'tOthTra': float(jmTraTimBre[10]),
+                    'nStateEvent': float(numStaEve),
+                    'nTimeEvent': float(numTimEve),
                     'solver': solTyp})
     # ------ open an empty JSON file logging times ------
     if os.path.exists(resultsFile):
 	    os.remove(resultsFile)
     else:
-	    print("{} is not exist. A new file will be created.\r\n".format(resultsFile))
+	    print("{} does not exist. A new file will be created.\r\n".format(resultsFile))
     with open(resultsFile, 'w') as outfile:
         json.dump(results, outfile, sort_keys=True, indent=4)
     genPlots(resultsFile, True)

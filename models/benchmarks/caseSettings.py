@@ -6,7 +6,7 @@ def get_settings():
     tools = ["dymola", "JModelica"]
     # tools = ["dymola"]
     runSettings = {
-        "SOLVER": "radau",
+        "SOLVER": "Cvode",
         "END_TIME": 2*24*3600,
         "BRANCH": "master",
         "COMMIT": "HEAD",
@@ -80,11 +80,11 @@ def get_settings():
          "solver": runSettings['SOLVER'],
          "start_time": 0,
          "stop_time": runSettings['END_TIME']})
-    settings.append(\
-        {'model': "Buildings.Examples.ScalableBenchmarks.BuildingVAV.Examples.TwoFloor_TwoZone",
-         "solver": runSettings['SOLVER'],
-         "start_time": 0,
-         "stop_time": runSettings['END_TIME']})
+#    settings.append(\
+#        {'model': "Buildings.Examples.ScalableBenchmarks.BuildingVAV.Examples.TwoFloor_TwoZone",
+#         "solver": runSettings['SOLVER'],
+#         "start_time": 0,
+#         "stop_time": runSettings['END_TIME']})
     settings.append(\
         {'model': "Buildings.Experimental.DistrictHeatingCooling.Examples.HeatingCoolingHotWater3Clusters",
          "solver": runSettings['SOLVER'],
