@@ -46,7 +46,7 @@ def checkout_repository(setArgs, local_lib, working_directory):
         print("*** Copying Buildings library to {}".format(des))
         shutil.copytree(LOCAL_BUILDINGS_LIBRARY, des)
 
-def _profile(setting,tool,JMODELICA_INST,args):
+def _profile(setting, tool, JMODELICA_INST, args):
     ''' Run simulation with both dymola and JModelica. The function returns
         CPU time used for compile and simulation.
     '''
@@ -54,6 +54,7 @@ def _profile(setting,tool,JMODELICA_INST,args):
     import jinja2 as jja2
     import datetime
     import time
+    import signal
 
     from buildingspy.simulate.Simulator import Simulator
     from buildingspy.io.outputfile import Reader
@@ -138,10 +139,11 @@ def _profile(setting,tool,JMODELICA_INST,args):
         os.chdir(worDir)
         # ------ implement JModelica simulation ------
         simFile = open('simLog.txt','w')
-        timeout = 10
+        timeout = 3
         try:
             staTim = datetime.datetime.now()
             pro = subprocess.Popen(args=['jm_ipython.sh', runJM_file],\
+                                   cwd=worDir,\
                                    stdout=subprocess.PIPE,\
                                    stderr=subprocess.PIPE,\
                                    shell=False)
@@ -158,12 +160,17 @@ def _profile(setting,tool,JMODELICA_INST,args):
                             pro.terminate()
                         else:
                             print("Killing JModelica simulation due to timeout.")
+                            #os.kill(os.getpid(), signal.SIGKILL)
                             pro.kill()
+                            print("Killed JModelica simulation due to timeout.")
+                            #pro.kill()
             else:
                 pro.wait()
             simFile.write(pro.stdout.read())
         except OSError as e:
             print("Execution of JModelica failed:", e)
+
+        print("Calling os.remove(...).")
 
         os.remove(runJM_file)
         # write out simulation information typically showing on console to "simFile"
@@ -488,9 +495,9 @@ if __name__=='__main__':
     import caseSettings
     import argparse
 
-    # ------ retrieve settings ------
+    # ------ retrieve default settings ------
     settings, tools, runSettings = caseSettings.get_settings()
-    lib_dir = create_working_directory()
+
     # ------ user input from console ------
     parser = argparse.ArgumentParser(
         description = 'Benchmark study of computing time.',
@@ -534,6 +541,8 @@ if __name__=='__main__':
 
     args = parser.parse_args()
 
+    lib_dir = create_working_directory()
+
     print("from GitHub: {}".format(args.git))
     # ------ clone and checkout repository to working folder ------
     local_lib = runSettings['LOCAL_BUILDINGS_LIBRARY']
@@ -553,7 +562,7 @@ if __name__=='__main__':
         print ("========== current tool is: {} ==========".format(tool))
         if tool == "dymola":
             results['case_list']['dymola'] = []
-            for index, setting in enumerate(settings):
+            for setting in settings:
                 setting['lib_dir'] = lib_dir
                 model=setting['model']
                 modelName=model.split(".")[-1]
@@ -569,13 +578,14 @@ if __name__=='__main__':
                     'solver': solver})
         else:
             results['case_list']['JModelica'] = []
-            for index, setting in enumerate(settings):
+            for setting in settings:
                 setting['lib_dir'] = lib_dir
                 model=setting['model']
                 modelName=model.split(".")[-1]
-                totTraTim, totSimTim, jmTraTimBre, \
-                numStaEve, numTimEve, solTyp \
+                print("*** Starting {}".format(model))
+                totTraTim, totSimTim, jmTraTimBre, numStaEve, numTimEve, solTyp \
                     = _profile(setting,tool,runSettings['JMODELICA_INST'],args)
+                print("*** Finished {}".format(model))
                 results['case_list']['JModelica'].append({
                     'modelName': modelName,
                     'tSim': float(totSimTim),
