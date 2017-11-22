@@ -13,7 +13,7 @@ def get_settings():
         "FROM_GIT_HUB": True,
         "LOCAL_BUILDINGS_LIBRARY": "/home/jianjun/GitFolder/modelica-buildings/Buildings",
         "JMODELICA_INST": "/home/jianjun/proj/JModelica2.0",
-        "Heap_Space": "7200m"
+        "Heap_Space": '2048m'
         }
 
     settings = list()
@@ -90,4 +90,17 @@ def get_settings():
          "solver": runSettings['SOLVER'],
          "start_time": 0,
          "stop_time": runSettings['END_TIME']})
+
+    settings = list()
+    settings.append(\
+        {'model': "Buildings.Examples.ScalableBenchmarks.BuildingVAV.Examples.OneFloor_OneZone",
+         "solver": runSettings['SOLVER'],
+         "start_time": 0,
+         "stop_time": runSettings['END_TIME']})
+    settings.append(\
+        {'model': "Buildings.Air.Systems.SingleZone.VAV.Examples.ChillerDXHeatingEconomizer",
+         "solver": runSettings['SOLVER'],
+         "start_time": 0,
+         "stop_time": runSettings['END_TIME']})
+
     return settings, tools, runSettings
