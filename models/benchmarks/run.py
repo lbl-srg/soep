@@ -20,16 +20,19 @@ def sh(cmd, path):
 def create_working_directory():
     ''' Create working directory
     '''
+    import os
     import tempfile
     import getpass
-    worDir = tempfile.mkdtemp( prefix='tmp_timeBench_' + getpass.getuser() )
+
+    suf = os.path.join(os.getcwd(), "tmp-benchmarks")
+    if not os.path.exists(suf):
+        os.makedirs(suf)
+    worDir = tempfile.mkdtemp(dir=suf, prefix='tmp_' + getpass.getuser())
     return worDir
 
-def checkout_repository(from_git_hub, branch, commit, local_lib, working_directory):
+def checkout_repository(from_git_hub, branch, commit, working_directory):
     from git import Repo
     import git
-
-    LOCAL_BUILDINGS_LIBRARY = local_lib
 
     if from_git_hub:
         print("Checking out repository branch {}, commit {}".format(branch, commit))
@@ -39,10 +42,21 @@ def checkout_repository(from_git_hub, branch, commit, local_lib, working_directo
         g.checkout(branch)
         g.checkout(commit)
     else:
-        # This is a hack to get the local copy of the repository
-        des = os.path.join(working_directory, "Buildings")
-        print("*** Copying Buildings library to {}".format(des))
-        shutil.copytree(LOCAL_BUILDINGS_LIBRARY, des)
+        bui_lib_pat = None
+        # Search on the MODELICAPATH, or the current directory
+        if os.environ.has_key("MODELICAPATH"):
+            roo = os.environ['MODELICAPATH']
+        else:
+            roo = os.getcwd()
+        for d in roo.split(":"):
+            if os.path.exists(os.path.join(d, "Buildings", "package.mo")):
+                bui_lib_pat = d
+        if bui_lib_pat is None:
+            raise ValueError("Did not find Buildings library. Make sure it is on MODELICAPATH.")
+        else:
+            des = os.path.join(working_directory, "Buildings")
+            print("*** Copying Buildings library to {}".format(des))
+            shutil.copytree(os.path.join(bui_lib_pat, "Buildings"), des)
 
 def _profile_dymola(result):
     ''' Run simulation with dymola. The function returns
@@ -57,21 +71,33 @@ def _profile_dymola(result):
     model=result['model']
     modelName = model.split(".")[-1]
 
-    out_dir = os.path.join("out", modelName)
+    worDir = create_working_directory()
     # Update MODELICAPATH to get the right library version
-    s=Simulator(model, "dymola", outputDirectory=out_dir)
+    s=Simulator(model, "dymola", outputDirectory=worDir)
     s.setSolver(result['solver'])
     s.setStopTime(result['stop_time'])
     s.setTolerance(1E-6)
+    timeout = result['timeout']
+    if float(timeout) > 0.01:
+        s.setTimeOut(timeout)
     tstart_tr = datetime.datetime.now()
     s.simulate()
     tend_tr = datetime.datetime.now()
     # total time
     tTotTim = (tend_tr-tstart_tr).total_seconds()
-    resultFile = os.path.join(out_dir, model.split(".")[-1] + ".mat")
+    resultFile = os.path.join(worDir, "{}.mat".format(modelName))
+
+    # In case of timeout or error, the output file may not exist
+    if not os.path.exists(resultFile):
+        return {'tTra': 0,
+            'tCPU': 0,
+            'nTimeEvent': 0,
+            'nStateEvent': 0,
+            'nStepEvent': 0}
+
     r=Reader(resultFile, "dymola")
     tCPU=r.max("CPUtime")
-    tTraTim = tTotTim-tCPU
+    tTra = tTotTim-tCPU
     nEve=r.max('EventCounter')
 
     eveLog = N.zeros(3)
@@ -80,7 +106,7 @@ def _profile_dymola(result):
     searchEve.append("Number of time    events                 :")
     searchEve.append("Number of step     events                 :")
     # ------ search and retrieve times from compile log file ------
-    with open(os.path.join(out_dir,'dslog.txt'), "r") as f:
+    with open(os.path.join(worDir,'dslog.txt'), "r") as f:
         for line in f:
             for index, strLin in enumerate(searchEve):
                 if strLin in line:
@@ -89,15 +115,15 @@ def _profile_dymola(result):
                     eveLog[index] = sect2[0]
     f.close()
 
-    shutil.rmtree("out")
-    return {'tTraTim': float(tTraTim),
+    #shutil.rmtree(worDir)
+    return {'tTra': float(tTra),
             'tCPU': float(tCPU),
             'nTimeEvent': float(eveLog[0]),
             'nStateEvent': float(eveLog[1]),
             'nStepEvent': float(eveLog[2])}
 
 
-def _create_jmodelica_input(result, arg_dic, file_name):
+def _write_jmodelica_input(result, file_name):
     import jinja2 as jja2
     import string
 
@@ -107,32 +133,29 @@ def _create_jmodelica_input(result, arg_dic, file_name):
     truPath = model.rsplit('.',1)[0]
 
     modelPath = string.replace(truPath,'.','/')
-    #Base_class = os.path.join(worDir,modelPath)
-    # Copy .mo file from Building library to current working folder
-    #shutil.copy2(os.path.join(Base_class, modelName + '.mo'), os.path.join(worDir, modelName + '.mo'))
-    # create file to log output during compile process
-    logFile = 'd:{}'.format("comLog.txt")
-    # create heap space input
-    heapSpace = '-Xmx' + arg_dic['heapSpace']
+
 
     loader = jja2.FileSystemLoader('SimulatorTemplate_JModelica.py')
     env = jja2.Environment(loader=loader)
     template = env.get_template('')
     # render the JModelica simulator file
-    runJMOut = template.render(heap_space=heapSpace,
+    runJMOut = template.render(heap_space='-Xmx' + result['heap_space'],
                                model=model,
                                model_name=result['model'],
                                fmi_version=2.0,
-                               log_file=logFile,
+                               log_file='d:{}'.format("compilation.txt"),
                                stop_time=result['stop_time'])
-    with open(file_name,'w') as rf:
-        rf.write(str(runJMOut))
+
+    with open(file_name, 'w') as rf:
+        rf.write(runJMOut)
 
 
 def _run_jmodelica(worDir, input_file, log_file):
     import signal
     import datetime
     import time
+    import os
+    
 
     try:
         staTim = datetime.datetime.now()
@@ -141,7 +164,8 @@ def _run_jmodelica(worDir, input_file, log_file):
                                cwd=worDir,\
                                stdout=subprocess.PIPE,\
                                stderr=subprocess.PIPE,\
-                               shell=False)
+                               shell=True,\
+                               preexec_fn=os.setsid)
         killedProcess = False
         if timeout > 0:
             while pro.poll() is None:
@@ -149,18 +173,17 @@ def _run_jmodelica(worDir, input_file, log_file):
                 elapsedTime = (datetime.datetime.now() - staTim).seconds
                 #print ('current elapsed time: {}'.format(elapsedTime))
                 if elapsedTime > timeout:
-                    if not killedProcess:
-                        killedProcess = True
-                        print('Terminating JModelica simulation.')
-                        pro.terminate()
-                    else:
-                        print("Killing JModelica simulation due to timeout.")
-                        #os.kill(os.getpid(), signal.SIGKILL)
-                        pro.kill()
-                        print("Killed JModelica simulation due to timeout.")
-                        #pro.kill()
+#                    if not killedProcess:
+                    killedProcess = True
+                    os.kill(pro.pid, signal.SIGTERM)
+                    #pro.terminate()
+                    raise RuntimeError('*** Terminated JModelica simulation.')
+#                    else:
+#                        print("*** Killing JModelica simulation due to timeout.")
+#                        os.kill(pro.pid, signal.SIGTERM)
+#                        raise RuntimeError("*** Killed JModelica simulation due to timeout.")
+
         else:
-            print("Waiting for process to finish")
             pro.wait()
         with open(log_file, 'w') as log_file:
             log_file.write(pro.stdout.read())
@@ -168,13 +191,15 @@ def _run_jmodelica(worDir, input_file, log_file):
         raise("OSError in JModelica:", e)
 
     retFla = pro.returncode
+    print("*** JModelica finished with {}, killed = {}.".format(retFla, killedProcess))
+
     if retFla is None:
         raise ValueError("Process returned no return code.")
     if retFla != 0:
         raise OSError("Running JModelica failed with return code {}.".format(retFla))
     return
 
-def _profile_jmodelica(result, arg_dic):
+def _profile_jmodelica(result):
     ''' Run simulation with dymola. The function returns
         CPU time used for compile and simulation.
     '''
@@ -182,20 +207,39 @@ def _profile_jmodelica(result, arg_dic):
 
     worDir = create_working_directory()
     runJM_file = os.path.join(worDir, 'runJM.py')
-    _create_jmodelica_input(result, arg_dic, runJM_file)
+    _write_jmodelica_input(result, runJM_file)
 
 
     # ------ implement JModelica simulation ------
     log_file = os.path.join(worDir, 'simLog.txt')
-    _run_jmodelica(worDir, runJM_file, log_file)
+    try:
+        _run_jmodelica(worDir, runJM_file, log_file)
+    except RuntimeError as e:
+        print(e)
+        return {'tSim': 0,
+            'tTra': 0,
+            'tIns': 0,
+            'tFla': 0,
+            'tPrePriRawFla':  0,
+            'tTraCan_Sca': 0, 
+            'tTraCan_IndRed': 0,
+            'tTraCan_ComMatBLT': 0,
+            'tTraCan_Others': 0,
+            'tPrePriFla': 0,
+            'tGenC': 0,
+            'tComC': 0,
+            'tOthTra': 0,
+            'nStateEvent': 0,
+            'nTimeEvent': 0}
+
 
 
 #    os.remove(runJM_file)
     # --------------------------------------------
     # retrieve the compile and simulation time
-    translateTime, totSimTim, numStaEve, numTimEve, solTyp  = search_Time( \
-                                                                           os.path.join(worDir, 'comLog.txt'), \
-                                                                           os.path.join(worDir, 'simLog.txt'))
+    translateTime, totSimTim, numStaEve, numTimEve  = read_jmodelica_output( \
+       os.path.join(worDir, 'compilation.txt'), \
+       log_file)
 
     # total compile time
     totTraTim = translateTime[0]
@@ -244,28 +288,22 @@ def _profile_jmodelica(result, arg_dic):
             'nStateEvent': float(numStaEve),
             'nTimeEvent': float(numTimEve)}
 
-def _profile(d):
-    iCas = d['iCas']
-    settings = d['settings']
-    arg_dic = d['arg_dic']
-    results = d['results']
-#    print(json.dumps(results, indent=1))
-    # iCas is a unique number, starting with zero
-    if 'dymola' in results['case_list']:
-        if iCas in results['case_list']['dymola']:
-            r = _profile_dymola(results['case_list']['dymola'])
-            results['case_list']['dymola'][iCas]['results'] = r
-            return
-    if 'jmodelica' in results['case_list']:
-        if iCas in results['case_list']['jmodelica']:
-            r = _profile_jmodelica(results['case_list']['jmodelica'][iCas], arg_dic)
-            results['case_list']['jmodelica'][iCas]['results'] = r
-            return
-    raise ValueError("Did not find case {} for profiling".format(iCas))
+def _profile(result):
 
+    # iCas is a unique number, starting with zero
+    if result['tool'] == "dymola":
+        p = _profile_dymola(result)
+    elif result['tool'] == "jmodelica":
+        p = _profile_jmodelica(result)
+    else:
+        raise ValueError("Wrong or missing tool in {}".format(result))
+    ret = result
+    ret['profiling'] = p
+
+    return ret
 
 # Retrieve compile and simulation time from log files when running JModelica
-def search_Time(Compilelog_file, Simlog_file):
+def read_jmodelica_output(compile_log, sim_log):
     ''' This function searchs and returns compile times from the log files.
     '''
     translateTime = N.zeros(54)
@@ -336,10 +374,9 @@ def search_Time(Compilelog_file, Simlog_file):
     simSearch_str = "Elapsed simulation time: "
     numStaEve_str = "Number of state events"
     numTimEve_str = "Number of time events"
-    solTyp_str = "Solver                   : "
 
     # ------ search and retrieve times from compile log file ------
-    with open(Compilelog_file, "r") as f:
+    with open(compile_log, "r") as f:
         for line in f:
             for index, strLin in enumerate(searchComp):
                 if strLin in line:
@@ -351,8 +388,7 @@ def search_Time(Compilelog_file, Simlog_file):
     simTime = 0
     numStaEve = 0
     numTimEve = 0
-    solTyp = ""
-    with open(Simlog_file, "r") as sf:
+    with open(sim_log, "r") as sf:
         for line in sf:
             if simSearch_str in line:
                 sect1 = line.split(": ")
@@ -366,14 +402,11 @@ def search_Time(Compilelog_file, Simlog_file):
                 sect1 = line.split(": ")
                 sect2 = sect1[1].split("\n")
                 numTimEve = sect2[0]
-            if solTyp_str in line:
-                sect1 = line.split(": ")
-                sect2 = sect1[1].split("\n")
-                solTyp = sect2[0]
-	sf.close()
-    return translateTime, simTime, numStaEve, numTimEve, solTyp
 
-def genPlots(resultsFile, genPlot):
+	sf.close()
+    return translateTime, simTime, numStaEve, numTimEve
+
+def plot_results(resultsFile, genPlot):
     import json
     import matplotlib.pyplot as plt
 
@@ -385,7 +418,7 @@ def genPlots(resultsFile, genPlot):
         else:
             length = len(results['case_list']['jmodelica'])
         dy_tCPU = N.empty(length)
-        dy_tTraTim = N.empty(length)
+        dy_tTra = N.empty(length)
         dy_nTimEve = N.empty(length)
         dy_nStaEve = N.empty(length)
         dy_nSteEve = N.empty(length)
@@ -417,66 +450,66 @@ def genPlots(resultsFile, genPlot):
         jm_base8 = N.empty(length)
         jm_base9 = N.empty(length)
 
-        dy_modelName = list()
+        dy_model = list()
         dy_solver = list()
-        jm_modelName = list()
+        jm_model = list()
         jm_solver = list()
         # ------ extract data from Json file ------
         if 'dymola' in results['case_list']:
             for index, ele in enumerate(results['case_list']['dymola']):
-                dy_modelName.append(ele['modelName'])
-                dy_tTraTim[index] = ele['tTraTim']
-                dy_tCPU[index] = ele['tCPU']
-                dy_nTimEve[index] = ele['nTimeEvent']
-                dy_nStaEve[index] = ele['nStateEvent']
-                dy_nSteEve[index] = ele['nStepEvent']
+                dy_model.append(ele['model'])
+                dy_tTra[index] = ele['profiling']['tTra']
+                dy_tCPU[index] = ele['profiling']['tCPU']
+                dy_nTimEve[index] = ele['profiling']['nTimeEvent']
+                dy_nStaEve[index] = ele['profiling']['nStateEvent']
+                dy_nSteEve[index] = ele['profiling']['nStepEvent']
                 dy_solver.append(ele['solver'])
-        if 'JModelica' in results['case_list']:
-            for index, ele in enumerate(results['case_list']['JModelica']):
-                jm_modelName.append(ele['modelName'])
-                jm_tSim[index] = ele['tSim']
+        if 'jmodelica' in results['case_list']:
+            for index, ele in enumerate(results['case_list']['jmodelica']):
+                jm_model.append(ele['model'])
+                jm_tSim[index] = ele['profiling']['tSim']
 
-                jm_tTra[index] = ele['tTra']
+                jm_tTra[index] = ele['profiling']['tTra']
 
-                jm_tIns[index] = ele['tIns']
-                jm_tFla[index] = ele['tFla']
+                jm_tIns[index] = ele['profiling']['tIns']
+                jm_tFla[index] = ele['profiling']['tFla']
                 jm_base1[index] = jm_tIns[index] + jm_tFla[index]
-                jm_tPrePriRawFla[index] = ele['tPrePriRawFla']
+                jm_tPrePriRawFla[index] = ele['profiling']['tPrePriRawFla']
                 jm_base2[index] = jm_base1[index] + jm_tPrePriRawFla[index]
-                jm_tTraCan_Sca[index] = ele['tTraCan_Sca']
+                jm_tTraCan_Sca[index] = ele['profiling']['tTraCan_Sca']
                 jm_base3[index] = jm_base2[index] + jm_tTraCan_Sca[index]
-                jm_tTraCan_IndRed[index] = ele['tTraCan_IndRed']
+                jm_tTraCan_IndRed[index] = ele['profiling']['tTraCan_IndRed']
                 jm_base4[index] = jm_base3[index] + jm_tTraCan_IndRed[index]
-                jm_tTraCan_ComMatBLT[index] = ele['tTraCan_ComMatBLT']
+                jm_tTraCan_ComMatBLT[index] = ele['profiling']['tTraCan_ComMatBLT']
                 jm_base5[index] = jm_base4[index] + jm_tTraCan_ComMatBLT[index]
-                jm_tTraCan_Others[index] = ele['tTraCan_Others']
+                jm_tTraCan_Others[index] = ele['profiling']['tTraCan_Others']
                 jm_base6[index] = jm_base5[index] + jm_tTraCan_Others[index]
-                jm_tPrePriFla[index] = ele['tPrePriFla']
+                jm_tPrePriFla[index] = ele['profiling']['tPrePriFla']
                 jm_base7[index] = jm_base6[index] + jm_tPrePriFla[index]
-                jm_tGenC[index] = ele['tGenC']
+                jm_tGenC[index] = ele['profiling']['tGenC']
                 jm_base8[index] = jm_base7[index] + jm_tGenC[index]
-                jm_tComC[index] = ele['tComC']
+                jm_tComC[index] = ele['profiling']['tComC']
                 jm_base9[index] = jm_base8[index] + jm_tComC[index]
-                jm_tOthTra[index] = ele['tOthTra']
+                jm_tOthTra[index] = ele['profiling']['tOthTra']
                 jm_tTotFla[index] = jm_tTra[index]-\
                     (jm_tOthTra[index]+jm_tIns[index]+jm_tGenC[index]+jm_tComC[index])
-                jm_nStaEve[index] = ele['nStateEvent']
-                jm_nTimEve[index] = ele['nTimeEvent']
+                jm_nStaEve[index] = ele['profiling']['nStateEvent']
+                jm_nTimEve[index] = ele['profiling']['nTimeEvent']
                 jm_solver.append(ele['solver'])
         pos = list(range(length))
         width = 0.1
         # ------ generate plot for simulation time ------
         fig, ax = plt.subplots(figsize=(10,5))
-        if ('dymola' in results['case_list']) and (not 'JModelica' in results['case_list']):
+        if ('dymola' in results['case_list']) and (not 'jmodelica' in results['case_list']):
             plt.bar(pos, dy_tCPU, width, color='k', label='Dymola')
-            plt.xticks(pos, dy_modelName)
-        elif (not 'dymola' in results['case_list']) and ('JModelica' in results['case_list']):
-            plt.bar(pos, jm_tSim, width, color='b', label='JModelica')
-            plt.xticks(pos, jm_modelName)
+            plt.xticks(pos, dy_model)
+        elif (not 'dymola' in results['case_list']) and ('jmodelica' in results['case_list']):
+            plt.bar(pos, jm_tSim, width, color='b', label='jmodelica')
+            plt.xticks(pos, jm_model)
         else:
             plt.bar(pos, dy_tCPU, width, color='k', label='Dymola')
-            plt.bar([p+width for p in pos], jm_tSim, width, color='b', label='JModelica')
-            plt.xticks([p+width/2 for p in pos], dy_modelName)
+            plt.bar([p+width for p in pos], jm_tSim, width, color='b', label='jmodelica')
+            plt.xticks([p+width/2 for p in pos], dy_model)
         plt.xlabel('Model')
         plt.ylabel('Simulation time, seconds')
         plt.title('Simulation time')
@@ -485,11 +518,11 @@ def genPlots(resultsFile, genPlot):
         plt.savefig(os.path.join("results","SimulationTime.pdf"))
         # ------ generate plot for compile time ------
         fig, ax = plt.subplots(figsize=(10,5))
-        if ('dymola' in results['case_list']) and (not 'JModelica' in results['case_list']):
-            plt.bar(pos, dy_tTraTim, width, color='k', label='Dymola')
-            plt.xticks(pos, dy_modelName)
+        if ('dymola' in results['case_list']) and (not 'jmodelica' in results['case_list']):
+            plt.bar(pos, dy_tTra, width, color='k', label='Dymola')
+            plt.xticks(pos, dy_model)
             plt.legend(loc = 'upper right')
-        elif (not 'dymola' in results['case_list']) and ('JModelica' in results['case_list']):
+        elif (not 'dymola' in results['case_list']) and ('jmodelica' in results['case_list']):
             p1 = plt.bar(pos, jm_tIns, width, color = 'blue', edgecolor='black')
             p2 = plt.bar(pos, jm_tFla, width, bottom=jm_tIns, color = 'royalblue')
             p3 = plt.bar(pos, jm_tPrePriRawFla, width, bottom=jm_base1, color = 'lightcyan')
@@ -502,16 +535,16 @@ def genPlots(resultsFile, genPlot):
             p10 = plt.bar(pos, jm_tComC, width, bottom=jm_base8, color = 'slategray', edgecolor='black')
             p11 = plt.bar(pos, jm_tOthTra, width, bottom=jm_base9, color = 'darkcyan', edgecolor='black')
             p12 = plt.bar(pos, jm_tTotFla, width, bottom=jm_tIns, fill=False, edgecolor='black')
-            plt.xticks(pos, jm_modelName)
+            plt.xticks(pos, jm_model)
             plt.legend((p11[0],p10[0],p9[0],p8[0],p7[0],p6[0],p5[0],p4[0],p3[0],p2[0],p1[0]),\
-                ('JModelica: others', 'JModelica: compile C', \
-                'JModelica: generate C', 'JModelica: prettyPrintFlat', \
-                'JModelica: traCan.Others', 'JModelica: traCan.CompMat&BLT',\
-                'JModelica: traCan.IndexRed', 'JModelica: traCan.Scalarize',\
-                'JModelica: prettyPrintRawFlat', 'JModelica: flatten',\
-                'JModelica: instantiate'), loc = 'upper right')
+                ('jmodelica: others', 'jmodelica: compile C', \
+                'jmodelica: generate C', 'jmodelica: prettyPrintFlat', \
+                'jmodelica: traCan.Others', 'jmodelica: traCan.CompMat&BLT',\
+                'jmodelica: traCan.IndexRed', 'jmodelica: traCan.Scalarize',\
+                'jmodelica: prettyPrintRawFlat', 'jmodelica: flatten',\
+                'jmodelica: instantiate'), loc = 'upper right')
         else:
-            dyP = plt.bar(pos, dy_tTraTim, width, color='k')
+            dyP = plt.bar(pos, dy_tTra, width, color='k')
             p1 = plt.bar([p+width for p in pos], jm_tIns, width, color = 'blue', edgecolor='black')
             p2 = plt.bar([p+width for p in pos], jm_tFla, width, bottom=jm_tIns, color = 'royalblue')
             p3 = plt.bar([p+width for p in pos], jm_tPrePriRawFla, width, bottom=jm_base1, color = 'lightcyan')
@@ -524,15 +557,15 @@ def genPlots(resultsFile, genPlot):
             p10 = plt.bar([p+width for p in pos], jm_tComC, width, bottom=jm_base8, color = 'slategray', edgecolor='black')
             p11 = plt.bar([p+width for p in pos], jm_tOthTra, width, bottom=jm_base9, color = 'darkcyan', edgecolor='black')
             p12 = plt.bar([p+width for p in pos], jm_tTotFla, width, bottom=jm_tIns, fill=False, edgecolor='black')
-            plt.xticks([p+width/2 for p in pos], dy_modelName)
+            plt.xticks([p+width/2 for p in pos], dy_model)
             legend1 = plt.legend([dyP[0]],['Dymola'], loc = 'upper left')
             plt.legend((p11[0],p10[0],p9[0],p8[0],p7[0],p6[0],p5[0],p4[0],p3[0],p2[0],p1[0]),\
-                ('JModelica: others', 'JModelica: compile C', \
-                'JModelica: generate C', 'JModelica: prettyPrintFlat', \
-                'JModelica: traCan.Others', 'JModelica: traCan.CompMat&BLT',\
-                'JModelica: traCan.IndexRed', 'JModelica: traCan.Scalarize',\
-                'JModelica: prettyPrintRawFlat', 'JModelica: flatten',\
-                'JModelica: instantiate'), loc = 'upper right')
+                ('jmodelica: others', 'jmodelica: compile C', \
+                'jmodelica: generate C', 'jmodelica: prettyPrintFlat', \
+                'jmodelica: traCan.Others', 'jmodelica: traCan.CompMat&BLT',\
+                'jmodelica: traCan.IndexRed', 'jmodelica: traCan.Scalarize',\
+                'jmodelica: prettyPrintRawFlat', 'jmodelica: flatten',\
+                'jmodelica: instantiate'), loc = 'upper right')
             plt.gca().add_artist(legend1)
         plt.xlabel('Model')
         plt.ylabel('Translate time, seconds')
@@ -543,16 +576,17 @@ def genPlots(resultsFile, genPlot):
 
 if __name__=='__main__':
     import json
-    import caseSettings
+    import settings as s
     import argparse
 
     # ------ retrieve default settings ------
-    settings, tools, runSettings = caseSettings.get_settings()
+    tools = s.get_tools()
+    cases = s.get_models()
+    version = s.get_model_version()
 
     # ------ user input from console ------
     parser = argparse.ArgumentParser(
-        description = 'Benchmark study of computing time.',
-        epilog = "Use as benchmarkStudy.py --tool dymola JModelica --from_git_hub True --branch master --commit HEAD --solver radau --stop_time 7200 --heapSpace 7200m")
+        description = 'Benchmark study of computing time.')
     parser.add_argument(\
                         '--from-git-hub',
                         action="store_true",
@@ -560,28 +594,18 @@ if __name__=='__main__':
                         dest='from_git_hub')
     parser.add_argument(\
                         '--branch',
-                        help="Branch name, default is from runSettings['BRANCH']",
-                        default=runSettings['BRANCH'],
+                        help="Branch name, default is from settings.py",
+                        default=version['branch'],
                         dest='branch')
     parser.add_argument(\
                         '--commit',
-                        help='Commit number, such as HEAD',
-                        default=runSettings['COMMIT'],
+                        help='Commit, such as HEAD, default is from settings.py',
+                        default=version['commit'],
                         dest='commit')
     parser.add_argument(\
-                        '--solver',
-                        help='Set solver for Dymola simulation. JModelica uses its default solver Cvode',
-                        default=runSettings['SOLVER'],
-                        dest='solver')
-    parser.add_argument(\
-                        '--stop_time',
-                        help='Total simulation time in seconds, such as 2*24*3600',
-                        default=runSettings['END_TIME'],
-                        dest='stop_time')
-    parser.add_argument(\
                         '--timeout',
-                        help='Timeout for process in seconds',
-                        default=0,
+                        help='Timeout for each test case in seconds',
+                        default=-1,
                         dest='timeout')
     parser.add_argument(\
                         '--tool',
@@ -591,15 +615,20 @@ if __name__=='__main__':
                         default=tools,
                         dest='tool')
     parser.add_argument(\
-                        '--heapSpace',
+                        '--heap',
                         help='Heap space for running JModelica, such as 7200m',
-                        default=runSettings['Heap_Space'],
-                        dest='heapSpace')
+                        default='2048m',
+                        dest='heap_space')
+
+
+#    plot_results(os.path.join(os.getcwd(), "results", "results.json"), True)
+#    exit(1)
 
     args = parser.parse_args()
     arg_dic = vars(args)
 
     timeout = int(arg_dic['timeout'])
+    heap_space = arg_dic['heap_space']
 
     # ------ create folder to save results ------
     if os.path.exists("results"):
@@ -609,58 +638,77 @@ if __name__=='__main__':
 
     results = {}
     results['case_list'] = {}
-    results['case_list']['dymola'] = {}
-    results['case_list']['jmodelica'] = {}
+    results['case_list']['dymola'] = []
+    results['case_list']['jmodelica'] = []
+    #nCas is a unique case number, that is used to parallelize the simulations
     nCas = 0
-    for setting in settings:
+    for case in cases:
+        # It is more convenient to also add a filed for the tool
         if "dymola" in args.tool:
-            results['case_list']['dymola'][nCas] = {
-            'model': setting['model'],
-            'solver': setting['solver'],
-            'start_time': setting['start_time'],
-            'stop_time': setting['stop_time'],
-            'timeout' : timeout}
+            results['case_list']['dymola'].append({
+            'case_number': nCas,
+            'model': case['model'],
+            'solver': case['solver'],
+            'start_time': case['start_time'],
+            'stop_time': case['stop_time'],
+            'timeout' : timeout,
+            'tool': "dymola"})
             nCas = nCas + 1
         if "jmodelica" in args.tool:
-            results['case_list']['jmodelica'][nCas] =  {
-            'model': setting['model'],
+            results['case_list']['jmodelica'].append({
+            'case_number': nCas,
+            'model': case['model'],
             'solver': 'Cvode',
-            'start_time': setting['start_time'],
-            'stop_time': setting['stop_time'],
-            'timeout' : timeout}
+            'start_time': case['start_time'],
+            'stop_time': case['stop_time'],
+            'timeout' : timeout,
+            'heap_space': heap_space,
+            'tool': "jmodelica"})
             nCas = nCas + 1
 
     #print(json.dumps(results, indent=1))
 
+    #Build a list with all cases
+    lisRes = list()
+    for iCas in range(nCas):
+        # Add the dictionary with the right number.
+        for tool in args.tool:
+            for res in results['case_list'][tool]:
+                if res['case_number'] == iCas:
+                    lisRes.append(res)
+                    break
+
     tmp_rep_dir = create_working_directory()
-    # ------ clone and checkout repository to working folder ------
-    local_lib = runSettings['LOCAL_BUILDINGS_LIBRARY']
-
-    checkout_repository(arg_dic['from_git_hub'], arg_dic['branch'], arg_dic['commit'], local_lib, tmp_rep_dir)
-
     # Put the Buildings library directory on the MODELICAPATH
     if os.environ.has_key("MODELICAPATH"):
         os.environ["MODELICAPATH"] = "{}:{}".format(tmp_rep_dir, os.environ["MODELICAPATH"])
     else:
         os.environ["MODELICAPATH"] = tmp_rep_dir
 
-    lisCas = list()
-    for iCas in range(nCas):
-        lisCas.append({"iCas": iCas, 'settings': settings, "arg_dic": arg_dic, "results": results})
+    # ------ clone and checkout repository to working folder ------
+    checkout_repository(arg_dic['from_git_hub'], arg_dic['branch'], arg_dic['commit'], tmp_rep_dir)
 
-    print("List length {}".format(len(lisCas)))
-    nPro = multiprocessing.cpu_count()
+    nPro = min(multiprocessing.cpu_count(), nCas)
+    nPro = 1 # Multi-processing does not work. Results are not written back to dictionary
+
     p = Pool(nPro)
 
-    for cas in lisCas:
-        _profile(cas)
-
-#    p.map(_profile, lisCas)
+    if nPro == 1:
+        for res in lisRes:
+            res = _profile(res)
+    else:
+        mapLis = p.map(_profile, lisRes)
+        for iCas in range(nCas):
+            # Add results back into results data structure
+            for tool in args.tool:
+                for res in results['case_list'][tool]:
+                    if res["case_number"] == mapLis[iCas]:
+                        res = mapLis[iCas]
 
     # Delete directory that contains the Buildings library
     shutil.rmtree(tmp_rep_dir)
-    # ------ open an empty JSON file logging times ------
+    # Write results to a json file for post-processing
     resultsFile = os.path.join(res_dir, "results.json")
     with open(resultsFile, 'w') as outfile:
         json.dump(results, outfile, sort_keys=True, indent=4)
-    genPlots(resultsFile, True)
+    plot_results(resultsFile, True)
