@@ -6,9 +6,8 @@ from pyfmi import load_fmu
 # define heap space
 pymodelica.environ['JVM_ARGS'] = '{{heap_space}}'
 
-fmu_name = compile_fmu("{{model}}", "{{model_name}}.mo",
+fmu_name = compile_fmu("{{model}}",
                        version={{fmi_version}},
-                       compiler_options={'extra_lib_dirs':["{{sim_lib_path}}"]},
                        compiler_log_level = "{{log_file}}")
 test_model = load_fmu(fmu_name)
 opts = test_model.simulate_options()
