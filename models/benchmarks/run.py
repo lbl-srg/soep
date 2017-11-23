@@ -191,7 +191,6 @@ def _run_jmodelica(worDir, input_file, log_file):
         raise("OSError in JModelica:", e)
 
     retFla = pro.returncode
-    print("*** JModelica finished with {}, killed = {}.".format(retFla, killedProcess))
 
     if retFla is None:
         raise ValueError("Process returned no return code.")
@@ -376,6 +375,10 @@ def read_jmodelica_output(compile_log, sim_log):
     numTimEve_str = "Number of time events"
 
     # ------ search and retrieve times from compile log file ------
+    if not os.path.exists(compile_log):
+        print("Warning: JModelica log file {} does not exist.".format(compile_log))
+        return translateTime, 0, 0, 0
+
     with open(compile_log, "r") as f:
         for line in f:
             for index, strLin in enumerate(searchComp):
@@ -383,11 +386,15 @@ def read_jmodelica_output(compile_log, sim_log):
                     sect1 = line.split(":")
                     sect2 = sect1[1].split("s,")
                     translateTime[index] = sect2[0]
-	f.close()
+
     # ------ search and retrieve times from simulation log file ------
     simTime = 0
     numStaEve = 0
     numTimEve = 0
+    if not os.path.exists(sim_log):
+        print("Warning: JModelica simulation file {} does not exist.".format(sim_log))
+        return translateTime, simTime, numStaEve, numTimEve
+
     with open(sim_log, "r") as sf:
         for line in sf:
             if simSearch_str in line:
@@ -403,7 +410,6 @@ def read_jmodelica_output(compile_log, sim_log):
                 sect2 = sect1[1].split("\n")
                 numTimEve = sect2[0]
 
-	sf.close()
     return translateTime, simTime, numStaEve, numTimEve
 
 def plot_results(resultsFile, genPlot):
