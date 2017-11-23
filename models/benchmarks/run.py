@@ -24,10 +24,10 @@ def create_working_directory():
     import tempfile
     import getpass
 
-    suf = os.path.join(os.getcwd(), "tmp-benchmarks")
+    suf = os.path.join(os.getcwd(), "tmp_benchmarks")
     if not os.path.exists(suf):
         os.makedirs(suf)
-    worDir = tempfile.mkdtemp(dir=suf, prefix='tmp_' + getpass.getuser())
+    worDir = tempfile.mkdtemp(dir=suf, prefix='tmp-' + getpass.getuser())
     return worDir
 
 def checkout_repository(from_git_hub, branch, commit, working_directory):
@@ -164,9 +164,10 @@ def _run_jmodelica(worDir, input_file, log_file):
                                cwd=worDir,\
                                stdout=subprocess.PIPE,\
                                stderr=subprocess.PIPE,\
-                               shell=True,\
+                               shell=False,\
                                preexec_fn=os.setsid)
         killedProcess = False
+        print("*** timeout {}.".format(timeout))
         if timeout > 0:
             while pro.poll() is None:
                 time.sleep(0.01)
@@ -185,6 +186,7 @@ def _run_jmodelica(worDir, input_file, log_file):
 
         else:
             pro.wait()
+
         with open(log_file, 'w') as log_file:
             log_file.write(pro.stdout.read())
     except OSError as e:
@@ -713,6 +715,8 @@ if __name__=='__main__':
 
     # Delete directory that contains the Buildings library
     shutil.rmtree(tmp_rep_dir)
+    # Delete other temporary directories
+#    shutil.rmtree('tmp_benchmarks')
     # Write results to a json file for post-processing
     resultsFile = os.path.join(res_dir, "results.json")
     with open(resultsFile, 'w') as outfile:

@@ -87,4 +87,9 @@ def get_models():
 ##             "solver": "Cvode",
 ##             "start_time": 0,
 ##             "stop_time": 2*24*3600})
+##    models.append(\
+##            {'model': "Buildings.Controls.OBC.CDL.Continuous.Sources.Validation.Ramp",
+##             "solver": "Cvode",
+##             "start_time": 0,
+##             "stop_time": 2*24*3600})
     return models
