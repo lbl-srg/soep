@@ -21,7 +21,7 @@ def get_models():
          "stop_time": 2*24*3600})
     models.append(\
         {'model': "Buildings.Examples.DualFanDualDuct.ClosedLoop",
-         "solver": "Cvode",
+         "solver": "Radau",
          "start_time": 0,
          "stop_time": 2*24*3600})
     models.append(\
@@ -70,17 +70,17 @@ def get_models():
          "start_time": 0,
          "stop_time": 2*24*3600})
 
-    models = list()
-    models.append(\
-        {'model': "Buildings.Examples.ScalableBenchmarks.BuildingVAV.Examples.OneFloor_OneZone",
-         "solver": "Cvode",
-         "start_time": 0,
-         "stop_time": 2*24*3600})
-    models.append(\
-        {'model': "Buildings.Air.Systems.SingleZone.VAV.Examples.ChillerDXHeatingEconomizer",
-         "solver": "Cvode",
-         "start_time": 0,
-         "stop_time": 2*24*3600})
+##    models = list()
+##    models.append(\
+##        {'model': "Buildings.Examples.ScalableBenchmarks.BuildingVAV.Examples.OneFloor_OneZone",
+##         "solver": "Cvode",
+##         "start_time": 0,
+##         "stop_time": 2*24*3600})
+##    models.append(\
+##        {'model': "Buildings.Air.Systems.SingleZone.VAV.Examples.ChillerDXHeatingEconomizer",
+##         "solver": "Cvode",
+##         "start_time": 0,
+##         "stop_time": 2*24*3600})
 ##    models = list()
 ##    models.append(\
 ##            {'model': "Buildings.Controls.OBC.CDL.Continuous.Sources.Validation.Constant",

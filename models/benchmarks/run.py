@@ -1,11 +1,19 @@
 #!/usr/bin/env python
+#
+# Todo: - Make sure process are terminated if run in a docker.
+#       - Use the same solver for JModelica as is used for Dymola.
+#
 #############################################################
+import matplotlib
+matplotlib.use('Agg') # Enables plotting without an window manager
+
 import os
 import shutil
 import subprocess
 import numpy as N
 import multiprocessing
 from multiprocessing import Pool
+
 
 def sh(cmd, path):
     ''' Run the command ```cmd``` command in the directory ```path```
@@ -23,11 +31,18 @@ def create_working_directory():
     import os
     import tempfile
     import getpass
+    import platform
 
-    suf = os.path.join(os.getcwd(), "tmp_benchmarks")
-    if not os.path.exists(suf):
-        os.makedirs(suf)
-    worDir = tempfile.mkdtemp(dir=suf, prefix='tmp-' + getpass.getuser())
+#    suf = os.path.join(os.getcwd(), "tmp_benchmarks")
+#    if not os.path.exists(suf):
+#        os.makedirs(suf)
+
+    # Make temp directory in /private/var/tmp for docker on mac
+    if platform.system() == "Darwin":
+        worDir = tempfile.mkdtemp(dir = "/private/var/tmp", prefix='tmp-benchmark-' + getpass.getuser() + '-')
+        print("Created {}".format(worDir))
+    else:
+        worDir = tempfile.mkdtemp(prefix='tmp-benchmark-' + getpass.getuser() + '-')
     return worDir
 
 def checkout_repository(from_git_hub, branch, commit, working_directory):
@@ -89,6 +104,7 @@ def _profile_dymola(result):
 
     # In case of timeout or error, the output file may not exist
     if not os.path.exists(resultFile):
+        shutil.rmtree(worDir)
         return {'tTra': 0,
             'tCPU': 0,
             'nTimeEvent': 0,
@@ -115,7 +131,7 @@ def _profile_dymola(result):
                     eveLog[index] = sect2[0]
     f.close()
 
-    #shutil.rmtree(worDir)
+    shutil.rmtree(worDir)
     return {'tTra': float(tTra),
             'tCPU': float(tCPU),
             'nTimeEvent': float(eveLog[0]),
@@ -155,9 +171,10 @@ def _run_jmodelica(worDir, input_file, log_file):
     import datetime
     import time
     import os
-    
+
 
     try:
+        #os.chdir(worDir)
         staTim = datetime.datetime.now()
         print("Starting jm_ipython {} in {}".format(input_file, worDir))
         pro = subprocess.Popen(args=['jm_ipython.sh', input_file],\
@@ -215,14 +232,15 @@ def _profile_jmodelica(result):
     log_file = os.path.join(worDir, 'simLog.txt')
     try:
         _run_jmodelica(worDir, runJM_file, log_file)
-    except RuntimeError as e:
+    except (RuntimeError, OSError, ValueError) as e:
         print(e)
+        shutil.rmtree(worDir)
         return {'tSim': 0,
             'tTra': 0,
             'tIns': 0,
             'tFla': 0,
             'tPrePriRawFla':  0,
-            'tTraCan_Sca': 0, 
+            'tTraCan_Sca': 0,
             'tTraCan_IndRed': 0,
             'tTraCan_ComMatBLT': 0,
             'tTraCan_Others': 0,
@@ -272,7 +290,7 @@ def _profile_jmodelica(result):
     jmTraTimBre[9] = translateTime[52]
     # level 1: other compile time
     jmTraTimBre[10] = totTraTim - (flaModTim + jmTraTimBre[0] + jmTraTimBre[8] + jmTraTimBre[9])
-
+    shutil.rmtree(worDir)
     return {'tSim': float(totSimTim),
             'tTra': float(totTraTim),
             'tIns': float(jmTraTimBre[0]),
@@ -465,7 +483,9 @@ def plot_results(resultsFile, genPlot):
         # ------ extract data from Json file ------
         if 'dymola' in results['case_list']:
             for index, ele in enumerate(results['case_list']['dymola']):
-                dy_model.append(ele['model'])
+                short_model_name = "{}.\n{}".format(ele['model'].split(".")[-2], ele['model'].split(".")[-1])
+                print(short_model_name)
+                dy_model.append(short_model_name)
                 dy_tTra[index] = ele['profiling']['tTra']
                 dy_tCPU[index] = ele['profiling']['tCPU']
                 dy_nTimEve[index] = ele['profiling']['nTimeEvent']
@@ -505,81 +525,79 @@ def plot_results(resultsFile, genPlot):
                 jm_nTimEve[index] = ele['profiling']['nTimeEvent']
                 jm_solver.append(ele['solver'])
         pos = list(range(length))
-        width = 0.1
+        width = 0.2
         # ------ generate plot for simulation time ------
-        fig, ax = plt.subplots(figsize=(10,5))
+        fig, ax = plt.subplots(figsize=(10,10))
         if ('dymola' in results['case_list']) and (not 'jmodelica' in results['case_list']):
-            plt.bar(pos, dy_tCPU, width, color='k', label='Dymola')
-            plt.xticks(pos, dy_model)
+            plt.barh(pos, dy_tCPU, width, color='grey', label='dymola')
+            plt.yticks(pos, dy_model)
         elif (not 'dymola' in results['case_list']) and ('jmodelica' in results['case_list']):
-            plt.bar(pos, jm_tSim, width, color='b', label='jmodelica')
-            plt.xticks(pos, jm_model)
+            plt.barh(pos, jm_tSim, width, color='k', label='jmodelica')
+            plt.yticks(pos, jm_model)
         else:
-            plt.bar(pos, dy_tCPU, width, color='k', label='Dymola')
-            plt.bar([p+width for p in pos], jm_tSim, width, color='b', label='jmodelica')
-            plt.xticks([p+width/2 for p in pos], dy_model)
-        plt.xlabel('Model')
-        plt.ylabel('Simulation time, seconds')
-        plt.title('Simulation time')
-        plt.legend(loc = 'upper right')
+            plt.barh([p+width for p in pos], jm_tSim, width, color='k', label='jmodelica')
+            plt.barh(pos, dy_tCPU, width, color='grey', label='dymola')
+            plt.yticks([p+width/2 for p in pos], dy_model)
+        plt.xlabel('simulation time [s]')
+
+        lgd = plt.legend(loc = 'upper right')
         #plt.grid(linestyle='--', axis='y')
-        plt.savefig(os.path.join("results","SimulationTime.pdf"))
+        plt.savefig(os.path.join("results","simulation.pdf"), bbox_extra_artists=(lgd,), bbox_inches='tight')
+
         # ------ generate plot for compile time ------
-        fig, ax = plt.subplots(figsize=(10,5))
+        fig, ax = plt.subplots(figsize=(10,10))
         if ('dymola' in results['case_list']) and (not 'jmodelica' in results['case_list']):
-            plt.bar(pos, dy_tTra, width, color='k', label='Dymola')
+            plt.barh(pos, dy_tTra, width, color='k', label='Dymola')
             plt.xticks(pos, dy_model)
             plt.legend(loc = 'upper right')
         elif (not 'dymola' in results['case_list']) and ('jmodelica' in results['case_list']):
-            p1 = plt.bar(pos, jm_tIns, width, color = 'blue', edgecolor='black')
-            p2 = plt.bar(pos, jm_tFla, width, bottom=jm_tIns, color = 'royalblue')
-            p3 = plt.bar(pos, jm_tPrePriRawFla, width, bottom=jm_base1, color = 'lightcyan')
-            p4 = plt.bar(pos, jm_tTraCan_Sca, width, bottom=jm_base2, color = 'green')
-            p5 = plt.bar(pos, jm_tTraCan_IndRed, width, bottom=jm_base3, color = 'mediumpurple')
-            p6 = plt.bar(pos, jm_tTraCan_ComMatBLT, width, bottom=jm_base4, color = 'midnightblue')
-            p7 = plt.bar(pos, jm_tTraCan_Others, width, bottom=jm_base5, color = 'cornsilk')
-            p8 = plt.bar(pos, jm_tPrePriFla, width, bottom=jm_base6, color = 'paleturquoise')
-            p9 = plt.bar(pos, jm_tGenC, width, bottom=jm_base7, color = 'bisque', edgecolor='black')
-            p10 = plt.bar(pos, jm_tComC, width, bottom=jm_base8, color = 'slategray', edgecolor='black')
-            p11 = plt.bar(pos, jm_tOthTra, width, bottom=jm_base9, color = 'darkcyan', edgecolor='black')
-            p12 = plt.bar(pos, jm_tTotFla, width, bottom=jm_tIns, fill=False, edgecolor='black')
+            p1 = plt.barh(pos, jm_tIns, width, color = 'blue', edgecolor='black')
+            p2 = plt.barh(pos, jm_tFla, width, left=jm_tIns, color = 'royalblue')
+            p3 = plt.barh(pos, jm_tPrePriRawFla, width, left=jm_base1, color = 'lightcyan')
+            p4 = plt.barh(pos, jm_tTraCan_Sca, width, left=jm_base2, color = 'green')
+            p5 = plt.barh(pos, jm_tTraCan_IndRed, width, left=jm_base3, color = 'mediumpurple')
+            p6 = plt.barh(pos, jm_tTraCan_ComMatBLT, width, left=jm_base4, color = 'midnightblue')
+            p7 = plt.barh(pos, jm_tTraCan_Others, width, left=jm_base5, color = 'cornsilk')
+            p8 = plt.barh(pos, jm_tPrePriFla, width, left=jm_base6, color = 'paleturquoise')
+            p9 = plt.barh(pos, jm_tGenC, width, left=jm_base7, color = 'bisque', edgecolor='black')
+            p10 = plt.barh(pos, jm_tComC, width, left=jm_base8, color = 'slategray', edgecolor='black')
+            p11 = plt.barh(pos, jm_tOthTra, width, left=jm_base9, color = 'darkcyan', edgecolor='black')
+            #p12 = plt.barh(pos, jm_tTotFla, width, left=jm_tIns, fill=False, edgecolor='black')
             plt.xticks(pos, jm_model)
             plt.legend((p11[0],p10[0],p9[0],p8[0],p7[0],p6[0],p5[0],p4[0],p3[0],p2[0],p1[0]),\
                 ('jmodelica: others', 'jmodelica: compile C', \
                 'jmodelica: generate C', 'jmodelica: prettyPrintFlat', \
-                'jmodelica: traCan.Others', 'jmodelica: traCan.CompMat&BLT',\
-                'jmodelica: traCan.IndexRed', 'jmodelica: traCan.Scalarize',\
+                'jmodelica: traCan.others', 'jmodelica: traCan.compMat&BLT',\
+                'jmodelica: traCan.indexRed', 'jmodelica: traCan.scalarize',\
                 'jmodelica: prettyPrintRawFlat', 'jmodelica: flatten',\
                 'jmodelica: instantiate'), loc = 'upper right')
         else:
-            dyP = plt.bar(pos, dy_tTra, width, color='k')
-            p1 = plt.bar([p+width for p in pos], jm_tIns, width, color = 'blue', edgecolor='black')
-            p2 = plt.bar([p+width for p in pos], jm_tFla, width, bottom=jm_tIns, color = 'royalblue')
-            p3 = plt.bar([p+width for p in pos], jm_tPrePriRawFla, width, bottom=jm_base1, color = 'lightcyan')
-            p4 = plt.bar([p+width for p in pos], jm_tTraCan_Sca, width, bottom=jm_base2, color = 'green')
-            p5 = plt.bar([p+width for p in pos], jm_tTraCan_IndRed, width, bottom=jm_base3, color = 'mediumpurple')
-            p6 = plt.bar([p+width for p in pos], jm_tTraCan_ComMatBLT, width, bottom=jm_base4, color = 'midnightblue')
-            p7 = plt.bar([p+width for p in pos], jm_tTraCan_Others, width, bottom=jm_base5, color = 'cornsilk')
-            p8 = plt.bar([p+width for p in pos], jm_tPrePriFla, width, bottom=jm_base6, color = 'paleturquoise')
-            p9 = plt.bar([p+width for p in pos], jm_tGenC, width, bottom=jm_base7, color = 'bisque', edgecolor='black')
-            p10 = plt.bar([p+width for p in pos], jm_tComC, width, bottom=jm_base8, color = 'slategray', edgecolor='black')
-            p11 = plt.bar([p+width for p in pos], jm_tOthTra, width, bottom=jm_base9, color = 'darkcyan', edgecolor='black')
-            p12 = plt.bar([p+width for p in pos], jm_tTotFla, width, bottom=jm_tIns, fill=False, edgecolor='black')
-            plt.xticks([p+width/2 for p in pos], dy_model)
-            legend1 = plt.legend([dyP[0]],['Dymola'], loc = 'upper left')
-            plt.legend((p11[0],p10[0],p9[0],p8[0],p7[0],p6[0],p5[0],p4[0],p3[0],p2[0],p1[0]),\
+            dyP = plt.barh(pos, dy_tTra, width, color='grey')
+            p1 = plt.barh([p+width for p in pos], jm_tIns, width, color = 'blue')
+            p2 = plt.barh([p+width for p in pos], jm_tFla, width, left=jm_tIns, color = 'royalblue')
+            p3 = plt.barh([p+width for p in pos], jm_tPrePriRawFla, width, left=jm_base1, color = 'lightcyan')
+            p4 = plt.barh([p+width for p in pos], jm_tTraCan_Sca, width, left=jm_base2, color = 'green')
+            p5 = plt.barh([p+width for p in pos], jm_tTraCan_IndRed, width, left=jm_base3, color = 'mediumpurple')
+            p6 = plt.barh([p+width for p in pos], jm_tTraCan_ComMatBLT, width, left=jm_base4, color = 'midnightblue')
+            p7 = plt.barh([p+width for p in pos], jm_tTraCan_Others, width, left=jm_base5, color = 'cornsilk')
+            p8 = plt.barh([p+width for p in pos], jm_tPrePriFla, width, left=jm_base6, color = 'paleturquoise')
+            p9 = plt.barh([p+width for p in pos], jm_tGenC, width, left=jm_base7, color = 'bisque')
+            p10 = plt.barh([p+width for p in pos], jm_tComC, width, left=jm_base8, color = 'slategray')
+            p11 = plt.barh([p+width for p in pos], jm_tOthTra, width, left=jm_base9, color = 'red')
+#            p12 = plt.barh([p+width for p in pos], jm_tTotFla, width, left=jm_tIns, fill=False, edgecolor='black', linewidth=0.5)
+            plt.yticks([p+width/2 for p in pos], dy_model)
+
+            lgd = plt.legend((p11[0],p10[0],p9[0],p8[0],p7[0],p6[0],p5[0],p4[0],p3[0],p2[0],p1[0],dyP[0]),\
                 ('jmodelica: others', 'jmodelica: compile C', \
                 'jmodelica: generate C', 'jmodelica: prettyPrintFlat', \
-                'jmodelica: traCan.Others', 'jmodelica: traCan.CompMat&BLT',\
-                'jmodelica: traCan.IndexRed', 'jmodelica: traCan.Scalarize',\
+                'jmodelica: traCan.others', 'jmodelica: traCan.compMat&BLT',\
+                'jmodelica: traCan.indexRed', 'jmodelica: traCan.scalarize',\
                 'jmodelica: prettyPrintRawFlat', 'jmodelica: flatten',\
-                'jmodelica: instantiate'), loc = 'upper right')
-            plt.gca().add_artist(legend1)
-        plt.xlabel('Model')
-        plt.ylabel('Translate time, seconds')
-        plt.title('Translate time')
+                'jmodelica: instantiate', 'dymola'), bbox_to_anchor=(1, 1.02))
+
+        plt.xlabel('translation time [s]')
         #plt.grid(linestyle='--', axis='y')
-        plt.savefig(os.path.join("results", "TranslateTime.pdf"))
+        plt.savefig(os.path.join("results", "translation.pdf"), bbox_extra_artists=(lgd,), bbox_inches='tight')
 
 
 if __name__=='__main__':
@@ -637,11 +655,15 @@ if __name__=='__main__':
 
     timeout = int(arg_dic['timeout'])
     heap_space = arg_dic['heap_space']
+    res_dir = os.path.join(os.getcwd(), "results")
+
+#    resultsFile = os.path.join(res_dir, "results.json")
+#    plot_results(resultsFile, True)
+#    exit(1)
 
     # ------ create folder to save results ------
     if os.path.exists("results"):
         shutil.rmtree("results")
-    res_dir = os.path.join(os.getcwd(), "results")
     os.makedirs(res_dir)
 
     results = {}
@@ -715,8 +737,6 @@ if __name__=='__main__':
 
     # Delete directory that contains the Buildings library
     shutil.rmtree(tmp_rep_dir)
-    # Delete other temporary directories
-#    shutil.rmtree('tmp_benchmarks')
     # Write results to a json file for post-processing
     resultsFile = os.path.join(res_dir, "results.json")
     with open(resultsFile, 'w') as outfile:
