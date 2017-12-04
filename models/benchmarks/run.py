@@ -90,8 +90,9 @@ def _profile_dymola(result):
     # Update MODELICAPATH to get the right library version
     s=Simulator(model, "dymola", outputDirectory=worDir)
     s.setSolver(result['solver'])
+    s.setStartTime(result['start_time'])
     s.setStopTime(result['stop_time'])
-    s.setTolerance(1E-6)
+    s.setTolerance(result['tolerance'])
     timeout = result['timeout']
     if float(timeout) > 0.01:
         s.setTimeOut(timeout)
@@ -139,7 +140,7 @@ def _profile_dymola(result):
             'nStepEvent': float(eveLog[2])}
 
 
-def _write_jmodelica_input(result, file_name):
+def _write_jmodelica_input(result, file_name, timeout):
     import jinja2 as jja2
     import string
 
@@ -155,59 +156,53 @@ def _write_jmodelica_input(result, file_name):
     env = jja2.Environment(loader=loader)
     template = env.get_template('')
     # render the JModelica simulator file
-    runJMOut = template.render(heap_space='-Xmx' + result['heap_space'],
+    runJMOut = template.render(heap_space='-Xmx{}'.format(result['heap_space']),
                                model=model,
-                               model_name=result['model'],
+                               solver=result['solver'],
+                               tolerance=result['tolerance'],
                                fmi_version=2.0,
                                log_file='d:{}'.format("compilation.txt"),
-                               stop_time=result['stop_time'])
+                               start_time=result['start_time'],
+                               stop_time=result['stop_time'],
+                               timeout=timeout)
 
     with open(file_name, 'w') as rf:
         rf.write(runJMOut)
 
 
-def _run_jmodelica(worDir, input_file, log_file):
+def _run_jmodelica(worDir, input_file, log_file, timeout):
     import signal
     import datetime
     import time
     import os
 
-
     try:
         #os.chdir(worDir)
         staTim = datetime.datetime.now()
-        print("Starting jm_ipython {} in {}".format(input_file, worDir))
         pro = subprocess.Popen(args=['jm_ipython.sh', input_file],\
                                cwd=worDir,\
                                stdout=subprocess.PIPE,\
                                stderr=subprocess.PIPE,\
-                               shell=False,\
-                               preexec_fn=os.setsid)
+                               shell=False)
         killedProcess = False
-        print("*** timeout {}.".format(timeout))
         if timeout > 0:
             while pro.poll() is None:
                 time.sleep(0.01)
                 elapsedTime = (datetime.datetime.now() - staTim).seconds
                 #print ('current elapsed time: {}'.format(elapsedTime))
                 if elapsedTime > timeout:
-#                    if not killedProcess:
                     killedProcess = True
-                    os.kill(pro.pid, signal.SIGTERM)
+                    pro.send_signal(signal.SIGKILL)
+                    #os.kill(pro.pid, signal.SIGTERM)
                     #pro.terminate()
-                    raise RuntimeError('*** Terminated JModelica simulation.')
-#                    else:
-#                        print("*** Killing JModelica simulation due to timeout.")
-#                        os.kill(pro.pid, signal.SIGTERM)
-#                        raise RuntimeError("*** Killed JModelica simulation due to timeout.")
-
+                    raise RuntimeError('*** Terminated JModelica simulation due to timeout.')
         else:
             pro.wait()
 
-        with open(log_file, 'w') as log_file:
-            log_file.write(pro.stdout.read())
+        with open(log_file, 'w') as f:
+            f.write(pro.stdout.read())
     except OSError as e:
-        raise("OSError in JModelica:", e)
+        raise e
 
     retFla = pro.returncode
 
@@ -225,13 +220,13 @@ def _profile_jmodelica(result):
 
     worDir = create_working_directory()
     runJM_file = os.path.join(worDir, 'runJM.py')
-    _write_jmodelica_input(result, runJM_file)
-
+    _write_jmodelica_input(result, runJM_file, result['timeout'])
 
     # ------ implement JModelica simulation ------
     log_file = os.path.join(worDir, 'simLog.txt')
+
     try:
-        _run_jmodelica(worDir, runJM_file, log_file)
+        _run_jmodelica(worDir, runJM_file, log_file, result['timeout'])
     except (RuntimeError, OSError, ValueError) as e:
         print(e)
         shutil.rmtree(worDir)
@@ -484,7 +479,6 @@ def plot_results(resultsFile, genPlot):
         if 'dymola' in results['case_list']:
             for index, ele in enumerate(results['case_list']['dymola']):
                 short_model_name = "{}.\n{}".format(ele['model'].split(".")[-2], ele['model'].split(".")[-1])
-                print(short_model_name)
                 dy_model.append(short_model_name)
                 dy_tTra[index] = ele['profiling']['tTra']
                 dy_tCPU[index] = ele['profiling']['tCPU']
@@ -673,7 +667,7 @@ if __name__=='__main__':
     #nCas is a unique case number, that is used to parallelize the simulations
     nCas = 0
     for case in cases:
-        # It is more convenient to also add a filed for the tool
+        # It is more convenient to also add a field for the tool
         if "dymola" in args.tool:
             results['case_list']['dymola'].append({
             'case_number': nCas,
@@ -681,6 +675,7 @@ if __name__=='__main__':
             'solver': case['solver'],
             'start_time': case['start_time'],
             'stop_time': case['stop_time'],
+            'tolerance': case['tolerance'],
             'timeout' : timeout,
             'tool': "dymola"})
             nCas = nCas + 1
@@ -688,9 +683,10 @@ if __name__=='__main__':
             results['case_list']['jmodelica'].append({
             'case_number': nCas,
             'model': case['model'],
-            'solver': 'Cvode',
+            'solver': 'CVode',
             'start_time': case['start_time'],
             'stop_time': case['stop_time'],
+            'tolerance': case['tolerance'],
             'timeout' : timeout,
             'heap_space': heap_space,
             'tool': "jmodelica"})
