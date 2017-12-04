@@ -908,8 +908,8 @@ For simplicity the figure only
 shows single FMUs, but we anticipated having multiple interconnected FMUs.</p>
 <div class="figure" id="id13">
 <span id="fig-sof-arc-qss-jmod2"></span><p class="plantuml">
-<object data="_images/plantuml-b3ecc8819a2c8ff59f101d387a12958a807f7582.svg" type="image/svg+xml" style="width:820px;height:419px;">
-<img src="_images/plantuml-b3ecc8819a2c8ff59f101d387a12958a807f7582.png" alt="title Software architecture for QSS integration with JModelica with extended FMI API
+<object data="_images/plantuml-dff98e155f65fbc0b2445a9eccbd85d8e023f77c.svg" type="image/svg+xml" style="width:959px;height:419px;">
+<img src="_images/plantuml-dff98e155f65fbc0b2445a9eccbd85d8e023f77c.png" alt="title Software architecture for QSS integration with JModelica with extended FMI API
 
 skinparam componentStyle uml2
 
@@ -920,14 +920,18 @@ package FMU-QSS {
 
 package PyFMI {
 [Master algorithm] -&gt; qss_sol : &quot;inputs, time&quot;
-[Master algorithm] &lt;- qss_sol : &quot;next event time, states&quot;
+[Master algorithm] &lt;- qss_sol : &quot;next event time, discrete states&quot;
 [Master algorithm] - [Sundials]
 }
 
-[Sundials] -&gt; [FMU-ME] : &quot;(x, t)&quot;
-[Sundials] &lt;- [FMU-ME] : &quot;dx/dt&quot;
-[Master algorithm] -&gt; [FMU-CS] : &quot;hRequested&quot;
-[Master algorithm] &lt;- [FMU-CS] : &quot;(x, hMax)&quot;
+[FMU-ME] as ode
+
+[Sundials] -&gt; ode : &quot;(x, t)&quot;
+[Sundials] &lt;- ode : &quot;dx/dt&quot;
+
+[FMU-ME (envelope)] as ep_env
+[Master algorithm] -&gt; ep_env : &quot;h&quot;
+[Master algorithm] &lt;- ep_env : &quot;(next event time, discrete states)&quot;
 
 package Optimica {
 [JModelica compiler] as jmc
@@ -942,6 +946,14 @@ qss_sol -down-&gt; FMU_QSS : &quot;inputs, time, states&quot;" />
 <p class="caption"><span class="caption-number">Fig. 5.2 </span>: Software architecture for QSS integration with JModelica
 with extended FMI API.<a class="headerlink" href="#id13" title="Permalink to this image">¶</a></p>
 </div>
+<p>In <a class="reference internal" href="#fig-sof-arc-qss-jmod2"><span class="std std-numref">Fig. 5.2</span></a>, <code class="docutils literal"><span class="pre">FMU-ME</span> <span class="pre">(envelope)</span></code> is the envelop
+model that uses a refactored version of the EnergyPlus code. In earlier
+design, this was an FMU-CS. However, the PyFMI master algorithm requires
+either all FMU-ME, or all FMU-CS, but if the latter were used, then
+direct feedthrough would not be allowed. Hence, we are using FMU-ME
+for EnergyPlus, but similiar as the <code class="docutils literal"><span class="pre">FMU-QSS</span></code>, the <code class="docutils literal"><span class="pre">FMU-ME</span> <span class="pre">(envelope)</span></code>
+has only discrete states, and the time instant when these states are updated
+is constant and equal to the EnergyPlus CTF time step.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">We still need to design how to handle algebraic loops inside the FMU
@@ -1018,8 +1030,8 @@ to the <code class="docutils literal"><span class="pre">&lt;Derivatives&gt;</spa
    &lt;!-- The ScalarVariable with index 8 is der(x) --&gt;
    &lt;Unknown     index=&quot;8&quot; dependencies=&quot;6&quot; /&gt;
    &lt;!-- index 5 is the index of the state variable x --&gt;
-<span class="hll">   &lt;HigherOrder index=&quot;5&quot; order=&quot;2&quot; value_reference=&quot;124&quot; /&gt; &lt;!-- This is d^2 x/dt^2 --&gt;
-</span><span class="hll">   &lt;HigherOrder index=&quot;5&quot; order=&quot;3&quot; value_reference=&quot;125&quot; /&gt; &lt;!-- This is d^3 x/dt^3 --&gt;
+<span class="hll">   &lt;HigherOrder index=&quot;5&quot; order=&quot;2&quot; valueReference=&quot;124&quot; /&gt; &lt;!-- This is d^2 x/dt^2 --&gt;
+</span><span class="hll">   &lt;HigherOrder index=&quot;5&quot; order=&quot;3&quot; valueReference=&quot;125&quot; /&gt; &lt;!-- This is d^3 x/dt^3 --&gt;
 </span> &lt;/Derivatives&gt;
 </pre></div>
 </div>
@@ -1038,21 +1050,21 @@ three event indicators.</p>
 <div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;ModelStructure&gt;</span>
   <span class="nt">&lt;EventIndicators&gt;</span>
     <span class="c">&lt;!-- This is z[0] which depends on ScalarVariable with index 2 and 3 --&gt;</span>
-    <span class="nt">&lt;Element</span> <span class="na">index=</span><span class="s">&quot;1&quot;</span> <span class="na">order=</span><span class="s">&quot;0&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;2 3&quot;</span> <span class="na">value_reference=</span><span class="s">&quot;200&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;Element</span> <span class="na">index=</span><span class="s">&quot;1&quot;</span> <span class="na">order=</span><span class="s">&quot;0&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;2 3&quot;</span> <span class="na">valueReference=</span><span class="s">&quot;200&quot;</span> <span class="nt">/&gt;</span>
     <span class="c">&lt;!-- This is z[1] which declares no dependencies, hence it may depend on everything --&gt;</span>
-    <span class="nt">&lt;Element</span> <span class="na">index=</span><span class="s">&quot;2&quot;</span> <span class="na">order=</span><span class="s">&quot;0&quot;</span> <span class="na">value_reference=</span><span class="s">&quot;201&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;Element</span> <span class="na">index=</span><span class="s">&quot;2&quot;</span> <span class="na">order=</span><span class="s">&quot;0&quot;</span> <span class="na">valueReference=</span><span class="s">&quot;201&quot;</span> <span class="nt">/&gt;</span>
      <span class="c">&lt;!-- This is z[2] which declares that it depends only on time --&gt;</span>
-    <span class="nt">&lt;Element</span> <span class="na">index=</span><span class="s">&quot;3&quot;</span> <span class="na">order=</span><span class="s">&quot;0&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;&quot;</span> <span class="na">value_reference=</span><span class="s">&quot;202&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;Element</span> <span class="na">index=</span><span class="s">&quot;3&quot;</span> <span class="na">order=</span><span class="s">&quot;0&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;&quot;</span> <span class="na">valueReference=</span><span class="s">&quot;202&quot;</span> <span class="nt">/&gt;</span>
 
     <span class="c">&lt;!-- With order &gt; 0, higher order derivatives can be specified. --&gt;</span>
-    <span class="c">&lt;!-- This is dz[0]/dt which depends on scalar variable 2 --&gt;</span>
-    <span class="nt">&lt;Element</span> <span class="na">index=</span><span class="s">&quot;1&quot;</span> <span class="na">order=</span><span class="s">&quot;1&quot;</span> <span class="na">value_reference=</span><span class="s">&quot;210&quot;</span> <span class="nt">/&gt;</span>
+    <span class="c">&lt;!-- This is dz[0]/dt --&gt;</span>
+    <span class="nt">&lt;Element</span> <span class="na">index=</span><span class="s">&quot;1&quot;</span> <span class="na">order=</span><span class="s">&quot;1&quot;</span> <span class="na">valueReference=</span><span class="s">&quot;210&quot;</span> <span class="nt">/&gt;</span>
   <span class="nt">&lt;/EventIndicators&gt;</span>
 <span class="nt">&lt;/ModelStructure&gt;</span>
 </pre></div>
 </div>
 <p>The attribute <code class="docutils literal"><span class="pre">dependencies</span></code> is optional. However, if it is not specified,
-a tool would need to assume that the event indicator depends on all variables.
+a tool shall assume that the event indicator depends on all variables.
 Write <code class="docutils literal"><span class="pre">dependencies=&quot;&quot;</span></code> to declare that this event indicator depends on no variable
 (other than possibly time).
 Note that for performance reasons, for QSS <code class="docutils literal"><span class="pre">dependencies</span></code> should be declared
@@ -1119,11 +1131,12 @@ shown in <a class="reference internal" href="#fig-hig-der"><span class="std std-
 <span id="fig-hig-der"></span><div class="code-block-caption"><span class="caption-number">Listing 5.2 </span><span class="caption-text">Extensions with inclusion of a new attribute for event indicator dependencies. XML additions are marked yellow.</span><a class="headerlink" href="#id16" title="Permalink to this code">¶</a></div>
 <div class="highlight-xml"><div class="highlight"><pre><span></span>  <span class="nt">&lt;Derivatives&gt;</span>
     <span class="c">&lt;!-- The ScalarVariable with index 8 is der(x) --&gt;</span>
-<span class="hll">    <span class="c">&lt;!-- eventIndicatorsDependencies=&quot;1&quot; declares that der(x) depends on the event indicator with index 1  --&gt;</span>
-</span>    <span class="nt">&lt;Unknown</span>     <span class="na">index=</span><span class="s">&quot;8&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;6&quot;</span> <span class="na">eventIndicatorsDependencies=</span><span class="s">&quot;1&quot;</span><span class="nt">/&gt;</span>
+<span class="hll">    <span class="c">&lt;!-- eventIndicatorsDependencies=&quot;1&quot; declares that der(x)</span>
+</span><span class="c">         depends on the event indicator with index 1  --&gt;</span>
+    <span class="nt">&lt;Unknown</span>     <span class="na">index=</span><span class="s">&quot;8&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;6&quot;</span> <span class="na">eventIndicatorsDependencies=</span><span class="s">&quot;1&quot;</span><span class="nt">/&gt;</span>
     <span class="c">&lt;!-- index 5 is the index of the state variable x --&gt;</span>
-    <span class="nt">&lt;HigherOrder</span> <span class="na">index=</span><span class="s">&quot;5&quot;</span> <span class="na">order=</span><span class="s">&quot;2&quot;</span> <span class="na">value_reference=</span><span class="s">&quot;124&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- This is d^2 x/dt^2 --&gt;</span>
-    <span class="nt">&lt;HigherOrder</span> <span class="na">index=</span><span class="s">&quot;5&quot;</span> <span class="na">order=</span><span class="s">&quot;3&quot;</span> <span class="na">value_reference=</span><span class="s">&quot;125&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- This is d^3 x/dt^3 --&gt;</span>
+    <span class="nt">&lt;HigherOrder</span> <span class="na">index=</span><span class="s">&quot;5&quot;</span> <span class="na">order=</span><span class="s">&quot;2&quot;</span> <span class="na">valueReference=</span><span class="s">&quot;124&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- This is d^2 x/dt^2 --&gt;</span>
+    <span class="nt">&lt;HigherOrder</span> <span class="na">index=</span><span class="s">&quot;5&quot;</span> <span class="na">order=</span><span class="s">&quot;3&quot;</span> <span class="na">valueReference=</span><span class="s">&quot;125&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- This is d^3 x/dt^3 --&gt;</span>
   <span class="nt">&lt;/Derivatives&gt;</span>
 </pre></div>
 </div>
@@ -1131,10 +1144,10 @@ shown in <a class="reference internal" href="#fig-hig-der"><span class="std std-
 <p>For the elements <code class="docutils literal"><span class="pre">Unknown</span></code> and <code class="docutils literal"><span class="pre">HigherOrder</span></code>, the
 attributes <code class="docutils literal"><span class="pre">dependencies</span></code> and <code class="docutils literal"><span class="pre">eventIndicatorsDependencies</span></code> are optional.
 However, if <code class="docutils literal"><span class="pre">dependencies</span></code> is not declared,
-a tool would need to assume that they
+a tool shall assume that they
 depend on all variables.
 Similarly, if <code class="docutils literal"><span class="pre">eventIndicatorsDependencies</span></code> is not declared,
-a tool would need to assume that they
+a tool shall assume that they
 depend on all event indicators.
 Write <code class="docutils literal"><span class="pre">dependencies=&quot;&quot;</span></code> to declare that this derivative depends on no variable.
 Similarly,
@@ -1174,8 +1187,8 @@ when u becomes bigger than x.
 </pre></div>
 </div>
 <p>This model has one event indicator <span class="math">\(z = u-x\)</span>.
-The derivative of the event indicator is <span class="math">\(\frac{dz}{dt} = \frac{du}{dt} - \frac{dx}{dt}\)</span>.</p>
-<p>Hence, a tool will need the derivative of the input <code class="docutils literal"><span class="pre">u</span></code>
+The derivative of the event indicator is <span class="math">\({dz}/{dt} = {du}/{dt} - {dx}/{dt}\)</span>.</p>
+<p>Hence, a tool requires the derivative of the input <code class="docutils literal"><span class="pre">u</span></code>
 to compute the derivative of the event indicator.
 Since the derivative of the input <code class="docutils literal"><span class="pre">u</span></code> is unkown in the FMU,
 we propose for cases where the event indicator
@@ -1231,12 +1244,12 @@ indicators will start with <code class="docutils literal"><span class="pre">__zc
 are the names of the event indicator <code class="docutils literal"><span class="pre">z1</span></code> with its derivative <code class="docutils literal"><span class="pre">der_z1</span></code>.</p>
 <p>If the number of event indicators is equal to the <code class="docutils literal"><span class="pre">numberOfEventIndicators</span></code> attribute,
 then only <code class="docutils literal"><span class="pre">__zc_</span></code> and <code class="docutils literal"><span class="pre">__zc_der_</span></code> need to be used by QSS.
-If the number of event indicators does not match, the FMU needs to be rejected with an error message.</p>
+If the number of event indicators does not match, the FMU shall be rejected with an error message.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Per design, Dymola (2018) generates twice as many event indicators as actually existing in the model.
-Hence the master algorithm needs to detect if the tool which exported the FMU is Dymola, and if it is, the
-number of event indicators must be equal to half the value of the <code class="docutils literal"><span class="pre">numberOfEventIndicators</span></code> attribute.</p>
+Hence the master algorithm shall detect if the tool which exported the FMU is Dymola, and if it is, the
+number of event indicators shall be equal to half the value of the <code class="docutils literal"><span class="pre">numberOfEventIndicators</span></code> attribute.</p>
 </div>
 </div>
 <div class="section" id="time-events">

@@ -347,9 +347,10 @@ latex_elements['preamble'] = r'''
 
 
 \usepackage{sectsty}
-\definecolor{ebc}{rgb}{0.917, 0.463, 0.220}
-\chapterfont{\color{ebc}}  % sets colour of chapters
-
+\definecolor{lbl}{RGB}{2, 46, 77}
+\chapterfont{\color{lbl}}  % sets colour of chapters
+\sectionfont{\color{lbl}}  % sets colour of sections
+\subsectionfont{\color{lbl}}  % sets colour of sections
 
 % Reduce the list spacing
 \usepackage{enumitem}
@@ -362,9 +363,7 @@ latex_elements['preamble'] = r'''
 
 
 % Set format to 6x9 inches for report to be printed as a book.
-%\usepackage[margin=0.75in, paperwidth=6in, paperheight=9in, includehead, includefoot, centering]{geometry}
-\usepackage[letterpaper, margin=1in]{geometry}
-
+\usepackage[margin=0.75in, includehead, includefoot, centering]{geometry}
 
 \renewcommand{\chaptermark}[1]{\markboth{#1}{}}
 \renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
@@ -422,6 +421,7 @@ latex_elements['preamble'] = r'''
 % Replace the threeparttable as it causes the caption to
 % be no wider than the table, which looks quite bad.
 % Also, center the caption and table.
+\usepackage{threeparttable}
 \renewenvironment{threeparttable}{ \begin{table}\centering }{ \end{table} }
 % Increase distance of caption
 \belowcaptionskip=5pt
