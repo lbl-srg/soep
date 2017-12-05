@@ -220,8 +220,8 @@ shows the overall software architecture of SOEP.</p>
 equipment sales tool that uses an open, or a proprietary,
 Modelica model library of their product line, which allows
 a sales person to test and size equipment for a particular customer.</p>
-<p>The <cite>HVAC Systems Editor</cite> allows drag and drop of components
-from the <cite>Model Library</cite>,
+<p>The <cite>HVAC Systems Editor</cite> allows drag and drop of components,
+which are read dynamically from the <cite>Modelica Library AST</cite>,
 similar to what can be done in today&#8217;s OS schematic editor.
 In contrast, the <cite>Schematic Editor</cite> allows to freely place
 and graphically connect Modelica components.
@@ -242,8 +242,8 @@ dynamic load models for the SOEP mode.
 Note that the JModelica distribution includes a C++ compiler.</p>
 <div class="figure" id="id12">
 <span id="fig-overall-software-architecture"></span><p class="plantuml">
-<object data="_images/plantuml-5486606fbb23a0acfe9312301b4718ea77d3ed51.svg" type="image/svg+xml" style="width:1005px;height:747px;">
-<img src="_images/plantuml-5486606fbb23a0acfe9312301b4718ea77d3ed51.png" alt="title Overall software architecture
+<object data="_images/plantuml-42b14e268a4f127550932a42892ae7433788991a.svg" type="image/svg+xml" style="width:1005px;height:737px;">
+<img src="_images/plantuml-42b14e268a4f127550932a42892ae7433788991a.png" alt="title Overall software architecture
 
 scale max 1024 width
 
@@ -261,27 +261,31 @@ database &quot;Legacy\nModel Library&quot;
 }
 
 package SOEP-Mode {
-database &quot;SOEP\nModel Library&quot;
-[Core] --&gt; [SOEP\nModel Library]: integrates
+
+[Core] --&gt; [Model Library]: integrates
 [Core] --&gt; [HVAC Systems Editor\n(SOEP Mode)]: integrates
 [Core] --&gt; [SOEP\nSimulator Interface]: integrates
 }
 }
 
-actor Developer as epdev
-[Legacy\nModel Library] &lt;.. epdev : updates
-
 package SOEP {
-[HVAC Systems Editor\n(SOEP Mode)] ..&gt; [JModelica] : parses\nAST
-[SOEP\nModel Library] &lt;.. [Conversion Script]: augments library\nby generating C++ code
+database &quot;Modelica\nLibrary AST&quot; as mod_AST
+database &quot;Modelica\nBuildings Library&quot;
+
+[Model Library] --&gt; mod_AST : parses json\nAST
+
+[HVAC Systems Editor\n(SOEP Mode)] ..&gt; mod_AST : parses json\nAST
 
 [Conversion Script] .&gt; [JModelica]: parses\nAST
 [SOEP\nSimulator Interface] .&gt; [JModelica] : writes inputs,\nruns simulation,\nreads outputs
-database &quot;Modelica\nLibrary AST&quot; as mod_AST
+
 [Conversion Script] -&gt; mod_AST: generates
-database &quot;Modelica\nBuildings Library&quot;
 [JModelica] -&gt; [Modelica\nBuildings Library]: imports
 }
+
+
+actor Developer as epdev
+[Legacy\nModel Library] &lt;.. epdev : updates
 
 actor &quot;Developer or User&quot; as modev
 [Conversion Script] &lt;.. modev : invokes

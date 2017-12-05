@@ -15,8 +15,8 @@ equipment sales tool that uses an open, or a proprietary,
 Modelica model library of their product line, which allows
 a sales person to test and size equipment for a particular customer.
 
-The `HVAC Systems Editor` allows drag and drop of components
-from the `Model Library`,
+The `HVAC Systems Editor` allows drag and drop of components,
+which are read dynamically from the `Modelica Library AST`,
 similar to what can be done in today's OS schematic editor.
 In contrast, the `Schematic Editor` allows to freely place
 and graphically connect Modelica components.
@@ -62,27 +62,31 @@ Note that the JModelica distribution includes a C++ compiler.
    }
 
    package SOEP-Mode {
-   database "SOEP\nModel Library"
-   [Core] --> [SOEP\nModel Library]: integrates
+
+   [Core] --> [Model Library]: integrates
    [Core] --> [HVAC Systems Editor\n(SOEP Mode)]: integrates
    [Core] --> [SOEP\nSimulator Interface]: integrates
    }
    }
 
-   actor Developer as epdev
-   [Legacy\nModel Library] <.. epdev : updates
-
    package SOEP {
-   [HVAC Systems Editor\n(SOEP Mode)] ..> [JModelica] : parses\nAST
-   [SOEP\nModel Library] <.. [Conversion Script]: augments library\nby generating C++ code
+   database "Modelica\nLibrary AST" as mod_AST
+   database "Modelica\nBuildings Library"
+
+   [Model Library] --> mod_AST : parses json\nAST
+
+   [HVAC Systems Editor\n(SOEP Mode)] ..> mod_AST : parses json\nAST
 
    [Conversion Script] .> [JModelica]: parses\nAST
    [SOEP\nSimulator Interface] .> [JModelica] : writes inputs,\nruns simulation,\nreads outputs
-   database "Modelica\nLibrary AST" as mod_AST
+
    [Conversion Script] -> mod_AST: generates
-   database "Modelica\nBuildings Library"
    [JModelica] -> [Modelica\nBuildings Library]: imports
    }
+
+
+   actor Developer as epdev
+   [Legacy\nModel Library] <.. epdev : updates
 
    actor "Developer or User" as modev
    [Conversion Script] <.. modev : invokes
