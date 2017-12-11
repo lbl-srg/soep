@@ -172,6 +172,36 @@
       
   <div class="section" id="spawn-of-energyplus-design-and-implementation-working-draft">
 <h1>Spawn of EnergyPlus &#8211; Design and Implementation (Working Draft)<a class="headerlink" href="#spawn-of-energyplus-design-and-implementation-working-draft" title="Permalink to this headline">¶</a></h1>
+<p>The Spawn of EnergyPlus, called SOEP, is a next-generation simulation engine,
+for building and control energy systems.
+SOEP will combine</p>
+<blockquote>
+<div><ul class="simple">
+<li>The <a class="reference external" href="https://www.openstudio.net/">OpenStudio</a> front-end for model authoring, simulation
+and as a workflow automation tool,</li>
+<li>the <a class="reference external" href="http://simulationresearch.lbl.gov/modelica">Modelica Buildings Library</a>
+as a repository of models,</li>
+<li><a class="reference external" href="http://www.jmodelica.org/">JModelica</a> as a translator that
+translate models from the
+<a class="reference external" href="https://modelica.org/">Modelica</a> standard to the
+<a class="reference external" href="http://fmi-standard.org/">Functional Mockup Interface</a> standard
+for simulation and for execution on control systems,</li>
+<li><a class="reference external" href="https://pypi.python.org/pypi/PyFMI">PyFMI</a> as a master algorithm
+that conducts a time domain simulation.</li>
+</ul>
+</div></blockquote>
+<p>The intent is for SOEP and EnergyPlus to live side-by-side,
+with the OpenStudio software development kit providing access to both
+and insulating users and client vendors from implementation differences.
+Equation-based models allow SOEP to unify building energy modeling
+with control workflows, and allow users and manufacturers to insert
+their own models into SOEP.</p>
+<div class="figure" id="id1">
+<a class="reference internal image-reference" href="_images/bto_modelica_030917.png"><img alt="_images/bto_modelica_030917.png" src="_images/bto_modelica_030917.png" style="width: 469.5px; height: 376.5px;" /></a>
+<p class="caption"><span class="caption-number">Fig. 1 </span>: Spawn-of-EnergyPlus (SOEP) is a next-generation BEM engine that
+leverages open standards for equation-based modeling (Modelica)
+and co-simulation (FMI).</span></p>
+</div>
 <p>This documentation is a working document for the design, development
 and implementation of the Spawn of EnergyPlus (SOEP).
 The document is work in progress, used as a discussion basis,
