@@ -15,8 +15,8 @@ equipment sales tool that uses an open, or a proprietary,
 Modelica model library of their product line, which allows
 a sales person to test and size equipment for a particular customer.
 
-The `HVAC Systems Editor` allows drag and drop of components
-from the `Model Library`,
+The `HVAC Systems Editor` allows drag and drop of components,
+which are read dynamically from the `Modelica Library AST`,
 similar to what can be done in today's OS schematic editor.
 In contrast, the `Schematic Editor` allows to freely place
 and graphically connect Modelica components.
@@ -62,27 +62,31 @@ Note that the JModelica distribution includes a C++ compiler.
    }
 
    package SOEP-Mode {
-   database "SOEP\nModel Library"
-   [Core] --> [SOEP\nModel Library]: integrates
+
+   [Core] --> [Model Library]: integrates
    [Core] --> [HVAC Systems Editor\n(SOEP Mode)]: integrates
    [Core] --> [SOEP\nSimulator Interface]: integrates
    }
    }
 
-   actor Developer as epdev
-   [Legacy\nModel Library] <.. epdev : updates
-
    package SOEP {
-   [HVAC Systems Editor\n(SOEP Mode)] ..> [JModelica] : parses\nAST
-   [SOEP\nModel Library] <.. [Conversion Script]: augments library\nby generating C++ code
+   database "Modelica\nLibrary AST" as mod_AST
+   database "Modelica\nBuildings Library"
+
+   [Model Library] --> mod_AST : parses json\nAST
+
+   [HVAC Systems Editor\n(SOEP Mode)] ..> mod_AST : parses json\nAST
 
    [Conversion Script] .> [JModelica]: parses\nAST
    [SOEP\nSimulator Interface] .> [JModelica] : writes inputs,\nruns simulation,\nreads outputs
-   database "Modelica\nLibrary AST" as mod_AST
+
    [Conversion Script] -> mod_AST: generates
-   database "Modelica\nBuildings Library"
    [JModelica] -> [Modelica\nBuildings Library]: imports
    }
+
+
+   actor Developer as epdev
+   [Legacy\nModel Library] <.. epdev : updates
 
    actor "Developer or User" as modev
    [Conversion Script] <.. modev : invokes
@@ -200,14 +204,18 @@ shows single FMUs, but we anticipated having multiple interconnected FMUs.
 
    package PyFMI {
    [Master algorithm] -> qss_sol : "inputs, time"
-   [Master algorithm] <- qss_sol : "next event time, states"
+   [Master algorithm] <- qss_sol : "next event time, discrete states"
    [Master algorithm] - [Sundials]
    }
 
-   [Sundials] -> [FMU-ME] : "(x, t)"
-   [Sundials] <- [FMU-ME] : "dx/dt"
-   [Master algorithm] -> [FMU-CS] : "hRequested"
-   [Master algorithm] <- [FMU-CS] : "(x, hMax)"
+   [FMU-ME] as ode
+
+   [Sundials] -> ode : "(x, t)"
+   [Sundials] <- ode : "dx/dt"
+
+   [FMU-ME (envelope)] as ep_env
+   [Master algorithm] -> ep_env : "h"
+   [Master algorithm] <- ep_env : "(next event time, discrete states)"
 
    package Optimica {
    [JModelica compiler] as jmc
@@ -218,6 +226,15 @@ shows single FMUs, but we anticipated having multiple interconnected FMUs.
    FMU_QSS -down-> qss_sol : "derivatives"
    qss_sol -down-> FMU_QSS : "inputs, time, states"
 
+
+In :numref:`fig_sof_arc_qss_jmod2`, ``FMU-ME (envelope)`` is the envelop
+model that uses a refactored version of the EnergyPlus code. In earlier
+design, this was an FMU-CS. However, the PyFMI master algorithm requires
+either all FMU-ME, or all FMU-CS, but if the latter were used, then
+direct feedthrough would not be allowed. Hence, we are using FMU-ME
+for EnergyPlus, but similiar as the ``FMU-QSS``, the ``FMU-ME (envelope)``
+has only discrete states, and the time instant when these states are updated
+is constant and equal to the EnergyPlus CTF time step.
 
 .. note::
 
@@ -295,8 +312,8 @@ to the ``<Derivatives>`` element of the ``modelDescription.xml`` file.
       <!-- The ScalarVariable with index 8 is der(x) -->
       <Unknown     index="8" dependencies="6" />
       <!-- index 5 is the index of the state variable x -->
-      <HigherOrder index="5" order="2" value_reference="124" /> <!-- This is d^2 x/dt^2 -->
-      <HigherOrder index="5" order="3" value_reference="125" /> <!-- This is d^3 x/dt^3 -->
+      <HigherOrder index="5" order="2" valueReference="124" /> <!-- This is d^2 x/dt^2 -->
+      <HigherOrder index="5" order="3" valueReference="125" /> <!-- This is d^3 x/dt^3 -->
     </Derivatives>
 
 Event Handling
@@ -321,20 +338,20 @@ three event indicators.
           <ModelStructure>
             <EventIndicators>
               <!-- This is z[0] which depends on ScalarVariable with index 2 and 3 -->
-              <Element index="1" order="0" dependencies="2 3" value_reference="200" />
+              <Element index="1" order="0" dependencies="2 3" valueReference="200" />
               <!-- This is z[1] which declares no dependencies, hence it may depend on everything -->
-              <Element index="2" order="0" value_reference="201" />
+              <Element index="2" order="0" valueReference="201" />
                <!-- This is z[2] which declares that it depends only on time -->
-              <Element index="3" order="0" dependencies="" value_reference="202" />
+              <Element index="3" order="0" dependencies="" valueReference="202" />
 
               <!-- With order > 0, higher order derivatives can be specified. -->
-              <!-- This is dz[0]/dt which depends on scalar variable 2 -->
-              <Element index="1" order="1" value_reference="210" />
+              <!-- This is dz[0]/dt -->
+              <Element index="1" order="1" valueReference="210" />
             </EventIndicators>
           </ModelStructure>
 
 The attribute ``dependencies`` is optional. However, if it is not specified,
-a tool would need to assume that the event indicator depends on all variables.
+a tool shall assume that the event indicator depends on all variables.
 Write ``dependencies=""`` to declare that this event indicator depends on no variable
 (other than possibly time).
 Note that for performance reasons, for QSS ``dependencies`` should be declared
@@ -393,20 +410,21 @@ shown in :numref:`fig_hig_der`.
 
     <Derivatives>
       <!-- The ScalarVariable with index 8 is der(x) -->
-      <!-- eventIndicatorsDependencies="1" declares that der(x) depends on the event indicator with index 1  -->
+      <!-- eventIndicatorsDependencies="1" declares that der(x)
+           depends on the event indicator with index 1  -->
       <Unknown     index="8" dependencies="6" eventIndicatorsDependencies="1"/>
       <!-- index 5 is the index of the state variable x -->
-      <HigherOrder index="5" order="2" value_reference="124" /> <!-- This is d^2 x/dt^2 -->
-      <HigherOrder index="5" order="3" value_reference="125" /> <!-- This is d^3 x/dt^3 -->
+      <HigherOrder index="5" order="2" valueReference="124" /> <!-- This is d^2 x/dt^2 -->
+      <HigherOrder index="5" order="3" valueReference="125" /> <!-- This is d^3 x/dt^3 -->
     </Derivatives>
 
 For the elements ``Unknown`` and ``HigherOrder``, the
 attributes ``dependencies`` and ``eventIndicatorsDependencies`` are optional.
 However, if ``dependencies`` is not declared,
-a tool would need to assume that they
+a tool shall assume that they
 depend on all variables.
 Similarly, if ``eventIndicatorsDependencies`` is not declared,
-a tool would need to assume that they
+a tool shall assume that they
 depend on all event indicators.
 Write ``dependencies=""`` to declare that this derivative depends on no variable.
 Similarly,
@@ -435,9 +453,9 @@ Consider following model
    :language: modelica
 
 This model has one event indicator :math:`z = u-x`.
-The derivative of the event indicator is :math:`\frac{dz}{dt} = \frac{du}{dt} - \frac{dx}{dt}`.
+The derivative of the event indicator is :math:`{dz}/{dt} = {du}/{dt} - {dx}/{dt}`.
 
-Hence, a tool will need the derivative of the input ``u``
+Hence, a tool requires the derivative of the input ``u``
 to compute the derivative of the event indicator.
 Since the derivative of the input ``u`` is unkown in the FMU,
 we propose for cases where the event indicator
@@ -457,24 +475,24 @@ Consider following model
 .. literalinclude:: ../../models/modelica_for_qss/QSS/Docs/StateEvent3.mo
    :language: modelica
 
-This model has a variable ``x1`` which 
-is reinitialized with the ``reinit()`` function. 
-Such variables have in the model description file 
-an attribute ``reinit`` which can be set to 
-``true`` or ``false`` depending on whether they can 
+This model has a variable ``x1`` which
+is reinitialized with the ``reinit()`` function.
+Such variables have in the model description file
+an attribute ``reinit`` which can be set to
+``true`` or ``false`` depending on whether they can
 be reinitialized at an event or not.
-Since  a ``reinit()`` statement is only valid 
-in a ``when-equation`` block, we propose for 
+Since  a ``reinit()`` statement is only valid
+in a ``when-equation`` block, we propose for
 variables with ``reinit`` set to true,
-that at every state event, the QSS solver gets the value of 
-the variable, updates variables which depend on it, and proceeds 
+that at every state event, the QSS solver gets the value of
+the variable, updates variables which depend on it, and proceeds
 with its calculation.
 
 Workaround for implementing event indicators
 ............................................
 
 While waiting for the implementation of the FMI extensions in JModelica,
-LBNL will refactor some Modelica models to expose event indicators and 
+LBNL will refactor some Modelica models to expose event indicators and
 their first derivatives as FMU output variables.
 
 The names of event indicators variables will start with ``__zc_``. The names of derivatives of event
@@ -483,13 +501,13 @@ are the names of the event indicator ``z1`` with its derivative ``der_z1``.
 
 If the number of event indicators is equal to the ``numberOfEventIndicators`` attribute,
 then only ``__zc_`` and ``__zc_der_`` need to be used by QSS.
-If the number of event indicators does not match, the FMU needs to be rejected with an error message.
+If the number of event indicators does not match, the FMU shall be rejected with an error message.
 
 .. note::
 
   Per design, Dymola (2018) generates twice as many event indicators as actually existing in the model.
-  Hence the master algorithm needs to detect if the tool which exported the FMU is Dymola, and if it is, the
-  number of event indicators must be equal to half the value of the ``numberOfEventIndicators`` attribute.
+  Hence the master algorithm shall detect if the tool which exported the FMU is Dymola, and if it is, the
+  number of event indicators shall be equal to half the value of the ``numberOfEventIndicators`` attribute.
 
 Time Events
 ...........
@@ -511,15 +529,15 @@ it is not possible to use the same approach as done for
 ``StateEvent1`` without further modificaton.
 
 We therefore propose that JModelica turns all time events into state events,
-add new event indicators generated by those state events to the ``<EventIndicators>`` 
+add new event indicators generated by those state events to the ``<EventIndicators>``
 element, and include those event indicators to the ``eventIndicatorsDependencies`` attribute
-of state derivatives which depend on them. 
+of state derivatives which depend on them.
 
-.. note:: 
+.. note::
 
-   All proposed XML changes will be initially implemented 
+   All proposed XML changes will be initially implemented
    in the ``VendorAnnotation`` element of the model description file until
-   they got approved and included in the FMI standard. 
+   they got approved and included in the FMI standard.
 
 SmoothToken for QSS
 """""""""""""""""""
@@ -638,14 +656,14 @@ Here is a list with a summary of proposed changes
 
 - A new function ``fmi2GetRealOutputDerivatives`` will be included to parametrize smooth token.
 
-- All proposed XML changes will be initially implemented in the ``VendorAnnotation`` 
-  element of the model description file until they got approved and included in the FMI standard. 
+- All proposed XML changes will be initially implemented in the ``VendorAnnotation``
+  element of the model description file until they got approved and included in the FMI standard.
 
 .. note::
 
   - We need to determine when to efficiently call ``fmi2CompletedIntegratorStep()`` to signalize that
     an integrator step is complete.
-  - We need to determine how an FMU deals with state selection, detect it, and reject it 
+  - We need to determine how an FMU deals with state selection, detect it, and reject it
     on the QSS side.
 
 
@@ -680,11 +698,11 @@ and allows practical development of 3rd order QSS solvers.
 Input Variables
 """""""""""""""
 
-- Input functions with discontinuities up to the QSS order need to be exposed to 
+- Input functions with discontinuities up to the QSS order need to be exposed to
   QSS and provide next event time access to the master algorithm.
 
-- Input functions need to be true (non-path-dependent) functions for 
-  QSS use or at least provide a way to evaluate without "memory" 
+- Input functions need to be true (non-path-dependent) functions for
+  QSS use or at least provide a way to evaluate without "memory"
   to allow numeric differentiation and event trigger stepping.
 
 Annotations
@@ -700,23 +718,23 @@ Conditional Expressions and Event Indicators
 """"""""""""""""""""""""""""""""""""""""""""
 
 - How to reliably get the FMU to detect an event at the time QSS predicts one?
- 
-  QSS predicts zero-crossing event times that, even with Newton refinement, 
-  may be slightly off. To get the FMU to "detect" these events with its 
-  "after the fact" event indicators the QSS currently bumps the time forward 
-  by some epsilon past the predicted event time in the hopes that the FMU will detect it. 
-  Even if made smarter about how big a step to take this will never be robust. 
-  Missing events can invalidate simulations. If there is no good and efficient FMU API 
-  solution we may need to add the capability for the QSS to handle "after the fact" detected 
-  events but with the potential for large QSS time steps and without rollback 
+
+  QSS predicts zero-crossing event times that, even with Newton refinement,
+  may be slightly off. To get the FMU to "detect" these events with its
+  "after the fact" event indicators the QSS currently bumps the time forward
+  by some epsilon past the predicted event time in the hopes that the FMU will detect it.
+  Even if made smarter about how big a step to take this will never be robust.
+  Missing events can invalidate simulations. If there is no good and efficient FMU API
+  solution we may need to add the capability for the QSS to handle "after the fact" detected
+  events but with the potential for large QSS time steps and without rollback
   capability this would give degraded results at best.
 
 - How much conditional structure should we expose to QSS?
- 
-  Without full conditional structure information the QSS must fire events 
-  that aren't relevant in the model/FMU. This will be inefficient 
-  for models with many/complex conditionals. These non-event events also 
-  alter the QSS trajectories so, for example, adding a conditional 
+
+  Without full conditional structure information the QSS must fire events
+  that aren't relevant in the model/FMU. This will be inefficient
+  for models with many/complex conditionals. These non-event events also
+  alter the QSS trajectories so, for example, adding a conditional
   clause that never actually fires will change the solution somewhat, which is non-ideal.
 
 - QSS needs a mechanism similar to zero crossing functions to deal with Modelica's event generating functions (such as
@@ -724,8 +742,8 @@ Conditional Expressions and Event Indicators
 
 - Discrete and non-smooth internal variables need to be converted to input variables or exposed (with dependencies) to QSS.
 
-- QSS need dependency information for algebraic and boolean/discrete variables 
-  either explicitly or short-circuited through the exposed variables for those the QSS won't track. 
+- QSS need dependency information for algebraic and boolean/discrete variables
+  either explicitly or short-circuited through the exposed variables for those the QSS won't track.
 
 - The xml needs to expose the structure of each conditional block:
   if or when, sequence order of if/when/else conditionals,
