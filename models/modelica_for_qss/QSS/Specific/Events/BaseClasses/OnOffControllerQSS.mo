@@ -7,7 +7,7 @@ block OnOffControllerQSS "On-off controller"
   Modelica.Blocks.Interfaces.RealInput u
     "Connector of Real input signal used as measurement signal"
     annotation (Placement(transformation(extent={{-140,20},{-100,-20}})));
-  discrete Modelica.Blocks.Interfaces.RealOutput y(start=1.0, fixed=true)
+  discrete Modelica.Blocks.Interfaces.RealOutput y(start=0.0, fixed=true)
     "Connector of Real output signal used as actuator signal"
     annotation (Placement(transformation(extent={{100,-10},{120,10}})));
 
@@ -39,10 +39,10 @@ equation
   _zc_der_z2 = der_u;
   when (not pre(yBoo)) and (u >= reference + bandwidth/2) then
     yBoo = true;
-    y = 0.0;
+    y = 1.0;
   elsewhen pre(yBoo) and (u < reference - bandwidth/2) then
     yBoo = false;
-    y = 1.0;
+    y = 0.0;
   end when;
   annotation (Icon(coordinateSystem(preserveAspectRatio=true, extent={{-100,-100},{100,
             100}}), graphics={
@@ -63,9 +63,9 @@ equation
               {90.0,-20.0}}, color={255,0,255}),
         Text(extent={{-108,16},{-48,-6}},  textString="u")}),
                                                    Documentation(info="<html>
-<p>The block OnOffController sets the output signal <b>y</b> to <b>true</b> when
+<p>The block OnOffController sets the output signal <b>y</b> to <b>false</b> when
 the input signal <b>u</b> falls below the <b>reference</b> signal minus half of
-the bandwidth and sets the output signal <b>y</b> to <b>false</b> when the input
+the bandwidth and sets the output signal <b>y</b> to <b>true</b> when the input
 signal <b>u</b> exceeds the <b>reference</b> signal plus half of the bandwidth.</p>
 </html>"));
 end OnOffControllerQSS;

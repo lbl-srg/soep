@@ -75,7 +75,8 @@ equation
                                                    Documentation(info="<html>
 <p>The block OnOffController sets the output signal <b>y</b> to <b>true</b> when
 the input signal <b>u</b> falls below the <b>reference</b> signal minus half of
-the bandwidth and sets the output signal <b>y</b> to <b>false</b> when the input
-signal <b>u</b> exceeds the <b>reference</b> signal plus half of the bandwidth.</p>
+the bandwidth and sets the output signal <b>y</b> to <b>true</b> when the input
+signal <b>u</b> exceeds the <b>reference</b> signal plus half of the bandwidth.
+</p>
 </html>"));
 end OnOffControllerQSS1;

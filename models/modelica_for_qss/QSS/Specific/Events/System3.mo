@@ -119,8 +119,8 @@ model System3
     pAtmSou=Buildings.BoundaryConditions.Types.DataSource.Parameter,
     TDryBul=TOut_nominal,
     TDryBulSou=Buildings.BoundaryConditions.Types.DataSource.File,
-    filNam=
-        "modelica://QSS/Resources/weatherdata/USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.mos")
+    filNam=Modelica.Utilities.Files.loadResource(
+        "modelica://QSS/Resources/weatherdata/USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.mos"))
     "Weather data reader"
     annotation (Placement(transformation(extent={{-160,40},{-140,60}})));
   Buildings.BoundaryConditions.WeatherData.Bus weaBus

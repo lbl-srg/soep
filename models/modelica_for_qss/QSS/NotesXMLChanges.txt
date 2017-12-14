@@ -2,13 +2,13 @@ FMUs with XML which require modifications.
 The Modelica models are in the corresponding folders.
 
 
-QSS_Events_BouncingBall.fmu
+QSS_Specific_Events_BouncingBall.fmu
 ============================
 
 Dependency of v on __zc_z needs to be added.
 
 
-QSS_Events_OnOffController.fmu
+QSS_Specific_Events_OnOffController.fmu
 ==============================
 
 Dependency of conQSS.y on __zc_z1 and __zc_z2 must be added
@@ -17,56 +17,69 @@ Alternatively, dependency of __zc_z1 and __zc_z2 on der(vol.T)
 can be added as discussed with Modelon on 09/12/2017 to bypass
 the dependency of der(vol.T) on conQSS.y.
 
-QSS_Events_StateEvent1.fmu
+QSS_Specific_Events_StateEvent1.fmu
 ==========================
 
 Dependency of y on __zc_z needs to be added. 
 
-QSS_Events_StateEvent2.fmu
+QSS_Specific_Events_StateEvent2.fmu
 ==========================
 
 Dependency of y on __zc_z needs to be added. 
 
-QSS_Events_StateEvent3.fmu
+QSS_Specific_Events_StateEvent3.fmu
 ==========================
 
 Dependency of y on __zc_z needs to be added. 
 
-QSS_Events_StateEvent4.fmu
+QSS_Specific_Events_StateEvent4.fmu
 ==========================
 
 Dependency of y on __zc_z needs to be added. 
 
-QSS_Events_StateEvent5.fmu
+QSS_Specific_Events_StateEvent5.fmu
 ==========================
 
 Dependency of y on __zc_z needs to be added.
 Dependency of der(x3) on y needs to be added.  
 
 
-QSS_Events_StateEvent6.fmu
+QSS_Specific_Events_StateEvent6.fmu
 ==========================
 
 Dependency of y on __zc_z needs to be added.
 Dependency of der(x) on y needs to be added.
 
-QSS_Events_StateEventWithIf1.fmu
+QSS_Specific_Events_StateEventWithIf1.fmu
 ================================
 
 Dependency of y on __zc_z needs to be added.
 Dependency of der(x3) on y needs to be added. 
 
-QSS_Events_StateEventWithIf2.fmu
+QSS_Specific_Events_StateEventWithIf2.fmu
 ================================
 
 Dependency of y on __zc_z needs to be added.
 
-QSS_Events_StateTimeEventWithIf.fmu
+QSS_Specific_Events_StateTimeEventWithIf.fmu
 ===================================
 
 Dependency of y on __zc_z needs to be added.
 
-QSS_Events_ZCBoolean1.fmu
+
+QSS_Specific_Events_System3.fmu
+===================================
+
+Dependency of onOffCon.y on __zc_z1 and __zc_z2  need to be added.
+Dependency of 
+- der(cooCoi.ele[1].vol1.dynBal.U) 
+- der(cooCoi.ele[2].vol1.dynBal.U)
+- der(cooCoi.ele[3].vol1.dynBal.U)
+- der(cooCoi.ele[4].vol1.dynBal.U)
+on onOffCon.y need to be added
+
+
+QSS_Specific_Events_ZCBoolean1.fmu
 =========================
 
 Dependency on der(x) on y needs to be added
@@ -75,7 +88,7 @@ Alternatively, dependency of __zc_z1 and __zc_z2 on der (x)
 can be added as discussed with Modelon on 09/12/2017 to bypass 
 the dependency of der (x) on y.
 
-QSS_Events_ZCBoolean2.fmu
+QSS_Specific_Events_ZCBoolean2.fmu
 =========================
 
 Dependency on der(x) on y needs to be added

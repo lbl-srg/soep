@@ -63,8 +63,8 @@ equation
         Line(points={{-78.0,-16.0},{-6.0,4.0},{82.0,-26.0}}),
         Line(points={{-82.0,-18.0},{-56.0,-18.0},{-56.0,-40.0},{64.0,-40.0},{
               64.0,-20.0},{90.0,-20.0}}, color={255,0,255}),
-        Text(extent={{-108,16},{-48,-6}}, textString="u")}), Documentation(info
-        ="<html>
+        Text(extent={{-108,16},{-48,-6}}, textString="u")}), Documentation(info=
+         "<html>
 <p>The block OnOffController sets the output signal <b>y</b> to <b>false</b> when
 the input signal <b>u</b> falls below the <b>reference</b> signal minus half of
 the bandwidth and sets the output signal <b>y</b> to <b>true</b> when the input
