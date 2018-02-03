@@ -137,8 +137,7 @@ Coupling of EnergyPlus envelope and room with Modelica-based HVAC and control
 
 This section describes the refactoring of the
 EnergyPlus room model, which will remain in the C/C++ implementation
-of EnergyPlus, to a form that exposes the time derivative of the room
-model to the External Interface of EnergyPlus.
+of EnergyPlus, to a form that exposes the time derivative of its room model.
 EnergyPlus will be exported as an FMU for model exchange.
 
 The time integration of the room air temperature, moisture and
@@ -341,10 +340,10 @@ These functions are then used by the FMI for model exchange wrapper that LBL is 
 In the remainder of this section, we note that ``time`` is
 
    - the variable described as ``t`` in the table of section :numref:`sec_data_exchange`,
-   - a monotonically increasing variable. 
+   - a monotonically increasing variable.
 
 .. note::
- 
+
     Monotonically increasing means that if a function has as argument ``time`` and is called at time ``t1``, then its next call must happen at time ``t2`` with ``t2`` >= ``t1``.
     For efficiency reasons, if a function which updates internal variables is called at the same time instant multiple times then only the first call will update the variables, subsequent calls will cause the functions to return the same variable values.
 
@@ -356,7 +355,7 @@ In the remainder of this section, we note that ``time`` is
                             const char const *instanceName,
                             const char** varNames,
                             double varPointers[],
-                            size_t nVars, 
+                            size_t nVars,
                             const char *log);
 
 - ``input``: Absolute or relative path to an EnergyPlus input file with file name.
@@ -371,17 +370,17 @@ In the remainder of this section, we note that ``time`` is
 
 This function will read the ``idf`` file, sets up the data structure in EnergyPlus, gets
 a vector of variable names (as in ``modelDescription.xml``)
-and returns a vector of pointers to the aforementioned variables. 
+and returns a vector of pointers to the aforementioned variables.
 The ordering of the variable names must match the ordering of the vector of pointers.
 
-It returns zero if there was no error, or else a positive non-zero integer. 
+It returns zero if there was no error, or else a positive non-zero integer.
 
 .. code:: c
 
    unsigned int initialize(double *tStart,
                            double *tEnd,
                            const char *log);
-                           
+
 - ``tStart``: Start of simulation in seconds.
 - ``tEnd``: End of simulation in seconds.
 - ``log``: Logging message returned on error.
@@ -397,7 +396,7 @@ It returns zero if there was no error, or else a positive non-zero integer.
    ``initialize(...)``. The ``RunPeriod`` in the ``idf`` file is only
    used to determine the day of the week.
 
-   *Complications*: 
+   *Complications*:
 
    a) Users may set ``tStart`` and ``tEnd``
       to times other than midnight. We think EnergyPlus cannot yet handle an arbitrary start
@@ -408,7 +407,7 @@ It returns zero if there was no error, or else a positive non-zero integer.
 
 .. code:: c
 
-   unsigned int setTime(double *time, 
+   unsigned int setTime(double *time,
                         const char *log);
 
 - ``time``: Model time.
@@ -416,20 +415,20 @@ It returns zero if there was no error, or else a positive non-zero integer.
 
 This function sets a new time in EnergyPlus. This time becomes the current model time.
 
-It returns zero if there was no error, or else a positive non-zero integer. 
+It returns zero if there was no error, or else a positive non-zero integer.
 
 .. code:: c
 
-   unsigned int setVariables(double *time, 
-                             const double varPointers[], 
-                             const double varValues[], 
-                             size_t nVars, 
+   unsigned int setVariables(double *time,
+                             const double varPointers[],
+                             const double varValues[],
+                             size_t nVars,
                              const char *log);
 
 - ``time``: Model time.
 - ``varPointers``: Vector of pointers to variables.
 - ``varValues``: Vector of variable values.
-- ``nVars``: Number of elements of ``varPointers`` and ``varValues``. 
+- ``nVars``: Number of elements of ``varPointers`` and ``varValues``.
 - ``log``: Logging message returned on error.
 
 This function sets the value of variables in EnergyPlus.
@@ -440,16 +439,16 @@ It returns zero if there was no error, or else a positive non-zero integer.
 
 .. code:: c
 
-   unsigned int getVariables(double *time, 
-                             const double varPointers[], 
-                             double varValues[], 
-                             size_t nVars, 
+   unsigned int getVariables(double *time,
+                             const double varPointers[],
+                             double varValues[],
+                             size_t nVars,
                              const char *log);
 
 - ``time``: Model time.
 - ``varPointers``: Vector of pointers to variables.
 - ``varValues``: Vector of variable values.
-- ``nVars``: Number of elements of ``varPointers`` and ``varValues``. 
+- ``nVars``: Number of elements of ``varPointers`` and ``varValues``.
 - ``log``: Logging message returned on error.
 
 
@@ -461,7 +460,7 @@ It returns zero if there was no error, or else a positive non-zero integer.
 .. code:: c
 
    unsigned int setContinuousStates(double *time,
-                                    const double varPointers[], 
+                                    const double varPointers[],
                                     const double varValues[],
                                     size_t nVars,
                                     const char *log);
@@ -479,7 +478,7 @@ It returns zero if there was no error, or else a positive non-zero integer.
 .. code:: c
 
    unsigned int getContinuousStates(double *time,
-                                    const double varPointers[], 
+                                    const double varPointers[],
                                     double varValues[],
                                     size_t nVars,
                                     const char *log);
@@ -498,7 +497,7 @@ It returns zero if there was no error, or else a positive non-zero integer.
 .. code:: c
 
    unsigned int getTimeDerivatives(double *time,
-                                   const double varPointers[], 
+                                   const double varPointers[],
                                    double varValues[],
                                    size_t nVars,
                                    const char *log);
@@ -552,7 +551,7 @@ It returns zero if there was no error, or else a positive non-zero integer.
 Pseudo Code Example
 ~~~~~~~~~~~~~~~~~~~
 
-In the next section, the usage of the FMI functions along with the equivalent EnergyPlus functions are used in a typical calling sequence. 
+In the next section, the usage of the FMI functions along with the equivalent EnergyPlus functions are used in a typical calling sequence.
 This should clarify the need of the EnergyPlus equivalent functions and show how these functions will be used in a simulation environment.
 In the pseudo code, ``->`` points to the EnergyPlus equivalent FMI functions. ``NA`` indicates that the FMI functions do not require EnergyPlus equivalent.
 

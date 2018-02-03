@@ -2,12 +2,23 @@
 
 <!DOCTYPE html>
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
     <title>5. Software Architecture &#8212; Spawn of EnergyPlus</title>
-    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootswatch-3.3.6/united/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap_custom.css" type="text/css" />
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    <link rel="stylesheet" href="_static/custom-sphinx.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -24,7 +35,7 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
     <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="_static/lbl-icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
@@ -37,7 +48,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body>
+  <body role="document">
 
   <div id="navbar" class="navbar navbar-default ">
     <div class="container-fluid">
@@ -223,7 +234,7 @@ Modelica model library of their product line, which allows
 a sales person to test and size equipment for a particular customer.</p>
 <p>The <cite>HVAC Systems Editor</cite> allows drag and drop of components,
 which are read dynamically from the <cite>Modelica Library AST</cite>,
-similar to what can be done in today’s OS schematic editor.
+similar to what can be done in today&#8217;s OS schematic editor.
 In contrast, the <cite>Schematic Editor</cite> allows to freely place
 and graphically connect Modelica components.
 Once models have been manipulated in the
@@ -339,8 +350,7 @@ end note" />
 <h2>5.2. Coupling of EnergyPlus envelope and room with Modelica-based HVAC and control<a class="headerlink" href="#coupling-of-energyplus-envelope-and-room-with-modelica-based-hvac-and-control" title="Permalink to this headline">¶</a></h2>
 <p>This section describes the refactoring of the
 EnergyPlus room model, which will remain in the C/C++ implementation
-of EnergyPlus, to a form that exposes the time derivative of the room
-model to the External Interface of EnergyPlus.
+of EnergyPlus, to a form that exposes the time derivative of its room model.
 EnergyPlus will be exported as an FMU for model exchange.</p>
 <p>The time integration of the room air temperature, moisture and
 trace substance concentrations will be done by the master algorithm.</p>
@@ -368,7 +378,7 @@ The reason is to keep focus and make progress before increasing complexity.</p>
 <li><p class="first">The HVAC and the pressure driven air exchange (airflow network) are
 either in legacy EnergyPlus or in FMUs of the SOEP.
 The two methods cannot be combined.
-The reason is that the legacy EnergyPlus computes in its “predictor/corrector”
+The reason is that the legacy EnergyPlus computes in its &#8220;predictor/corrector&#8221;
 the room temperature as follows:</p>
 <ol class="loweralpha simple">
 <li>It computes the HVAC power required to meet the temperature set point.</li>
@@ -1101,12 +1111,12 @@ is constant and equal to the EnergyPlus CTF time step.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">We still need to design how to handle algebraic loops inside the FMU
-(see also Cellier’s and Kofman’s book) and algebraic loops that
+(see also Cellier&#8217;s and Kofman&#8217;s book) and algebraic loops that
 cross multiple FMUs.</p>
 </div>
 <p>The QSS solvers require the derivatives shown in <a class="reference internal" href="#tab-qss-der"><span class="std std-numref">Table 5.1</span></a>.</p>
-<span id="tab-qss-der"></span><table border="1" class="docutils" id="id15">
-<caption><span class="caption-number">Table 5.1 </span><span class="caption-text">Derivatives required by QSS algorithms. One asteriks indicates
+<table border="1" class="docutils" id="id15">
+<span id="tab-qss-der"></span><caption><span class="caption-number">Table 5.1 </span><span class="caption-text">Derivatives required by QSS algorithms. One asteriks indicates
         that they are provided by FMI-ME 2.0, and two asteriks indicate
         that they can optionally be computed exactly if directional
         derivatives are provided by the FMU.
@@ -1221,9 +1231,9 @@ the second has an <code class="docutils literal"><span class="pre">index</span><
 indicators do not show up in the list of <code class="docutils literal"><span class="pre">&lt;ModelVariables&gt;</span></code>.</p>
 <p>The dependencies variables of event indicators are</p>
 <ul class="last simple">
-<li>inputs (variables with causality = “input”)</li>
+<li>inputs (variables with causality = &#8220;input&#8221;)</li>
 <li>continuous-time states</li>
-<li>independent variable (usually time; causality = “independent”)</li>
+<li>independent variable (usually time; causality = &#8220;independent&#8221;)</li>
 </ul>
 </div>
 <p>Consider the following model</p>
@@ -1261,9 +1271,9 @@ defining the dependencies of the unknown (directly or indirectly via auxiliary v
 with respect to known.
 For state derivatives and outputs, known variables are</p>
 <ul class="simple">
-<li>inputs (variables with causality = “input”)</li>
+<li>inputs (variables with causality = &#8220;input&#8221;)</li>
 <li>continuous-time states</li>
-<li>independent variable (usually time; causality = “independent”)</li>
+<li>independent variable (usually time; causality = &#8220;independent&#8221;)</li>
 </ul>
 <p>Therefore we require to extend the <code class="docutils literal"><span class="pre">&lt;Derivatives&gt;</span></code> element
 with a new attribute <code class="docutils literal"><span class="pre">eventIndicatorsDependencies</span></code> which lists
@@ -1573,7 +1583,7 @@ and allows practical development of 3rd order QSS solvers.</p>
 <li>Input functions with discontinuities up to the QSS order need to be exposed to
 QSS and provide next event time access to the master algorithm.</li>
 <li>Input functions need to be true (non-path-dependent) functions for
-QSS use or at least provide a way to evaluate without “memory”
+QSS use or at least provide a way to evaluate without &#8220;memory&#8221;
 to allow numeric differentiation and event trigger stepping.</li>
 </ul>
 </div>
@@ -1581,9 +1591,9 @@ to allow numeric differentiation and event trigger stepping.</li>
 <h4>5.3.3.5. Annotations<a class="headerlink" href="#annotations" title="Permalink to this headline">¶</a></h4>
 <p>Some per-variable annotations that will allow for more efficient solutions by overriding global settings (which are also needed as annotations) include:</p>
 <ul class="simple">
-<li>Various time steps: <code class="docutils literal"><span class="pre">dt_min</span></code>, <code class="docutils literal"><span class="pre">dt_max</span></code>, <code class="docutils literal"><span class="pre">dt_inf</span></code>, …</li>
-<li>Various flags: QSS method/order (or traditional ODE method for mixed solutions), inflection point requantization, …</li>
-<li>Extra variability flags: constant, linear, quadratic, cubic, variable, …</li>
+<li>Various time steps: <code class="docutils literal"><span class="pre">dt_min</span></code>, <code class="docutils literal"><span class="pre">dt_max</span></code>, <code class="docutils literal"><span class="pre">dt_inf</span></code>, ...</li>
+<li>Various flags: QSS method/order (or traditional ODE method for mixed solutions), inflection point requantization, ...</li>
+<li>Extra variability flags: constant, linear, quadratic, cubic, variable, ...</li>
 </ul>
 </div>
 <div class="section" id="conditional-expressions-and-event-indicators">
@@ -1591,29 +1601,29 @@ to allow numeric differentiation and event trigger stepping.</li>
 <ul>
 <li><p class="first">How to reliably get the FMU to detect an event at the time QSS predicts one?</p>
 <p>QSS predicts zero-crossing event times that, even with Newton refinement,
-may be slightly off. To get the FMU to “detect” these events with its
-“after the fact” event indicators the QSS currently bumps the time forward
+may be slightly off. To get the FMU to &#8220;detect&#8221; these events with its
+&#8220;after the fact&#8221; event indicators the QSS currently bumps the time forward
 by some epsilon past the predicted event time in the hopes that the FMU will detect it.
 Even if made smarter about how big a step to take this will never be robust.
 Missing events can invalidate simulations. If there is no good and efficient FMU API
-solution we may need to add the capability for the QSS to handle “after the fact” detected
+solution we may need to add the capability for the QSS to handle &#8220;after the fact&#8221; detected
 events but with the potential for large QSS time steps and without rollback
 capability this would give degraded results at best.</p>
 </li>
 <li><p class="first">How much conditional structure should we expose to QSS?</p>
 <p>Without full conditional structure information the QSS must fire events
-that aren’t relevant in the model/FMU. This will be inefficient
+that aren&#8217;t relevant in the model/FMU. This will be inefficient
 for models with many/complex conditionals. These non-event events also
 alter the QSS trajectories so, for example, adding a conditional
 clause that never actually fires will change the solution somewhat, which is non-ideal.</p>
 </li>
-<li><p class="first">QSS needs a mechanism similar to zero crossing functions to deal with Modelica’s event generating functions (such as
+<li><p class="first">QSS needs a mechanism similar to zero crossing functions to deal with Modelica&#8217;s event generating functions (such as
 <code class="docutils literal"><span class="pre">div(x,y)</span></code> See <a class="reference external" href="http://book.xogeny.com/behavior/discrete/events/#event-generating-functions">http://book.xogeny.com/behavior/discrete/events/#event-generating-functions</a>) to avoid missing solution discontinuities.</p>
 </li>
 <li><p class="first">Discrete and non-smooth internal variables need to be converted to input variables or exposed (with dependencies) to QSS.</p>
 </li>
 <li><p class="first">QSS need dependency information for algebraic and boolean/discrete variables
-either explicitly or short-circuited through the exposed variables for those the QSS won’t track.</p>
+either explicitly or short-circuited through the exposed variables for those the QSS won&#8217;t track.</p>
 </li>
 <li><p class="first">The xml needs to expose the structure of each conditional block:
 if or when, sequence order of if/when/else conditionals,
@@ -1649,7 +1659,7 @@ FMU that a zero crossing occurred at a given time (and maybe with crossing direc
 <div class="section" id="automated-documentation-ast-support-tool">
 <h3>5.4.1. Automated Documentation/AST Support Tool<a class="headerlink" href="#automated-documentation-ast-support-tool" title="Permalink to this headline">¶</a></h3>
 <p>This section describes an agreed-upon workflow, toolchain and process to
-generate automated SOEP “documentation” and abstract syntax trees from Modelica
+generate automated SOEP &#8220;documentation&#8221; and abstract syntax trees from Modelica
 libraries; in particular, the Modelica Buildings Library (MBL).</p>
 <p>The goal of this effort is to build a computer program that makes the <a class="reference external" href="https://en.wikipedia.org/wiki/Abstract_syntax_tree">abstract
 syntax tree (AST)</a> of the
@@ -1672,7 +1682,7 @@ structure consisting mainly of packages which contain models and other objects
 as well as sub-packages. Models themselves can be composed of multiple (possibly
 replaceable) components. Much of this information will be required by the
 OpenStudio tool in order to understand which component models are available,
-where they reside in the library’s package structure (i.e., their fully
+where they reside in the library&#8217;s package structure (i.e., their fully
 qualified name), what parameters they have, how they can be configured, how to
 display them, and what other meta-data are available (such as documentation
 strings and full-on HTML documentation).</p>
@@ -1687,7 +1697,7 @@ connecting points, inputs/outputs, and parameters and related meta-data.</p>
 <p>Presumably, an OpenStudio application will consume some or all of the above
 information, use it to provide an interface to the user, and ultimately write
 out a Modelica file which connects the various library components, configures
-various components and packages (for example, setting the “media” or working
+various components and packages (for example, setting the &#8220;media&#8221; or working
 fluid of fluid component models in various HVAC loops), and assigning
 values to parameters.</p>
 <p>To create models, information from other libraries, most notably, the Modelica
@@ -1699,7 +1709,7 @@ MBL. Therefore, it will be important that this tool is not limited to just
 parsing/processing the MBL.</p>
 <p>Also, related to meta-data, it has been proposed that the MBL add any
 OpenStudio-specific metadata to the MBL files themselves. It was originally
-envisioned that Modelica’s annotations should support just such a use-case.
+envisioned that Modelica&#8217;s annotations should support just such a use-case.
 It has been noted that if components from other libraries need to be made
 available to OpenStudio, they could be pulled into the MBL and annotated
 (for example, components from Modelica.Blocks).</p>
@@ -1717,7 +1727,7 @@ package structure of the library</li>
 <dt>for each package, to know</dt>
 <dd><ul class="first last">
 <li>what models are available</li>
-<li>what connection “ports” are available</li>
+<li>what connection &#8220;ports&#8221; are available</li>
 <li>for fluid ports, which ports carry the same fluid (so that media
 assignments can be propagated through a circuit)</li>
 <li>what control inputs/outputs are available</li>
@@ -1740,7 +1750,7 @@ language.</p>
 <p>We believe the <a class="reference external" href="http://www.jmodelica.org/api-docs/usersguide/JModelicaUsersGuide-1.17.0.pdf">JModelica</a>
 tool suite will be able to provide the proper parsing tools for the AST we
 need. Specifically, we must ensure that the AST we derive from JModelica meets
-all of our needs – most notably, we must ensure we have access to all
+all of our needs &#8211; most notably, we must ensure we have access to all
 annotations. Specifically, we are looking to JModelica for the following:</p>
 <ol class="arabic simple">
 <li>Provide programmatic access to the full AST of Modelica libraries</li>
@@ -1771,7 +1781,7 @@ import. For example, the OpenStudio team may need to make the <cite>Modelica.Blo
 package of the MSL available for use with the MBL but would not necessarily
 need to include other packages such as <cite>Modelica.Magnetic</cite>,
 <cite>Modelica.Electrical</cite>, or <cite>Modelica.Mechanics</cite>.</p>
-<p>An additional feature of the tool will be to perform a “diff” (i.e., logical
+<p>An additional feature of the tool will be to perform a &#8220;diff&#8221; (i.e., logical
 differences) between two generated XML files. The signature for this
 application would be:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ast_doc_diff</span> <span class="o">&lt;</span><span class="n">options</span><span class="o">&gt;</span> <span class="o">--</span><span class="n">out</span> <span class="o">&lt;</span><span class="n">path_to_diff_report</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">path1</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">path2</span><span class="o">&gt;</span>
@@ -1784,9 +1794,9 @@ application would be:</p>
 <p>The purpose of the <cite>ast_doc_diff</cite> tool would be to detect non-trivial
 differences between two generated XML files that hold the AST of a Modelica
 library and report those changes out to another XML file. The content of the
-“difference” XML file would explicitly show the differences between the two
+&#8220;difference&#8221; XML file would explicitly show the differences between the two
 input manifests. The options here would allow for tweaking the meaning of what
-it means to be “different”.</p>
+it means to be &#8220;different&#8221;.</p>
 <p>The following two lists attempt to list out examples of changes that
 cannot be ignored as well as changes that can be ignored.</p>
 <p><em>Significant Changes (Cannot be Ignored)</em></p>
@@ -1812,17 +1822,17 @@ within a section)</li>
 <li>changes to <cite>protected</cite> sections of code</li>
 <li>changes to <cite>equation</cite> or <cite>algorithm</cite> sections of code</li>
 <li>changes to some models/blocks/functions may be completely ignored if, by
-convention, we deem certain paths as “not directly consumable” by OpenStudio.
+convention, we deem certain paths as &#8220;not directly consumable&#8221; by OpenStudio.
 For example, we may wish to not consume paths under a <cite>BaseClasses</cite>,
 <cite>Examples</cite>, or <cite>Functions</cite> designation.</li>
 </ul>
-<p>To summarize, the creation of or changes to the “public API” (public
+<p>To summarize, the creation of or changes to the &#8220;public API&#8221; (public
 parameters, variables, subcomponents, connectors) of models, blocks, or
 functions must be compared for change detection. Documentation (HTML)/
 documentation strings/graphics annotations will not affect the model interface
 or semantics. Changes to protected properties or equations will not affect
 the interface (but may affect the actual numeric output quantities).</p>
-<p>Annotations could be used to signal status changes such as “deprecation”.</p>
+<p>Annotations could be used to signal status changes such as &#8220;deprecation&#8221;.</p>
 <p>The <cite>ast_doc_diff</cite> tool would be of use in particular when new versions of the
 MBL are released and the OpenStudio team would like to check if there are
 non-trivial changes they need to integrate.</p>
@@ -1832,8 +1842,8 @@ non-trivial changes they need to integrate.</p>
 <p>There have been several attempts to represent or use XML in relation to
 Modelica in the past (<a class="reference internal" href="zreferences.html#landin2014" id="id2">[Lan14]</a>, <a class="reference internal" href="zreferences.html#fritzson2003g" id="id3">[Fri03]</a>, <a class="reference internal" href="zreferences.html#pop2003" id="id4">[PF03]</a>, <a class="reference internal" href="zreferences.html#pop2005" id="id5">[PSAssmannF05]</a>, and <a class="reference internal" href="zreferences.html#reisenbichler2006" id="id6">[RKH+06]</a>).</p>
 <p>In particular, N. Landin did work with Modelon using JModelica to export XML for
-the purpose of model exchange <a class="reference internal" href="zreferences.html#landin2014" id="id7">[Lan14]</a> – this is very similar to our use case.
-Unfortunately, this work deals only with “flattened” models – Modelica models
+the purpose of model exchange <a class="reference internal" href="zreferences.html#landin2014" id="id7">[Lan14]</a> &#8211; this is very similar to our use case.
+Unfortunately, this work deals only with &#8220;flattened&#8221; models &#8211; Modelica models
 that have been instantiated with all of the hierarchy removed. For our use
 case, the hierarchy must be preserved so that the OpenStudio team can
 build a new model through instantiation of models from the MBL.</p>
@@ -1862,7 +1872,7 @@ planning meeting on February 1, 2017, it was discussed that we generally want
 all of the information from the source AST <em>except</em> equation and algorithm
 sections. All annotations should be made available.</p>
 <p>One consideration will be: which version of the AST should be used to represent
-packages, classes, models, etc. The <a class="reference external" href="http://www.jmodelica.org/api-docs/usersguide/JModelicaUsersGuide-1.17.0.pdf">JModelica User’s Guide 1.17</a>
+packages, classes, models, etc. The <a class="reference external" href="http://www.jmodelica.org/api-docs/usersguide/JModelicaUsersGuide-1.17.0.pdf">JModelica User&#8217;s Guide 1.17</a>
 in Chapter 9 talks about three kinds of AST: source level, instance level, and
 flattened. The flattened AST is not relevant for us (it corresponds to a fully
 flattened model instance ready to be compiled; our interest is in browsing all
@@ -1874,8 +1884,8 @@ consumers.</p>
 <p>An instance level AST, in contrast, represents the fully expanded instance of a
 given model or class, including configurations. Although this is tempting to
 use, we must remember that we are dealing with a library, not a model
-<em>instance</em>. It will be <em>OpenStudio</em>’s job to build and specify a model class to
-instantiate. Especially due to Modelica’s configuration mechanism, it would be
+<em>instance</em>. It will be <em>OpenStudio</em>&#8216;s job to build and specify a model class to
+instantiate. Especially due to Modelica&#8217;s configuration mechanism, it would be
 dangerous to treat object <em>classes</em> as <em>instances</em>.</p>
 <p>Therefore, we delivered something closer to the source AST but
 with a mind to construct the data model such that it is easy to trace
@@ -2209,7 +2219,7 @@ the tool should also work for other Modelica libraries.</td></tr>
     </p>
     <p>
         &copy; Copyright (c) All rights reserved.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.<br/>
     </p>
   </div>
 </footer>
