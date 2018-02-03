@@ -2,23 +2,12 @@
 
 <!DOCTYPE html>
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>Automated Documentation/AST Support Tool &#8212; Spawn of EnergyPlus</title>
-    
-    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootswatch-3.3.6/united/bootstrap.min.css" type="text/css" />
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootstrap.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootstrap-theme.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootstrap_custom.css" type="text/css" />
-    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-    <link rel="stylesheet" href="_static/custom-sphinx.css" type="text/css" />
-    
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -35,7 +24,7 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
     <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="_static/lbl-icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
@@ -46,7 +35,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
 
   <div id="navbar" class="navbar navbar-default ">
     <div class="container-fluid">
@@ -97,8 +86,10 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="softwareArchitecture.html">5. Software Architecture</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#openstudio-integration">5.1. OpenStudio integration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#jmodelica-integration">5.2. JModelica Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#overall-software-architecture">5.1. Overall software architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#coupling-of-energyplus-envelope-and-room-with-modelica-based-hvac-and-control">5.2. Coupling of EnergyPlus envelope and room with Modelica-based HVAC and control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#jmodelica-integration">5.3. JModelica Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#openstudio-integration">5.4. OpenStudio integration</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="numericalMethods.html">6. Numerical Methods of the Master Algorithm</a><ul>
@@ -172,7 +163,7 @@
   <div class="section" id="automated-documentation-ast-support-tool">
 <h1>Automated Documentation/AST Support Tool<a class="headerlink" href="#automated-documentation-ast-support-tool" title="Permalink to this headline">¶</a></h1>
 <p>This section describes an agreed-upon workflow, toolchain and process to
-generate automated SOEP &#8220;documentation&#8221; and abstract syntax trees from Modelica
+generate automated SOEP “documentation” and abstract syntax trees from Modelica
 libraries; in particular, the Modelica Buildings Library (MBL).</p>
 <p>The goal of this effort is to build a computer program that makes the <a class="reference external" href="https://en.wikipedia.org/wiki/Abstract_syntax_tree">abstract
 syntax tree (AST)</a> of the
@@ -195,7 +186,7 @@ structure consisting mainly of packages which contain models and other objects
 as well as sub-packages. Models themselves can be composed of multiple (possibly
 replaceable) components. Much of this information will be required by the
 OpenStudio tool in order to understand which component models are available,
-where they reside in the library&#8217;s package structure (i.e., their fully
+where they reside in the library’s package structure (i.e., their fully
 qualified name), what parameters they have, how they can be configured, how to
 display them, and what other meta-data are available (such as documentation
 strings and full-on HTML documentation).</p>
@@ -210,7 +201,7 @@ connecting points, inputs/outputs, and parameters and related meta-data.</p>
 <p>Presumably, an OpenStudio application will consume some or all of the above
 information, use it to provide an interface to the user, and ultimately write
 out a Modelica file which connects the various library components, configures
-various components and packages (for example, setting the &#8220;media&#8221; or working
+various components and packages (for example, setting the “media” or working
 fluid of fluid component models in various HVAC loops), and assigning
 values to parameters.</p>
 <p>To create models, information from other libraries, most notably, the Modelica
@@ -222,7 +213,7 @@ MBL. Therefore, it will be important that this tool is not limited to just
 parsing/processing the MBL.</p>
 <p>Also, related to meta-data, it has been proposed that the MBL add any
 OpenStudio-specific metadata to the MBL files themselves. It was originally
-envisioned that Modelica&#8217;s annotations should support just such a use-case.
+envisioned that Modelica’s annotations should support just such a use-case.
 It has been noted that if components from other libraries need to be made
 available to OpenStudio, they could be pulled into the MBL and annotated
 (for example, components from Modelica.Blocks).</p>
@@ -240,7 +231,7 @@ package structure of the library</li>
 <dt>for each package, to know</dt>
 <dd><ul class="first last">
 <li>what models are available</li>
-<li>what connection &#8220;ports&#8221; are available</li>
+<li>what connection “ports” are available</li>
 <li>for fluid ports, which ports carry the same fluid (so that media
 assignments can be propagated through a circuit)</li>
 <li>what control inputs/outputs are available</li>
@@ -263,7 +254,7 @@ language.</p>
 <p>We believe the <a class="reference external" href="http://www.jmodelica.org/api-docs/usersguide/JModelicaUsersGuide-1.17.0.pdf">JModelica</a>
 tool suite will be able to provide the proper parsing tools for the AST we
 need. Specifically, we must ensure that the AST we derive from JModelica meets
-all of our needs &#8211; most notably, we must ensure we have access to all
+all of our needs – most notably, we must ensure we have access to all
 annotations. Specifically, we are looking to JModelica for the following:</p>
 <ol class="arabic simple">
 <li>Provide programmatic access to the full AST of Modelica libraries</li>
@@ -294,7 +285,7 @@ import. For example, the OpenStudio team may need to make the <cite>Modelica.Blo
 package of the MSL available for use with the MBL but would not necessarily
 need to include other packages such as <cite>Modelica.Magnetic</cite>,
 <cite>Modelica.Electrical</cite>, or <cite>Modelica.Mechanics</cite>.</p>
-<p>An additional feature of the tool will be to perform a &#8220;diff&#8221; (i.e., logical
+<p>An additional feature of the tool will be to perform a “diff” (i.e., logical
 differences) between two generated XML files. The signature for this
 application would be:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ast_doc_diff</span> <span class="o">&lt;</span><span class="n">options</span><span class="o">&gt;</span> <span class="o">--</span><span class="n">out</span> <span class="o">&lt;</span><span class="n">path_to_diff_report</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">path1</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">path2</span><span class="o">&gt;</span>
@@ -307,9 +298,9 @@ application would be:</p>
 <p>The purpose of the <cite>ast_doc_diff</cite> tool would be to detect non-trivial
 differences between two generated XML files that hold the AST of a Modelica
 library and report those changes out to another XML file. The content of the
-&#8220;difference&#8221; XML file would explicitly show the differences between the two
+“difference” XML file would explicitly show the differences between the two
 input manifests. The options here would allow for tweaking the meaning of what
-it means to be &#8220;different&#8221;.</p>
+it means to be “different”.</p>
 <p>The following two lists attempt to list out examples of changes that
 cannot be ignored as well as changes that can be ignored.</p>
 <p><em>Significant Changes (Cannot be Ignored)</em></p>
@@ -335,17 +326,17 @@ within a section)</li>
 <li>changes to <cite>protected</cite> sections of code</li>
 <li>changes to <cite>equation</cite> or <cite>algorithm</cite> sections of code</li>
 <li>changes to some models/blocks/functions may be completely ignored if, by
-convention, we deem certain paths as &#8220;not directly consumable&#8221; by OpenStudio.
+convention, we deem certain paths as “not directly consumable” by OpenStudio.
 For example, we may wish to not consume paths under a <cite>BaseClasses</cite>,
 <cite>Examples</cite>, or <cite>Functions</cite> designation.</li>
 </ul>
-<p>To summarize, the creation of or changes to the &#8220;public API&#8221; (public
+<p>To summarize, the creation of or changes to the “public API” (public
 parameters, variables, subcomponents, connectors) of models, blocks, or
 functions must be compared for change detection. Documentation (HTML)/
 documentation strings/graphics annotations will not affect the model interface
 or semantics. Changes to protected properties or equations will not affect
 the interface (but may affect the actual numeric output quantities).</p>
-<p>Annotations could be used to signal status changes such as &#8220;deprecation&#8221;.</p>
+<p>Annotations could be used to signal status changes such as “deprecation”.</p>
 <p>The <cite>ast_doc_diff</cite> tool would be of use in particular when new versions of the
 MBL are released and the OpenStudio team would like to check if there are
 non-trivial changes they need to integrate.</p>
@@ -355,8 +346,8 @@ non-trivial changes they need to integrate.</p>
 <p>There have been several attempts to represent or use XML in relation to
 Modelica in the past (<a class="reference internal" href="zreferences.html#landin2014" id="id2">[Lan14]</a>, <a class="reference internal" href="zreferences.html#fritzson2003g" id="id3">[Fri03]</a>, <a class="reference internal" href="zreferences.html#pop2003" id="id4">[PF03]</a>, <a class="reference internal" href="zreferences.html#pop2005" id="id5">[PSAssmannF05]</a>, and <a class="reference internal" href="zreferences.html#reisenbichler2006" id="id6">[RKH+06]</a>).</p>
 <p>In particular, N. Landin did work with Modelon using JModelica to export XML for
-the purpose of model exchange <a class="reference internal" href="zreferences.html#landin2014" id="id7">[Lan14]</a> &#8211; this is very similar to our use case.
-Unfortunately, this work deals only with &#8220;flattened&#8221; models &#8211; Modelica models
+the purpose of model exchange <a class="reference internal" href="zreferences.html#landin2014" id="id7">[Lan14]</a> – this is very similar to our use case.
+Unfortunately, this work deals only with “flattened” models – Modelica models
 that have been instantiated with all of the hierarchy removed. For our use
 case, the hierarchy must be preserved so that the OpenStudio team can
 build a new model through instantiation of models from the MBL.</p>
@@ -385,7 +376,7 @@ planning meeting on February 1, 2017, it was discussed that we generally want
 all of the information from the source AST <em>except</em> equation and algorithm
 sections. All annotations should be made available.</p>
 <p>One consideration will be: which version of the AST should be used to represent
-packages, classes, models, etc. The <a class="reference external" href="http://www.jmodelica.org/api-docs/usersguide/JModelicaUsersGuide-1.17.0.pdf">JModelica User&#8217;s Guide 1.17</a>
+packages, classes, models, etc. The <a class="reference external" href="http://www.jmodelica.org/api-docs/usersguide/JModelicaUsersGuide-1.17.0.pdf">JModelica User’s Guide 1.17</a>
 in Chapter 9 talks about three kinds of AST: source level, instance level, and
 flattened. The flattened AST is not relevant for us (it corresponds to a fully
 flattened model instance ready to be compiled; our interest is in browsing all
@@ -397,8 +388,8 @@ consumers.</p>
 <p>An instance level AST, in contrast, represents the fully expanded instance of a
 given model or class, including configurations. Although this is tempting to
 use, we must remember that we are dealing with a library, not a model
-<em>instance</em>. It will be <em>OpenStudio</em>&#8216;s job to build and specify a model class to
-instantiate. Especially due to Modelica&#8217;s configuration mechanism, it would be
+<em>instance</em>. It will be <em>OpenStudio</em>’s job to build and specify a model class to
+instantiate. Especially due to Modelica’s configuration mechanism, it would be
 dangerous to treat object <em>classes</em> as <em>instances</em>.</p>
 <p>Therefore, we delivered something closer to the source AST but
 with a mind to construct the data model such that it is easy to trace
@@ -730,7 +721,7 @@ the tool should also work for other Modelica libraries.</td></tr>
     </p>
     <p>
         &copy; Copyright (c) All rights reserved.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.<br/>
     </p>
   </div>
 </footer>

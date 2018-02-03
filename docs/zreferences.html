@@ -2,23 +2,12 @@
 
 <!DOCTYPE html>
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>10. References &#8212; Spawn of EnergyPlus</title>
-    
-    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootswatch-3.3.6/united/bootstrap.min.css" type="text/css" />
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootstrap.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootstrap-theme.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootstrap_custom.css" type="text/css" />
-    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-    <link rel="stylesheet" href="_static/custom-sphinx.css" type="text/css" />
-    
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -35,7 +24,7 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
     <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="_static/lbl-icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
@@ -47,7 +36,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
 
   <div id="navbar" class="navbar navbar-default ">
     <div class="container-fluid">
@@ -98,8 +87,10 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="softwareArchitecture.html">5. Software Architecture</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#openstudio-integration">5.1. OpenStudio integration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#jmodelica-integration">5.2. JModelica Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#overall-software-architecture">5.1. Overall software architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#coupling-of-energyplus-envelope-and-room-with-modelica-based-hvac-and-control">5.2. Coupling of EnergyPlus envelope and room with Modelica-based HVAC and control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#jmodelica-integration">5.3. JModelica Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#openstudio-integration">5.4. OpenStudio integration</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="numericalMethods.html">6. Numerical Methods of the Master Algorithm</a><ul>
@@ -137,7 +128,7 @@
               
                 
   <li>
-    <a href="acknowledgments.html" title="Previous Chapter: 9. Acknowledgments"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; 9. Acknowledg...</span>
+    <a href="acknowledgments.html" title="Previous Chapter: 9. Acknowledgments"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; 9. Acknowledgments</span>
     </a>
   </li>
               
@@ -190,7 +181,7 @@
 <table class="docutils citation" frame="void" id="florosetal2011-1" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label">[FBCK11]</td><td>Xenofon Floros, Federico Bergero, François&nbsp;E. Cellier, and Ernesto Kofman. Automated simulation of modelica models with QSS methods - the discontinuous case. In <em>Proc. of the 8-th International Modelica Conference</em>. Dresden, Germany, March 2011. Modelica Association. <a class="reference external" href="http://dx.doi.org/10.3384/ecp11063657">doi:10.3384/ecp11063657</a>.</td></tr>
+<tr><td class="label">[FBCK11]</td><td>Xenofon Floros, Federico Bergero, François&nbsp;E. Cellier, and Ernesto Kofman. Automated simulation of modelica models with QSS methods - the discontinuous case. In <em>Proc. of the 8-th International Modelica Conference</em>. Dresden, Germany, March 2011. Modelica Association. <a class="reference external" href="https://doi.org/10.3384/ecp11063657">doi:10.3384/ecp11063657</a>.</td></tr>
 </tbody>
 </table>
 <table class="docutils citation" frame="void" id="fritzson2003g" rules="none">
@@ -208,7 +199,7 @@
 <table class="docutils citation" frame="void" id="landin2014" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label">[Lan14]</td><td>Niklas Landin. Xml export and import of modelica models. Master&#8217;s thesis, University of Gothenburg, GÃ¶teborg, Sweden, 2014. <span><a class="reference external" href="#"></a></span>https://gupea.ub.gu.se/bitstream/2077/38718/1/gupea_2077_38718_1.pdf.</td></tr>
+<tr><td class="label">[Lan14]</td><td>Niklas Landin. Xml export and import of modelica models. Master’s thesis, University of Gothenburg, GÃ¶teborg, Sweden, 2014. <span><a class="reference external" href="#"></a></span>https://gupea.ub.gu.se/bitstream/2077/38718/1/gupea_2077_38718_1.pdf.</td></tr>
 </tbody>
 </table>
 <table class="docutils citation" frame="void" id="migonibortolottokofmancellier2013-1" rules="none">
@@ -226,13 +217,13 @@
 <table class="docutils citation" frame="void" id="pol97-1" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label">[Pol97]</td><td>Elijah Polak. <em>Optimization, Algorithms and Consistent Approximations</em>. volume 124 of Applied Mathematical Sciences. Springer Verlag, 1997.</td></tr>
+<tr><td class="label">[Pol97]</td><td>Elijah Polak. <em>Optimization, Algorithms and Consistent Approximations</em>. Volume 124 of Applied Mathematical Sciences. Springer Verlag, 1997.</td></tr>
 </tbody>
 </table>
 <table class="docutils citation" frame="void" id="polakwetter2006" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label">[PW06]</td><td>Elijah Polak and Michael Wetter. Precision control for generalized pattern search algorithms with adaptive precision function evaluations. <em>SIAM Journal on Optimization</em>, 16(3):650–669, 2006. URL: <a class="reference external" href="http://link.aip.org/link/?SJE/16/650/1">http://link.aip.org/link/?SJE/16/650/1</a>, <a class="reference external" href="http://dx.doi.org/10.1137/040605527">doi:10.1137/040605527</a>.</td></tr>
+<tr><td class="label">[PW06]</td><td>Elijah Polak and Michael Wetter. Precision control for generalized pattern search algorithms with adaptive precision function evaluations. <em>SIAM Journal on Optimization</em>, 16(3):650–669, 2006. URL: <a class="reference external" href="http://link.aip.org/link/?SJE/16/650/1">http://link.aip.org/link/?SJE/16/650/1</a>, <a class="reference external" href="https://doi.org/10.1137/040605527">doi:10.1137/040605527</a>.</td></tr>
 </tbody>
 </table>
 <table class="docutils citation" frame="void" id="pop2003" rules="none">
@@ -244,25 +235,25 @@
 <table class="docutils citation" frame="void" id="pop2005" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label">[PSAssmannF05]</td><td>Adrian Pop, Ilie Savga, Uwe A\ssmann , and Peter Fritzson. Composition of xml dialects: a modelicaxml case study. <em>Electron. Notes Theor. Comput. Sci.</em>, 114:137–152, January 2005. URL: <a class="reference external" href="http://dx.doi.org/10.1016/j.entcs.2004.02.071">http://dx.doi.org/10.1016/j.entcs.2004.02.071</a>, <a class="reference external" href="http://dx.doi.org/10.1016/j.entcs.2004.02.071">doi:10.1016/j.entcs.2004.02.071</a>.</td></tr>
+<tr><td class="label">[PSAssmannF05]</td><td>Adrian Pop, Ilie Savga, Uwe A\ssmann , and Peter Fritzson. Composition of xml dialects: a modelicaxml case study. <em>Electron. Notes Theor. Comput. Sci.</em>, 114:137–152, January 2005. URL: <a class="reference external" href="http://dx.doi.org/10.1016/j.entcs.2004.02.071">http://dx.doi.org/10.1016/j.entcs.2004.02.071</a>, <a class="reference external" href="https://doi.org/10.1016/j.entcs.2004.02.071">doi:10.1016/j.entcs.2004.02.071</a>.</td></tr>
 </tbody>
 </table>
 <table class="docutils citation" frame="void" id="reisenbichler2006" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label">[RKH+06]</td><td>Ulf Reisenbichler, HansjÃ¶rg Kapeller, Anton Haumer, Christian Kral, Franz Pirker, and Gert Pascoli. If we only had used XML... In <em>Proc. of the 5-th International Modelica Conference</em>. Vienna, Austria, September 2006. Modelica Association. <span><a class="reference external" href="#"></a></span>https://www.modelica.org/events/modelica2006/Proceedings/sessions/Session6d1.pdf.</td></tr>
+<tr><td class="label">[RKH+06]</td><td>Ulf Reisenbichler, HansjÃ¶rg Kapeller, Anton Haumer, Christian Kral, Franz Pirker, and Gert Pascoli. If we only had used XML… In <em>Proc. of the 5-th International Modelica Conference</em>. Vienna, Austria, September 2006. Modelica Association. <span><a class="reference external" href="#"></a></span>https://www.modelica.org/events/modelica2006/Proceedings/sessions/Session6d1.pdf.</td></tr>
 </tbody>
 </table>
 <table class="docutils citation" frame="void" id="wetter2005-1" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label">[Wet05]</td><td>Michael Wetter. BuildOpt – a new building energy simulation program that is built on smooth models. <em>Building and Environment</em>, 40(8):1085–1092, August 2005. <a class="reference external" href="http://dx.doi.org/10.1016/j.buildenv.2004.10.003">doi:10.1016/j.buildenv.2004.10.003</a>.</td></tr>
+<tr><td class="label">[Wet05]</td><td>Michael Wetter. BuildOpt – a new building energy simulation program that is built on smooth models. <em>Building and Environment</em>, 40(8):1085–1092, August 2005. <a class="reference external" href="https://doi.org/10.1016/j.buildenv.2004.10.003">doi:10.1016/j.buildenv.2004.10.003</a>.</td></tr>
 </tbody>
 </table>
 <table class="docutils citation" frame="void" id="wetterfuchsnouidui-2015" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label">[WFN15]</td><td>Michael Wetter, Marcus Fuchs, and Thierry&nbsp;S. Nouidui. Design choices for thermofluid flow component and systems that are exported as Functional Mockup Units. In Peter Fritzson and Hilding Elmqvist, editors, <em>11-th International Modelica Conference</em>, 31–41. Paris, France, September 2015. Modelica Association. <a class="reference external" href="http://dx.doi.org/DOI:10.3384/ecp1511831">doi:DOI:10.3384/ecp1511831</a>.</td></tr>
+<tr><td class="label">[WFN15]</td><td>Michael Wetter, Marcus Fuchs, and Thierry&nbsp;S. Nouidui. Design choices for thermofluid flow component and systems that are exported as Functional Mockup Units. In Peter Fritzson and Hilding Elmqvist, editors, <em>11-th International Modelica Conference</em>, 31–41. Paris, France, September 2015. Modelica Association. <a class="reference external" href="https://doi.org/DOI:10.3384/ecp1511831">doi:DOI:10.3384/ecp1511831</a>.</td></tr>
 </tbody>
 </table>
 <table class="docutils citation" frame="void" id="zeiglerlee1998" rules="none">
@@ -291,7 +282,7 @@
     </p>
     <p>
         &copy; Copyright (c) All rights reserved.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.<br/>
     </p>
   </div>
 </footer>

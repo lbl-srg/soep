@@ -2,23 +2,12 @@
 
 <!DOCTYPE html>
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>Spawn of EnergyPlus – Design and Implementation (Working Draft) &#8212; Spawn of EnergyPlus</title>
-    
-    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootswatch-3.3.6/united/bootstrap.min.css" type="text/css" />
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootstrap.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootstrap-theme.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootstrap_custom.css" type="text/css" />
-    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-    <link rel="stylesheet" href="_static/custom-sphinx.css" type="text/css" />
-    
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -35,7 +24,7 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
     <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="_static/lbl-icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
@@ -47,7 +36,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
 
   <div id="navbar" class="navbar navbar-default ">
     <div class="container-fluid">
@@ -98,8 +87,10 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="softwareArchitecture.html">5. Software Architecture</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#openstudio-integration">5.1. OpenStudio integration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#jmodelica-integration">5.2. JModelica Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#overall-software-architecture">5.1. Overall software architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#coupling-of-energyplus-envelope-and-room-with-modelica-based-hvac-and-control">5.2. Coupling of EnergyPlus envelope and room with Modelica-based HVAC and control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#jmodelica-integration">5.3. JModelica Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#openstudio-integration">5.4. OpenStudio integration</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="numericalMethods.html">6. Numerical Methods of the Master Algorithm</a><ul>
@@ -127,7 +118,7 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">Spawn of EnergyPlus &#8211; Design and Implementation (Working Draft)</a><ul>
+<li><a class="reference internal" href="#">Spawn of EnergyPlus – Design and Implementation (Working Draft)</a><ul>
 <li><a class="reference internal" href="#table-of-contents">Table of Contents</a></li>
 </ul>
 </li>
@@ -171,7 +162,7 @@
     <div class="col-md-12 content">
       
   <div class="section" id="spawn-of-energyplus-design-and-implementation-working-draft">
-<h1>Spawn of EnergyPlus &#8211; Design and Implementation (Working Draft)<a class="headerlink" href="#spawn-of-energyplus-design-and-implementation-working-draft" title="Permalink to this headline">¶</a></h1>
+<h1>Spawn of EnergyPlus – Design and Implementation (Working Draft)<a class="headerlink" href="#spawn-of-energyplus-design-and-implementation-working-draft" title="Permalink to this headline">¶</a></h1>
 <p>The Spawn of EnergyPlus, called SOEP, is a next-generation simulation engine,
 for building and control energy systems.
 SOEP will combine</p>
@@ -247,31 +238,41 @@ and any of the design may change.</p>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="softwareArchitecture.html">5. Software Architecture</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#openstudio-integration">5.1. OpenStudio integration</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="softwareArchitecture.html#automated-documentation-ast-support-tool">5.1.1. Automated Documentation/AST Support Tool</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#background">5.1.1.1. Background</a></li>
-<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#proposed-workflow-process-and-toolchain">5.1.1.2. Proposed Workflow, Process, and Toolchain</a></li>
-<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#literature-review">5.1.1.3. Literature review</a></li>
-<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#discussion-and-details">5.1.1.4. Discussion and Details</a></li>
-<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#summary-of-questions-and-next-steps">5.1.1.5. Summary of Questions and Next Steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#overall-software-architecture">5.1. Overall software architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#coupling-of-energyplus-envelope-and-room-with-modelica-based-hvac-and-control">5.2. Coupling of EnergyPlus envelope and room with Modelica-based HVAC and control</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="softwareArchitecture.html#assumptions-and-limitations">5.2.1. Assumptions and limitations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="softwareArchitecture.html#partitioning-of-the-models">5.2.2. Partitioning of the models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="softwareArchitecture.html#data-exchange">5.2.3. Data exchange</a></li>
+<li class="toctree-l3"><a class="reference internal" href="softwareArchitecture.html#time-synchronization">5.2.4. Time synchronization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="softwareArchitecture.html#requirements-for-exporting-energyplus-as-an-fmu-for-model-exchange">5.2.5. Requirements for Exporting EnergyPlus as an FMU for model exchange</a></li>
+<li class="toctree-l3"><a class="reference internal" href="softwareArchitecture.html#pseudo-code-example">5.2.6. Pseudo Code Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#jmodelica-integration">5.3. JModelica Integration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="softwareArchitecture.html#fmi-changes-for-qss">5.3.1. FMI Changes for QSS</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#event-handling">5.3.1.1. Event Handling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#smoothtoken-for-qss">5.3.1.2. SmoothToken for QSS</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="softwareArchitecture.html#summary-of-proposed-changes">5.3.2. Summary of Proposed Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="softwareArchitecture.html#open-topics">5.3.3. Open Topics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#atomic-api">5.3.3.1. Atomic API</a></li>
+<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#xml-api">5.3.3.2. XML/API</a></li>
+<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#higher-derivatives">5.3.3.3. Higher Derivatives</a></li>
+<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#input-variables">5.3.3.4. Input Variables</a></li>
+<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#annotations">5.3.3.5. Annotations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#conditional-expressions-and-event-indicators">5.3.3.6. Conditional Expressions and Event Indicators</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#jmodelica-integration">5.2. JModelica Integration</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="softwareArchitecture.html#fmi-changes-for-qss">5.2.1. FMI Changes for QSS</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#event-handling">5.2.1.1. Event Handling</a></li>
-<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#smoothtoken-for-qss">5.2.1.2. SmoothToken for QSS</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="softwareArchitecture.html#summary-of-proposed-changes">5.2.2. Summary of Proposed Changes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="softwareArchitecture.html#open-topics">5.2.3. Open Topics</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#atomic-api">5.2.3.1. Atomic API</a></li>
-<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#xml-api">5.2.3.2. XML/API</a></li>
-<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#higher-derivatives">5.2.3.3. Higher Derivatives</a></li>
-<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#input-variables">5.2.3.4. Input Variables</a></li>
-<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#annotations">5.2.3.5. Annotations</a></li>
-<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#conditional-expressions-and-event-indicators">5.2.3.6. Conditional Expressions and Event Indicators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#openstudio-integration">5.4. OpenStudio integration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="softwareArchitecture.html#automated-documentation-ast-support-tool">5.4.1. Automated Documentation/AST Support Tool</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#background">5.4.1.1. Background</a></li>
+<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#proposed-workflow-process-and-toolchain">5.4.1.2. Proposed Workflow, Process, and Toolchain</a></li>
+<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#literature-review">5.4.1.3. Literature review</a></li>
+<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#discussion-and-details">5.4.1.4. Discussion and Details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#summary-of-questions-and-next-steps">5.4.1.5. Summary of Questions and Next Steps</a></li>
 </ul>
 </li>
 </ul>
@@ -322,7 +323,7 @@ and any of the design may change.</p>
     </p>
     <p>
         &copy; Copyright (c) All rights reserved.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.<br/>
     </p>
   </div>
 </footer>

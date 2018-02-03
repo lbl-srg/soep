@@ -3,9 +3,8 @@
 Software Architecture
 ---------------------
 
-OpenStudio integration
-^^^^^^^^^^^^^^^^^^^^^^
-
+Overall software architecture
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 :numref:`fig_overall_software_architecture`
 shows the overall software architecture of SOEP.
@@ -132,7 +131,436 @@ Note that the JModelica distribution includes a C++ compiler.
    end note
 
 
-.. include:: automatedDocAstTool.rst
+
+Coupling of EnergyPlus envelope and room with Modelica-based HVAC and control
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This section describes the refactoring of the
+EnergyPlus room model, which will remain in the C/C++ implementation
+of EnergyPlus, to a form that exposes the time derivative of the room
+model to the External Interface of EnergyPlus.
+EnergyPlus will be exported as an FMU for model exchange.
+
+The time integration of the room air temperature, moisture and
+trace substance concentrations will be done by the master algorithm.
+
+EnergyPlus will synchronize the room model and the envelope model.
+
+We will use the following terminology: By `envelope model`, we mean
+the model for the heat and moisture transfer through opaque constructions
+and through windows.
+By `room model`, we mean the room air heat, mass and trace substance balance.
+By `HVAC model`, we mean the HVAC and control model.
+
+The physical quantities that need to be exchanged are as follows.
+For a convective HVAC system, the convective and latent heat gain added
+by the HVAC system,
+the mass flow rates of trace substances such as CO2 and VoC, and
+the state of the return air, e.g., temperature, relative humidity and pressure.
+For radiant systems, the temperature of the radiant surface,
+and the heat flow rates due to conduction, short-wave and long-wave radiation.
+
+
+Assumptions and limitations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For the current implementation, we will make the following assumption:
+
+1. Only the lumped room air model will be refactored, not the
+   room model with stratified room air.
+   The reason is to keep focus and make progress before increasing complexity.
+2. The HVAC and the pressure driven air exchange (airflow network) are
+   either in legacy EnergyPlus or in FMUs of the SOEP.
+   The two methods cannot be combined.
+   The reason is that the legacy EnergyPlus computes in its "predictor/corrector"
+   the room temperature as follows:
+
+   a. It computes the HVAC power required to meet the temperature set point.
+   b. It simulates the HVAC system to see whether it can meet this load.
+   c. It updates the room temperature using the HVAC power from step (b).
+
+   This is fundamentally different from the ODE solver used by SOEP who sets the new
+   room temperature and time, requests its time derivative, and then recomputes
+   the new time step.
+3. In each room, mass, as opposed to volume, is conserved.
+   The reason is that this does not induce an air flow in the HVAC system if
+   the room temperature changes. Hence, it decouples the thermal and the mass balance.
+
+
+Partitioning of the models
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To link the envelope model, the room model and the HVAC model, we partition the simulation
+as shown in :num:`Figure #fig-partition-envelop-room-hvac`.
+
+.. _fig-partition-envelop-room-hvac:
+
+.. figure:: img/envelop-room-hvac.*
+   :scale: 100 %
+
+   Partitioning of the envelope, room and HVAC model.
+
+The EnergyPlus FMU is for model exchange and contains the
+envelope and the room model.
+All of the HVAC system and other pressure driven mass flow
+rates, such as infiltration due to wind pressure or static
+pressure differences, are computed in the HVAC FMUs.
+There can be one or several HVAC FMUs, which is irrelevant
+as EnergyPlus will only see one set of variables that it
+exchanges with the master algorithm.
+
+.. _sec_data_exchange:
+
+Data exchange
+~~~~~~~~~~~~~
+
+The communication occurs through the EnergyPlus external interface.
+The following variables are sent between the master algorithm
+and the EnergyPlus FMU for each room.
+
++---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
+| Variable                  | Dimension                   | Quantity                                                                                                   | Unit            |
++===========================+=============================+============================================================================================================+=================+
+| *From master algorithm to EnergyPlus FMU*                                                                                                                                              |
++---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
+| mInlet_flow               | :math:`n`                   | Mass flow rate into the zone for the :math:`n`, :math:`n \ge 0`, air inlets (including infiltration)       |   kg/s          |
++---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
+| TInlet                    | :math:`n`                   | Temperature of the medium carried by the mass flow rate                                                    |   degC          |
++---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
+| XInlet                    | :math:`n`                   | Water vapor mass fraction per total air mass of the medium carried by the mass flow rate                   |   kg/kg         |
++---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
+| CInlet                    | :math:`n \times m`          | Concentration of each :math:`m`, :math:`m \ge 0`, trace substance per unit mass of the medium              | unspecified     |
+|                           |                             | carried by the mass flow rate                                                                              |                 |
++---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
+| T                         | :math:`1`                   | Temperature of the zone air                                                                                |   degC          |
++---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
+| X                         | :math:`1`                   | Water vapor mass fraction per total air mass of the zone                                                   |   kg/kg         |
++---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
+| C                         | :math:`m`                   | Concentration of each :math:`m`, :math:`m \ge 0`, trace substance per unit mass of the zone air            | unspecified     |
++---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
+| QGaiConSen_flow           | :math:`1`                   | Convective sensible heat gain added to the zone, and not already part of the flow mInlet_flow              |   W             |
++---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
+| QGaiRadSen_flow           | :math:`1`                   | Radiative sensible heat gain added to the zone                                                             |   W             |
++---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
+| QGaiLat_flow              | :math:`1`                   | Latent heat gain added to the zone, and not already part of the flow mInlet_flow                           |   W             |
++---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
+| t                         | :math:`1`                   | Model time at which the above inputs are valid, with :math:`t=0` defined as January 1, 0 am local time,    |   s             |
+|                           |                             | and with                                                                                                   |                 |
+|                           |                             | no correction for daylight savings time                                                                    |                 |
++---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
+| *From EnergyPlus FMU to master algorithm*                                                                                                                                              |
++---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
+| dT_dt                     | :math:`1`                   | Time derivative of room air temperature                                                                    |   K/s           |
++---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
+| dX_dt                     | :math:`1`                   | Time derivative of water vapor mass fraction                                                               |   kg/(kg.s)     |
++---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
+| dC_dt                     | :math:`m`                   | Time derivative of the trace substance concentration                                                       |   1/s           |
++---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
+| TRad                      | :math:`1`                   | Average radiative temperature in the room                                                                  |   degC          |
++---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
+| nextEventTime             | :math:`1`                   | Model time :math:`t` when EnergyPlus needs to be called next (typically the next zone time step)           |   s             |
++---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
+
+There can be zero or multiple air inlet flows, and the quantity :math:`\dot m_{inlet}^i`,
+for any :math:`i \in \{0, \ldots, n\}`, can be negative. Hence, the energy equation needs
+to be formulated as
+
+.. math::
+
+   C \, \frac{dT}{dt} = \sum_{i=0}^n \max(0, \dot m_{inlet}^i) \, c_p \, (T_{inlet}^i - T) + \text{ other terms}.
+
+
+The trace substance concentration :math:`C` has unspecified units as it may be
+modeled with units of mass fraction or PPM, depending on the magnitude of the concentration.
+Also, there may be any number of trace substances.
+
+How to connect variables from the External Interface to the EnergyPlus zone is defined by using an object in the idf file
+of the form
+
+.. code::
+
+   ExternalInterface:FunctionalMockupUnitExport:Zone,
+   South Office, !- EnergyPlus name of the zone
+   3,            !- 0 <= n, number of air flow inlets from the External Interface
+   2;            !- 0 <= m, number of trace substances
+
+The External Interface then maps the data from the above variable table to data structure in EnergyPlus.
+
+.. _sec_time_sync:
+
+Time synchronization
+~~~~~~~~~~~~~~~~~~~~
+
+As shown in :num:`Figure #fig-partition-envelop-room-hvac`, the EnergyPlus FMU is invoked
+at a variable time step.
+Internally, it synchronizes the envelope and the room model, but how this synchronization
+is accomplished is opaque to the FMI interface.
+Whenever such a synchronization occurs, typically at the envelope time step :math:`\Delta t_z`,
+EnergyPlus needs to report this to the FMI interface. To report such time events,
+the FMI interface uses a C structure called ``fmi2EventInfo`` which is implemented as follows:
+
+.. code:: c
+
+   typedef struct{
+     fmi2Boolean newDiscreteStatesNeeded;
+     fmi2Boolean terminateSimulation;
+     fmi2Boolean nominalsOfContinuousStatesChanged;
+     fmi2Boolean valuesOfContinuousStatesChanged;
+     fmi2Boolean nextEventTimeDefined;
+     fmi2Real
+     nextEventTime; // next event if nextEventTimeDefined=fmi2True
+     } fmi2EventInfo;
+
+The variable ``nextEventTime`` needs to be set to the time when the next event happens
+in EnergyPlus. This is, for example, whenever the envelope model advances time,
+or when a schedule changes its value and this change affects the variables
+that are sent from the EnergyPlus FMU to the master algorithm.
+Such a schedule could for example be a time schedule for internal heat gains,
+which may change at times that do not coincide with the zone time step :math:`\Delta t_z`.
+
+Requirements for Exporting EnergyPlus as an FMU for model exchange
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To export EnergyPlus as an FMU for model exchange, EnergyPlus must be compiled as a shared library.
+The shared library must export the functions which are described in the next section.
+These functions are then used by the FMI for model exchange wrapper that LBL is developing.
+
+.. note::
+
+  In the current implementation, we assume that EnergyPlus does not support roll back in time.
+  This will otherwise require EnergyPlus to be able to save and restore its complete internal state.
+  This internal state consists especially of the values of the continuous-time states,
+  iteration variables, parameter values, input values, delay buffers, file identifiers and internal status information.
+  This limitation is indicated in the model description file with the capability flag ``canGetAndSetFMUstate``
+  being set to ``false``. If this capability were supported, then EnergyPlus could be used
+  with ODE solvers which can reject and repeat steps. Rejecting steps is needed by ODE solvers
+  such as DASSL or even Euler with step size control (but not for QSS)
+  as they may reject a step size if the error is too large.
+  Also, rejecting steps is needed to identify state events (but not for QSS solvers).
+
+In the remainder of this section, we note that ``time`` is
+
+   - the variable described as ``t`` in the table of section :numref:`sec_data_exchange`,
+   - a monotonically increasing variable. 
+
+.. note::
+ 
+    Monotonically increasing means that if a function has as argument ``time`` and is called at time ``t1``, then its next call must happen at time ``t2`` with ``t2`` >= ``t1``.
+    For efficiency reasons, if a function which updates internal variables is called at the same time instant multiple times then only the first call will update the variables, subsequent calls will cause the functions to return the same variable values.
+
+.. code:: c
+
+   unsigned int instantiate(const char const *input,
+                            const char const *weather,
+                            const char const *idd,
+                            const char const *instanceName,
+                            const char** varNames,
+                            double varPointers[],
+                            size_t nVars, 
+                            const char *log);
+
+- ``input``: Absolute or relative path to an EnergyPlus input file with file name.
+- ``weather``: Absolute or relative path to an EnergyPlus weather file with file name.
+- ``idd``: Absolute or relative path to an EnergyPlus IDD file with file name.
+- ``instanceName``: String to uniquely identify an EnergyPlus instance. This string must be non-empty and will be used for logging message.
+- ``varNames``: A vector of variable names.
+- ``varPointers``: A vector of pointers to variables listed in ``varNames``.
+- ``nVars``: Number of elements of ``varNames`` and in ``varPointers``.
+- ``log``: Logging message returned on error.
+
+
+This function will read the ``idf`` file, sets up the data structure in EnergyPlus, gets
+a vector of variable names (as in ``modelDescription.xml``)
+and returns a vector of pointers to the aforementioned variables. 
+The ordering of the variable names must match the ordering of the vector of pointers.
+
+It returns zero if there was no error, or else a positive non-zero integer. 
+
+.. code:: c
+
+   unsigned int initialize(double *tStart,
+                           double *tEnd,
+                           const char *log);
+                           
+- ``tStart``: Start of simulation in seconds.
+- ``tEnd``: End of simulation in seconds.
+- ``log``: Logging message returned on error.
+
+This functions sets the start and end time of EnergyPlus to the values ``tStart`` and ``tEnd``.
+There is no warm-up simulation.
+
+It returns zero if there was no error, or else a positive non-zero integer.
+
+.. note::
+
+   The EnergyPlus start and stop time is as retrieved from the arguments of
+   ``initialize(...)``. The ``RunPeriod`` in the ``idf`` file is only
+   used to determine the day of the week.
+
+   *Complications*: 
+
+   a) Users may set ``tStart`` and ``tEnd``
+      to times other than midnight. We think EnergyPlus cannot yet handle an arbitrary start
+      and end time. In this case, it should return an error.
+   b) Users may set ``tStart=tEnd``, which is valid in some simulators. Can EneryPlus
+      handle this or should it return an error?
+
+
+.. code:: c
+
+   unsigned int setTime(double *time, 
+                        const char *log);
+
+- ``time``: Model time.
+- ``log``: Logging message returned on error.
+
+This function sets a new time in EnergyPlus. This time becomes the current model time.
+
+It returns zero if there was no error, or else a positive non-zero integer. 
+
+.. code:: c
+
+   unsigned int setVariables(double *time, 
+                             const double varPointers[], 
+                             const double varValues[], 
+                             size_t nVars, 
+                             const char *log);
+
+- ``time``: Model time.
+- ``varPointers``: Vector of pointers to variables.
+- ``varValues``: Vector of variable values.
+- ``nVars``: Number of elements of ``varPointers`` and ``varValues``. 
+- ``log``: Logging message returned on error.
+
+This function sets the value of variables in EnergyPlus.
+Variables can be schedules, actuator, or EMS variables.
+The number of elements in ``varPointers`` match the number of elements in ``varValues``.
+
+It returns zero if there was no error, or else a positive non-zero integer.
+
+.. code:: c
+
+   unsigned int getVariables(double *time, 
+                             const double varPointers[], 
+                             double varValues[], 
+                             size_t nVars, 
+                             const char *log);
+
+- ``time``: Model time.
+- ``varPointers``: Vector of pointers to variables.
+- ``varValues``: Vector of variable values.
+- ``nVars``: Number of elements of ``varPointers`` and ``varValues``. 
+- ``log``: Logging message returned on error.
+
+
+This function gets the value of variables in EnergyPlus.
+The number of elements in ``varPointers`` match the number of elements in ``varValues``.
+
+It returns zero if there was no error, or else a positive non-zero integer.
+
+.. code:: c
+
+   unsigned int setContinuousStates(double *time,
+                                    const double varPointers[], 
+                                    const double varValues[],
+                                    size_t nVars,
+                                    const char *log);
+
+- ``time``: Model time.
+- ``varPointers``: Vector of pointers to state variables.
+- ``varValues``: Vector of state variable values.
+- ``nVars``: Number of elements of ``varpointers`` and ``varValues``.
+- ``log``: Logging message returned on error.
+
+This function sets a new state vector in EnergyPlus.
+
+It returns zero if there was no error, or else a positive non-zero integer.
+
+.. code:: c
+
+   unsigned int getContinuousStates(double *time,
+                                    const double varPointers[], 
+                                    double varValues[],
+                                    size_t nVars,
+                                    const char *log);
+
+- ``time``: Model time
+- ``varPointers``: Vector of pointers to state variables.
+- ``varValues``: Vector of variable values.
+- ``nVars``: Number of elements of ``varpointers`` and ``varValues``.
+- ``log``: Logging message returned on error.
+
+This function returns the new state vector from EnergyPlus.
+
+It returns zero if there was no error, or else a positive non-zero integer.
+
+
+.. code:: c
+
+   unsigned int getTimeDerivatives(double *time,
+                                   const double varPointers[], 
+                                   double varValues[],
+                                   size_t nVars,
+                                   const char *log);
+
+- ``time``: Model time.
+- ``varPointers``: Vector of pointers to state derivatives.
+- ``varValues``: Vector of state derivative values.
+- ``nVars``: Length of vector of state derivatives.
+- ``log``: Logging message returned on error.
+
+This function gets as argument ``time``, and returns a vector of state derivatives.
+
+It returns zero if there was no error, or else a positive non-zero integer.
+
+.. code:: c
+
+   unsigned int getNextEventTime(fmi2EventInfo *eventInfo,
+                                 const char *log);
+
+- ``eventInfo``: A structure with event info as defined in section :ref:`sec_time_sync`
+- ``log``: Logging message returned on error.
+
+This function writes a structure which contains among its variables a non-zero flag to indicate that the next event time is defined, and the next event time in EnergyPlus.
+
+It returns zero if there was no error, or else a positive non-zero integer.
+
+.. code:: c
+
+   unsigned int terminate(const char *log);
+
+- ``log``: Logging message returned on error.
+
+This function must free all allocated variables in EnergyPlus.
+
+Any further call to the EnergyPlus shared library is prohibited after call to this function.
+
+It returns zero if there was no error, or else a positive non-zero integer.
+
+.. code:: c
+
+   unsigned int writeOutputFiles(const char *log);
+
+- ``log``: Logging message returned on error.
+
+
+This function writes the output to the EnergyPlus output files.
+
+It returns zero if there was no error, or else a positive non-zero integer.
+
+
+Pseudo Code Example
+~~~~~~~~~~~~~~~~~~~
+
+In the next section, the usage of the FMI functions along with the equivalent EnergyPlus functions are used in a typical calling sequence. 
+This should clarify the need of the EnergyPlus equivalent functions and show how these functions will be used in a simulation environment.
+In the pseudo code, ``->`` points to the EnergyPlus equivalent FMI functions. ``NA`` indicates that the FMI functions do not require EnergyPlus equivalent.
+
+
+.. literalinclude:: models/pseudo/pseudo.c
+   :language: C
+   :linenos:
+
 
 JModelica Integration
 ^^^^^^^^^^^^^^^^^^^^^
@@ -765,3 +1193,10 @@ Conditional Expressions and Event Indicators
   FMU that a zero crossing occurred at a given time (and maybe with crossing direction information).
 
 - If the xml can expose the zero crossing directions of interest that will allow for more efficiency.
+
+OpenStudio integration
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. note:: This section needs to be revised in view of the move towards a json-driven architecture.
+
+.. include:: automatedDocAstTool.rst
