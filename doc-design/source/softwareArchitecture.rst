@@ -292,9 +292,7 @@ Time synchronization
 
 As shown in :num:`Figure #fig-partition-envelop-room-hvac`, the EnergyPlus FMU is invoked
 at a variable time step.
-Internally, it synchronizes the envelope and the room model, but how this synchronization
-is accomplished is opaque to the FMI interface.
-Whenever such a synchronization occurs, typically at the envelope time step :math:`\Delta t_z`,
+Internally, it samples its heat conduction model at the envelope time step :math:`\Delta t_z`.
 EnergyPlus needs to report this to the FMI interface. To report such time events,
 the FMI interface uses a C structure called ``fmi2EventInfo`` which is implemented as follows:
 
@@ -354,7 +352,7 @@ In the remainder of this section, we note that ``time`` is
                             const char const *idd,
                             const char const *instanceName,
                             const char** varNames,
-                            double varPointers[],
+                            double* varPointers[],
                             size_t nVars,
                             const char *log);
 
@@ -377,11 +375,16 @@ It returns zero if there was no error, or else a positive non-zero integer.
 
 .. code:: c
 
-   unsigned int initialize(double *tStart,
-                           double *tEnd,
-                           const char *log);
+   unsigned int setupExperiment(double tStart,
+                                bool stopTimeDefined,
+                                double tEnd,
+                                const char *log);
 
 - ``tStart``: Start of simulation in seconds.
+- ``stopTimeDefined``: If ``false``, then the value of ``tEnd`` must be ignored.
+  If ``stopTimeDefined = true`` and the environment tries to compute past ``tEnd``,
+  then ``setTime()`` has to return an error message.
+  (Setting ``stopTimeDefined = false`` allows use of the simulator as part of a controller.)
 - ``tEnd``: End of simulation in seconds.
 - ``log``: Logging message returned on error.
 
@@ -393,7 +396,7 @@ It returns zero if there was no error, or else a positive non-zero integer.
 .. note::
 
    The EnergyPlus start and stop time is as retrieved from the arguments of
-   ``initialize(...)``. The ``RunPeriod`` in the ``idf`` file is only
+   ``setupExperiment(...)``. The ``RunPeriod`` in the ``idf`` file is only
    used to determine the day of the week.
 
    *Complications*:
@@ -407,7 +410,7 @@ It returns zero if there was no error, or else a positive non-zero integer.
 
 .. code:: c
 
-   unsigned int setTime(double *time,
+   unsigned int setTime(double time,
                         const char *log);
 
 - ``time``: Model time.
@@ -419,56 +422,54 @@ It returns zero if there was no error, or else a positive non-zero integer.
 
 .. code:: c
 
-   unsigned int setVariables(double *time,
-                             const double varPointers[],
-                             const double varValues[],
-                             size_t nVars,
+   unsigned int setVariables(double time,
+                             const double* const varPointers[],
+                             size_t nVars1,
                              const char *log);
 
 - ``time``: Model time.
 - ``varPointers``: Vector of pointers to variables.
-- ``varValues``: Vector of variable values.
-- ``nVars``: Number of elements of ``varPointers`` and ``varValues``.
+- ``nVars1``: Number of elements of ``varPointers``.
 - ``log``: Logging message returned on error.
 
 This function sets the value of variables in EnergyPlus.
-Variables can be schedules, actuator, or EMS variables.
-The number of elements in ``varPointers`` match the number of elements in ``varValues``.
+The vector ``varPointers`` could be a subset of the pointer ``varPointers``
+that was setup in ``instantiate(...)``, i.e., ``nVars1 <= nVars``
+(to allow updating only specific variables
+as needed by QSS).
 
 It returns zero if there was no error, or else a positive non-zero integer.
 
 .. code:: c
 
-   unsigned int getVariables(double *time,
-                             const double varPointers[],
-                             double varValues[],
-                             size_t nVars,
+   unsigned int getVariables(double time,
+                             const double* varPointers[],
+                             size_t nVars2,
                              const char *log);
 
 - ``time``: Model time.
 - ``varPointers``: Vector of pointers to variables.
-- ``varValues``: Vector of variable values.
-- ``nVars``: Number of elements of ``varPointers`` and ``varValues``.
+- ``nVars2``: Number of elements of ``varPointers``.
 - ``log``: Logging message returned on error.
 
 
 This function gets the value of variables in EnergyPlus.
-The number of elements in ``varPointers`` match the number of elements in ``varValues``.
+EnergyPlus must write the values to the elements that are setup in ``varPointers``
+during the ``instantiate(...)`` call.
+``nVars2 <= nVars`` if only certain output variables are required.
 
 It returns zero if there was no error, or else a positive non-zero integer.
 
 .. code:: c
 
-   unsigned int setContinuousStates(double *time,
+   unsigned int setContinuousStates(double time,
                                     const double varPointers[],
-                                    const double varValues[],
-                                    size_t nVars,
+                                    size_t nVars3,
                                     const char *log);
 
 - ``time``: Model time.
 - ``varPointers``: Vector of pointers to state variables.
-- ``varValues``: Vector of state variable values.
-- ``nVars``: Number of elements of ``varpointers`` and ``varValues``.
+- ``nVars3``: Number of elements of ``varPointers``.
 - ``log``: Logging message returned on error.
 
 This function sets a new state vector in EnergyPlus.
@@ -477,16 +478,14 @@ It returns zero if there was no error, or else a positive non-zero integer.
 
 .. code:: c
 
-   unsigned int getContinuousStates(double *time,
-                                    const double varPointers[],
-                                    double varValues[],
-                                    size_t nVars,
+   unsigned int getContinuousStates(double time,
+                                    const double* varPointers[],
+                                    size_t nVars4,
                                     const char *log);
 
 - ``time``: Model time
 - ``varPointers``: Vector of pointers to state variables.
-- ``varValues``: Vector of variable values.
-- ``nVars``: Number of elements of ``varpointers`` and ``varValues``.
+- ``nVars4``: Number of elements of ``varpointers``.
 - ``log``: Logging message returned on error.
 
 This function returns the new state vector from EnergyPlus.
@@ -496,16 +495,14 @@ It returns zero if there was no error, or else a positive non-zero integer.
 
 .. code:: c
 
-   unsigned int getTimeDerivatives(double *time,
-                                   const double varPointers[],
-                                   double varValues[],
-                                   size_t nVars,
+   unsigned int getTimeDerivatives(double time,
+                                   const double* varPointers[],
+                                   size_t nVars5,
                                    const char *log);
 
 - ``time``: Model time.
 - ``varPointers``: Vector of pointers to state derivatives.
-- ``varValues``: Vector of state derivative values.
-- ``nVars``: Length of vector of state derivatives.
+- ``nVars5``: Length of vector of state derivatives.
 - ``log``: Logging message returned on error.
 
 This function gets as argument ``time``, and returns a vector of state derivatives.

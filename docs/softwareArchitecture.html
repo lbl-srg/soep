@@ -543,9 +543,7 @@ South Office, !- EnergyPlus name of the zone
 <span id="sec-time-sync"></span><h3>5.2.4. Time synchronization<a class="headerlink" href="#time-synchronization" title="Permalink to this headline">¶</a></h3>
 <p>As shown in <a class="pageref" href="#fig-partition-envelop-room-hvac">Figure  2</a>, the EnergyPlus FMU is invoked
 at a variable time step.
-Internally, it synchronizes the envelope and the room model, but how this synchronization
-is accomplished is opaque to the FMI interface.
-Whenever such a synchronization occurs, typically at the envelope time step <span class="math">\(\Delta t_z\)</span>,
+Internally, it samples its heat conduction model at the envelope time step <span class="math">\(\Delta t_z\)</span>.
 EnergyPlus needs to report this to the FMI interface. To report such time events,
 the FMI interface uses a C structure called <code class="docutils literal"><span class="pre">fmi2EventInfo</span></code> which is implemented as follows:</p>
 <div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">typedef</span> <span class="n">struct</span><span class="p">{</span>
@@ -601,7 +599,7 @@ For efficiency reasons, if a function which updates internal variables is called
                          <span class="n">const</span> <span class="n">char</span> <span class="n">const</span> <span class="o">*</span><span class="n">idd</span><span class="p">,</span>
                          <span class="n">const</span> <span class="n">char</span> <span class="n">const</span> <span class="o">*</span><span class="n">instanceName</span><span class="p">,</span>
                          <span class="n">const</span> <span class="n">char</span><span class="o">**</span> <span class="n">varNames</span><span class="p">,</span>
-                         <span class="n">double</span> <span class="n">varPointers</span><span class="p">[],</span>
+                         <span class="n">double</span><span class="o">*</span> <span class="n">varPointers</span><span class="p">[],</span>
                          <span class="n">size_t</span> <span class="n">nVars</span><span class="p">,</span>
                          <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
 </pre></div>
@@ -621,13 +619,18 @@ a vector of variable names (as in <code class="docutils literal"><span class="pr
 and returns a vector of pointers to the aforementioned variables.
 The ordering of the variable names must match the ordering of the vector of pointers.</p>
 <p>It returns zero if there was no error, or else a positive non-zero integer.</p>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">initialize</span><span class="p">(</span><span class="n">double</span> <span class="o">*</span><span class="n">tStart</span><span class="p">,</span>
-                        <span class="n">double</span> <span class="o">*</span><span class="n">tEnd</span><span class="p">,</span>
-                        <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
+<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">setupExperiment</span><span class="p">(</span><span class="n">double</span> <span class="n">tStart</span><span class="p">,</span>
+                             <span class="nb">bool</span> <span class="n">stopTimeDefined</span><span class="p">,</span>
+                             <span class="n">double</span> <span class="n">tEnd</span><span class="p">,</span>
+                             <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
 </pre></div>
 </div>
 <ul class="simple">
 <li><code class="docutils literal"><span class="pre">tStart</span></code>: Start of simulation in seconds.</li>
+<li><code class="docutils literal"><span class="pre">stopTimeDefined</span></code>: If <code class="docutils literal"><span class="pre">false</span></code>, then the value of <code class="docutils literal"><span class="pre">tEnd</span></code> must be ignored.
+If <code class="docutils literal"><span class="pre">stopTimeDefined</span> <span class="pre">=</span> <span class="pre">true</span></code> and the environment tries to compute past <code class="docutils literal"><span class="pre">tEnd</span></code>,
+then <code class="docutils literal"><span class="pre">setTime()</span></code> has to return an error message.
+(Setting <code class="docutils literal"><span class="pre">stopTimeDefined</span> <span class="pre">=</span> <span class="pre">false</span></code> allows use of the simulator as part of a controller.)</li>
 <li><code class="docutils literal"><span class="pre">tEnd</span></code>: End of simulation in seconds.</li>
 <li><code class="docutils literal"><span class="pre">log</span></code>: Logging message returned on error.</li>
 </ul>
@@ -637,7 +640,7 @@ There is no warm-up simulation.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p>The EnergyPlus start and stop time is as retrieved from the arguments of
-<code class="docutils literal"><span class="pre">initialize(...)</span></code>. The <code class="docutils literal"><span class="pre">RunPeriod</span></code> in the <code class="docutils literal"><span class="pre">idf</span></code> file is only
+<code class="docutils literal"><span class="pre">setupExperiment(...)</span></code>. The <code class="docutils literal"><span class="pre">RunPeriod</span></code> in the <code class="docutils literal"><span class="pre">idf</span></code> file is only
 used to determine the day of the week.</p>
 <p><em>Complications</em>:</p>
 <ol class="last loweralpha simple">
@@ -648,7 +651,7 @@ and end time. In this case, it should return an error.</li>
 handle this or should it return an error?</li>
 </ol>
 </div>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">setTime</span><span class="p">(</span><span class="n">double</span> <span class="o">*</span><span class="n">time</span><span class="p">,</span>
+<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">setTime</span><span class="p">(</span><span class="n">double</span> <span class="n">time</span><span class="p">,</span>
                      <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
 </pre></div>
 </div>
@@ -658,85 +661,79 @@ handle this or should it return an error?</li>
 </ul>
 <p>This function sets a new time in EnergyPlus. This time becomes the current model time.</p>
 <p>It returns zero if there was no error, or else a positive non-zero integer.</p>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">setVariables</span><span class="p">(</span><span class="n">double</span> <span class="o">*</span><span class="n">time</span><span class="p">,</span>
-                          <span class="n">const</span> <span class="n">double</span> <span class="n">varPointers</span><span class="p">[],</span>
-                          <span class="n">const</span> <span class="n">double</span> <span class="n">varValues</span><span class="p">[],</span>
-                          <span class="n">size_t</span> <span class="n">nVars</span><span class="p">,</span>
+<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">setVariables</span><span class="p">(</span><span class="n">double</span> <span class="n">time</span><span class="p">,</span>
+                          <span class="n">const</span> <span class="n">double</span><span class="o">*</span> <span class="n">const</span> <span class="n">varPointers</span><span class="p">[],</span>
+                          <span class="n">size_t</span> <span class="n">nVars1</span><span class="p">,</span>
                           <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
 </pre></div>
 </div>
 <ul class="simple">
 <li><code class="docutils literal"><span class="pre">time</span></code>: Model time.</li>
 <li><code class="docutils literal"><span class="pre">varPointers</span></code>: Vector of pointers to variables.</li>
-<li><code class="docutils literal"><span class="pre">varValues</span></code>: Vector of variable values.</li>
-<li><code class="docutils literal"><span class="pre">nVars</span></code>: Number of elements of <code class="docutils literal"><span class="pre">varPointers</span></code> and <code class="docutils literal"><span class="pre">varValues</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">nVars1</span></code>: Number of elements of <code class="docutils literal"><span class="pre">varPointers</span></code>.</li>
 <li><code class="docutils literal"><span class="pre">log</span></code>: Logging message returned on error.</li>
 </ul>
 <p>This function sets the value of variables in EnergyPlus.
-Variables can be schedules, actuator, or EMS variables.
-The number of elements in <code class="docutils literal"><span class="pre">varPointers</span></code> match the number of elements in <code class="docutils literal"><span class="pre">varValues</span></code>.</p>
+The vector <code class="docutils literal"><span class="pre">varPointers</span></code> could be a subset of the pointer <code class="docutils literal"><span class="pre">varPointers</span></code>
+that was setup in <code class="docutils literal"><span class="pre">instantiate(...)</span></code>, i.e., <code class="docutils literal"><span class="pre">nVars1</span> <span class="pre">&lt;=</span> <span class="pre">nVars</span></code>
+(to allow updating only specific variables
+as needed by QSS).</p>
 <p>It returns zero if there was no error, or else a positive non-zero integer.</p>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">getVariables</span><span class="p">(</span><span class="n">double</span> <span class="o">*</span><span class="n">time</span><span class="p">,</span>
-                          <span class="n">const</span> <span class="n">double</span> <span class="n">varPointers</span><span class="p">[],</span>
-                          <span class="n">double</span> <span class="n">varValues</span><span class="p">[],</span>
-                          <span class="n">size_t</span> <span class="n">nVars</span><span class="p">,</span>
+<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">getVariables</span><span class="p">(</span><span class="n">double</span> <span class="n">time</span><span class="p">,</span>
+                          <span class="n">const</span> <span class="n">double</span><span class="o">*</span> <span class="n">varPointers</span><span class="p">[],</span>
+                          <span class="n">size_t</span> <span class="n">nVars2</span><span class="p">,</span>
                           <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
 </pre></div>
 </div>
 <ul class="simple">
 <li><code class="docutils literal"><span class="pre">time</span></code>: Model time.</li>
 <li><code class="docutils literal"><span class="pre">varPointers</span></code>: Vector of pointers to variables.</li>
-<li><code class="docutils literal"><span class="pre">varValues</span></code>: Vector of variable values.</li>
-<li><code class="docutils literal"><span class="pre">nVars</span></code>: Number of elements of <code class="docutils literal"><span class="pre">varPointers</span></code> and <code class="docutils literal"><span class="pre">varValues</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">nVars2</span></code>: Number of elements of <code class="docutils literal"><span class="pre">varPointers</span></code>.</li>
 <li><code class="docutils literal"><span class="pre">log</span></code>: Logging message returned on error.</li>
 </ul>
 <p>This function gets the value of variables in EnergyPlus.
-The number of elements in <code class="docutils literal"><span class="pre">varPointers</span></code> match the number of elements in <code class="docutils literal"><span class="pre">varValues</span></code>.</p>
+EnergyPlus must write the values to the elements that are setup in <code class="docutils literal"><span class="pre">varPointers</span></code>
+during the <code class="docutils literal"><span class="pre">instantiate(...)</span></code> call.
+<code class="docutils literal"><span class="pre">nVars2</span> <span class="pre">&lt;=</span> <span class="pre">nVars</span></code> if only certain output variables are required.</p>
 <p>It returns zero if there was no error, or else a positive non-zero integer.</p>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">setContinuousStates</span><span class="p">(</span><span class="n">double</span> <span class="o">*</span><span class="n">time</span><span class="p">,</span>
+<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">setContinuousStates</span><span class="p">(</span><span class="n">double</span> <span class="n">time</span><span class="p">,</span>
                                  <span class="n">const</span> <span class="n">double</span> <span class="n">varPointers</span><span class="p">[],</span>
-                                 <span class="n">const</span> <span class="n">double</span> <span class="n">varValues</span><span class="p">[],</span>
-                                 <span class="n">size_t</span> <span class="n">nVars</span><span class="p">,</span>
+                                 <span class="n">size_t</span> <span class="n">nVars3</span><span class="p">,</span>
                                  <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
 </pre></div>
 </div>
 <ul class="simple">
 <li><code class="docutils literal"><span class="pre">time</span></code>: Model time.</li>
 <li><code class="docutils literal"><span class="pre">varPointers</span></code>: Vector of pointers to state variables.</li>
-<li><code class="docutils literal"><span class="pre">varValues</span></code>: Vector of state variable values.</li>
-<li><code class="docutils literal"><span class="pre">nVars</span></code>: Number of elements of <code class="docutils literal"><span class="pre">varpointers</span></code> and <code class="docutils literal"><span class="pre">varValues</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">nVars3</span></code>: Number of elements of <code class="docutils literal"><span class="pre">varPointers</span></code>.</li>
 <li><code class="docutils literal"><span class="pre">log</span></code>: Logging message returned on error.</li>
 </ul>
 <p>This function sets a new state vector in EnergyPlus.</p>
 <p>It returns zero if there was no error, or else a positive non-zero integer.</p>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">getContinuousStates</span><span class="p">(</span><span class="n">double</span> <span class="o">*</span><span class="n">time</span><span class="p">,</span>
-                                 <span class="n">const</span> <span class="n">double</span> <span class="n">varPointers</span><span class="p">[],</span>
-                                 <span class="n">double</span> <span class="n">varValues</span><span class="p">[],</span>
-                                 <span class="n">size_t</span> <span class="n">nVars</span><span class="p">,</span>
+<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">getContinuousStates</span><span class="p">(</span><span class="n">double</span> <span class="n">time</span><span class="p">,</span>
+                                 <span class="n">const</span> <span class="n">double</span><span class="o">*</span> <span class="n">varPointers</span><span class="p">[],</span>
+                                 <span class="n">size_t</span> <span class="n">nVars4</span><span class="p">,</span>
                                  <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
 </pre></div>
 </div>
 <ul class="simple">
 <li><code class="docutils literal"><span class="pre">time</span></code>: Model time</li>
 <li><code class="docutils literal"><span class="pre">varPointers</span></code>: Vector of pointers to state variables.</li>
-<li><code class="docutils literal"><span class="pre">varValues</span></code>: Vector of variable values.</li>
-<li><code class="docutils literal"><span class="pre">nVars</span></code>: Number of elements of <code class="docutils literal"><span class="pre">varpointers</span></code> and <code class="docutils literal"><span class="pre">varValues</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">nVars4</span></code>: Number of elements of <code class="docutils literal"><span class="pre">varpointers</span></code>.</li>
 <li><code class="docutils literal"><span class="pre">log</span></code>: Logging message returned on error.</li>
 </ul>
 <p>This function returns the new state vector from EnergyPlus.</p>
 <p>It returns zero if there was no error, or else a positive non-zero integer.</p>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">getTimeDerivatives</span><span class="p">(</span><span class="n">double</span> <span class="o">*</span><span class="n">time</span><span class="p">,</span>
-                                <span class="n">const</span> <span class="n">double</span> <span class="n">varPointers</span><span class="p">[],</span>
-                                <span class="n">double</span> <span class="n">varValues</span><span class="p">[],</span>
-                                <span class="n">size_t</span> <span class="n">nVars</span><span class="p">,</span>
+<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">getTimeDerivatives</span><span class="p">(</span><span class="n">double</span> <span class="n">time</span><span class="p">,</span>
+                                <span class="n">const</span> <span class="n">double</span><span class="o">*</span> <span class="n">varPointers</span><span class="p">[],</span>
+                                <span class="n">size_t</span> <span class="n">nVars5</span><span class="p">,</span>
                                 <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
 </pre></div>
 </div>
 <ul class="simple">
 <li><code class="docutils literal"><span class="pre">time</span></code>: Model time.</li>
 <li><code class="docutils literal"><span class="pre">varPointers</span></code>: Vector of pointers to state derivatives.</li>
-<li><code class="docutils literal"><span class="pre">varValues</span></code>: Vector of state derivative values.</li>
-<li><code class="docutils literal"><span class="pre">nVars</span></code>: Length of vector of state derivatives.</li>
+<li><code class="docutils literal"><span class="pre">nVars5</span></code>: Length of vector of state derivatives.</li>
 <li><code class="docutils literal"><span class="pre">log</span></code>: Logging message returned on error.</li>
 </ul>
 <p>This function gets as argument <code class="docutils literal"><span class="pre">time</span></code>, and returns a vector of state derivatives.</p>
@@ -899,109 +896,109 @@ In the pseudo code, <code class="docutils literal"><span class="pre">-&gt;</span
 123
 124
 125</pre></div></td><td class="code"><div class="highlight"><pre><span></span> <span class="c1">// instantiate</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">M_fmi2Instantiate</span><span class="p">(...)</span> <span class="o">-&gt;</span> <span class="n">instantiate</span><span class="p">(...)</span> 
+    <span class="n">m</span> <span class="o">=</span> <span class="n">M_fmi2Instantiate</span><span class="p">(...)</span> <span class="o">-&gt;</span> <span class="n">instantiate</span><span class="p">(...)</span>
 
-    <span class="n">tStart</span> <span class="o">=</span> <span class="mi">0</span>     
-    <span class="n">tEnd</span>   <span class="o">=</span> <span class="mi">10</span>    
-    <span class="n">dt</span>     <span class="o">=</span> <span class="mf">0.01</span>  
-    
+    <span class="n">tStart</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">tEnd</span>   <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">dt</span>     <span class="o">=</span> <span class="mf">0.01</span>
+
     <span class="c1">// set the start time</span>
     <span class="n">time</span>  <span class="o">=</span> <span class="n">tStart</span>
-    
+
     <span class="c1">// set the input values and the initial values for the states at time = tStart</span>
-    <span class="n">M_fmi2SetReal</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="p">...)</span> <span class="o">-&gt;</span> <span class="n">setVariables</span> <span class="p">(...)</span> 
-        
-    <span class="c1">// initialize    </span>
-    <span class="n">M_fmi2SetupExperiment</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="n">fmi2False</span><span class="p">,</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">Tstart</span><span class="p">,</span> <span class="n">fmi2True</span><span class="p">,</span><span class="n">Tend</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NA</span> 
-    <span class="n">M_fmi2EnterInitializationMode</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">initialize</span><span class="p">(...)</span>
+    <span class="n">M_fmi2SetReal</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="p">...)</span> <span class="o">-&gt;</span> <span class="n">setVariables</span> <span class="p">(...)</span>
+
+    <span class="c1">// initialize</span>
+    <span class="n">M_fmi2SetupExperiment</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="n">fmi2False</span><span class="p">,</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">Tstart</span><span class="p">,</span> <span class="n">fmi2True</span><span class="p">,</span><span class="n">Tend</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">setupExperiment</span><span class="p">(...)</span>
+    <span class="n">M_fmi2EnterInitializationMode</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NA</span>
     <span class="n">M_fmi2ExitInitializationMode</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NA</span>
-    
+
     <span class="n">initialEventMode</span> <span class="o">=</span> <span class="n">fmi2True</span>
     <span class="n">enterEventMode</span> <span class="o">=</span> <span class="n">fmi2False</span>
     <span class="n">timeEvent</span> <span class="o">=</span> <span class="n">fmi2False</span>
     <span class="n">stateEvent</span> <span class="o">=</span> <span class="n">fmi2False</span>
     <span class="n">previous_z</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">(</span><span class="n">nz</span><span class="p">)</span>
-    
+
     <span class="c1">// The time in EnergyPlus is now at Tstart</span>
-    
+
     <span class="k">do</span>
       <span class="c1">// handle events</span>
       <span class="k">if</span> <span class="n">initialEventMode</span> <span class="n">or</span> <span class="n">enterEventMode</span> <span class="n">or</span> <span class="n">timeEvent</span> <span class="n">or</span> <span class="n">stateEvent</span> <span class="n">then</span>
         <span class="k">if</span> <span class="n">not</span> <span class="n">initialEventMode</span> <span class="n">then</span>
           <span class="n">M_fmi2EnterEventMode</span><span class="p">(...)</span> <span class="o">-&gt;</span> <span class="n">NA</span>
         <span class="n">end</span> <span class="k">if</span>
-    
+
         <span class="c1">// event iteration</span>
         <span class="n">eventInfo</span><span class="p">.</span><span class="n">newDiscreteStatesNeeded</span> <span class="o">=</span> <span class="n">fmi2True</span><span class="p">;</span>
         <span class="n">M_valuesOfContinuousStatesChanged</span> <span class="o">=</span> <span class="n">fmi2False</span><span class="p">;</span>
          <span class="k">while</span> <span class="n">eventInfo</span><span class="p">.</span><span class="n">newDiscreteStatesNeeded</span> <span class="n">loop</span>
            <span class="c1">// update discrete states</span>
-           <span class="n">M_fmi2NewDiscreteStates</span><span class="p">(</span><span class="n">eventInfo</span><span class="p">,</span> <span class="p">...)</span> <span class="o">-&gt;</span> <span class="n">getNextEventTime</span><span class="p">(</span><span class="n">eventInfo</span><span class="p">,</span> <span class="p">...)</span> 
+           <span class="n">M_fmi2NewDiscreteStates</span><span class="p">(</span><span class="n">eventInfo</span><span class="p">,</span> <span class="p">...)</span> <span class="o">-&gt;</span> <span class="n">getNextEventTime</span><span class="p">(</span><span class="n">eventInfo</span><span class="p">,</span> <span class="p">...)</span>
            <span class="c1">// See specification on page 80</span>
            <span class="n">M_fmi2SetReal</span><span class="p">(...)</span> <span class="o">-&gt;</span> <span class="n">setVariables</span> <span class="p">(...)</span>
            <span class="n">M_fmi2GetReal</span><span class="p">(...)</span> <span class="o">-&gt;</span> <span class="n">getVariables</span> <span class="p">(...)</span>
            <span class="k">if</span> <span class="n">eventInfo</span><span class="p">.</span><span class="n">terminateSimulation</span> <span class="n">then</span> <span class="k">goto</span> <span class="n">TERMINATE_MODEL</span>
         <span class="n">end</span> <span class="k">while</span>
-    
+
         <span class="c1">// enter Continuous-Time Mode</span>
         <span class="n">M_fmi2EnterContinuousTimeMode</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NA</span>
-    
+
         <span class="c1">// retrieve solution at simulation (re)start</span>
         <span class="n">M_fmi2GetReal</span><span class="p">(...)</span> <span class="o">-&gt;</span> <span class="n">getVariables</span> <span class="p">(...)</span>
         <span class="k">if</span> <span class="n">initialEventMode</span> <span class="n">or</span> <span class="n">eventInfo</span><span class="p">.</span><span class="n">valuesOfContinuousStatesChanged</span> <span class="n">then</span>
           <span class="c1">//the model signals a value change of states, retrieve them</span>
           <span class="n">M_fmi2GetContinuousStates</span><span class="p">(...)</span> <span class="o">-&gt;</span> <span class="n">getContinuousStates</span><span class="p">(...)</span>
         <span class="n">end</span> <span class="k">if</span>
-    
+
         <span class="k">if</span> <span class="n">initialEventMode</span> <span class="n">or</span> <span class="n">eventInfo</span><span class="p">.</span><span class="n">nominalsOfContinuousStatesChanged</span> <span class="n">then</span>
           <span class="c1">//the meaning of states has changed; retrieve new nominal values</span>
           <span class="n">M_fmi2GetNominalsOfContinuousStates</span><span class="p">(...)</span> <span class="o">-&gt;</span> <span class="n">NA</span>
         <span class="n">end</span> <span class="k">if</span>
-    
+
         <span class="k">if</span> <span class="n">eventInfo</span><span class="p">.</span><span class="n">nextEventTimeDefined</span> <span class="n">then</span>
            <span class="n">tNext</span> <span class="o">=</span> <span class="n">min</span><span class="p">(</span><span class="n">eventInfo</span><span class="p">.</span><span class="n">nextEventTime</span><span class="p">,</span> <span class="n">tEnd</span><span class="p">)</span>
         <span class="k">else</span>
            <span class="n">tNext</span> <span class="o">=</span> <span class="n">tEnd</span>
         <span class="n">end</span> <span class="k">if</span>
-    
+
         <span class="n">initialEventMode</span> <span class="o">=</span> <span class="n">fmi2False</span>
       <span class="n">end</span> <span class="k">if</span>
-    
+
       <span class="k">if</span> <span class="n">time</span> <span class="o">&gt;=</span> <span class="n">tEnd</span> <span class="n">then</span>
         <span class="k">goto</span> <span class="n">TERMINATE_MODEL</span>
       <span class="n">end</span> <span class="k">if</span>
-    
+
       <span class="c1">// compute derivatives</span>
       <span class="n">M_fmi2GetDerivatives</span><span class="p">(...)</span> <span class="o">-&gt;</span> <span class="n">getTimeDerivatives</span><span class="p">(...)</span>
       <span class="c1">// Note we might have to compute time derivatives at different time instants</span>
       <span class="c1">// to approximate higher order derivatives for QSS integration methods.</span>
-    
+
       <span class="c1">// Note that a forward Euler method with event detection, or more sophisticated</span>
       <span class="c1">// methods such as dassl, will not work with EnergyPlus.</span>
-      <span class="c1">// The reason is that EnergyPlus does not allow rollback (and this limitation </span>
+      <span class="c1">// The reason is that EnergyPlus does not allow rollback (and this limitation</span>
       <span class="c1">// is indicated in the model description file with the capability flag</span>
       <span class="c1">// canGetAndSetFMUstate=false.</span>
-   
+
       <span class="c1">// When using QSS numerical methods,</span>
       <span class="c1">// compute minimal next quantization time tq</span>
       <span class="n">time_old</span> <span class="o">=</span> <span class="n">time</span>
       <span class="n">time</span> <span class="o">=</span> <span class="n">min</span> <span class="p">(</span><span class="n">tq</span><span class="p">,</span> <span class="n">tNext</span><span class="p">)</span> <span class="c1">// tq is the next predicted quantization time</span>
-      
+
       <span class="n">M_fmi2SetTime</span><span class="p">(...)</span> <span class="o">-&gt;</span> <span class="n">setTime</span><span class="p">(...)</span>
-    
+
       <span class="c1">// set inputs at t = time</span>
       <span class="n">M_fmi2SetReal</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="p">...)</span> <span class="o">-&gt;</span> <span class="n">setVariables</span> <span class="p">(...)</span>
-    
+
       <span class="c1">// do a time integration up to t = time</span>
-      <span class="n">x</span> <span class="o">=</span> <span class="n">integral</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">der_x</span><span class="p">,</span> <span class="n">time_old</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>  
+      <span class="n">x</span> <span class="o">=</span> <span class="n">integral</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">der_x</span><span class="p">,</span> <span class="n">time_old</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
       <span class="n">M_fmi2SetContinuousStates</span><span class="p">(...)</span> <span class="o">-&gt;</span> <span class="n">setContinuousStates</span><span class="p">(...)</span>
-  
+
       <span class="c1">// get event indicators for state events detection at t = time</span>
-      <span class="n">M_fmi2GetEventIndicators</span><span class="p">(...)</span> <span class="o">-&gt;</span> <span class="n">NA</span> 
-    
+      <span class="n">M_fmi2GetEventIndicators</span><span class="p">(...)</span> <span class="o">-&gt;</span> <span class="n">NA</span>
+
       <span class="c1">// EnergyPlus has no zero crossing functions, hence</span>
       <span class="c1">// there is no state event detection for this FMU.</span>
-    
+
       <span class="c1">// inform the model about an accepted step</span>
       <span class="c1">// To ensure that EnergyPlus call getNextEventTime(...),</span>
       <span class="c1">// enterEventMode will be set to true in M_fmi2CompletedIntegratorStep().</span>
@@ -1009,18 +1006,18 @@ In the pseudo code, <code class="docutils literal"><span class="pre">-&gt;</span
       <span class="c1">// will be set to false to ensure that this function is called</span>
       <span class="c1">// after an accepted step.</span>
       <span class="n">M_fmi2CompletedIntegratorStep</span><span class="p">(</span><span class="n">enterEventMode</span><span class="p">...)</span> <span class="o">-&gt;</span> <span class="n">writeOutputFiles</span><span class="p">(...)</span>
-      
+
       <span class="c1">// get the outputs</span>
       <span class="n">M_fmi2GetReal</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="p">...)</span> <span class="o">-&gt;</span> <span class="n">getVariables</span> <span class="p">(...)</span>
-      
+
     <span class="n">until</span> <span class="n">terminateSimulation</span>
-    
+
     <span class="c1">// terminate simulation and retrieve final values</span>
     <span class="nl">TERMINATE_MODEL</span><span class="p">:</span>
     <span class="n">M_fmi2GetReal</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="p">...)</span> <span class="o">-&gt;</span> <span class="n">getVariables</span><span class="p">()</span>
     <span class="n">M_fmi2Terminate</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">terminate</span><span class="p">(...)</span>
 
-    
+
     <span class="c1">// cleanup</span>
     <span class="n">M_fmi2FreeInstance</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NA</span>
 </pre></div>
