@@ -423,13 +423,11 @@ It returns zero if there was no error, or else a positive non-zero integer.
 
 .. code:: c
 
-   unsigned int setVariables(double time,
-                             const unsigned int valueReferences[],
+   unsigned int setVariables(const unsigned int valueReferences[],
                              const double* const variablePointers[],
                              size_t nVars1,
                              const char *log);
 
-- ``time``: Model time.
 - ``valueReferences``: Vector of value references.
 - ``variablePointers``: Vector of pointers to variables.
 - ``nVars1``: Number of elements of ``valueReferences``, and ``variablePointers``.
@@ -445,13 +443,11 @@ It returns zero if there was no error, or else a positive non-zero integer.
 
 .. code:: c
 
-   unsigned int getVariables(double time,
-                             const unsigned int valueReferences[],
+   unsigned int getVariables(const unsigned int valueReferences[],
                              const double* variablePointers[],
                              size_t nVars2,
                              const char *log);
 
-- ``time``: Model time.
 - ``valueReferences``: Vector of value references.
 - ``variablePointers``: Vector of pointers to variables.
 - ``nVars2``: Number of elements of ``valueReferences``, and ``variablePointers``.
@@ -467,13 +463,11 @@ It returns zero if there was no error, or else a positive non-zero integer.
 
 .. code:: c
 
-   unsigned int setContinuousStates(double time,
-                                    const unsigned int valueReferences[],
+   unsigned int setContinuousStates(const unsigned int valueReferences[],
                                     const double variablePointers[],
                                     size_t nVars3,
                                     const char *log);
 
-- ``time``: Model time.
 - ``valueReferences``: Vector of value references.
 - ``variablePointers``: Vector of pointers to state variables.
 - ``nVars3``: Number of elements of ``valueReferences``, and ``variablePointers``.
@@ -485,13 +479,11 @@ It returns zero if there was no error, or else a positive non-zero integer.
 
 .. code:: c
 
-   unsigned int getContinuousStates(double time,
-                                    const unsigned int valueReferences[],
+   unsigned int getContinuousStates(const unsigned int valueReferences[],
                                     const double* variablePointers[],
                                     size_t nVars4,
                                     const char *log);
 
-- ``time``: Model time
 - ``valueReferences``: Vector of value references.
 - ``variablePointers``: Vector of pointers to state variables.
 - ``nVars4``: Number of elements of ``valueReferences``, and ``variablePointers``.
@@ -504,19 +496,17 @@ It returns zero if there was no error, or else a positive non-zero integer.
 
 .. code:: c
 
-   unsigned int getTimeDerivatives(double time,
-                                   const unsigned int valueReferences[],
+   unsigned int getTimeDerivatives(const unsigned int valueReferences[],
                                    const double* variablePointers[],
                                    size_t nVars5,
                                    const char *log);
 
-- ``time``: Model time.
 - ``valueReferences``: Vector of value references.
 - ``variablePointers``: Vector of pointers to state derivatives.
 - ``nVars5``: Length of vector of state derivatives.
 - ``log``: Logging message returned on error.
 
-This function gets as argument ``time``, and returns a vector of state derivatives.
+This function returns a vector of state derivatives.
 
 It returns zero if there was no error, or else a positive non-zero integer.
 
