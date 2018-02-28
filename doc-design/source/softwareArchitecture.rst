@@ -563,7 +563,7 @@ Tool for Exporting EnergyPlus as an FMU
 
 To export EnergyPlus as an FMU, a utility is needed which will get as inputs,
 the paths to the EnergyPlus IDF, IDD, and weather file.
-The utility will parse the IDF, and write an XML model description file
+The utility will parse the IDF and write an XML model description file
 which contains the inputs, outputs, and states of EnergyPlus to be exposed
 through the FMI interface.
 The utility will compile the EnergyPlus FMI functions into a shared library,
