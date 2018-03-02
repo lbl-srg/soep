@@ -561,9 +561,9 @@ In the pseudo code, ``->`` points to the EnergyPlus equivalent FMI functions. ``
 Tool for Exporting EnergyPlus as an FMU
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To export EnergyPlus as an FMU, a utility is needed which will get as inputs,
-the paths to the EnergyPlus IDF, IDD, and weather file.
-The utility will parse the IDF and write an XML model description file
+To export EnergyPlus as an FMU, a utility is needed which will get as inputs
+the paths to the EnergyPlus IDF, IDD, and weather files.
+The utility will parse the IDF file and write an XML model description file
 which contains the inputs, outputs, and states of EnergyPlus to be exposed
 through the FMI interface.
 The utility will compile the EnergyPlus FMI functions into a shared library,
@@ -571,8 +571,7 @@ and package the library with the IDF, IDD, and weather file in the
 ``resources`` folder of the FMU.
 An approach to develop such a utility is to extend EnergyPlusToFMU
 (http://simulationresearch.lbl.gov/fmu/EnergyPlus/export/index.html)
-to support the FMI 2.0 for model exchange, in addition to exporting
-EnergyPlus state variables through the FMI interface.
+to support FMI 2.0 for model exchange.
 Another approach is to extend SimulatorToFMU (https://github.com/LBNL-ETA/SimulatorToFMU)
 to support the export of EnergyPlus.
 
