@@ -458,49 +458,6 @@ It returns zero if there was no error, or else a positive non-zero integer.
 
 .. code:: c
 
-   unsigned int setContinuousStates(const double varPointers[],
-                                    size_t nVars3,
-                                    const char *log);
-
-- ``varPointers``: Vector of pointers to state variables.
-- ``nVars3``: Number of elements of ``varPointers``.
-- ``log``: Logging message returned on error.
-
-This function sets a new state vector in EnergyPlus.
-
-It returns zero if there was no error, or else a positive non-zero integer.
-
-.. code:: c
-
-   unsigned int getContinuousStates(const double* varPointers[],
-                                    size_t nVars4,
-                                    const char *log);
-
-- ``varPointers``: Vector of pointers to state variables.
-- ``nVars4``: Number of elements of ``varpointers``.
-- ``log``: Logging message returned on error.
-
-This function returns the new state vector from EnergyPlus.
-
-It returns zero if there was no error, or else a positive non-zero integer.
-
-
-.. code:: c
-
-   unsigned int getTimeDerivatives(const double* varPointers[],
-                                   size_t nVars5,
-                                   const char *log);
-
-- ``varPointers``: Vector of pointers to state derivatives.
-- ``nVars5``: Length of vector of state derivatives.
-- ``log``: Logging message returned on error.
-
-This function returns a vector of state derivatives.
-
-It returns zero if there was no error, or else a positive non-zero integer.
-
-.. code:: c
-
    unsigned int getNextEventTime(fmi2EventInfo *eventInfo,
                                  const char *log);
 

@@ -50,7 +50,7 @@
         M_fmi2GetReal(...) -> getVariables (...)
         if initialEventMode or eventInfo.valuesOfContinuousStatesChanged then
           //the model signals a value change of states, retrieve them
-          M_fmi2GetContinuousStates(...) -> getContinuousStates(...)
+          M_fmi2GetContinuousStates(...) -> NA
         end if
 
         if initialEventMode or eventInfo.nominalsOfContinuousStatesChanged then
@@ -72,7 +72,7 @@
       end if
 
       // compute derivatives
-      M_fmi2GetDerivatives(...) -> getTimeDerivatives(...)
+      M_fmi2GetDerivatives(...) -> NA
       // Note we might have to compute time derivatives at different time instants
       // to approximate higher order derivatives for QSS integration methods.
 
@@ -94,7 +94,7 @@
 
       // do a time integration up to t = time
       x = integral(x, der_x, time_old, time)
-      M_fmi2SetContinuousStates(...) -> setContinuousStates(...)
+      M_fmi2SetContinuousStates(...) -> NA
 
       // get event indicators for state events detection at t = time
       M_fmi2GetEventIndicators(...) -> NA
