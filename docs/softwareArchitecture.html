@@ -139,6 +139,7 @@
 <li><a class="reference internal" href="#time-synchronization">5.2.4. Time synchronization</a></li>
 <li><a class="reference internal" href="#requirements-for-exporting-energyplus-as-an-fmu-for-model-exchange">5.2.5. Requirements for Exporting EnergyPlus as an FMU for model exchange</a></li>
 <li><a class="reference internal" href="#pseudo-code-example">5.2.6. Pseudo Code Example</a></li>
+<li><a class="reference internal" href="#tool-for-exporting-energyplus-as-an-fmu">5.2.7. Tool for Exporting EnergyPlus as an FMU</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#jmodelica-integration">5.3. JModelica Integration</a><ul>
@@ -416,7 +417,7 @@ exchanges with the master algorithm.</p>
 <span id="sec-data-exchange"></span><h3>5.2.3. Data exchange<a class="headerlink" href="#data-exchange" title="Permalink to this headline">¶</a></h3>
 <p>The communication occurs through the EnergyPlus external interface.
 The following variables are sent between the master algorithm
-and the EnergyPlus FMU for each room.</p>
+and the EnergyPlus FMU for each thermal zone.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="15%" />
@@ -434,27 +435,6 @@ and the EnergyPlus FMU for each room.</p>
 <tbody valign="top">
 <tr class="row-even"><td colspan="4"><em>From master algorithm to EnergyPlus FMU</em></td>
 </tr>
-<tr class="row-odd"><td>mInlet_flow</td>
-<td><span class="math">\(n\)</span></td>
-<td>Mass flow rate into the zone for the <span class="math">\(n\)</span>, <span class="math">\(n \ge 0\)</span>, air inlets (including infiltration)</td>
-<td>kg/s</td>
-</tr>
-<tr class="row-even"><td>TInlet</td>
-<td><span class="math">\(n\)</span></td>
-<td>Temperature of the medium carried by the mass flow rate</td>
-<td>degC</td>
-</tr>
-<tr class="row-odd"><td>XInlet</td>
-<td><span class="math">\(n\)</span></td>
-<td>Water vapor mass fraction per total air mass of the medium carried by the mass flow rate</td>
-<td>kg/kg</td>
-</tr>
-<tr class="row-even"><td>CInlet</td>
-<td><span class="math">\(n \times m\)</span></td>
-<td>Concentration of each <span class="math">\(m\)</span>, <span class="math">\(m \ge 0\)</span>, trace substance per unit mass of the medium
-carried by the mass flow rate</td>
-<td>unspecified</td>
-</tr>
 <tr class="row-odd"><td>T</td>
 <td><span class="math">\(1\)</span></td>
 <td>Temperature of the zone air</td>
@@ -465,76 +445,70 @@ carried by the mass flow rate</td>
 <td>Water vapor mass fraction per total air mass of the zone</td>
 <td>kg/kg</td>
 </tr>
-<tr class="row-odd"><td>C</td>
-<td><span class="math">\(m\)</span></td>
-<td>Concentration of each <span class="math">\(m\)</span>, <span class="math">\(m \ge 0\)</span>, trace substance per unit mass of the zone air</td>
-<td>unspecified</td>
+<tr class="row-odd"><td>mInlet_flow</td>
+<td><span class="math">\(n\)</span></td>
+<td>Mass flow rate into the zone for the <span class="math">\(n\)</span>, <span class="math">\(n \ge 0\)</span>, air inlets (including infiltration)</td>
+<td>kg/s</td>
 </tr>
-<tr class="row-even"><td>QGaiConSen_flow</td>
-<td><span class="math">\(1\)</span></td>
-<td>Convective sensible heat gain added to the zone, and not already part of the flow mInlet_flow</td>
-<td>W</td>
+<tr class="row-even"><td>TInlet</td>
+<td><span class="math">\(n\)</span></td>
+<td>Temperature of the medium carried by the mass flow rate</td>
+<td>degC</td>
 </tr>
-<tr class="row-odd"><td>QGaiRadSen_flow</td>
+<tr class="row-odd"><td>QGaiRad_flow</td>
 <td><span class="math">\(1\)</span></td>
 <td>Radiative sensible heat gain added to the zone</td>
 <td>W</td>
 </tr>
-<tr class="row-even"><td>QGaiLat_flow</td>
-<td><span class="math">\(1\)</span></td>
-<td>Latent heat gain added to the zone, and not already part of the flow mInlet_flow</td>
-<td>W</td>
-</tr>
-<tr class="row-odd"><td>t</td>
+<tr class="row-even"><td>t</td>
 <td><span class="math">\(1\)</span></td>
 <td>Model time at which the above inputs are valid, with <span class="math">\(t=0\)</span> defined as January 1, 0 am local time,
 and with
 no correction for daylight savings time</td>
 <td>s</td>
 </tr>
-<tr class="row-even"><td colspan="4"><em>From EnergyPlus FMU to master algorithm</em></td>
-</tr>
-<tr class="row-odd"><td>dT_dt</td>
-<td><span class="math">\(1\)</span></td>
-<td>Time derivative of room air temperature</td>
-<td>K/s</td>
-</tr>
-<tr class="row-even"><td>dX_dt</td>
-<td><span class="math">\(1\)</span></td>
-<td>Time derivative of water vapor mass fraction</td>
-<td>kg/(kg.s)</td>
-</tr>
-<tr class="row-odd"><td>dC_dt</td>
-<td><span class="math">\(m\)</span></td>
-<td>Time derivative of the trace substance concentration</td>
-<td>1/s</td>
+<tr class="row-odd"><td colspan="4"><em>From EnergyPlus FMU to master algorithm</em></td>
 </tr>
 <tr class="row-even"><td>TRad</td>
 <td><span class="math">\(1\)</span></td>
 <td>Average radiative temperature in the room</td>
 <td>degC</td>
 </tr>
-<tr class="row-odd"><td>nextEventTime</td>
+<tr class="row-odd"><td>QConSen_flow</td>
+<td><span class="math">\(1\)</span></td>
+<td>Convective sensible heat added to the zone, e.g., as entered in
+the EnergyPlus&#8217; <code class="docutils literal"><span class="pre">People</span></code> or <code class="docutils literal"><span class="pre">Equipment</span></code> schedule</td>
+<td>W</td>
+</tr>
+<tr class="row-even"><td>QLat_flow</td>
+<td><span class="math">\(1\)</span></td>
+<td>Latent heat gain added to the zone, e.g., from mass transfer with moisture buffering material and
+from EnergyPlus&#8217; <code class="docutils literal"><span class="pre">People</span></code> schedule</td>
+<td>W</td>
+</tr>
+<tr class="row-odd"><td>QPeo_flow</td>
+<td><span class="math">\(1\)</span></td>
+<td>Heat gain due to people (only to be used to optionally compute CO2 emitted by people)</td>
+<td>W</td>
+</tr>
+<tr class="row-even"><td>nextEventTime</td>
 <td><span class="math">\(1\)</span></td>
 <td>Model time <span class="math">\(t\)</span> when EnergyPlus needs to be called next (typically the next zone time step)</td>
 <td>s</td>
 </tr>
 </tbody>
 </table>
-<p>There can be zero or multiple air inlet flows, and the quantity <span class="math">\(\dot m_{inlet}^i\)</span>,
-for any <span class="math">\(i \in \{0, \ldots, n\}\)</span>, can be negative. Hence, the energy equation needs
-to be formulated as</p>
-<div class="math">
-\[C \, \frac{dT}{dt} = \sum_{i=0}^n \max(0, \dot m_{inlet}^i) \, c_p \, (T_{inlet}^i - T) + \text{ other terms}.\]</div>
-<p>The trace substance concentration <span class="math">\(C\)</span> has unspecified units as it may be
-modeled with units of mass fraction or PPM, depending on the magnitude of the concentration.
-Also, there may be any number of trace substances.</p>
+<p>Note that the EnergyPlus object <code class="docutils literal"><span class="pre">ZoneAirContaminantBalance</span></code> either allows CO2 concentration modeling,
+or a generic contaminant modeling (such as from material outgasing),
+or no contaminant modeling, or both. To allow ambiguities regarding what contaminant
+is being modeled, we do not receive the contaminant emission from EnergyPlus.
+Instead, we obtain the heat gain due to people, which is then used to optionally computed the
+CO2 emitted by people.</p>
 <p>How to connect variables from the External Interface to the EnergyPlus zone is defined by using an object in the idf file
 of the form</p>
 <div class="code highlight-default"><div class="highlight"><pre><span></span>ExternalInterface:FunctionalMockupUnitExport:Zone,
 South Office, !- EnergyPlus name of the zone
-3,            !- 0 &lt;= n, number of air flow inlets from the External Interface
-2;            !- 0 &lt;= m, number of trace substances
+3;            !- 0 &lt;= n, number of air flow inlets from the External Interface
 </pre></div>
 </div>
 <p>The External Interface then maps the data from the above variable table to data structure in EnergyPlus.</p>
@@ -598,8 +572,8 @@ For efficiency reasons, if a function which updates internal variables is called
                          <span class="n">const</span> <span class="n">char</span> <span class="n">const</span> <span class="o">*</span><span class="n">weather</span><span class="p">,</span>
                          <span class="n">const</span> <span class="n">char</span> <span class="n">const</span> <span class="o">*</span><span class="n">idd</span><span class="p">,</span>
                          <span class="n">const</span> <span class="n">char</span> <span class="n">const</span> <span class="o">*</span><span class="n">instanceName</span><span class="p">,</span>
-                         <span class="n">const</span> <span class="n">char</span><span class="o">**</span> <span class="n">varNames</span><span class="p">,</span>
-                         <span class="n">double</span><span class="o">*</span> <span class="n">varPointers</span><span class="p">[],</span>
+                         <span class="n">const</span> <span class="n">unsigned</span> <span class="nb">int</span> <span class="n">valueReferences</span><span class="p">[],</span>
+                         <span class="n">double</span><span class="o">*</span> <span class="n">variablePointers</span><span class="p">[],</span>
                          <span class="n">size_t</span> <span class="n">nVars</span><span class="p">,</span>
                          <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
 </pre></div>
@@ -607,17 +581,21 @@ For efficiency reasons, if a function which updates internal variables is called
 <ul class="simple">
 <li><code class="docutils literal"><span class="pre">input</span></code>: Absolute or relative path to an EnergyPlus input file with file name.</li>
 <li><code class="docutils literal"><span class="pre">weather</span></code>: Absolute or relative path to an EnergyPlus weather file with file name.</li>
-<li><code class="docutils literal"><span class="pre">idd</span></code>: Absolute or relative path to an EnergyPlus IDD file with file name.</li>
+<li><code class="docutils literal"><span class="pre">idd</span></code>: Absolute or relative path to an EnergyPlus idd file with file name.</li>
 <li><code class="docutils literal"><span class="pre">instanceName</span></code>: String to uniquely identify an EnergyPlus instance. This string must be non-empty and will be used for logging message.</li>
-<li><code class="docutils literal"><span class="pre">varNames</span></code>: A vector of variable names.</li>
-<li><code class="docutils literal"><span class="pre">varPointers</span></code>: A vector of pointers to variables listed in <code class="docutils literal"><span class="pre">varNames</span></code>.</li>
-<li><code class="docutils literal"><span class="pre">nVars</span></code>: Number of elements of <code class="docutils literal"><span class="pre">varNames</span></code> and in <code class="docutils literal"><span class="pre">varPointers</span></code>.</li>
+<li><dl class="first docutils">
+<dt><code class="docutils literal"><span class="pre">valueReferences</span></code>: A vector of value references. Value references uniquely identify values of variables</dt>
+<dd>defined in the model description file of an EnergyPlus FMU.</dd>
+</dl>
+</li>
+<li><code class="docutils literal"><span class="pre">variablePointers</span></code>: A vector of pointers to variables whose value references are defined in <code class="docutils literal"><span class="pre">valueReferences</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">nVars</span></code>: Number of elements of <code class="docutils literal"><span class="pre">valueReferences</span></code> and <code class="docutils literal"><span class="pre">variablePointers</span></code>.</li>
 <li><code class="docutils literal"><span class="pre">log</span></code>: Logging message returned on error.</li>
 </ul>
 <p>This function will read the <code class="docutils literal"><span class="pre">idf</span></code> file, sets up the data structure in EnergyPlus, gets
-a vector of variable names (as in <code class="docutils literal"><span class="pre">modelDescription.xml</span></code>)
-and returns a vector of pointers to the aforementioned variables.
-The ordering of the variable names must match the ordering of the vector of pointers.</p>
+a vector of value references (as in <code class="docutils literal"><span class="pre">modelDescription.xml</span></code>)
+and returns a vector of pointers to the aforementioned value references.
+The ordering of the value references must match the ordering of the vector of pointers.</p>
 <p>It returns zero if there was no error, or else a positive non-zero integer.</p>
 <div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">setupExperiment</span><span class="p">(</span><span class="n">double</span> <span class="n">tStart</span><span class="p">,</span>
                              <span class="nb">bool</span> <span class="n">stopTimeDefined</span><span class="p">,</span>
@@ -661,82 +639,82 @@ handle this or should it return an error?</li>
 </ul>
 <p>This function sets a new time in EnergyPlus. This time becomes the current model time.</p>
 <p>It returns zero if there was no error, or else a positive non-zero integer.</p>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">setVariables</span><span class="p">(</span><span class="n">double</span> <span class="n">time</span><span class="p">,</span>
-                          <span class="n">const</span> <span class="n">double</span><span class="o">*</span> <span class="n">const</span> <span class="n">varPointers</span><span class="p">[],</span>
+<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">setVariables</span><span class="p">(</span><span class="n">const</span> <span class="n">unsigned</span> <span class="nb">int</span> <span class="n">valueReferences</span><span class="p">[],</span>
+                          <span class="n">const</span> <span class="n">double</span><span class="o">*</span> <span class="n">const</span> <span class="n">variablePointers</span><span class="p">[],</span>
                           <span class="n">size_t</span> <span class="n">nVars1</span><span class="p">,</span>
                           <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">time</span></code>: Model time.</li>
-<li><code class="docutils literal"><span class="pre">varPointers</span></code>: Vector of pointers to variables.</li>
-<li><code class="docutils literal"><span class="pre">nVars1</span></code>: Number of elements of <code class="docutils literal"><span class="pre">varPointers</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">valueReferences</span></code>: Vector of value references.</li>
+<li><code class="docutils literal"><span class="pre">variablePointers</span></code>: Vector of pointers to variables.</li>
+<li><code class="docutils literal"><span class="pre">nVars1</span></code>: Number of elements of <code class="docutils literal"><span class="pre">valueReferences</span></code>, and <code class="docutils literal"><span class="pre">variablePointers</span></code>.</li>
 <li><code class="docutils literal"><span class="pre">log</span></code>: Logging message returned on error.</li>
 </ul>
 <p>This function sets the value of variables in EnergyPlus.
-The vector <code class="docutils literal"><span class="pre">varPointers</span></code> could be a subset of the pointer <code class="docutils literal"><span class="pre">varPointers</span></code>
+The vector <code class="docutils literal"><span class="pre">variablePointers</span></code> could be a subset of the pointer <code class="docutils literal"><span class="pre">variablePointers</span></code>
 that was setup in <code class="docutils literal"><span class="pre">instantiate(...)</span></code>, i.e., <code class="docutils literal"><span class="pre">nVars1</span> <span class="pre">&lt;=</span> <span class="pre">nVars</span></code>
 (to allow updating only specific variables
 as needed by QSS).</p>
 <p>It returns zero if there was no error, or else a positive non-zero integer.</p>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">getVariables</span><span class="p">(</span><span class="n">double</span> <span class="n">time</span><span class="p">,</span>
-                          <span class="n">const</span> <span class="n">double</span><span class="o">*</span> <span class="n">varPointers</span><span class="p">[],</span>
+<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">getVariables</span><span class="p">(</span><span class="n">const</span> <span class="n">unsigned</span> <span class="nb">int</span> <span class="n">valueReferences</span><span class="p">[],</span>
+                          <span class="n">const</span> <span class="n">double</span><span class="o">*</span> <span class="n">variablePointers</span><span class="p">[],</span>
                           <span class="n">size_t</span> <span class="n">nVars2</span><span class="p">,</span>
                           <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">time</span></code>: Model time.</li>
-<li><code class="docutils literal"><span class="pre">varPointers</span></code>: Vector of pointers to variables.</li>
-<li><code class="docutils literal"><span class="pre">nVars2</span></code>: Number of elements of <code class="docutils literal"><span class="pre">varPointers</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">valueReferences</span></code>: Vector of value references.</li>
+<li><code class="docutils literal"><span class="pre">variablePointers</span></code>: Vector of pointers to variables.</li>
+<li><code class="docutils literal"><span class="pre">nVars2</span></code>: Number of elements of <code class="docutils literal"><span class="pre">valueReferences</span></code>, and <code class="docutils literal"><span class="pre">variablePointers</span></code>.</li>
 <li><code class="docutils literal"><span class="pre">log</span></code>: Logging message returned on error.</li>
 </ul>
 <p>This function gets the value of variables in EnergyPlus.
-EnergyPlus must write the values to the elements that are setup in <code class="docutils literal"><span class="pre">varPointers</span></code>
+EnergyPlus must write the values to the elements that are setup in <code class="docutils literal"><span class="pre">variablePointers</span></code>
 during the <code class="docutils literal"><span class="pre">instantiate(...)</span></code> call.
 <code class="docutils literal"><span class="pre">nVars2</span> <span class="pre">&lt;=</span> <span class="pre">nVars</span></code> if only certain output variables are required.</p>
 <p>It returns zero if there was no error, or else a positive non-zero integer.</p>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">setContinuousStates</span><span class="p">(</span><span class="n">double</span> <span class="n">time</span><span class="p">,</span>
-                                 <span class="n">const</span> <span class="n">double</span> <span class="n">varPointers</span><span class="p">[],</span>
+<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">setContinuousStates</span><span class="p">(</span><span class="n">const</span> <span class="n">unsigned</span> <span class="nb">int</span> <span class="n">valueReferences</span><span class="p">[],</span>
+                                 <span class="n">const</span> <span class="n">double</span> <span class="n">variablePointers</span><span class="p">[],</span>
                                  <span class="n">size_t</span> <span class="n">nVars3</span><span class="p">,</span>
                                  <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">time</span></code>: Model time.</li>
-<li><code class="docutils literal"><span class="pre">varPointers</span></code>: Vector of pointers to state variables.</li>
-<li><code class="docutils literal"><span class="pre">nVars3</span></code>: Number of elements of <code class="docutils literal"><span class="pre">varPointers</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">valueReferences</span></code>: Vector of value references.</li>
+<li><code class="docutils literal"><span class="pre">variablePointers</span></code>: Vector of pointers to state variables.</li>
+<li><code class="docutils literal"><span class="pre">nVars3</span></code>: Number of elements of <code class="docutils literal"><span class="pre">valueReferences</span></code>, and <code class="docutils literal"><span class="pre">variablePointers</span></code>.</li>
 <li><code class="docutils literal"><span class="pre">log</span></code>: Logging message returned on error.</li>
 </ul>
 <p>This function sets a new state vector in EnergyPlus.</p>
 <p>It returns zero if there was no error, or else a positive non-zero integer.</p>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">getContinuousStates</span><span class="p">(</span><span class="n">double</span> <span class="n">time</span><span class="p">,</span>
-                                 <span class="n">const</span> <span class="n">double</span><span class="o">*</span> <span class="n">varPointers</span><span class="p">[],</span>
+<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">getContinuousStates</span><span class="p">(</span><span class="n">const</span> <span class="n">unsigned</span> <span class="nb">int</span> <span class="n">valueReferences</span><span class="p">[],</span>
+                                 <span class="n">const</span> <span class="n">double</span><span class="o">*</span> <span class="n">variablePointers</span><span class="p">[],</span>
                                  <span class="n">size_t</span> <span class="n">nVars4</span><span class="p">,</span>
                                  <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">time</span></code>: Model time</li>
-<li><code class="docutils literal"><span class="pre">varPointers</span></code>: Vector of pointers to state variables.</li>
-<li><code class="docutils literal"><span class="pre">nVars4</span></code>: Number of elements of <code class="docutils literal"><span class="pre">varpointers</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">valueReferences</span></code>: Vector of value references.</li>
+<li><code class="docutils literal"><span class="pre">variablePointers</span></code>: Vector of pointers to state variables.</li>
+<li><code class="docutils literal"><span class="pre">nVars4</span></code>: Number of elements of <code class="docutils literal"><span class="pre">valueReferences</span></code>, and <code class="docutils literal"><span class="pre">variablePointers</span></code>.</li>
 <li><code class="docutils literal"><span class="pre">log</span></code>: Logging message returned on error.</li>
 </ul>
 <p>This function returns the new state vector from EnergyPlus.</p>
 <p>It returns zero if there was no error, or else a positive non-zero integer.</p>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">getTimeDerivatives</span><span class="p">(</span><span class="n">double</span> <span class="n">time</span><span class="p">,</span>
-                                <span class="n">const</span> <span class="n">double</span><span class="o">*</span> <span class="n">varPointers</span><span class="p">[],</span>
+<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">getTimeDerivatives</span><span class="p">(</span><span class="n">const</span> <span class="n">unsigned</span> <span class="nb">int</span> <span class="n">valueReferences</span><span class="p">[],</span>
+                                <span class="n">const</span> <span class="n">double</span><span class="o">*</span> <span class="n">variablePointers</span><span class="p">[],</span>
                                 <span class="n">size_t</span> <span class="n">nVars5</span><span class="p">,</span>
                                 <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">time</span></code>: Model time.</li>
-<li><code class="docutils literal"><span class="pre">varPointers</span></code>: Vector of pointers to state derivatives.</li>
+<li><code class="docutils literal"><span class="pre">valueReferences</span></code>: Vector of value references.</li>
+<li><code class="docutils literal"><span class="pre">variablePointers</span></code>: Vector of pointers to state derivatives.</li>
 <li><code class="docutils literal"><span class="pre">nVars5</span></code>: Length of vector of state derivatives.</li>
 <li><code class="docutils literal"><span class="pre">log</span></code>: Logging message returned on error.</li>
 </ul>
-<p>This function gets as argument <code class="docutils literal"><span class="pre">time</span></code>, and returns a vector of state derivatives.</p>
+<p>This function returns a vector of state derivatives.</p>
 <p>It returns zero if there was no error, or else a positive non-zero integer.</p>
 <div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">getNextEventTime</span><span class="p">(</span><span class="n">fmi2EventInfo</span> <span class="o">*</span><span class="n">eventInfo</span><span class="p">,</span>
                               <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
@@ -1022,6 +1000,22 @@ In the pseudo code, <code class="docutils literal"><span class="pre">-&gt;</span
     <span class="n">M_fmi2FreeInstance</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NA</span>
 </pre></div>
 </td></tr></table></div>
+</div>
+<div class="section" id="tool-for-exporting-energyplus-as-an-fmu">
+<h3>5.2.7. Tool for Exporting EnergyPlus as an FMU<a class="headerlink" href="#tool-for-exporting-energyplus-as-an-fmu" title="Permalink to this headline">¶</a></h3>
+<p>To export EnergyPlus as an FMU, a utility is needed which will get as inputs
+the paths to the EnergyPlus idf, idd, and weather files.
+The utility will parse the idf file and write an XML model description file
+which contains the inputs, outputs, and states of EnergyPlus to be exposed
+through the FMI interface.
+The utility will compile the EnergyPlus FMI functions into a shared library,
+and package the library with the idf, idd, and weather file in the
+<code class="docutils literal"><span class="pre">resources</span></code> folder of the FMU.
+An approach to develop such a utility is to extend EnergyPlusToFMU
+(<a class="reference external" href="http://simulationresearch.lbl.gov/fmu/EnergyPlus/export/index.html">http://simulationresearch.lbl.gov/fmu/EnergyPlus/export/index.html</a>)
+to support FMI 2.0 for model exchange.
+Another approach is to extend SimulatorToFMU (<a class="reference external" href="https://github.com/LBNL-ETA/SimulatorToFMU">https://github.com/LBNL-ETA/SimulatorToFMU</a>)
+to support the export of EnergyPlus.</p>
 </div>
 </div>
 <div class="section" id="jmodelica-integration">
@@ -1346,7 +1340,7 @@ we propose for cases where the event indicator
 has a direct feedthrough on the input to exclude
 event indicator derivatives from the <code class="docutils literal"><span class="pre">&lt;EventIndicators&gt;</span></code>
 element. In this situation, the QSS solver will detect the missing
-information from the XML file and numerically approximate
+information from the xml file and numerically approximate
 the event indicator derivatives.</p>
 </div>
 <div class="section" id="handling-of-variables-reinitialized-with-reinit">

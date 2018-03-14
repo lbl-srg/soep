@@ -215,33 +215,22 @@ Data exchange
 
 The communication occurs through the EnergyPlus external interface.
 The following variables are sent between the master algorithm
-and the EnergyPlus FMU for each room.
+and the EnergyPlus FMU for each thermal zone.
 
 +---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
 | Variable                  | Dimension                   | Quantity                                                                                                   | Unit            |
 +===========================+=============================+============================================================================================================+=================+
 | *From master algorithm to EnergyPlus FMU*                                                                                                                                              |
 +---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
-| mInlet_flow               | :math:`n`                   | Mass flow rate into the zone for the :math:`n`, :math:`n \ge 0`, air inlets (including infiltration)       |   kg/s          |
-+---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
-| TInlet                    | :math:`n`                   | Temperature of the medium carried by the mass flow rate                                                    |   degC          |
-+---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
-| XInlet                    | :math:`n`                   | Water vapor mass fraction per total air mass of the medium carried by the mass flow rate                   |   kg/kg         |
-+---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
-| CInlet                    | :math:`n \times m`          | Concentration of each :math:`m`, :math:`m \ge 0`, trace substance per unit mass of the medium              | unspecified     |
-|                           |                             | carried by the mass flow rate                                                                              |                 |
-+---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
 | T                         | :math:`1`                   | Temperature of the zone air                                                                                |   degC          |
 +---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
 | X                         | :math:`1`                   | Water vapor mass fraction per total air mass of the zone                                                   |   kg/kg         |
 +---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
-| C                         | :math:`m`                   | Concentration of each :math:`m`, :math:`m \ge 0`, trace substance per unit mass of the zone air            | unspecified     |
+| mInlet_flow               | :math:`n`                   | Mass flow rate into the zone for the :math:`n`, :math:`n \ge 0`, air inlets (including infiltration)       |   kg/s          |
 +---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
-| QGaiConSen_flow           | :math:`1`                   | Convective sensible heat gain added to the zone, and not already part of the flow mInlet_flow              |   W             |
+| TInlet                    | :math:`n`                   | Temperature of the medium carried by the mass flow rate                                                    |   degC          |
 +---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
-| QGaiRadSen_flow           | :math:`1`                   | Radiative sensible heat gain added to the zone                                                             |   W             |
-+---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
-| QGaiLat_flow              | :math:`1`                   | Latent heat gain added to the zone, and not already part of the flow mInlet_flow                           |   W             |
+| QGaiRad_flow              | :math:`1`                   | Radiative sensible heat gain added to the zone                                                             |   W             |
 +---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
 | t                         | :math:`1`                   | Model time at which the above inputs are valid, with :math:`t=0` defined as January 1, 0 am local time,    |   s             |
 |                           |                             | and with                                                                                                   |                 |
@@ -249,29 +238,25 @@ and the EnergyPlus FMU for each room.
 +---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
 | *From EnergyPlus FMU to master algorithm*                                                                                                                                              |
 +---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
-| dT_dt                     | :math:`1`                   | Time derivative of room air temperature                                                                    |   K/s           |
-+---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
-| dX_dt                     | :math:`1`                   | Time derivative of water vapor mass fraction                                                               |   kg/(kg.s)     |
-+---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
-| dC_dt                     | :math:`m`                   | Time derivative of the trace substance concentration                                                       |   1/s           |
-+---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
 | TRad                      | :math:`1`                   | Average radiative temperature in the room                                                                  |   degC          |
++---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
+| QConSen_flow              | :math:`1`                   | Convective sensible heat added to the zone, e.g., as entered in                                            |   W             |
+|                           |                             | the EnergyPlus' ``People`` or ``Equipment`` schedule                                                       |                 |
++---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
+| QLat_flow                 | :math:`1`                   | Latent heat gain added to the zone, e.g., from mass transfer with moisture buffering material and          |   W             |
+|                           |                             | from EnergyPlus' ``People`` schedule                                                                       |                 |
++---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
+| QPeo_flow                 | :math:`1`                   | Heat gain due to people (only to be used to optionally compute CO2 emitted by people)                      |   W             |
 +---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
 | nextEventTime             | :math:`1`                   | Model time :math:`t` when EnergyPlus needs to be called next (typically the next zone time step)           |   s             |
 +---------------------------+-----------------------------+------------------------------------------------------------------------------------------------------------+-----------------+
 
-There can be zero or multiple air inlet flows, and the quantity :math:`\dot m_{inlet}^i`,
-for any :math:`i \in \{0, \ldots, n\}`, can be negative. Hence, the energy equation needs
-to be formulated as
-
-.. math::
-
-   C \, \frac{dT}{dt} = \sum_{i=0}^n \max(0, \dot m_{inlet}^i) \, c_p \, (T_{inlet}^i - T) + \text{ other terms}.
-
-
-The trace substance concentration :math:`C` has unspecified units as it may be
-modeled with units of mass fraction or PPM, depending on the magnitude of the concentration.
-Also, there may be any number of trace substances.
+Note that the EnergyPlus object ``ZoneAirContaminantBalance`` either allows CO2 concentration modeling,
+or a generic contaminant modeling (such as from material outgasing),
+or no contaminant modeling, or both. To allow ambiguities regarding what contaminant
+is being modeled, we do not receive the contaminant emission from EnergyPlus.
+Instead, we obtain the heat gain due to people, which is then used to optionally computed the
+CO2 emitted by people.
 
 How to connect variables from the External Interface to the EnergyPlus zone is defined by using an object in the idf file
 of the form
@@ -280,8 +265,7 @@ of the form
 
    ExternalInterface:FunctionalMockupUnitExport:Zone,
    South Office, !- EnergyPlus name of the zone
-   3,            !- 0 <= n, number of air flow inlets from the External Interface
-   2;            !- 0 <= m, number of trace substances
+   3;            !- 0 <= n, number of air flow inlets from the External Interface
 
 The External Interface then maps the data from the above variable table to data structure in EnergyPlus.
 
@@ -351,25 +335,26 @@ In the remainder of this section, we note that ``time`` is
                             const char const *weather,
                             const char const *idd,
                             const char const *instanceName,
-                            const char** varNames,
-                            double* varPointers[],
+                            const unsigned int valueReferences[],
+                            double* variablePointers[],
                             size_t nVars,
                             const char *log);
 
 - ``input``: Absolute or relative path to an EnergyPlus input file with file name.
 - ``weather``: Absolute or relative path to an EnergyPlus weather file with file name.
-- ``idd``: Absolute or relative path to an EnergyPlus IDD file with file name.
+- ``idd``: Absolute or relative path to an EnergyPlus idd file with file name.
 - ``instanceName``: String to uniquely identify an EnergyPlus instance. This string must be non-empty and will be used for logging message.
-- ``varNames``: A vector of variable names.
-- ``varPointers``: A vector of pointers to variables listed in ``varNames``.
-- ``nVars``: Number of elements of ``varNames`` and in ``varPointers``.
+- ``valueReferences``: A vector of value references. Value references uniquely identify values of variables
+    defined in the model description file of an EnergyPlus FMU.
+- ``variablePointers``: A vector of pointers to variables whose value references are defined in ``valueReferences``.
+- ``nVars``: Number of elements of ``valueReferences`` and ``variablePointers``.
 - ``log``: Logging message returned on error.
 
 
 This function will read the ``idf`` file, sets up the data structure in EnergyPlus, gets
-a vector of variable names (as in ``modelDescription.xml``)
-and returns a vector of pointers to the aforementioned variables.
-The ordering of the variable names must match the ordering of the vector of pointers.
+a vector of value references (as in ``modelDescription.xml``)
+and returns a vector of pointers to the aforementioned value references.
+The ordering of the value references must match the ordering of the vector of pointers.
 
 It returns zero if there was no error, or else a positive non-zero integer.
 
@@ -422,16 +407,18 @@ It returns zero if there was no error, or else a positive non-zero integer.
 
 .. code:: c
 
-   unsigned int setVariables(const double* const varPointers[],
+   unsigned int setVariables(const unsigned int valueReferences[],
+                             const double* const variablePointers[],
                              size_t nVars1,
                              const char *log);
 
-- ``varPointers``: Vector of pointers to variables.
-- ``nVars1``: Number of elements of ``varPointers``.
+- ``valueReferences``: Vector of value references.
+- ``variablePointers``: Vector of pointers to variables.
+- ``nVars1``: Number of elements of ``valueReferences``, and ``variablePointers``.
 - ``log``: Logging message returned on error.
 
 This function sets the value of variables in EnergyPlus.
-The vector ``varPointers`` could be a subset of the pointer ``varPointers``
+The vector ``variablePointers`` could be a subset of the pointer ``variablePointers``
 that was setup in ``instantiate(...)``, i.e., ``nVars1 <= nVars``
 (to allow updating only specific variables
 as needed by QSS).
@@ -440,17 +427,19 @@ It returns zero if there was no error, or else a positive non-zero integer.
 
 .. code:: c
 
-   unsigned int getVariables(const double* varPointers[],
+   unsigned int getVariables(const unsigned int valueReferences[],
+                             const double* variablePointers[],
                              size_t nVars2,
                              const char *log);
 
-- ``varPointers``: Vector of pointers to variables.
-- ``nVars2``: Number of elements of ``varPointers``.
+- ``valueReferences``: Vector of value references.
+- ``variablePointers``: Vector of pointers to variables.
+- ``nVars2``: Number of elements of ``valueReferences``, and ``variablePointers``.
 - ``log``: Logging message returned on error.
 
 
 This function gets the value of variables in EnergyPlus.
-EnergyPlus must write the values to the elements that are setup in ``varPointers``
+EnergyPlus must write the values to the elements that are setup in ``variablePointers``
 during the ``instantiate(...)`` call.
 ``nVars2 <= nVars`` if only certain output variables are required.
 
@@ -503,6 +492,23 @@ In the pseudo code, ``->`` points to the EnergyPlus equivalent FMI functions. ``
 .. literalinclude:: models/pseudo/pseudo.c
    :language: C
    :linenos:
+
+Tool for Exporting EnergyPlus as an FMU
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To export EnergyPlus as an FMU, a utility is needed which will get as inputs
+the paths to the EnergyPlus idf, idd, and weather files.
+The utility will parse the idf file and write an XML model description file
+which contains the inputs, outputs, and states of EnergyPlus to be exposed
+through the FMI interface.
+The utility will compile the EnergyPlus FMI functions into a shared library,
+and package the library with the idf, idd, and weather file in the
+``resources`` folder of the FMU.
+An approach to develop such a utility is to extend EnergyPlusToFMU
+(http://simulationresearch.lbl.gov/fmu/EnergyPlus/export/index.html)
+to support FMI 2.0 for model exchange.
+Another approach is to extend SimulatorToFMU (https://github.com/LBNL-ETA/SimulatorToFMU)
+to support the export of EnergyPlus.
 
 
 JModelica Integration
