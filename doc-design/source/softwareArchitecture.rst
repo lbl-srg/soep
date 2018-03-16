@@ -447,55 +447,6 @@ It returns zero if there was no error, or else a positive non-zero integer.
 
 .. code:: c
 
-   unsigned int setContinuousStates(const unsigned int valueReferences[],
-                                    const double variablePointers[],
-                                    size_t nVars3,
-                                    const char *log);
-
-- ``valueReferences``: Vector of value references.
-- ``variablePointers``: Vector of pointers to state variables.
-- ``nVars3``: Number of elements of ``valueReferences``, and ``variablePointers``.
-- ``log``: Logging message returned on error.
-
-This function sets a new state vector in EnergyPlus.
-
-It returns zero if there was no error, or else a positive non-zero integer.
-
-.. code:: c
-
-   unsigned int getContinuousStates(const unsigned int valueReferences[],
-                                    const double* variablePointers[],
-                                    size_t nVars4,
-                                    const char *log);
-
-- ``valueReferences``: Vector of value references.
-- ``variablePointers``: Vector of pointers to state variables.
-- ``nVars4``: Number of elements of ``valueReferences``, and ``variablePointers``.
-- ``log``: Logging message returned on error.
-
-This function returns the new state vector from EnergyPlus.
-
-It returns zero if there was no error, or else a positive non-zero integer.
-
-
-.. code:: c
-
-   unsigned int getTimeDerivatives(const unsigned int valueReferences[],
-                                   const double* variablePointers[],
-                                   size_t nVars5,
-                                   const char *log);
-
-- ``valueReferences``: Vector of value references.
-- ``variablePointers``: Vector of pointers to state derivatives.
-- ``nVars5``: Length of vector of state derivatives.
-- ``log``: Logging message returned on error.
-
-This function returns a vector of state derivatives.
-
-It returns zero if there was no error, or else a positive non-zero integer.
-
-.. code:: c
-
    unsigned int getNextEventTime(fmi2EventInfo *eventInfo,
                                  const char *log);
 
@@ -888,7 +839,7 @@ we propose for cases where the event indicator
 has a direct feedthrough on the input to exclude
 event indicator derivatives from the ``<EventIndicators>``
 element. In this situation, the QSS solver will detect the missing
-information from the xml file and numerically approximate
+information from the XML file and numerically approximate
 the event indicator derivatives.
 
 
