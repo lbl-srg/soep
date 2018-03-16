@@ -674,48 +674,6 @@ EnergyPlus must write the values to the elements that are setup in <code class="
 during the <code class="docutils literal"><span class="pre">instantiate(...)</span></code> call.
 <code class="docutils literal"><span class="pre">nVars2</span> <span class="pre">&lt;=</span> <span class="pre">nVars</span></code> if only certain output variables are required.</p>
 <p>It returns zero if there was no error, or else a positive non-zero integer.</p>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">setContinuousStates</span><span class="p">(</span><span class="n">const</span> <span class="n">unsigned</span> <span class="nb">int</span> <span class="n">valueReferences</span><span class="p">[],</span>
-                                 <span class="n">const</span> <span class="n">double</span> <span class="n">variablePointers</span><span class="p">[],</span>
-                                 <span class="n">size_t</span> <span class="n">nVars3</span><span class="p">,</span>
-                                 <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
-</pre></div>
-</div>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">valueReferences</span></code>: Vector of value references.</li>
-<li><code class="docutils literal"><span class="pre">variablePointers</span></code>: Vector of pointers to state variables.</li>
-<li><code class="docutils literal"><span class="pre">nVars3</span></code>: Number of elements of <code class="docutils literal"><span class="pre">valueReferences</span></code>, and <code class="docutils literal"><span class="pre">variablePointers</span></code>.</li>
-<li><code class="docutils literal"><span class="pre">log</span></code>: Logging message returned on error.</li>
-</ul>
-<p>This function sets a new state vector in EnergyPlus.</p>
-<p>It returns zero if there was no error, or else a positive non-zero integer.</p>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">getContinuousStates</span><span class="p">(</span><span class="n">const</span> <span class="n">unsigned</span> <span class="nb">int</span> <span class="n">valueReferences</span><span class="p">[],</span>
-                                 <span class="n">const</span> <span class="n">double</span><span class="o">*</span> <span class="n">variablePointers</span><span class="p">[],</span>
-                                 <span class="n">size_t</span> <span class="n">nVars4</span><span class="p">,</span>
-                                 <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
-</pre></div>
-</div>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">valueReferences</span></code>: Vector of value references.</li>
-<li><code class="docutils literal"><span class="pre">variablePointers</span></code>: Vector of pointers to state variables.</li>
-<li><code class="docutils literal"><span class="pre">nVars4</span></code>: Number of elements of <code class="docutils literal"><span class="pre">valueReferences</span></code>, and <code class="docutils literal"><span class="pre">variablePointers</span></code>.</li>
-<li><code class="docutils literal"><span class="pre">log</span></code>: Logging message returned on error.</li>
-</ul>
-<p>This function returns the new state vector from EnergyPlus.</p>
-<p>It returns zero if there was no error, or else a positive non-zero integer.</p>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">getTimeDerivatives</span><span class="p">(</span><span class="n">const</span> <span class="n">unsigned</span> <span class="nb">int</span> <span class="n">valueReferences</span><span class="p">[],</span>
-                                <span class="n">const</span> <span class="n">double</span><span class="o">*</span> <span class="n">variablePointers</span><span class="p">[],</span>
-                                <span class="n">size_t</span> <span class="n">nVars5</span><span class="p">,</span>
-                                <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
-</pre></div>
-</div>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">valueReferences</span></code>: Vector of value references.</li>
-<li><code class="docutils literal"><span class="pre">variablePointers</span></code>: Vector of pointers to state derivatives.</li>
-<li><code class="docutils literal"><span class="pre">nVars5</span></code>: Length of vector of state derivatives.</li>
-<li><code class="docutils literal"><span class="pre">log</span></code>: Logging message returned on error.</li>
-</ul>
-<p>This function returns a vector of state derivatives.</p>
-<p>It returns zero if there was no error, or else a positive non-zero integer.</p>
 <div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">getNextEventTime</span><span class="p">(</span><span class="n">fmi2EventInfo</span> <span class="o">*</span><span class="n">eventInfo</span><span class="p">,</span>
                               <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
 </pre></div>
@@ -925,7 +883,7 @@ In the pseudo code, <code class="docutils literal"><span class="pre">-&gt;</span
         <span class="n">M_fmi2GetReal</span><span class="p">(...)</span> <span class="o">-&gt;</span> <span class="n">getVariables</span> <span class="p">(...)</span>
         <span class="k">if</span> <span class="n">initialEventMode</span> <span class="n">or</span> <span class="n">eventInfo</span><span class="p">.</span><span class="n">valuesOfContinuousStatesChanged</span> <span class="n">then</span>
           <span class="c1">//the model signals a value change of states, retrieve them</span>
-          <span class="n">M_fmi2GetContinuousStates</span><span class="p">(...)</span> <span class="o">-&gt;</span> <span class="n">getContinuousStates</span><span class="p">(...)</span>
+          <span class="n">M_fmi2GetContinuousStates</span><span class="p">(...)</span> <span class="o">-&gt;</span> <span class="n">NA</span>
         <span class="n">end</span> <span class="k">if</span>
 
         <span class="k">if</span> <span class="n">initialEventMode</span> <span class="n">or</span> <span class="n">eventInfo</span><span class="p">.</span><span class="n">nominalsOfContinuousStatesChanged</span> <span class="n">then</span>
@@ -947,7 +905,7 @@ In the pseudo code, <code class="docutils literal"><span class="pre">-&gt;</span
       <span class="n">end</span> <span class="k">if</span>
 
       <span class="c1">// compute derivatives</span>
-      <span class="n">M_fmi2GetDerivatives</span><span class="p">(...)</span> <span class="o">-&gt;</span> <span class="n">getTimeDerivatives</span><span class="p">(...)</span>
+      <span class="n">M_fmi2GetDerivatives</span><span class="p">(...)</span> <span class="o">-&gt;</span> <span class="n">NA</span>
       <span class="c1">// Note we might have to compute time derivatives at different time instants</span>
       <span class="c1">// to approximate higher order derivatives for QSS integration methods.</span>
 
@@ -969,7 +927,7 @@ In the pseudo code, <code class="docutils literal"><span class="pre">-&gt;</span
 
       <span class="c1">// do a time integration up to t = time</span>
       <span class="n">x</span> <span class="o">=</span> <span class="n">integral</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">der_x</span><span class="p">,</span> <span class="n">time_old</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
-      <span class="n">M_fmi2SetContinuousStates</span><span class="p">(...)</span> <span class="o">-&gt;</span> <span class="n">setContinuousStates</span><span class="p">(...)</span>
+      <span class="n">M_fmi2SetContinuousStates</span><span class="p">(...)</span> <span class="o">-&gt;</span> <span class="n">NA</span>
 
       <span class="c1">// get event indicators for state events detection at t = time</span>
       <span class="n">M_fmi2GetEventIndicators</span><span class="p">(...)</span> <span class="o">-&gt;</span> <span class="n">NA</span>
@@ -1340,7 +1298,7 @@ we propose for cases where the event indicator
 has a direct feedthrough on the input to exclude
 event indicator derivatives from the <code class="docutils literal"><span class="pre">&lt;EventIndicators&gt;</span></code>
 element. In this situation, the QSS solver will detect the missing
-information from the xml file and numerically approximate
+information from the XML file and numerically approximate
 the event indicator derivatives.</p>
 </div>
 <div class="section" id="handling-of-variables-reinitialized-with-reinit">
