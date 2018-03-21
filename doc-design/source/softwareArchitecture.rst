@@ -213,7 +213,6 @@ exchanges with the master algorithm.
 Data exchange
 ~~~~~~~~~~~~~
 
-The communication occurs through the EnergyPlus external interface.
 The following parameters are sent from EnergyPlus to Modelica. These are sent only once during the initialization for each thermal zone.
 
 +---------------------------+-----------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
@@ -272,15 +271,8 @@ is being modeled, we do not receive the contaminant emission from EnergyPlus.
 Instead, we obtain the heat gain due to people, which is then used to optionally computed the
 CO2 emitted by people.
 
-How to connect variables from the External Interface to the EnergyPlus zone is defined by using an object in the idf file
-of the form
-
-.. code::
-
-   ExternalInterface:FunctionalMockupUnitExport:Zone,
-   South Office; !- EnergyPlus name of the zone
-
-The External Interface then maps the data from the above variable table to data structure in EnergyPlus.
+For this coupling, all zones of EnergyPlus will be accessed from Modelica.
+For example, if a building has two zones, then both zones need to be modeled in Modelica.
 
 .. _sec_time_sync:
 
@@ -340,7 +332,8 @@ In the remainder of this section, we note that ``time`` is
 .. note::
 
     Monotonically increasing means that if a function has as argument ``time`` and is called at time ``t1``, then its next call must happen at time ``t2`` with ``t2`` >= ``t1``.
-    For efficiency reasons, if a function which updates internal variables is called at the same time instant multiple times then only the first call will update the variables, subsequent calls will cause the functions to return the same variable values.
+    For efficiency reasons, if a function which updates internal variables is called at the same time instant multiple times,
+    then only the first call will update the variables, subsequent calls will cause the functions to return the same variable values.
 
 .. code:: c
 
@@ -348,62 +341,90 @@ In the remainder of this section, we note that ``time`` is
                             const char const *weather,
                             const char const *idd,
                             const char const *instanceName,
-                            const unsigned int valueReferences[],
-                            double* variablePointers[],
-                            size_t nVars,
+                            const char ** parameterNames,
+                            const unsigned int parameterValueReferences[],
+                            size_t nPar,
+                            const char ** inputNames,
+                            const unsigned int inputValueReferences[],
+                            size_t nInp,
+                            const char ** outputNames,
+                            const unsigned int outputValueReferences[],
+                            size_t nOut,
                             const char *log);
 
 - ``input``: Absolute or relative path to an EnergyPlus input file with file name.
 - ``weather``: Absolute or relative path to an EnergyPlus weather file with file name.
 - ``idd``: Absolute or relative path to an EnergyPlus idd file with file name.
 - ``instanceName``: String to uniquely identify an EnergyPlus instance. This string must be non-empty and will be used for logging message.
-- ``valueReferences``: A vector of value references. Value references uniquely identify values of variables
-    defined in the model description file of an EnergyPlus FMU.
-- ``variablePointers``: A vector of pointers to variables whose value references are defined in ``valueReferences``.
-- ``nVars``: Number of elements of ``valueReferences`` and ``variablePointers``.
+- ``parameterNames``: A vector of ``nPar`` strings that identifies the names of the parameters that are to be retrieved from EnergyPlus.
+- ``parameterValueReferences``: A vector of value references for the quantities in ``parameterNames``.
+  Value references uniquely identify the variables, and are used in the ``setVariables``
+  and ``getVariables`` calls below.
+- ``nPar``: Number of elements of the parameter vector, e.g.,
+  length of ``parameterNames`` and ``parameterValueReferences``.
+- ``inputNames``: A vector of ``nInp`` strings that identifies the names of the inputs sent to EnergyPlus.
+- ``inputValueReferences``: A vector of value references for the quantities in ``inputNames``.
+- ``nInp``: Number of elements of the input vector, e.g.,
+  length of ``inputNames`` and ``inputValueReferences``.
+- ``outputNames``: A vector of ``nOut`` strings that identifies the names of the outputs to be
+  retrieved from EnergyPlus.
+- ``outputValueReferences``: A vector of value references for the quantities in ``outputNames``.
+- ``nOut``: Number of elements of the output vector, e.g.,
+  length of ``outputNames`` and ``outputValueReferences``.
 - ``log``: Logging message returned on error.
 
+For example, if a building has two zones called ``basement`` and ``office``, then the parameter names are
 
-This function will read the ``idf`` file, sets up the data structure in EnergyPlus, gets
-a vector of value references (as in ``modelDescription.xml``)
-and returns a vector of pointers to the aforementioned value references.
-The ordering of the value references must match the ordering of the vector of pointers.
+.. code:: c
+
+   const char ** parameterNames = {"basement,V", "basement,AFlo", "basement,mSenFac", "office,V", "office,AFlo", "office,mSenFac"};
+   const unsigned int parameterValueReferences[] = {0, 1, 2, 3, 4, 5, 6};
+
+The inputs into EnergyPlus will be
+
+.. code:: c
+
+   const char ** inputNames = {"basement,T", "basement,X", "basement,mInlets_flow", "basement,TInlet", "basement,QGaiRad_flow",
+                               "office,T", "office,X", "office,mInlets_flow", "office,TInlet", "office,QGaiRad_flow"};
+   const unsigned int inputValueReferences[] = {7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+
+The outputs of EnergyPlus will be
+
+.. code:: c
+
+   const char ** outputNames = {"basement,TRad", "basement,QConSen_flow", "basement,QLat_flow", "basement,QPeo_flow",
+                                "office,TRad", "office,QConSen_flow", "office,QLat_flow", "office,QPeo_flow"};
+   const unsigned int outputValueReferences[] = {17, 18, 19, 20, 21, 22, 23, 24};
+
+This function will read the ``idf`` file and sets up the data structure in EnergyPlus.
 
 It returns zero if there was no error, or else a positive non-zero integer.
 
 .. code:: c
 
    unsigned int setupExperiment(double tStart,
-                                bool stopTimeDefined,
-                                double tEnd,
                                 const char *log);
 
 - ``tStart``: Start of simulation in seconds.
-- ``stopTimeDefined``: If ``false``, then the value of ``tEnd`` must be ignored.
-  If ``stopTimeDefined = true`` and the environment tries to compute past ``tEnd``,
-  then ``setTime()`` has to return an error message.
-  (Setting ``stopTimeDefined = false`` allows use of the simulator as part of a controller.)
-- ``tEnd``: End of simulation in seconds.
 - ``log``: Logging message returned on error.
 
-This functions sets the start and end time of EnergyPlus to the values ``tStart`` and ``tEnd``.
-There is no warm-up simulation.
+This functions sets the start time of EnergyPlus to the value ``tStart``.
+There is no warm-up simulation. EnergyPlus will continue the simulation until
+``terminate(const char *)`` (see below) is called.
 
 It returns zero if there was no error, or else a positive non-zero integer.
 
 .. note::
 
-   The EnergyPlus start and stop time is as retrieved from the arguments of
+   The EnergyPlus start time is as retrieved from the argument of
    ``setupExperiment(...)``. The ``RunPeriod`` in the ``idf`` file is only
    used to determine the day of the week.
 
-   *Complications*:
+   *Possible complication*:
 
-   a) Users may set ``tStart`` and ``tEnd``
-      to times other than midnight. We think EnergyPlus cannot yet handle an arbitrary start
-      and end time. In this case, it should return an error.
-   b) Users may set ``tStart=tEnd``, which is valid in some simulators. Can EneryPlus
-      handle this or should it return an error?
+   Users may set ``tStart``
+   to a time other than midnight. We think EnergyPlus cannot yet handle an arbitrary start time.
+   In this case, it should return an error.
 
 
 .. code:: c
@@ -431,8 +452,8 @@ It returns zero if there was no error, or else a positive non-zero integer.
 - ``log``: Logging message returned on error.
 
 This function sets the value of variables in EnergyPlus.
-The vector ``variablePointers`` could be a subset of the pointer ``variablePointers``
-that was setup in ``instantiate(...)``, i.e., ``nVars1 <= nVars``
+The vector ``valueReferences`` could be a subset of the pointer ``inputValueReferences``
+that was setup in ``instantiate(...)``, i.e., ``nVars1 <= nInp``
 (to allow updating only specific variables
 as needed by QSS).
 
@@ -452,9 +473,9 @@ It returns zero if there was no error, or else a positive non-zero integer.
 
 
 This function gets the value of variables in EnergyPlus.
-EnergyPlus must write the values to the elements that are setup in ``variablePointers``
+EnergyPlus must write the values to the elements that are setup in ``outputValueReferences``
 during the ``instantiate(...)`` call.
-``nVars2 <= nVars`` if only certain output variables are required.
+``nVars2 <= nOut`` if only certain output variables are required.
 
 It returns zero if there was no error, or else a positive non-zero integer.
 

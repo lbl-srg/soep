@@ -415,8 +415,7 @@ exchanges with the master algorithm.</p>
 </div>
 <div class="section" id="data-exchange">
 <span id="sec-data-exchange"></span><h3>5.2.3. Data exchange<a class="headerlink" href="#data-exchange" title="Permalink to this headline">¶</a></h3>
-<p>The communication occurs through the EnergyPlus external interface.
-The following parameters are sent from EnergyPlus to Modelica. These are sent only once during the initialization for each thermal zone.</p>
+<p>The following parameters are sent from EnergyPlus to Modelica. These are sent only once during the initialization for each thermal zone.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="15%" />
@@ -539,13 +538,8 @@ or no contaminant modeling, or both. To allow ambiguities regarding what contami
 is being modeled, we do not receive the contaminant emission from EnergyPlus.
 Instead, we obtain the heat gain due to people, which is then used to optionally computed the
 CO2 emitted by people.</p>
-<p>How to connect variables from the External Interface to the EnergyPlus zone is defined by using an object in the idf file
-of the form</p>
-<div class="code highlight-default"><div class="highlight"><pre><span></span>ExternalInterface:FunctionalMockupUnitExport:Zone,
-South Office; !- EnergyPlus name of the zone
-</pre></div>
-</div>
-<p>The External Interface then maps the data from the above variable table to data structure in EnergyPlus.</p>
+<p>For this coupling, all zones of EnergyPlus will be accessed from Modelica.
+For example, if a building has two zones, then both zones need to be modeled in Modelica.</p>
 </div>
 <div class="section" id="time-synchronization">
 <span id="sec-time-sync"></span><h3>5.2.4. Time synchronization<a class="headerlink" href="#time-synchronization" title="Permalink to this headline">¶</a></h3>
@@ -600,15 +594,22 @@ Also, rejecting steps is needed to identify state events (but not for QSS solver
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Monotonically increasing means that if a function has as argument <code class="docutils literal"><span class="pre">time</span></code> and is called at time <code class="docutils literal"><span class="pre">t1</span></code>, then its next call must happen at time <code class="docutils literal"><span class="pre">t2</span></code> with <code class="docutils literal"><span class="pre">t2</span></code> &gt;= <code class="docutils literal"><span class="pre">t1</span></code>.
-For efficiency reasons, if a function which updates internal variables is called at the same time instant multiple times then only the first call will update the variables, subsequent calls will cause the functions to return the same variable values.</p>
+For efficiency reasons, if a function which updates internal variables is called at the same time instant multiple times,
+then only the first call will update the variables, subsequent calls will cause the functions to return the same variable values.</p>
 </div>
 <div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">instantiate</span><span class="p">(</span><span class="n">const</span> <span class="n">char</span> <span class="n">const</span> <span class="o">*</span><span class="nb">input</span><span class="p">,</span>
                          <span class="n">const</span> <span class="n">char</span> <span class="n">const</span> <span class="o">*</span><span class="n">weather</span><span class="p">,</span>
                          <span class="n">const</span> <span class="n">char</span> <span class="n">const</span> <span class="o">*</span><span class="n">idd</span><span class="p">,</span>
                          <span class="n">const</span> <span class="n">char</span> <span class="n">const</span> <span class="o">*</span><span class="n">instanceName</span><span class="p">,</span>
-                         <span class="n">const</span> <span class="n">unsigned</span> <span class="nb">int</span> <span class="n">valueReferences</span><span class="p">[],</span>
-                         <span class="n">double</span><span class="o">*</span> <span class="n">variablePointers</span><span class="p">[],</span>
-                         <span class="n">size_t</span> <span class="n">nVars</span><span class="p">,</span>
+                         <span class="n">const</span> <span class="n">char</span> <span class="o">**</span> <span class="n">parameterNames</span><span class="p">,</span>
+                         <span class="n">const</span> <span class="n">unsigned</span> <span class="nb">int</span> <span class="n">parameterValueReferences</span><span class="p">[],</span>
+                         <span class="n">size_t</span> <span class="n">nPar</span><span class="p">,</span>
+                         <span class="n">const</span> <span class="n">char</span> <span class="o">**</span> <span class="n">inputNames</span><span class="p">,</span>
+                         <span class="n">const</span> <span class="n">unsigned</span> <span class="nb">int</span> <span class="n">inputValueReferences</span><span class="p">[],</span>
+                         <span class="n">size_t</span> <span class="n">nInp</span><span class="p">,</span>
+                         <span class="n">const</span> <span class="n">char</span> <span class="o">**</span> <span class="n">outputNames</span><span class="p">,</span>
+                         <span class="n">const</span> <span class="n">unsigned</span> <span class="nb">int</span> <span class="n">outputValueReferences</span><span class="p">[],</span>
+                         <span class="n">size_t</span> <span class="n">nOut</span><span class="p">,</span>
                          <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
 </pre></div>
 </div>
@@ -617,51 +618,63 @@ For efficiency reasons, if a function which updates internal variables is called
 <li><code class="docutils literal"><span class="pre">weather</span></code>: Absolute or relative path to an EnergyPlus weather file with file name.</li>
 <li><code class="docutils literal"><span class="pre">idd</span></code>: Absolute or relative path to an EnergyPlus idd file with file name.</li>
 <li><code class="docutils literal"><span class="pre">instanceName</span></code>: String to uniquely identify an EnergyPlus instance. This string must be non-empty and will be used for logging message.</li>
-<li><dl class="first docutils">
-<dt><code class="docutils literal"><span class="pre">valueReferences</span></code>: A vector of value references. Value references uniquely identify values of variables</dt>
-<dd>defined in the model description file of an EnergyPlus FMU.</dd>
-</dl>
-</li>
-<li><code class="docutils literal"><span class="pre">variablePointers</span></code>: A vector of pointers to variables whose value references are defined in <code class="docutils literal"><span class="pre">valueReferences</span></code>.</li>
-<li><code class="docutils literal"><span class="pre">nVars</span></code>: Number of elements of <code class="docutils literal"><span class="pre">valueReferences</span></code> and <code class="docutils literal"><span class="pre">variablePointers</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">parameterNames</span></code>: A vector of <code class="docutils literal"><span class="pre">nPar</span></code> strings that identifies the names of the parameters that are to be retrieved from EnergyPlus.</li>
+<li><code class="docutils literal"><span class="pre">parameterValueReferences</span></code>: A vector of value references for the quantities in <code class="docutils literal"><span class="pre">parameterNames</span></code>.
+Value references uniquely identify the variables, and are used in the <code class="docutils literal"><span class="pre">setVariables</span></code>
+and <code class="docutils literal"><span class="pre">getVariables</span></code> calls below.</li>
+<li><code class="docutils literal"><span class="pre">nPar</span></code>: Number of elements of the parameter vector, e.g.,
+length of <code class="docutils literal"><span class="pre">parameterNames</span></code> and <code class="docutils literal"><span class="pre">parameterValueReferences</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">inputNames</span></code>: A vector of <code class="docutils literal"><span class="pre">nInp</span></code> strings that identifies the names of the inputs sent to EnergyPlus.</li>
+<li><code class="docutils literal"><span class="pre">inputValueReferences</span></code>: A vector of value references for the quantities in <code class="docutils literal"><span class="pre">inputNames</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">nInp</span></code>: Number of elements of the input vector, e.g.,
+length of <code class="docutils literal"><span class="pre">inputNames</span></code> and <code class="docutils literal"><span class="pre">inputValueReferences</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">outputNames</span></code>: A vector of <code class="docutils literal"><span class="pre">nOut</span></code> strings that identifies the names of the outputs to be
+retrieved from EnergyPlus.</li>
+<li><code class="docutils literal"><span class="pre">outputValueReferences</span></code>: A vector of value references for the quantities in <code class="docutils literal"><span class="pre">outputNames</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">nOut</span></code>: Number of elements of the output vector, e.g.,
+length of <code class="docutils literal"><span class="pre">outputNames</span></code> and <code class="docutils literal"><span class="pre">outputValueReferences</span></code>.</li>
 <li><code class="docutils literal"><span class="pre">log</span></code>: Logging message returned on error.</li>
 </ul>
-<p>This function will read the <code class="docutils literal"><span class="pre">idf</span></code> file, sets up the data structure in EnergyPlus, gets
-a vector of value references (as in <code class="docutils literal"><span class="pre">modelDescription.xml</span></code>)
-and returns a vector of pointers to the aforementioned value references.
-The ordering of the value references must match the ordering of the vector of pointers.</p>
+<p>For example, if a building has two zones called <code class="docutils literal"><span class="pre">basement</span></code> and <code class="docutils literal"><span class="pre">office</span></code>, then the parameter names are</p>
+<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">const</span> <span class="n">char</span> <span class="o">**</span> <span class="n">parameterNames</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;basement,V&quot;</span><span class="p">,</span> <span class="s2">&quot;basement,AFlo&quot;</span><span class="p">,</span> <span class="s2">&quot;basement,mSenFac&quot;</span><span class="p">,</span> <span class="s2">&quot;office,V&quot;</span><span class="p">,</span> <span class="s2">&quot;office,AFlo&quot;</span><span class="p">,</span> <span class="s2">&quot;office,mSenFac&quot;</span><span class="p">};</span>
+<span class="n">const</span> <span class="n">unsigned</span> <span class="nb">int</span> <span class="n">parameterValueReferences</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">};</span>
+</pre></div>
+</div>
+<p>The inputs into EnergyPlus will be</p>
+<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">const</span> <span class="n">char</span> <span class="o">**</span> <span class="n">inputNames</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;basement,T&quot;</span><span class="p">,</span> <span class="s2">&quot;basement,X&quot;</span><span class="p">,</span> <span class="s2">&quot;basement,mInlets_flow&quot;</span><span class="p">,</span> <span class="s2">&quot;basement,TInlet&quot;</span><span class="p">,</span> <span class="s2">&quot;basement,QGaiRad_flow&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;office,T&quot;</span><span class="p">,</span> <span class="s2">&quot;office,X&quot;</span><span class="p">,</span> <span class="s2">&quot;office,mInlets_flow&quot;</span><span class="p">,</span> <span class="s2">&quot;office,TInlet&quot;</span><span class="p">,</span> <span class="s2">&quot;office,QGaiRad_flow&quot;</span><span class="p">};</span>
+<span class="n">const</span> <span class="n">unsigned</span> <span class="nb">int</span> <span class="n">inputValueReferences</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">};</span>
+</pre></div>
+</div>
+<p>The outputs of EnergyPlus will be</p>
+<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">const</span> <span class="n">char</span> <span class="o">**</span> <span class="n">outputNames</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;basement,TRad&quot;</span><span class="p">,</span> <span class="s2">&quot;basement,QConSen_flow&quot;</span><span class="p">,</span> <span class="s2">&quot;basement,QLat_flow&quot;</span><span class="p">,</span> <span class="s2">&quot;basement,QPeo_flow&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;office,TRad&quot;</span><span class="p">,</span> <span class="s2">&quot;office,QConSen_flow&quot;</span><span class="p">,</span> <span class="s2">&quot;office,QLat_flow&quot;</span><span class="p">,</span> <span class="s2">&quot;office,QPeo_flow&quot;</span><span class="p">};</span>
+<span class="n">const</span> <span class="n">unsigned</span> <span class="nb">int</span> <span class="n">outputValueReferences</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">17</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">24</span><span class="p">};</span>
+</pre></div>
+</div>
+<p>This function will read the <code class="docutils literal"><span class="pre">idf</span></code> file and sets up the data structure in EnergyPlus.</p>
 <p>It returns zero if there was no error, or else a positive non-zero integer.</p>
 <div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">setupExperiment</span><span class="p">(</span><span class="n">double</span> <span class="n">tStart</span><span class="p">,</span>
-                             <span class="nb">bool</span> <span class="n">stopTimeDefined</span><span class="p">,</span>
-                             <span class="n">double</span> <span class="n">tEnd</span><span class="p">,</span>
                              <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
 </pre></div>
 </div>
 <ul class="simple">
 <li><code class="docutils literal"><span class="pre">tStart</span></code>: Start of simulation in seconds.</li>
-<li><code class="docutils literal"><span class="pre">stopTimeDefined</span></code>: If <code class="docutils literal"><span class="pre">false</span></code>, then the value of <code class="docutils literal"><span class="pre">tEnd</span></code> must be ignored.
-If <code class="docutils literal"><span class="pre">stopTimeDefined</span> <span class="pre">=</span> <span class="pre">true</span></code> and the environment tries to compute past <code class="docutils literal"><span class="pre">tEnd</span></code>,
-then <code class="docutils literal"><span class="pre">setTime()</span></code> has to return an error message.
-(Setting <code class="docutils literal"><span class="pre">stopTimeDefined</span> <span class="pre">=</span> <span class="pre">false</span></code> allows use of the simulator as part of a controller.)</li>
-<li><code class="docutils literal"><span class="pre">tEnd</span></code>: End of simulation in seconds.</li>
 <li><code class="docutils literal"><span class="pre">log</span></code>: Logging message returned on error.</li>
 </ul>
-<p>This functions sets the start and end time of EnergyPlus to the values <code class="docutils literal"><span class="pre">tStart</span></code> and <code class="docutils literal"><span class="pre">tEnd</span></code>.
-There is no warm-up simulation.</p>
+<p>This functions sets the start time of EnergyPlus to the value <code class="docutils literal"><span class="pre">tStart</span></code>.
+There is no warm-up simulation. EnergyPlus will continue the simulation until
+<code class="docutils literal"><span class="pre">terminate(const</span> <span class="pre">char</span> <span class="pre">*)</span></code> (see below) is called.</p>
 <p>It returns zero if there was no error, or else a positive non-zero integer.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p>The EnergyPlus start and stop time is as retrieved from the arguments of
+<p>The EnergyPlus start time is as retrieved from the argument of
 <code class="docutils literal"><span class="pre">setupExperiment(...)</span></code>. The <code class="docutils literal"><span class="pre">RunPeriod</span></code> in the <code class="docutils literal"><span class="pre">idf</span></code> file is only
 used to determine the day of the week.</p>
-<p><em>Complications</em>:</p>
-<ol class="last loweralpha simple">
-<li>Users may set <code class="docutils literal"><span class="pre">tStart</span></code> and <code class="docutils literal"><span class="pre">tEnd</span></code>
-to times other than midnight. We think EnergyPlus cannot yet handle an arbitrary start
-and end time. In this case, it should return an error.</li>
-<li>Users may set <code class="docutils literal"><span class="pre">tStart=tEnd</span></code>, which is valid in some simulators. Can EneryPlus
-handle this or should it return an error?</li>
-</ol>
+<p><em>Possible complication</em>:</p>
+<p class="last">Users may set <code class="docutils literal"><span class="pre">tStart</span></code>
+to a time other than midnight. We think EnergyPlus cannot yet handle an arbitrary start time.
+In this case, it should return an error.</p>
 </div>
 <div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">setTime</span><span class="p">(</span><span class="n">double</span> <span class="n">time</span><span class="p">,</span>
                      <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
@@ -686,8 +699,8 @@ handle this or should it return an error?</li>
 <li><code class="docutils literal"><span class="pre">log</span></code>: Logging message returned on error.</li>
 </ul>
 <p>This function sets the value of variables in EnergyPlus.
-The vector <code class="docutils literal"><span class="pre">variablePointers</span></code> could be a subset of the pointer <code class="docutils literal"><span class="pre">variablePointers</span></code>
-that was setup in <code class="docutils literal"><span class="pre">instantiate(...)</span></code>, i.e., <code class="docutils literal"><span class="pre">nVars1</span> <span class="pre">&lt;=</span> <span class="pre">nVars</span></code>
+The vector <code class="docutils literal"><span class="pre">valueReferences</span></code> could be a subset of the pointer <code class="docutils literal"><span class="pre">inputValueReferences</span></code>
+that was setup in <code class="docutils literal"><span class="pre">instantiate(...)</span></code>, i.e., <code class="docutils literal"><span class="pre">nVars1</span> <span class="pre">&lt;=</span> <span class="pre">nInp</span></code>
 (to allow updating only specific variables
 as needed by QSS).</p>
 <p>It returns zero if there was no error, or else a positive non-zero integer.</p>
@@ -704,9 +717,9 @@ as needed by QSS).</p>
 <li><code class="docutils literal"><span class="pre">log</span></code>: Logging message returned on error.</li>
 </ul>
 <p>This function gets the value of variables in EnergyPlus.
-EnergyPlus must write the values to the elements that are setup in <code class="docutils literal"><span class="pre">variablePointers</span></code>
+EnergyPlus must write the values to the elements that are setup in <code class="docutils literal"><span class="pre">outputValueReferences</span></code>
 during the <code class="docutils literal"><span class="pre">instantiate(...)</span></code> call.
-<code class="docutils literal"><span class="pre">nVars2</span> <span class="pre">&lt;=</span> <span class="pre">nVars</span></code> if only certain output variables are required.</p>
+<code class="docutils literal"><span class="pre">nVars2</span> <span class="pre">&lt;=</span> <span class="pre">nOut</span></code> if only certain output variables are required.</p>
 <p>It returns zero if there was no error, or else a positive non-zero integer.</p>
 <div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">getNextEventTime</span><span class="p">(</span><span class="n">fmi2EventInfo</span> <span class="o">*</span><span class="n">eventInfo</span><span class="p">,</span>
                               <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
@@ -878,8 +891,8 @@ In the pseudo code, <code class="docutils literal"><span class="pre">-&gt;</span
     <span class="c1">// set the input values and the initial values for the states at time = tStart</span>
     <span class="n">M_fmi2SetReal</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="p">...)</span> <span class="o">-&gt;</span> <span class="n">setVariables</span> <span class="p">(...)</span>
 
-    <span class="c1">// initialize</span>
-    <span class="n">M_fmi2SetupExperiment</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="n">fmi2False</span><span class="p">,</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">Tstart</span><span class="p">,</span> <span class="n">fmi2True</span><span class="p">,</span><span class="n">Tend</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">setupExperiment</span><span class="p">(...)</span>
+    <span class="c1">// initialize. Note that tEnd is not set in M_fmi2SetupExperiment</span>
+    <span class="n">M_fmi2SetupExperiment</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">fmi2False</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">Tstart</span><span class="p">,</span> <span class="n">fmi2False</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">setupExperiment</span><span class="p">(...)</span>
     <span class="n">M_fmi2EnterInitializationMode</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NA</span>
     <span class="n">M_fmi2ExitInitializationMode</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NA</span>
 

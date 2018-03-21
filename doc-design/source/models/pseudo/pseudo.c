@@ -11,8 +11,8 @@
     // set the input values and the initial values for the states at time = tStart
     M_fmi2SetReal(m, ...) -> setVariables (...)
 
-    // initialize
-    M_fmi2SetupExperiment(m,fmi2False,0.0, Tstart, fmi2True,Tend) -> setupExperiment(...)
+    // initialize. Note that tEnd is not set in M_fmi2SetupExperiment
+    M_fmi2SetupExperiment(m, fmi2False, 0.0, Tstart, fmi2False, 0.0) -> setupExperiment(...)
     M_fmi2EnterInitializationMode(m) -> NA
     M_fmi2ExitInitializationMode(m) -> NA
 
