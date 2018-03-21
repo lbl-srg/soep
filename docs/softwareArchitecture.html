@@ -416,8 +416,7 @@ exchanges with the master algorithm.</p>
 <div class="section" id="data-exchange">
 <span id="sec-data-exchange"></span><h3>5.2.3. Data exchange<a class="headerlink" href="#data-exchange" title="Permalink to this headline">¶</a></h3>
 <p>The communication occurs through the EnergyPlus external interface.
-The following variables are sent between the master algorithm
-and the EnergyPlus FMU for each thermal zone.</p>
+The following parameters are sent from EnergyPlus to Modelica. These are sent only once during the initialization for each thermal zone.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="15%" />
@@ -433,7 +432,43 @@ and the EnergyPlus FMU for each thermal zone.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td colspan="4"><em>From master algorithm to EnergyPlus FMU</em></td>
+<tr class="row-even"><td colspan="4"><em>From EnergyPlus to Modelica</em></td>
+</tr>
+<tr class="row-odd"><td>V</td>
+<td><span class="math">\(1\)</span></td>
+<td>Volume of the zone air</td>
+<td>m3</td>
+</tr>
+<tr class="row-even"><td>AFlo</td>
+<td><span class="math">\(1\)</span></td>
+<td>Floor area of the zone</td>
+<td>m2</td>
+</tr>
+<tr class="row-odd"><td>mSenFac</td>
+<td><span class="math">\(1\)</span></td>
+<td>Factor for scaling the sensible thermal mass of the zone air volume</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p>The following time-dependent variables are exchanged between EnergyPlus and Modelica during the time integration
+for each thermal zone.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="16%" />
+<col width="60%" />
+<col width="9%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Variable</th>
+<th class="head">Dimension</th>
+<th class="head">Quantity</th>
+<th class="head">Unit</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td colspan="4"><em>From Modelica to EnergyPlus</em></td>
 </tr>
 <tr class="row-odd"><td>T</td>
 <td><span class="math">\(1\)</span></td>
@@ -445,14 +480,14 @@ and the EnergyPlus FMU for each thermal zone.</p>
 <td>Water vapor mass fraction per total air mass of the zone</td>
 <td>kg/kg</td>
 </tr>
-<tr class="row-odd"><td>mInlet_flow</td>
-<td><span class="math">\(n\)</span></td>
-<td>Mass flow rate into the zone for the <span class="math">\(n\)</span>, <span class="math">\(n \ge 0\)</span>, air inlets (including infiltration)</td>
+<tr class="row-odd"><td>mInlets_flow</td>
+<td><span class="math">\(1\)</span></td>
+<td>Sum of positive mass flow rates into the zone for all air inlets (including infiltration)</td>
 <td>kg/s</td>
 </tr>
 <tr class="row-even"><td>TInlet</td>
-<td><span class="math">\(n\)</span></td>
-<td>Temperature of the medium carried by the mass flow rate</td>
+<td><span class="math">\(1\)</span></td>
+<td>Average of inlets medium temperatures carried by the mass flow rates</td>
 <td>degC</td>
 </tr>
 <tr class="row-odd"><td>QGaiRad_flow</td>
@@ -467,7 +502,7 @@ and with
 no correction for daylight savings time</td>
 <td>s</td>
 </tr>
-<tr class="row-odd"><td colspan="4"><em>From EnergyPlus FMU to master algorithm</em></td>
+<tr class="row-odd"><td colspan="4"><em>From EnergyPlus to Modelica</em></td>
 </tr>
 <tr class="row-even"><td>TRad</td>
 <td><span class="math">\(1\)</span></td>
