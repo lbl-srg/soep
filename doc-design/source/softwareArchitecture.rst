@@ -200,7 +200,7 @@ as shown in :num:`Figure #fig-partition-envelop-room-hvac`.
    Partitioning of the envelope, room and HVAC model.
 
 The EnergyPlus FMU is for model exchange and contains the
-envelope and the room model.
+envelope and the room surfaces.
 All of the HVAC system and other pressure driven mass flow
 rates, such as infiltration due to wind pressure or static
 pressure differences, are computed in the HVAC FMUs.
