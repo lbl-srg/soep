@@ -5,11 +5,9 @@ This section describes how to
 generate automated SOEP documentation and abstract syntax trees from
 the Modelica Buildings Library (MBL), or from other Modelica libraries that
 users may use with SOEP.
-
 The goal is to expose the `abstract
 syntax tree (AST) <https://en.wikipedia.org/wiki/Abstract_syntax_tree>`_ of the
-Modelica Buildings Library (MBL) [#fn_mbl]_, and make it available
-to other tools via one or several json files.
+MBL, and make it available to other tools via one or several json files.
 These json files can then be used by OpenStudio to
 discover available models and their parameters and other metadata for use
 from the OpenStudio interface for SOEP.
@@ -44,18 +42,17 @@ The intent of the AST representation is *primarily* to be consumed by the
 OpenStudio application for identification of models, model documentation, model
 connecting points, inputs/outputs, and parameters and related meta-data.
 
-Presumably, an OpenStudio application will consume some or all of the above
+An OpenStudio application will consume some or all of the above
 information, use it to provide an interface to the user, and ultimately write
 out a Modelica file which connects the various library components, configures
 various components, and assigns values to parameters.
 
 To create models, information from other libraries, most notably, the Modelica
-Standard Library (MSL) itself, may need to be made available. Typical
+Standard Library (MSL), may need to be made available. Typical
 applications and examples from the MBL use
 component models from both the MSL and MBL. There is also interest in being
 able to support additional third party libraries.
-Therefore, it will be important that this tool is not limited to just
-parsing/processing the MBL.
+
 
 Requirements
 """"""""""""
@@ -71,28 +68,33 @@ Modelica input file or library into a json file. The json file shall contain:
 
   - what models are available
   - what connection "ports" are available
-  - for fluid ports, which ports carry the same fluid (so that media assignments can be propagated through a circuit)
+  - for fluid ports, which ports carry the same fluid
+    (so that media assignments can be propagated through a circuit) [#fn_flu]_
   - what control inputs/outputs are available
   - what parameters are available
   - what configuration management options exist (i.e., replaceable components
     and packages and which parameters belong to which component)
-  - including meta-data and attributes for all the above such as graphics
+  - meta-data and attributes for all the above such as graphics
     annotations, vendor annotations, html documentation, etc.
 
 For integration with OpenStudio, the tool should reduce dependencies
 that complicate the distribution to users.
 
 The tool shall also have options to exclude certain packages. For example,
-OpenStudio may give access to `Modelica.Blocks` but not to `Modelica.Magnetic`.
+OpenStudio may give access to the package `Modelica.Blocks`
+but not to `Modelica.Magnetic`.
 
 The tool shall also allow to perform a "diff" (i.e., logical
 differences) between two generated json files.
 The purpose of the diff tool would be to detect non-trivial
 differences between two generated json files that hold the AST of a Modelica
 library and report those changes. The content of the
-"difference" file would explicitly show the differences between the two
-input manifests. The options here would allow for tweaking the meaning of what
-it means to be "different".
+"difference" file would show the differences between the two
+input manifests.
+
+The diff tool would be of use in particular when new versions of the
+MBL are released and the OpenStudio team would like to check if there are
+non-trivial changes they need to integrate.
 
 The following two lists attempt to list examples of changes that
 cannot be ignored as well as changes that can be ignored.
@@ -112,8 +114,7 @@ cannot be ignored as well as changes that can be ignored.
 *Changes that may be ignored (backward-compatible)*
 
 - changes in style without changes in meaning (addition or removal of
-  whitespace, windows newlines to linux newlines or vice versa, reordering
-  within a section)
+  whitespace, reordering within a section)
 - changes to documentation strings
 - changes to text in embedded HTML documentation
 - changes to revision notes
@@ -123,8 +124,8 @@ cannot be ignored as well as changes that can be ignored.
 - changes to `equation` or `algorithm` sections of code
 - changes to some models/blocks/functions may be completely ignored if, by
   convention, we deem certain paths as "not directly consumable" by OpenStudio.
-  For example, we may wish to not consume paths under a `BaseClasses`,
-  `Examples`, or `Functions` designation.
+  For example, we may wish to not consume classes in the packages `BaseClasses`,
+  `Examples` and `Validations`.
 
 To summarize, the creation of or changes to the "public API" (public
 parameters, variables, subcomponents, connectors) of models, blocks, or
@@ -133,13 +134,6 @@ documentation strings/graphics annotations will not affect the model interface
 or semantics. Changes to protected properties or equations will not affect
 the interface (but may affect the actual numeric output quantities).
 
-Annotations could be used to signal status changes such as "deprecation".
-
-The diff tool would be of use in particular when new versions of the
-MBL are released and the OpenStudio team would like to check if there are
-non-trivial changes they need to integrate.
-
-
 Literature review
 """""""""""""""""
 
@@ -147,8 +141,8 @@ There have been several attempts to represent or use XML in relation to
 Modelica in the past (:cite:`Landin2014`, :cite:`Fritzson2003G`,
 :cite:`Pop2003`, :cite:`Pop2005`, and :cite:`Reisenbichler2006`).
 
-In particular, N. Landin did work with Modelon using JModelica to export XML for
-the purpose of model exchange :cite:`Landin2014` -- this is very similar to our use case.
+In particular, Landin :cite:`Landin2014` did work with Modelon using JModelica to export XML for
+the purpose of model exchange, which is similar to our use case.
 Unfortunately, this work deals only with "flattened" models -- Modelica models
 that have been instantiated with all of the hierarchy removed. For our use
 case, the hierarchy must be preserved so that the OpenStudio team can
@@ -157,8 +151,8 @@ For this purpose, JModelica also provides access to the the source AST and insta
 (see the `JModelica user guide
 <http://www.jmodelica.org/api-docs/usersguide/JModelicaUsersGuide-1.17.0.pdf>`_).
 
-The paper by Reisenbichler 2006 motivates the usage of XML in association with
-Modelica without getting into specifics :cite:`Reisenbichler2006`.
+Reisenbichler :cite:`Reisenbichler2006` motivates the usage of XML in association with
+Modelica without getting into specifics.
 The remaining work by Pop and Fritzson
 is thus the only comprehensive work on an XML representation of Modelica
 *source* AST that appears in the literature
@@ -180,10 +174,10 @@ https://github.com/antlr/grammars-v4/blob/master/modelica/modelica.g4.
 Implementation
 """"""""""""""
 
-Work started on the implementation of a Modelica-JSON translator.
+Work started on the implementation of a modelica-json translator.
 The development page is https://github.com/lbl-srg/modelica-json
 
-For an example, consider the following model
+To illustrate the translation, consider the following simple model:
 
 .. code-block:: modelica
 
@@ -194,7 +188,7 @@ For an example, consider the following model
      Block1 bloPro "A protected block";
    end BlockWithBlock1;
 
-When parse to a json representation, the output of its public declarations is as follows:
+When parsed to json, the output is:
 
 .. code-block:: javascript
 
@@ -222,17 +216,10 @@ When parse to a json representation, the output of its public declarations is as
             }
           ]
         }
-      },
-      {
-        "modelicaFile": "Block1.mo",
-        "within": "FromModelica",
-        "topClassName": "FromModelica.Block1",
-        "comment": "A block that instantiates nothing"
       }
     ]
 
-
 .. rubric:: Footnotes
 
-.. [#fn_mbl] Our main focus is to support the Modelica Buildings Library but
-             the tool should also work for other Modelica libraries.
+.. [#fn_flu] We anticipate that the MBL will be redesigned so that users no longer
+             need to assign media.
