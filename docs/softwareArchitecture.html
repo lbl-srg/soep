@@ -1656,11 +1656,10 @@ FMU that a zero crossing occurred at a given time (and maybe with crossing direc
 <p>This section describes how to
 generate automated SOEP documentation and abstract syntax trees from
 the Modelica Buildings Library (MBL), or from other Modelica libraries that
-users may use with SOEP.</p>
-<p>The goal is to expose the <a class="reference external" href="https://en.wikipedia.org/wiki/Abstract_syntax_tree">abstract
+users may use with SOEP.
+The goal is to expose the <a class="reference external" href="https://en.wikipedia.org/wiki/Abstract_syntax_tree">abstract
 syntax tree (AST)</a> of the
-Modelica Buildings Library (MBL) <a class="footnote-reference" href="#fn-mbl" id="id1">[1]</a>, and make it available
-to other tools via one or several json files.
+MBL, and make it available to other tools via one or several json files.
 These json files can then be used by OpenStudio to
 discover available models and their parameters and other metadata for use
 from the OpenStudio interface for SOEP.</p>
@@ -1690,17 +1689,15 @@ Modelica libraries can be used as well.</p>
 <p>The intent of the AST representation is <em>primarily</em> to be consumed by the
 OpenStudio application for identification of models, model documentation, model
 connecting points, inputs/outputs, and parameters and related meta-data.</p>
-<p>Presumably, an OpenStudio application will consume some or all of the above
+<p>An OpenStudio application will consume some or all of the above
 information, use it to provide an interface to the user, and ultimately write
 out a Modelica file which connects the various library components, configures
 various components, and assigns values to parameters.</p>
 <p>To create models, information from other libraries, most notably, the Modelica
-Standard Library (MSL) itself, may need to be made available. Typical
+Standard Library (MSL), may need to be made available. Typical
 applications and examples from the MBL use
 component models from both the MSL and MBL. There is also interest in being
-able to support additional third party libraries.
-Therefore, it will be important that this tool is not limited to just
-parsing/processing the MBL.</p>
+able to support additional third party libraries.</p>
 </div>
 <div class="section" id="requirements">
 <h4>5.4.1.2. Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h4>
@@ -1714,12 +1711,13 @@ package structure of the library</li>
 <li>for each package,<ul>
 <li>what models are available</li>
 <li>what connection &#8220;ports&#8221; are available</li>
-<li>for fluid ports, which ports carry the same fluid (so that media assignments can be propagated through a circuit)</li>
+<li>for fluid ports, which ports carry the same fluid
+(so that media assignments can be propagated through a circuit) <a class="footnote-reference" href="#fn-flu" id="id1">[1]</a></li>
 <li>what control inputs/outputs are available</li>
 <li>what parameters are available</li>
 <li>what configuration management options exist (i.e., replaceable components
 and packages and which parameters belong to which component)</li>
-<li>including meta-data and attributes for all the above such as graphics
+<li>meta-data and attributes for all the above such as graphics
 annotations, vendor annotations, html documentation, etc.</li>
 </ul>
 </li>
@@ -1727,15 +1725,18 @@ annotations, vendor annotations, html documentation, etc.</li>
 <p>For integration with OpenStudio, the tool should reduce dependencies
 that complicate the distribution to users.</p>
 <p>The tool shall also have options to exclude certain packages. For example,
-OpenStudio may give access to <cite>Modelica.Blocks</cite> but not to <cite>Modelica.Magnetic</cite>.</p>
+OpenStudio may give access to the package <cite>Modelica.Blocks</cite>
+but not to <cite>Modelica.Magnetic</cite>.</p>
 <p>The tool shall also allow to perform a &#8220;diff&#8221; (i.e., logical
 differences) between two generated json files.
 The purpose of the diff tool would be to detect non-trivial
 differences between two generated json files that hold the AST of a Modelica
 library and report those changes. The content of the
-&#8220;difference&#8221; file would explicitly show the differences between the two
-input manifests. The options here would allow for tweaking the meaning of what
-it means to be &#8220;different&#8221;.</p>
+&#8220;difference&#8221; file would show the differences between the two
+input manifests.</p>
+<p>The diff tool would be of use in particular when new versions of the
+MBL are released and the OpenStudio team would like to check if there are
+non-trivial changes they need to integrate.</p>
 <p>The following two lists attempt to list examples of changes that
 cannot be ignored as well as changes that can be ignored.</p>
 <p><em>Significant Changes (backward-incompatible)</em></p>
@@ -1753,8 +1754,7 @@ by OpenStudio</li>
 <p><em>Changes that may be ignored (backward-compatible)</em></p>
 <ul class="simple">
 <li>changes in style without changes in meaning (addition or removal of
-whitespace, windows newlines to linux newlines or vice versa, reordering
-within a section)</li>
+whitespace, reordering within a section)</li>
 <li>changes to documentation strings</li>
 <li>changes to text in embedded HTML documentation</li>
 <li>changes to revision notes</li>
@@ -1764,8 +1764,8 @@ within a section)</li>
 <li>changes to <cite>equation</cite> or <cite>algorithm</cite> sections of code</li>
 <li>changes to some models/blocks/functions may be completely ignored if, by
 convention, we deem certain paths as &#8220;not directly consumable&#8221; by OpenStudio.
-For example, we may wish to not consume paths under a <cite>BaseClasses</cite>,
-<cite>Examples</cite>, or <cite>Functions</cite> designation.</li>
+For example, we may wish to not consume classes in the packages <cite>BaseClasses</cite>,
+<cite>Examples</cite> and <cite>Validations</cite>.</li>
 </ul>
 <p>To summarize, the creation of or changes to the &#8220;public API&#8221; (public
 parameters, variables, subcomponents, connectors) of models, blocks, or
@@ -1773,26 +1773,22 @@ functions must be compared for change detection. Documentation (html)/
 documentation strings/graphics annotations will not affect the model interface
 or semantics. Changes to protected properties or equations will not affect
 the interface (but may affect the actual numeric output quantities).</p>
-<p>Annotations could be used to signal status changes such as &#8220;deprecation&#8221;.</p>
-<p>The diff tool would be of use in particular when new versions of the
-MBL are released and the OpenStudio team would like to check if there are
-non-trivial changes they need to integrate.</p>
 </div>
 <div class="section" id="literature-review">
 <h4>5.4.1.3. Literature review<a class="headerlink" href="#literature-review" title="Permalink to this headline">¶</a></h4>
 <p>There have been several attempts to represent or use XML in relation to
 Modelica in the past (<a class="reference internal" href="zreferences.html#landin2014" id="id2">[Lan14]</a>, <a class="reference internal" href="zreferences.html#fritzson2003g" id="id3">[Fri03]</a>,
 <a class="reference internal" href="zreferences.html#pop2003" id="id4">[PF03]</a>, <a class="reference internal" href="zreferences.html#pop2005" id="id5">[PSAssmannF05]</a>, and <a class="reference internal" href="zreferences.html#reisenbichler2006" id="id6">[RKH+06]</a>).</p>
-<p>In particular, N. Landin did work with Modelon using JModelica to export XML for
-the purpose of model exchange <a class="reference internal" href="zreferences.html#landin2014" id="id7">[Lan14]</a> &#8211; this is very similar to our use case.
+<p>In particular, Landin <a class="reference internal" href="zreferences.html#landin2014" id="id7">[Lan14]</a> did work with Modelon using JModelica to export XML for
+the purpose of model exchange, which is similar to our use case.
 Unfortunately, this work deals only with &#8220;flattened&#8221; models &#8211; Modelica models
 that have been instantiated with all of the hierarchy removed. For our use
 case, the hierarchy must be preserved so that the OpenStudio team can
 build a new model through instantiation of models from the MBL.
 For this purpose, JModelica also provides access to the the source AST and instance AST
 (see the <a class="reference external" href="http://www.jmodelica.org/api-docs/usersguide/JModelicaUsersGuide-1.17.0.pdf">JModelica user guide</a>).</p>
-<p>The paper by Reisenbichler 2006 motivates the usage of XML in association with
-Modelica without getting into specifics <a class="reference internal" href="zreferences.html#reisenbichler2006" id="id8">[RKH+06]</a>.
+<p>Reisenbichler <a class="reference internal" href="zreferences.html#reisenbichler2006" id="id8">[RKH+06]</a> motivates the usage of XML in association with
+Modelica without getting into specifics.
 The remaining work by Pop and Fritzson
 is thus the only comprehensive work on an XML representation of Modelica
 <em>source</em> AST that appears in the literature
@@ -1812,9 +1808,9 @@ For ANTLR, a Modelica grammar is available at
 </div>
 <div class="section" id="implementation">
 <h4>5.4.1.4. Implementation<a class="headerlink" href="#implementation" title="Permalink to this headline">¶</a></h4>
-<p>Work started on the implementation of a Modelica-JSON translator.
+<p>Work started on the implementation of a modelica-json translator.
 The development page is <a class="reference external" href="https://github.com/lbl-srg/modelica-json">https://github.com/lbl-srg/modelica-json</a></p>
-<p>For an example, consider the following model</p>
+<p>To illustrate the translation, consider the following simple model:</p>
 <div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">within</span> <span class="nn">FromModelica</span><span class="p">;</span>
 <span class="kr">block</span> <span class="nc">BlockWithBlock1</span> <span class="s2">&quot;A block that instantiates another public and protected block&quot;</span>
   <span class="n">Block1</span> <span class="n">bloPub</span> <span class="s2">&quot;A public block&quot;</span><span class="p">;</span>
@@ -1823,7 +1819,7 @@ The development page is <a class="reference external" href="https://github.com/l
 <span class="kr">end</span> <span class="nc">BlockWithBlock1</span><span class="p">;</span>
 </pre></div>
 </div>
-<p>When parse to a json representation, the output of its public declarations is as follows:</p>
+<p>When parsed to json, the output is:</p>
 <div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="p">[</span>
   <span class="p">{</span>
     <span class="s2">&quot;modelicaFile&quot;</span><span class="o">:</span> <span class="s2">&quot;./BlockWithBlock1.mo&quot;</span><span class="p">,</span>
@@ -1848,22 +1844,16 @@ The development page is <a class="reference external" href="https://github.com/l
         <span class="p">}</span>
       <span class="p">]</span>
     <span class="p">}</span>
-  <span class="p">},</span>
-  <span class="p">{</span>
-    <span class="s2">&quot;modelicaFile&quot;</span><span class="o">:</span> <span class="s2">&quot;Block1.mo&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;within&quot;</span><span class="o">:</span> <span class="s2">&quot;FromModelica&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;topClassName&quot;</span><span class="o">:</span> <span class="s2">&quot;FromModelica.Block1&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;comment&quot;</span><span class="o">:</span> <span class="s2">&quot;A block that instantiates nothing&quot;</span>
   <span class="p">}</span>
 <span class="p">]</span>
 </pre></div>
 </div>
 <p class="rubric">Footnotes</p>
-<table class="docutils footnote" frame="void" id="fn-mbl" rules="none">
+<table class="docutils footnote" frame="void" id="fn-flu" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>Our main focus is to support the Modelica Buildings Library but
-the tool should also work for other Modelica libraries.</td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>We anticipate that the MBL will be redesigned so that users no longer
+need to assign media.</td></tr>
 </tbody>
 </table>
 </div>
