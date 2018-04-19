@@ -170,10 +170,9 @@
 <li><a class="reference internal" href="#openstudio-integration">5.4. OpenStudio integration</a><ul>
 <li><a class="reference internal" href="#automated-documentation-ast-support-tool">5.4.1. Automated Documentation/AST Support Tool</a><ul>
 <li><a class="reference internal" href="#background">5.4.1.1. Background</a></li>
-<li><a class="reference internal" href="#proposed-workflow-process-and-toolchain">5.4.1.2. Proposed Workflow, Process, and Toolchain</a></li>
+<li><a class="reference internal" href="#requirements">5.4.1.2. Requirements</a></li>
 <li><a class="reference internal" href="#literature-review">5.4.1.3. Literature review</a></li>
-<li><a class="reference internal" href="#discussion-and-details">5.4.1.4. Discussion and Details</a></li>
-<li><a class="reference internal" href="#summary-of-questions-and-next-steps">5.4.1.5. Summary of Questions and Next Steps</a></li>
+<li><a class="reference internal" href="#implementation">5.4.1.4. Implementation</a></li>
 </ul>
 </li>
 </ul>
@@ -1642,18 +1641,19 @@ FMU that a zero crossing occurred at a given time (and maybe with crossing direc
 </div>
 <div class="section" id="automated-documentation-ast-support-tool">
 <h3>5.4.1. Automated Documentation/AST Support Tool<a class="headerlink" href="#automated-documentation-ast-support-tool" title="Permalink to this headline">¶</a></h3>
-<p>This section describes an agreed-upon workflow, toolchain and process to
-generate automated SOEP &#8220;documentation&#8221; and abstract syntax trees from Modelica
-libraries; in particular, the Modelica Buildings Library (MBL).</p>
-<p>The goal of this effort is to build a computer program that makes the <a class="reference external" href="https://en.wikipedia.org/wiki/Abstract_syntax_tree">abstract
+<p>This section describes how to
+generate automated SOEP documentation and abstract syntax trees from
+the Modelica Buildings Library (MBL), or from other Modelica libraries that
+users may use with SOEP.
+The goal is to expose the <a class="reference external" href="https://en.wikipedia.org/wiki/Abstract_syntax_tree">abstract
 syntax tree (AST)</a> of the
-Modelica Buildings Library (MBL) <a class="footnote-reference" href="#fn-mbl" id="id1">[1]</a> available to other tools via an XML
-file. Specifically, this work should be of use to the OpenStudio team for
-discovering available models and their parameters and other metadata for use
+MBL, and make it available to other tools via one or several json files.
+These json files can then be used by OpenStudio to
+discover available models and their parameters and other metadata for use
 from the OpenStudio interface for SOEP.</p>
 <div class="section" id="background">
 <h4>5.4.1.1. Background<a class="headerlink" href="#background" title="Permalink to this headline">¶</a></h4>
-<p>Modelica source code contains quite a lot of meta-data in addition to the
+<p>Modelica source code contains a lot of meta-data in addition to the
 mathematical model itself. An annotation system exists within Modelica and
 custom annotations can be written to pass data to tools. Annotations were
 designed to be an extensible mechanism for capturing meta-data related to a
@@ -1663,141 +1663,86 @@ documentation strings and annotations. Furthermore, packages can be documented
 and the display order of sub-packages, models, classes, functions, connectors
 and other objects can be specified. Modelica libraries have a hierarchical
 structure consisting mainly of packages which contain models and other objects
-as well as sub-packages. Models themselves can be composed of multiple (possibly
-replaceable) components. Much of this information will be required by the
+as well as sub-packages. Models themselves can be composed of multiple, possibly
+replaceable, components. Much of this information will be required by the
 OpenStudio tool in order to understand which component models are available,
-where they reside in the library&#8217;s package structure (i.e., their fully
-qualified name), what parameters they have, how they can be configured, how to
-display them, and what other meta-data are available (such as documentation
-strings and full-on HTML documentation).</p>
+where they reside in the library&#8217;s package structure which determines their fully
+qualified name, what parameters they have, how they can be configured, how to
+display them, and what other meta-data are available, such as documentation
+strings and type of connectors that can be connected with each other.</p>
 <p>This section is concerned about making the AST of Modelica source files,
 including the metadata mentioned above, available to OpenStudio. We
-will specifically focus on the Modelica Buildings Library (MBL), though as we
-discuss later, the tool should also be able to work with other Modelica
-packages and blocks.</p>
+will specifically focus on the Modelica Buildings Library (MBL), but other
+Modelica libraries can be used as well.</p>
 <p>The intent of the AST representation is <em>primarily</em> to be consumed by the
 OpenStudio application for identification of models, model documentation, model
 connecting points, inputs/outputs, and parameters and related meta-data.</p>
-<p>Presumably, an OpenStudio application will consume some or all of the above
+<p>An OpenStudio application will consume some or all of the above
 information, use it to provide an interface to the user, and ultimately write
 out a Modelica file which connects the various library components, configures
-various components and packages (for example, setting the &#8220;media&#8221; or working
-fluid of fluid component models in various HVAC loops), and assigning
-values to parameters.</p>
+various components, and assigns values to parameters.</p>
 <p>To create models, information from other libraries, most notably, the Modelica
-Standard Library (MSL) itself, may need to be made available. Typical
+Standard Library (MSL), may need to be made available. Typical
 applications and examples from the MBL use
 component models from both the MSL and MBL. There is also interest in being
-able to support additional third party libraries over and above the MSL and
-MBL. Therefore, it will be important that this tool is not limited to just
-parsing/processing the MBL.</p>
-<p>Also, related to meta-data, it has been proposed that the MBL add any
-OpenStudio-specific metadata to the MBL files themselves. It was originally
-envisioned that Modelica&#8217;s annotations should support just such a use-case.
-It has been noted that if components from other libraries need to be made
-available to OpenStudio, they could be pulled into the MBL and annotated
-(for example, components from Modelica.Blocks).</p>
+able to support additional third party libraries.</p>
 </div>
-<div class="section" id="proposed-workflow-process-and-toolchain">
-<h4>5.4.1.2. Proposed Workflow, Process, and Toolchain<a class="headerlink" href="#proposed-workflow-process-and-toolchain" title="Permalink to this headline">¶</a></h4>
-<p>We propose to build a stand-alone batch-process program that will transform any
-Modelica input file or library (specifically, the Modelica Buildings Library in
-particular) into an XML document. The XML document will contain:</p>
+<div class="section" id="requirements">
+<h4>5.4.1.2. Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h4>
+<p>This section will describe the requirements of a batch-process program
+that will transform any
+Modelica input file or library into a json file. The json file shall contain:</p>
 <ul class="simple">
 <li>identification of which models, classes, connectors, functions, etc. exist</li>
 <li>identification of the relative hierarchy of the above components within the
 package structure of the library</li>
-<li><dl class="first docutils">
-<dt>for each package, to know</dt>
-<dd><ul class="first last">
+<li>for each package,<ul>
 <li>what models are available</li>
 <li>what connection &#8220;ports&#8221; are available</li>
-<li>for fluid ports, which ports carry the same fluid (so that media
-assignments can be propagated through a circuit)</li>
+<li>for fluid ports, which ports carry the same fluid
+(so that media assignments can be propagated through a circuit) <a class="footnote-reference" href="#fn-flu" id="id1">[1]</a></li>
 <li>what control inputs/outputs are available</li>
 <li>what parameters are available</li>
 <li>what configuration management options exist (i.e., replaceable components
 and packages and which parameters belong to which component)</li>
-<li>including meta-data and attributes for all the above such as graphics
+<li>meta-data and attributes for all the above such as graphics
 annotations, vendor annotations, html documentation, etc.</li>
 </ul>
-</dd>
-</dl>
 </li>
 </ul>
-<p>Although we intend to build a stand-alone tool, there is interest from the
-OpenStudio team in using this tool directly and/or incorporating the algorithms
-into the OpenStudio interface to import new Modelica libraries and files. As
-such, there are some upstream constraints such as a desire to minimize
-dependencies. We will discuss this more below when we talk about programming
-language.</p>
-<p>We believe the <a class="reference external" href="http://www.jmodelica.org/api-docs/usersguide/JModelicaUsersGuide-1.17.0.pdf">JModelica</a>
-tool suite will be able to provide the proper parsing tools for the AST we
-need. Specifically, we must ensure that the AST we derive from JModelica meets
-all of our needs &#8211; most notably, we must ensure we have access to all
-annotations. Specifically, we are looking to JModelica for the following:</p>
-<ol class="arabic simple">
-<li>Provide programmatic access to the full AST of Modelica libraries</li>
-<li>Provide that access through the Java and/or Python API.</li>
-</ol>
-<p>We have confirmed with preliminary work that we can walk a source AST of a
-single Modelica file using the Python API of JModelica 1.17. We have also
-determined that the AST information does include annotation data.
-The OpenStudio team has expressed a preference for
-using the Java API directly in hopes of reducing the dependencies required for
-packaging. Therefore, we will use the Java API and develop a Java application
-for accessing the AST parser.</p>
-<p>The signature of the batch program we will write will be:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ast_doc_gen</span> <span class="o">&lt;</span><span class="n">options</span><span class="o">&gt;</span> <span class="o">--</span><span class="n">out</span> <span class="o">&lt;</span><span class="n">outputfile</span><span class="o">-</span><span class="n">path</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">path_to_modelica_library</span><span class="o">&gt;</span>
-</pre></div>
-</div>
-<p>Or looking at this as a data-flow diagram:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">modelica</span><span class="o">-</span><span class="n">library</span><span class="o">-</span><span class="n">on</span><span class="o">-</span><span class="n">filesystem</span> <span class="o">==&gt;</span> <span class="n">xml</span><span class="o">-</span><span class="n">file</span>
-</pre></div>
-</div>
-<p>The <cite>ast_doc_gen</cite> tool will generate an XML file at <code class="docutils literal"><span class="pre">outputfile-path</span></code> based
-on the library available at <code class="docutils literal"><span class="pre">path_to_modelica_library</span></code>. We propose that there
-should only be one library documented per XML file. If additional library data
-is generated, (for example, the MSL), each library should get its own file.</p>
-<p>Options could include flags to allow turning off/on the reporting of various
-constructs in the source library and for selecting only certain packages to
-import. For example, the OpenStudio team may need to make the <cite>Modelica.Block</cite>
-package of the MSL available for use with the MBL but would not necessarily
-need to include other packages such as <cite>Modelica.Magnetic</cite>,
-<cite>Modelica.Electrical</cite>, or <cite>Modelica.Mechanics</cite>.</p>
-<p>An additional feature of the tool will be to perform a &#8220;diff&#8221; (i.e., logical
-differences) between two generated XML files. The signature for this
-application would be:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ast_doc_diff</span> <span class="o">&lt;</span><span class="n">options</span><span class="o">&gt;</span> <span class="o">--</span><span class="n">out</span> <span class="o">&lt;</span><span class="n">path_to_diff_report</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">path1</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">path2</span><span class="o">&gt;</span>
-</pre></div>
-</div>
-<p>The data-flow diagram would be:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">path1</span><span class="p">,</span> <span class="n">path2</span><span class="p">)</span> <span class="o">==&gt;</span> <span class="n">xml</span><span class="o">-</span><span class="n">file</span>
-</pre></div>
-</div>
-<p>The purpose of the <cite>ast_doc_diff</cite> tool would be to detect non-trivial
-differences between two generated XML files that hold the AST of a Modelica
-library and report those changes out to another XML file. The content of the
-&#8220;difference&#8221; XML file would explicitly show the differences between the two
-input manifests. The options here would allow for tweaking the meaning of what
-it means to be &#8220;different&#8221;.</p>
-<p>The following two lists attempt to list out examples of changes that
+<p>For integration with OpenStudio, the tool should reduce dependencies
+that complicate the distribution to users.</p>
+<p>The tool shall also have options to exclude certain packages. For example,
+OpenStudio may give access to the package <cite>Modelica.Blocks</cite>
+but not to <cite>Modelica.Magnetic</cite>.</p>
+<p>The tool shall also allow to perform a &#8220;diff&#8221; (i.e., logical
+differences) between two generated json files.
+The purpose of the diff tool would be to detect non-trivial
+differences between two generated json files that hold the AST of a Modelica
+library and report those changes. The content of the
+&#8220;difference&#8221; file would show the differences between the two
+input manifests.</p>
+<p>The diff tool would be of use in particular when new versions of the
+MBL are released and the OpenStudio team would like to check if there are
+non-trivial changes they need to integrate.</p>
+<p>The following two lists attempt to list examples of changes that
 cannot be ignored as well as changes that can be ignored.</p>
-<p><em>Significant Changes (Cannot be Ignored)</em></p>
+<p><em>Significant Changes (backward-incompatible)</em></p>
 <ul class="simple">
-<li>changes to names of any public model/block, public parameters, variables,
-connectors, or subcomponents</li>
-<li>addition/subtraction of any public parameters, variables, connectors,
-or subcomponents</li>
+<li>changes to names of any public package, model, block, function, record, as well
+as public constants, parameters, variables, connectors, or subcomponents</li>
+<li>addition of any public parameters that has no default value,
+variables that have no equation (in a partial model), connectors (except for output connectors),
+or subcomponents that require changes to models that extend or instantiate these components</li>
 <li>addition/subtraction of packages/models/blocks/functions meant to be consumed
 by OpenStudio</li>
-<li>moving a model/block/function between packages (i.e., changing the path)</li>
+<li>removing of any public constant, parameter, or class (model, block, function, type etc.)</li>
+<li>moving a class between packages (i.e., changing the path)</li>
 </ul>
-<p><em>Changes that may be Ignored</em></p>
+<p><em>Changes that may be ignored (backward-compatible)</em></p>
 <ul class="simple">
 <li>changes in style without changes in meaning (addition or removal of
-whitespace, windows newlines to linux newlines or vice versa, reordering
-within a section)</li>
+whitespace, reordering within a section)</li>
 <li>changes to documentation strings</li>
 <li>changes to text in embedded HTML documentation</li>
 <li>changes to revision notes</li>
@@ -1807,378 +1752,96 @@ within a section)</li>
 <li>changes to <cite>equation</cite> or <cite>algorithm</cite> sections of code</li>
 <li>changes to some models/blocks/functions may be completely ignored if, by
 convention, we deem certain paths as &#8220;not directly consumable&#8221; by OpenStudio.
-For example, we may wish to not consume paths under a <cite>BaseClasses</cite>,
-<cite>Examples</cite>, or <cite>Functions</cite> designation.</li>
+For example, we may wish to not consume classes in the packages <cite>BaseClasses</cite>,
+<cite>Examples</cite> and <cite>Validations</cite>.</li>
 </ul>
 <p>To summarize, the creation of or changes to the &#8220;public API&#8221; (public
 parameters, variables, subcomponents, connectors) of models, blocks, or
-functions must be compared for change detection. Documentation (HTML)/
+functions must be compared for change detection. Documentation (html)/
 documentation strings/graphics annotations will not affect the model interface
 or semantics. Changes to protected properties or equations will not affect
 the interface (but may affect the actual numeric output quantities).</p>
-<p>Annotations could be used to signal status changes such as &#8220;deprecation&#8221;.</p>
-<p>The <cite>ast_doc_diff</cite> tool would be of use in particular when new versions of the
-MBL are released and the OpenStudio team would like to check if there are
-non-trivial changes they need to integrate.</p>
 </div>
 <div class="section" id="literature-review">
 <h4>5.4.1.3. Literature review<a class="headerlink" href="#literature-review" title="Permalink to this headline">¶</a></h4>
 <p>There have been several attempts to represent or use XML in relation to
-Modelica in the past (<a class="reference internal" href="zreferences.html#landin2014" id="id2">[Lan14]</a>, <a class="reference internal" href="zreferences.html#fritzson2003g" id="id3">[Fri03]</a>, <a class="reference internal" href="zreferences.html#pop2003" id="id4">[PF03]</a>, <a class="reference internal" href="zreferences.html#pop2005" id="id5">[PSAssmannF05]</a>, and <a class="reference internal" href="zreferences.html#reisenbichler2006" id="id6">[RKH+06]</a>).</p>
-<p>In particular, N. Landin did work with Modelon using JModelica to export XML for
-the purpose of model exchange <a class="reference internal" href="zreferences.html#landin2014" id="id7">[Lan14]</a> &#8211; this is very similar to our use case.
+Modelica in the past (<a class="reference internal" href="zreferences.html#landin2014" id="id2">[Lan14]</a>, <a class="reference internal" href="zreferences.html#fritzson2003g" id="id3">[Fri03]</a>,
+<a class="reference internal" href="zreferences.html#pop2003" id="id4">[PF03]</a>, <a class="reference internal" href="zreferences.html#pop2005" id="id5">[PSAssmannF05]</a>, and <a class="reference internal" href="zreferences.html#reisenbichler2006" id="id6">[RKH+06]</a>).</p>
+<p>In particular, Landin <a class="reference internal" href="zreferences.html#landin2014" id="id7">[Lan14]</a> did work with Modelon using JModelica to export XML for
+the purpose of model exchange, which is similar to our use case.
 Unfortunately, this work deals only with &#8220;flattened&#8221; models &#8211; Modelica models
 that have been instantiated with all of the hierarchy removed. For our use
 case, the hierarchy must be preserved so that the OpenStudio team can
-build a new model through instantiation of models from the MBL.</p>
-<p>The paper by Reisenbichler 2006 motivates the usage of XML in association with
-Modelica without getting into specifics <a class="reference internal" href="zreferences.html#reisenbichler2006" id="id8">[RKH+06]</a>. The remaining work by Pop and Fritzson
+build a new model through instantiation of models from the MBL.
+For this purpose, JModelica also provides access to the the source AST and instance AST
+(see the <a class="reference external" href="http://www.jmodelica.org/api-docs/usersguide/JModelicaUsersGuide-1.17.0.pdf">JModelica user guide</a>).</p>
+<p>Reisenbichler <a class="reference internal" href="zreferences.html#reisenbichler2006" id="id8">[RKH+06]</a> motivates the usage of XML in association with
+Modelica without getting into specifics.
+The remaining work by Pop and Fritzson
 is thus the only comprehensive work on an XML representation of Modelica
-<em>source</em> AST that appears in the literature (<a class="reference internal" href="zreferences.html#pop2003" id="id9">[PF03]</a>, <a class="reference internal" href="zreferences.html#pop2005" id="id10">[PSAssmannF05]</a>, and <a class="reference internal" href="zreferences.html#fritzson2003g" id="id11">[Fri03]</a>). The purpose of the XML work by Pop
+<em>source</em> AST that appears in the literature
+(<a class="reference internal" href="zreferences.html#pop2003" id="id9">[PF03]</a>, <a class="reference internal" href="zreferences.html#pop2005" id="id10">[PSAssmannF05]</a>, and <a class="reference internal" href="zreferences.html#fritzson2003g" id="id11">[Fri03]</a>).
+The purpose of the XML work by Pop
 and Fritzson was to create a complete XML representation of the entire Modelica
-source. It is generally a good reference but we note that it is, perhaps
-unnecessarily, verbose for our current needs. As such, although we will refer
-to this work, we do not plan to duplicate it.</p>
+source.</p>
+<p>ANTLR (ANother Tool for Language Recognition)
+is a parser generator for reading, processing, executing, or
+translating structured text or binary files.
+It is widely used to build languages, tools, and frameworks.
+From a grammar, ANTLR generates a parser that can build parse trees and
+also generates a listener interface (or visitor) that makes it easy
+to respond to the recognition of phrases of interest.
+For ANTLR, a Modelica grammar is available at
+<a class="reference external" href="https://github.com/antlr/grammars-v4/blob/master/modelica/modelica.g4">https://github.com/antlr/grammars-v4/blob/master/modelica/modelica.g4</a>.</p>
 </div>
-<div class="section" id="discussion-and-details">
-<h4>5.4.1.4. Discussion and Details<a class="headerlink" href="#discussion-and-details" title="Permalink to this headline">¶</a></h4>
-<div class="admonition-todo admonition" id="index-0">
-<p class="first admonition-title">Todo</p>
-<p class="last">We are currently evaluating whether to use the commercial JModelica API
-directly to do the following or whether to generate XML. We will
-leave the discussion in as-is for now as it captures some elements
-of the design work but it needs to be updated once a decision is made.</p>
-</div>
-<p>A key area of work will be on designing the data model of the XML output.
-Specifically, we need to think through how to represent the models in the MBL
-in such a way that they can be consumed by the <em>OpenStudio</em> toolchain. At the
-planning meeting on February 1, 2017, it was discussed that we generally want
-all of the information from the source AST <em>except</em> equation and algorithm
-sections. All annotations should be made available.</p>
-<p>One consideration will be: which version of the AST should be used to represent
-packages, classes, models, etc. The <a class="reference external" href="http://www.jmodelica.org/api-docs/usersguide/JModelicaUsersGuide-1.17.0.pdf">JModelica User&#8217;s Guide 1.17</a>
-in Chapter 9 talks about three kinds of AST: source level, instance level, and
-flattened. The flattened AST is not relevant for us (it corresponds to a fully
-flattened model instance ready to be compiled; our interest is in browsing all
-objects for potential configuration).</p>
-<p>The source level AST corresponds 1:1 to the original files in both structure
-and content. Although the source AST is what we need, it does not expand out
-components and extended classes and thus may require additional processing by
-consumers.</p>
-<p>An instance level AST, in contrast, represents the fully expanded instance of a
-given model or class, including configurations. Although this is tempting to
-use, we must remember that we are dealing with a library, not a model
-<em>instance</em>. It will be <em>OpenStudio</em>&#8216;s job to build and specify a model class to
-instantiate. Especially due to Modelica&#8217;s configuration mechanism, it would be
-dangerous to treat object <em>classes</em> as <em>instances</em>.</p>
-<p>Therefore, we delivered something closer to the source AST but
-with a mind to construct the data model such that it is easy to trace
-dependencies such as class extensions (i.e., inheritance) and replaceable
-components.</p>
-<p>For an example, consider the following model</p>
-<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">within</span> <span class="nn">Buildings</span><span class="o">.</span><span class="n">Fluid</span><span class="o">.</span><span class="n">HeatExchangers</span><span class="p">;</span>
-<span class="kr">model</span> <span class="nc">HeaterCooler_T</span>
-  <span class="s2">&quot;Ideal heater or cooler with a prescribed outlet temperature&quot;</span>
-  <span class="kr">extends</span> <span class="n">Buildings</span><span class="o">.</span><span class="n">Fluid</span><span class="o">.</span><span class="n">Interfaces</span><span class="o">.</span><span class="n">PartialTwoPortInterface</span><span class="p">;</span>
-  <span class="kr">extends</span> <span class="n">Buildings</span><span class="o">.</span><span class="n">Fluid</span><span class="o">.</span><span class="n">Interfaces</span><span class="o">.</span><span class="n">TwoPortFlowResistanceParameters</span><span class="p">(</span>
-    <span class="kr">final</span> <span class="n">computeFlowResistance</span><span class="o">=</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">dp_nominal</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">Modelica</span><span class="o">.</span><span class="n">Constants</span><span class="o">.</span><span class="n">eps</span><span class="p">));</span>
-  <span class="kr">extends</span> <span class="n">Buildings</span><span class="o">.</span><span class="n">Fluid</span><span class="o">.</span><span class="n">Interfaces</span><span class="o">.</span><span class="n">PrescribedOutletStateParameters</span><span class="p">(</span>
-    <span class="n">T_start</span><span class="o">=</span><span class="n">Medium</span><span class="o">.</span><span class="n">T_default</span><span class="p">);</span>
-
-  <span class="kr">parameter</span> <span class="nb">Boolean</span> <span class="n">homotopyInitialization</span> <span class="o">=</span> <span class="kc">true</span> <span class="s2">&quot;= true, use homotopy method&quot;</span>
-    <span class="kr">annotation</span><span class="p">(</span><span class="n">Evaluate</span><span class="o">=</span><span class="kc">true</span><span class="p">,</span> <span class="n">Dialog</span><span class="p">(</span><span class="n">tab</span><span class="o">=</span><span class="s2">&quot;Advanced&quot;</span><span class="p">));</span>
-
-  <span class="n">Modelica</span><span class="o">.</span><span class="n">Blocks</span><span class="o">.</span><span class="n">Interfaces</span><span class="o">.</span><span class="n">RealInput</span> <span class="n">TSet</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s2">&quot;K&quot;</span><span class="p">,</span> <span class="n">displayUnit</span><span class="o">=</span><span class="s2">&quot;degC&quot;</span><span class="p">)</span>
-    <span class="s2">&quot;Set point temperature of the fluid that leaves port_b&quot;</span>
-    <span class="kr">annotation</span> <span class="p">(</span><span class="n">Placement</span><span class="p">(</span><span class="n">transformation</span><span class="p">(</span><span class="n">extent</span><span class="o">=</span><span class="p">{{</span><span class="o">-</span><span class="mi">140</span><span class="p">,</span><span class="mi">40</span><span class="p">},{</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span><span class="mi">80</span><span class="p">}})));</span>
-
-  <span class="n">Modelica</span><span class="o">.</span><span class="n">Blocks</span><span class="o">.</span><span class="n">Interfaces</span><span class="o">.</span><span class="n">RealOutput</span> <span class="n">Q_flow</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s2">&quot;W&quot;</span><span class="p">)</span>
-    <span class="s2">&quot;Heat added to the fluid (if flow is from port_a to port_b)&quot;</span>
-    <span class="kr">annotation</span> <span class="p">(</span><span class="n">Placement</span><span class="p">(</span><span class="n">transformation</span><span class="p">(</span><span class="n">extent</span><span class="o">=</span><span class="p">{{</span><span class="mi">100</span><span class="p">,</span><span class="mi">50</span><span class="p">},{</span><span class="mi">120</span><span class="p">,</span><span class="mi">70</span><span class="p">}})));</span>
-
+<div class="section" id="implementation">
+<h4>5.4.1.4. Implementation<a class="headerlink" href="#implementation" title="Permalink to this headline">¶</a></h4>
+<p>Work started on the implementation of a modelica-json translator.
+The development page is <a class="reference external" href="https://github.com/lbl-srg/modelica-json">https://github.com/lbl-srg/modelica-json</a></p>
+<p>To illustrate the translation, consider the following simple model:</p>
+<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">within</span> <span class="nn">FromModelica</span><span class="p">;</span>
+<span class="kr">block</span> <span class="nc">BlockWithBlock1</span> <span class="s2">&quot;A block that instantiates another public and protected block&quot;</span>
+  <span class="n">Block1</span> <span class="n">bloPub</span> <span class="s2">&quot;A public block&quot;</span><span class="p">;</span>
 <span class="kr">protected</span>
-  <span class="n">Buildings</span><span class="o">.</span><span class="n">Fluid</span><span class="o">.</span><span class="n">FixedResistances</span><span class="o">.</span><span class="n">PressureDrop</span> <span class="n">preDro</span><span class="p">(</span>
-    <span class="kr">redeclare</span> <span class="kr">final</span> <span class="kr">package</span> <span class="nc">Medium</span> <span class="o">=</span> <span class="n">Medium</span><span class="p">,</span>
-    <span class="kr">final</span> <span class="n">m_flow_nominal</span><span class="o">=</span><span class="n">m_flow_nominal</span><span class="p">,</span>
-    <span class="kr">final</span> <span class="n">deltaM</span><span class="o">=</span><span class="n">deltaM</span><span class="p">,</span>
-    <span class="kr">final</span> <span class="n">allowFlowReversal</span><span class="o">=</span><span class="n">allowFlowReversal</span><span class="p">,</span>
-    <span class="kr">final</span> <span class="n">show_T</span><span class="o">=</span><span class="kc">false</span><span class="p">,</span>
-    <span class="kr">final</span> <span class="n">from_dp</span><span class="o">=</span><span class="n">from_dp</span><span class="p">,</span>
-    <span class="kr">final</span> <span class="n">linearized</span><span class="o">=</span><span class="n">linearizeFlowResistance</span><span class="p">,</span>
-    <span class="kr">final</span> <span class="n">homotopyInitialization</span><span class="o">=</span><span class="n">homotopyInitialization</span><span class="p">,</span>
-    <span class="kr">final</span> <span class="n">dp_nominal</span><span class="o">=</span><span class="n">dp_nominal</span><span class="p">)</span> <span class="s2">&quot;Flow resistance&quot;</span>
-    <span class="kr">annotation</span> <span class="p">(</span><span class="n">Placement</span><span class="p">(</span><span class="n">transformation</span><span class="p">(</span><span class="n">extent</span><span class="o">=</span><span class="p">{{</span><span class="o">-</span><span class="mi">50</span><span class="p">,</span><span class="o">-</span><span class="mi">10</span><span class="p">},{</span><span class="o">-</span><span class="mi">30</span><span class="p">,</span><span class="mi">10</span><span class="p">}})));</span>
-
-  <span class="n">Buildings</span><span class="o">.</span><span class="n">Fluid</span><span class="o">.</span><span class="n">Interfaces</span><span class="o">.</span><span class="n">PrescribedOutletState</span> <span class="n">heaCoo</span><span class="p">(</span>
-    <span class="kr">redeclare</span> <span class="kr">final</span> <span class="kr">package</span> <span class="nc">Medium</span> <span class="o">=</span> <span class="n">Medium</span><span class="p">,</span>
-    <span class="kr">final</span> <span class="n">allowFlowReversal</span><span class="o">=</span><span class="n">allowFlowReversal</span><span class="p">,</span>
-    <span class="kr">final</span> <span class="n">m_flow_small</span><span class="o">=</span><span class="n">m_flow_small</span><span class="p">,</span>
-    <span class="kr">final</span> <span class="n">show_T</span><span class="o">=</span><span class="kc">false</span><span class="p">,</span>
-    <span class="kr">final</span> <span class="n">show_V_flow</span><span class="o">=</span><span class="kc">false</span><span class="p">,</span>
-    <span class="kr">final</span> <span class="n">Q_flow_maxHeat</span><span class="o">=</span><span class="n">Q_flow_maxHeat</span><span class="p">,</span>
-    <span class="kr">final</span> <span class="n">Q_flow_maxCool</span><span class="o">=</span><span class="n">Q_flow_maxCool</span><span class="p">,</span>
-    <span class="kr">final</span> <span class="n">m_flow_nominal</span><span class="o">=</span><span class="n">m_flow_nominal</span><span class="p">,</span>
-    <span class="kr">final</span> <span class="n">tau</span><span class="o">=</span><span class="n">tau</span><span class="p">,</span>
-    <span class="kr">final</span> <span class="n">T_start</span><span class="o">=</span><span class="n">T_start</span><span class="p">,</span>
-    <span class="kr">final</span> <span class="n">energyDynamics</span><span class="o">=</span><span class="n">energyDynamics</span><span class="p">)</span> <span class="s2">&quot;Heater or cooler&quot;</span>
-    <span class="kr">annotation</span> <span class="p">(</span><span class="n">Placement</span><span class="p">(</span><span class="n">transformation</span><span class="p">(</span><span class="n">extent</span><span class="o">=</span><span class="p">{{</span><span class="mi">20</span><span class="p">,</span><span class="o">-</span><span class="mi">10</span><span class="p">},{</span><span class="mi">40</span><span class="p">,</span><span class="mi">10</span><span class="p">}})));</span>
-<span class="kr">equation</span>
-  <span class="kr">connect</span><span class="p">(</span><span class="n">port_a</span><span class="p">,</span> <span class="n">preDro</span><span class="o">.</span><span class="n">port_a</span><span class="p">)</span> <span class="kr">annotation</span> <span class="p">(</span><span class="n">Line</span><span class="p">(</span>
-      <span class="n">points</span><span class="o">=</span><span class="p">{{</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span><span class="mi">0</span><span class="p">},{</span><span class="o">-</span><span class="mi">50</span><span class="p">,</span><span class="mi">0</span><span class="p">}},</span>
-      <span class="n">color</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="mi">127</span><span class="p">,</span><span class="mi">255</span><span class="p">}));</span>
-  <span class="kr">connect</span><span class="p">(</span><span class="n">preDro</span><span class="o">.</span><span class="n">port_b</span><span class="p">,</span> <span class="n">heaCoo</span><span class="o">.</span><span class="n">port_a</span><span class="p">)</span> <span class="kr">annotation</span> <span class="p">(</span><span class="n">Line</span><span class="p">(</span>
-      <span class="n">points</span><span class="o">=</span><span class="p">{{</span><span class="o">-</span><span class="mi">30</span><span class="p">,</span><span class="mi">0</span><span class="p">},{</span><span class="mi">20</span><span class="p">,</span><span class="mi">0</span><span class="p">}},</span>
-      <span class="n">color</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="mi">127</span><span class="p">,</span><span class="mi">255</span><span class="p">}));</span>
-  <span class="kr">connect</span><span class="p">(</span><span class="n">heaCoo</span><span class="o">.</span><span class="n">port_b</span><span class="p">,</span> <span class="n">port_b</span><span class="p">)</span> <span class="kr">annotation</span> <span class="p">(</span><span class="n">Line</span><span class="p">(</span>
-      <span class="n">points</span><span class="o">=</span><span class="p">{{</span><span class="mi">40</span><span class="p">,</span><span class="mi">0</span><span class="p">},{</span><span class="mi">100</span><span class="p">,</span><span class="mi">0</span><span class="p">}},</span>
-      <span class="n">color</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="mi">127</span><span class="p">,</span><span class="mi">255</span><span class="p">}));</span>
-  <span class="kr">connect</span><span class="p">(</span><span class="n">heaCoo</span><span class="o">.</span><span class="n">TSet</span><span class="p">,</span> <span class="n">TSet</span><span class="p">)</span> <span class="kr">annotation</span> <span class="p">(</span><span class="n">Line</span><span class="p">(</span>
-      <span class="n">points</span><span class="o">=</span><span class="p">{{</span><span class="mi">18</span><span class="p">,</span><span class="mi">8</span><span class="p">},{</span><span class="mi">0</span><span class="p">,</span><span class="mi">8</span><span class="p">},{</span><span class="mi">0</span><span class="p">,</span><span class="mi">60</span><span class="p">},{</span><span class="o">-</span><span class="mi">120</span><span class="p">,</span><span class="mi">60</span><span class="p">}},</span>
-      <span class="n">color</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">127</span><span class="p">}));</span>
-  <span class="kr">connect</span><span class="p">(</span><span class="n">heaCoo</span><span class="o">.</span><span class="n">Q_flow</span><span class="p">,</span> <span class="n">Q_flow</span><span class="p">)</span> <span class="kr">annotation</span> <span class="p">(</span><span class="n">Line</span><span class="p">(</span>
-      <span class="n">points</span><span class="o">=</span><span class="p">{{</span><span class="mi">41</span><span class="p">,</span><span class="mi">8</span><span class="p">},{</span><span class="mi">72</span><span class="p">,</span><span class="mi">8</span><span class="p">},{</span><span class="mi">72</span><span class="p">,</span><span class="mi">60</span><span class="p">},{</span><span class="mi">110</span><span class="p">,</span><span class="mi">60</span><span class="p">}},</span>
-      <span class="n">color</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">127</span><span class="p">}));</span>
-  <span class="kr">annotation</span> <span class="p">(</span><span class="n">Icon</span><span class="p">(</span><span class="n">coordinateSystem</span><span class="p">(</span><span class="n">preserveAspectRatio</span><span class="o">=</span><span class="kc">false</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="p">{{</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span>
-            <span class="o">-</span><span class="mi">100</span><span class="p">},{</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">}}),</span> <span class="n">graphics</span><span class="o">=</span><span class="p">{</span>
-        <span class="n">Rectangle</span><span class="p">(</span>
-          <span class="n">extent</span><span class="o">=</span><span class="p">{{</span><span class="o">-</span><span class="mi">70</span><span class="p">,</span><span class="mi">60</span><span class="p">},{</span><span class="mi">60</span><span class="p">,</span><span class="o">-</span><span class="mi">60</span><span class="p">}},</span>
-          <span class="n">lineColor</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">},</span>
-          <span class="n">pattern</span><span class="o">=</span><span class="n">LinePattern</span><span class="o">.</span><span class="n">None</span><span class="p">,</span>
-          <span class="n">fillColor</span><span class="o">=</span><span class="p">{</span><span class="mi">95</span><span class="p">,</span><span class="mi">95</span><span class="p">,</span><span class="mi">95</span><span class="p">},</span>
-          <span class="n">fillPattern</span><span class="o">=</span><span class="n">FillPattern</span><span class="o">.</span><span class="n">Solid</span><span class="p">),</span>
-        <span class="n">Rectangle</span><span class="p">(</span>
-          <span class="n">extent</span><span class="o">=</span><span class="p">{{</span><span class="o">-</span><span class="mi">102</span><span class="p">,</span><span class="mi">5</span><span class="p">},{</span><span class="mi">99</span><span class="p">,</span><span class="o">-</span><span class="mi">5</span><span class="p">}},</span>
-          <span class="n">lineColor</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">},</span>
-          <span class="n">pattern</span><span class="o">=</span><span class="n">LinePattern</span><span class="o">.</span><span class="n">None</span><span class="p">,</span>
-          <span class="n">fillColor</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">},</span>
-          <span class="n">fillPattern</span><span class="o">=</span><span class="n">FillPattern</span><span class="o">.</span><span class="n">Solid</span><span class="p">),</span>
-        <span class="n">Rectangle</span><span class="p">(</span>
-          <span class="n">extent</span><span class="o">=</span><span class="p">{{</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span><span class="mi">60</span><span class="p">},{</span><span class="o">-</span><span class="mi">70</span><span class="p">,</span><span class="mi">58</span><span class="p">}},</span>
-          <span class="n">lineColor</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">},</span>
-          <span class="n">pattern</span><span class="o">=</span><span class="n">LinePattern</span><span class="o">.</span><span class="n">None</span><span class="p">,</span>
-          <span class="n">fillColor</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">127</span><span class="p">},</span>
-          <span class="n">fillPattern</span><span class="o">=</span><span class="n">FillPattern</span><span class="o">.</span><span class="n">Solid</span><span class="p">),</span>
-        <span class="n">Text</span><span class="p">(</span>
-          <span class="n">extent</span><span class="o">=</span><span class="p">{{</span><span class="o">-</span><span class="mi">106</span><span class="p">,</span><span class="mi">98</span><span class="p">},{</span><span class="o">-</span><span class="mi">62</span><span class="p">,</span><span class="mi">70</span><span class="p">}},</span>
-          <span class="n">lineColor</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">127</span><span class="p">},</span>
-          <span class="n">textString</span><span class="o">=</span><span class="s2">&quot;T&quot;</span><span class="p">),</span>
-        <span class="n">Rectangle</span><span class="p">(</span>
-          <span class="n">extent</span><span class="o">=</span><span class="p">{{</span><span class="mi">60</span><span class="p">,</span><span class="mi">60</span><span class="p">},{</span><span class="mi">100</span><span class="p">,</span><span class="mi">58</span><span class="p">}},</span>
-          <span class="n">lineColor</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">},</span>
-          <span class="n">pattern</span><span class="o">=</span><span class="n">LinePattern</span><span class="o">.</span><span class="n">None</span><span class="p">,</span>
-          <span class="n">fillColor</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">127</span><span class="p">},</span>
-          <span class="n">fillPattern</span><span class="o">=</span><span class="n">FillPattern</span><span class="o">.</span><span class="n">Solid</span><span class="p">),</span>
-        <span class="n">Text</span><span class="p">(</span>
-          <span class="n">extent</span><span class="o">=</span><span class="p">{{</span><span class="mi">72</span><span class="p">,</span><span class="mi">96</span><span class="p">},{</span><span class="mi">116</span><span class="p">,</span><span class="mi">68</span><span class="p">}},</span>
-          <span class="n">lineColor</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">127</span><span class="p">},</span>
-          <span class="n">textString</span><span class="o">=</span><span class="s2">&quot;Q_flow&quot;</span><span class="p">)}),</span>
-<span class="n">defaultComponentName</span><span class="o">=</span><span class="s2">&quot;hea&quot;</span><span class="p">,</span>
-<span class="n">Documentation</span><span class="p">(</span><span class="n">info</span><span class="o">=</span><span class="s2">&quot;</span><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
-<span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>
-Model for an ideal heater or cooler with a prescribed outlet temperature.
-<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-<span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>
-This model forces the outlet temperature at <span class="p">&lt;</span><span class="nt">code</span><span class="p">&gt;</span>port_b<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span> to be equal to the temperature
-of the input signal <span class="p">&lt;</span><span class="nt">code</span><span class="p">&gt;</span>TSet<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span>, subject to optional limits on the
-heating or cooling capacity <span class="p">&lt;</span><span class="nt">code</span><span class="p">&gt;</span>Q_flow_max<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span> and <span class="p">&lt;</span><span class="nt">code</span><span class="p">&gt;</span>Q_flow_min<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span>.
-For unlimited capacity, set <span class="p">&lt;</span><span class="nt">code</span><span class="p">&gt;</span>Q_flow_maxHeat = Modelica.Constant.inf<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span>
-and <span class="p">&lt;</span><span class="nt">code</span><span class="p">&gt;</span>Q_flow_maxCool=-Modelica.Constant.inf<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span>.
-<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-<span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>
-The output signal <span class="p">&lt;</span><span class="nt">code</span><span class="p">&gt;</span>Q_flow<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span> is the heat added (for heating) or subtracted (for cooling)
-to the medium if the flow rate is from <span class="p">&lt;</span><span class="nt">code</span><span class="p">&gt;</span>port_a<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span> to <span class="p">&lt;</span><span class="nt">code</span><span class="p">&gt;</span>port_b<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span>.
-If the flow is reversed, then <span class="p">&lt;</span><span class="nt">code</span><span class="p">&gt;</span>Q_flow=0<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span>.
-The outlet temperature at <span class="p">&lt;</span><span class="nt">code</span><span class="p">&gt;</span>port_a<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span> is not affected by this model.
-<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-<span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>
-If the parameter <span class="p">&lt;</span><span class="nt">code</span><span class="p">&gt;</span>energyDynamics<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span> is not equal to
-<span class="p">&lt;</span><span class="nt">code</span><span class="p">&gt;</span>Modelica.Fluid.Types.Dynamics.SteadyState<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span>,
-the component models the dynamic response using a first order differential equation.
-The time constant of the component is equal to the parameter <span class="p">&lt;</span><span class="nt">code</span><span class="p">&gt;</span>tau<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span>.
-This time constant is adjusted based on the mass flow rate using
-<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-<span class="p">&lt;</span><span class="nt">p</span> <span class="na">align</span><span class="o">=</span><span class="s">\&quot;center\&quot;</span> <span class="na">style</span><span class="o">=</span><span class="s">\&quot;font-style:italic;\&quot;</span><span class="p">&gt;</span>
-<span class="ni">&amp;tau;</span><span class="p">&lt;</span><span class="nt">sub</span><span class="p">&gt;</span>eff<span class="p">&lt;/</span><span class="nt">sub</span><span class="p">&gt;</span> = <span class="ni">&amp;tau;</span> |m<span class="ni">&amp;#775;</span>| <span class="ni">&amp;frasl;</span> m<span class="ni">&amp;#775;</span><span class="p">&lt;</span><span class="nt">sub</span><span class="p">&gt;</span>nom<span class="p">&lt;/</span><span class="nt">sub</span><span class="p">&gt;</span>
-<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-<span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>
-where
-<span class="p">&lt;</span><span class="nt">i</span><span class="p">&gt;</span><span class="ni">&amp;tau;</span><span class="p">&lt;</span><span class="nt">sub</span><span class="p">&gt;</span>eff<span class="p">&lt;/</span><span class="nt">sub</span><span class="p">&gt;&lt;/</span><span class="nt">i</span><span class="p">&gt;</span> is the effective time constant for the given mass flow rate
-<span class="p">&lt;</span><span class="nt">i</span><span class="p">&gt;</span>m<span class="ni">&amp;#775;</span><span class="p">&lt;/</span><span class="nt">i</span><span class="p">&gt;</span> and
-<span class="p">&lt;</span><span class="nt">i</span><span class="p">&gt;</span><span class="ni">&amp;tau;</span><span class="p">&lt;/</span><span class="nt">i</span><span class="p">&gt;</span> is the time constant at the nominal mass flow rate
-<span class="p">&lt;</span><span class="nt">i</span><span class="p">&gt;</span>m<span class="ni">&amp;#775;</span><span class="p">&lt;</span><span class="nt">sub</span><span class="p">&gt;</span>nom<span class="p">&lt;/</span><span class="nt">sub</span><span class="p">&gt;&lt;/</span><span class="nt">i</span><span class="p">&gt;</span>.
-This type of dynamics is equal to the dynamics that a completely mixed
-control volume would have.
-<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-<span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>
-Optionally, this model can have a flow resistance.
-If no flow resistance is requested, set <span class="p">&lt;</span><span class="nt">code</span><span class="p">&gt;</span>dp_nominal=0<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span>.
-<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-<span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>
-For a model that uses a control signal <span class="p">&lt;</span><span class="nt">i</span><span class="p">&gt;</span>u <span class="ni">&amp;isin;</span> [0, 1]<span class="p">&lt;/</span><span class="nt">i</span><span class="p">&gt;</span> and multiplies
-this with the nominal heating or cooling power, use
-<span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">\&quot;modelica://Buildings.Fluid.HeatExchangers.HeaterCooler_u\&quot;</span><span class="p">&gt;</span>
-Buildings.Fluid.HeatExchangers.HeaterCooler_u<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
-<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-<span class="p">&lt;</span><span class="nt">h4</span><span class="p">&gt;</span>Limitations<span class="p">&lt;/</span><span class="nt">h4</span><span class="p">&gt;</span>
-<span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>
-This model only adds or removes heat for the flow from
-<span class="p">&lt;</span><span class="nt">code</span><span class="p">&gt;</span>port_a<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span> to <span class="p">&lt;</span><span class="nt">code</span><span class="p">&gt;</span>port_b<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span>.
-The enthalpy of the reverse flow is not affected by this model.
-<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-<span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>
-This model does not affect the humidity of the air. Therefore,
-if used to cool air below the dew point temperature, the water mass fraction
-will not change.
-<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-<span class="p">&lt;</span><span class="nt">h4</span><span class="p">&gt;</span>Validation<span class="p">&lt;/</span><span class="nt">h4</span><span class="p">&gt;</span>
-<span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>
-The model has been validated against the analytical solution in
-the examples
-<span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">\&quot;modelica://Buildings.Fluid.HeatExchangers.Validation.HeaterCooler_T\&quot;</span><span class="p">&gt;</span>
-Buildings.Fluid.HeatExchangers.Validation.HeaterCooler_T<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
-and
-<span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">\&quot;modelica://Buildings.Fluid.HeatExchangers.Validation.HeaterCooler_T_dynamic\&quot;</span><span class="p">&gt;</span>
-Buildings.Fluid.HeatExchangers.Validation.HeaterCooler_T_dynamic<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>.
-<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span><span class="s2">&quot;</span><span class="p">,</span>
-<span class="n">revisions</span><span class="o">=</span><span class="s2">&quot;</span><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
-<span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
-<span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>
-December 1, 2016, by Michael Wetter:<span class="p">&lt;</span><span class="nt">br</span><span class="p">/&gt;</span>
-Updated model as <span class="p">&lt;</span><span class="nt">code</span><span class="p">&gt;</span>use_dh<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span> is no longer a parameter in the pressure drop model.<span class="p">&lt;</span><span class="nt">br</span><span class="p">/&gt;</span>
-This is for
-<span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">\&quot;https://github.com/ibpsa/modelica/issues/480\&quot;</span><span class="p">&gt;</span>#480<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>.
-<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
-<span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>
-November 11, 2014, by Michael Wetter:<span class="p">&lt;</span><span class="nt">br</span><span class="p">/&gt;</span>
-Revised implementation.
-<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
-<span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>
-March 19, 2014, by Christoph Nytsch-Geusen:<span class="p">&lt;</span><span class="nt">br</span><span class="p">/&gt;</span>
-First implementation.
-<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
-<span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
-<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span><span class="s2">&quot;</span><span class="p">));</span>
-<span class="kr">end</span> <span class="nc">HeaterCooler_T</span><span class="p">;</span>
+  <span class="n">Block1</span> <span class="n">bloPro</span> <span class="s2">&quot;A protected block&quot;</span><span class="p">;</span>
+<span class="kr">end</span> <span class="nc">BlockWithBlock1</span><span class="p">;</span>
 </pre></div>
 </div>
-<p>When parse to a json representation, the output of its public declarations is as follows:</p>
-<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="s2">&quot;Buildings.Fluid.HeatExchangers.HeaterCooler_T&quot;</span><span class="o">:</span> <span class="p">{</span>
-    <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;Buildings.Fluid.HeatExchangers.HeaterCooler_T&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;comment&quot;</span><span class="o">:</span> <span class="s2">&quot;Ideal heater or cooler with a prescribed outlet temperature&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;qualifiers&quot;</span><span class="o">:</span> <span class="p">[</span>
-        <span class="s2">&quot;model&quot;</span>
-    <span class="p">],</span>
-    <span class="s2">&quot;superClasses&quot;</span><span class="o">:</span> <span class="p">[</span>
+<p>When parsed to json, the output is:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="p">[</span>
+  <span class="p">{</span>
+    <span class="s2">&quot;modelicaFile&quot;</span><span class="o">:</span> <span class="s2">&quot;./BlockWithBlock1.mo&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;within&quot;</span><span class="o">:</span> <span class="s2">&quot;FromModelica&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;topClassName&quot;</span><span class="o">:</span> <span class="s2">&quot;FromModelica.BlockWithBlock1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;comment&quot;</span><span class="o">:</span> <span class="s2">&quot;A block that instantiates another public and protected block&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;public&quot;</span><span class="o">:</span> <span class="p">{</span>
+      <span class="s2">&quot;models&quot;</span><span class="o">:</span> <span class="p">[</span>
         <span class="p">{</span>
-            <span class="s2">&quot;nameOfExtendedClass&quot;</span><span class="o">:</span> <span class="s2">&quot;Buildings.Fluid.Interfaces.PartialTwoPortInterface&quot;</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;nameOfExtendedClass&quot;</span><span class="o">:</span> <span class="s2">&quot;Buildings.Fluid.Interfaces.TwoPortFlowResistanceParameters&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;modifications&quot;</span><span class="o">:</span> <span class="p">[</span>
-                <span class="p">{</span>
-                    <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;computeFlowResistance&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;qualifiers&quot;</span><span class="o">:</span> <span class="p">[</span>
-                        <span class="s2">&quot;final&quot;</span>
-                    <span class="p">],</span>
-                    <span class="s2">&quot;value&quot;</span><span class="o">:</span> <span class="s2">&quot;abs(dp_nominal)&gt;Modelica.Constants.eps&quot;</span>
-                <span class="p">}</span>
-            <span class="p">]</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;nameOfExtendedClass&quot;</span><span class="o">:</span> <span class="s2">&quot;Buildings.Fluid.Interfaces.PrescribedOutletStateParameters&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;modifications&quot;</span><span class="o">:</span> <span class="p">[</span>
-                <span class="p">{</span>
-                    <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;T_start&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;value&quot;</span><span class="o">:</span> <span class="s2">&quot;Medium.T_default&quot;</span>
-                <span class="p">}</span>
-            <span class="p">]</span>
+          <span class="s2">&quot;className&quot;</span><span class="o">:</span> <span class="s2">&quot;Block1&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;bloPub&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;comment&quot;</span><span class="o">:</span> <span class="s2">&quot;A public block&quot;</span>
         <span class="p">}</span>
-    <span class="p">],</span>
-    <span class="s2">&quot;components&quot;</span><span class="o">:</span> <span class="p">[</span>
+      <span class="p">]</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;protected&quot;</span><span class="o">:</span> <span class="p">{</span>
+      <span class="s2">&quot;models&quot;</span><span class="o">:</span> <span class="p">[</span>
         <span class="p">{</span>
-            <span class="s2">&quot;className&quot;</span><span class="o">:</span> <span class="s2">&quot;Boolean&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;qualifiers&quot;</span><span class="o">:</span> <span class="p">[</span>
-                <span class="s2">&quot;parameter&quot;</span>
-            <span class="p">],</span>
-            <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;homotopyInitialization&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comment&quot;</span><span class="o">:</span> <span class="s2">&quot;= true, use homotopy method&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;value&quot;</span><span class="o">:</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;annotations&quot;</span><span class="o">:</span> <span class="p">{</span>
-                <span class="s2">&quot;dialog&quot;</span><span class="o">:</span> <span class="s2">&quot;Dialog(tab = \&quot;Advanced\&quot;)&quot;</span>
-            <span class="p">}</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;className&quot;</span><span class="o">:</span> <span class="s2">&quot;Modelica.Blocks.Interfaces.RealInput&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;TSet&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comment&quot;</span><span class="o">:</span> <span class="s2">&quot;Set point temperature of the fluid that leaves port_b&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;modifications&quot;</span><span class="o">:</span> <span class="p">[</span>
-                <span class="p">{</span>
-                    <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;unit&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;value&quot;</span><span class="o">:</span> <span class="s2">&quot;\&quot;K\&quot;&quot;</span>
-                <span class="p">},</span>
-                <span class="p">{</span>
-                    <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;displayUnit&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;value&quot;</span><span class="o">:</span> <span class="s2">&quot;\&quot;degC\&quot;&quot;</span>
-                <span class="p">}</span>
-            <span class="p">],</span>
-            <span class="s2">&quot;annotations&quot;</span><span class="o">:</span> <span class="p">{</span>
-                <span class="s2">&quot;placement&quot;</span><span class="o">:</span> <span class="s2">&quot;Placement(transformation(extent = {{-140,40},{-100,80}}))&quot;</span>
-            <span class="p">}</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;className&quot;</span><span class="o">:</span> <span class="s2">&quot;Modelica.Blocks.Interfaces.RealOutput&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;Q_flow&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comment&quot;</span><span class="o">:</span> <span class="s2">&quot;Heat added to the fluid (if flow is from port_a to port_b)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;modifications&quot;</span><span class="o">:</span> <span class="p">[</span>
-                <span class="p">{</span>
-                    <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;unit&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;value&quot;</span><span class="o">:</span> <span class="s2">&quot;\&quot;W\&quot;&quot;</span>
-                <span class="p">}</span>
-            <span class="p">],</span>
-            <span class="s2">&quot;annotations&quot;</span><span class="o">:</span> <span class="p">{</span>
-                <span class="s2">&quot;placement&quot;</span><span class="o">:</span> <span class="s2">&quot;Placement(transformation(extent = {{100,50},{120,70}}))&quot;</span>
-            <span class="p">}</span>
+          <span class="s2">&quot;className&quot;</span><span class="o">:</span> <span class="s2">&quot;Block1&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;bloPro&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;comment&quot;</span><span class="o">:</span> <span class="s2">&quot;A protected block&quot;</span>
         <span class="p">}</span>
-    <span class="p">],</span>
-    <span class="s2">&quot;annotations&quot;</span><span class="o">:</span> <span class="p">{</span>
-        <span class="s2">&quot;documentationInfo&quot;</span><span class="o">:</span> <span class="s2">&quot;info = \&quot;&lt;html&gt;\n&lt;p&gt;\nModel for an ideal heater or cooler with</span>
-<span class="s2">        a prescribed outlet temperature.\n&lt;/p&gt;\n&lt;p&gt;\nThis model forces the outlet temperature at &lt;code&gt;port_b&lt;/code&gt;</span>
-<span class="s2">        [further text has been omitted]</span>
-<span class="s2">        &lt;/html&gt;\&quot;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;icon&quot;</span><span class="o">:</span> <span class="s2">&quot;Icon(coordinateSystem(preserveAspectRatio = false,</span>
-<span class="s2">                       extent = {{-100,-100},{100,100}}),</span>
-<span class="s2">                       graphics = {Rectangle(),Rectangle(),Rectangle(),Text(),Rectangle(),Text()})&quot;</span>
+      <span class="p">]</span>
     <span class="p">}</span>
-<span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">]</span>
 </pre></div>
 </div>
-<p>Hence, OpenStudio can reads its parameters from the json file. Note that it also will need to parse the json
-representation from the <code class="docutils literal"><span class="pre">superClasses</span></code>, for example
-to obtain the connectors and parameters, including their modifications, from
-<code class="docutils literal"><span class="pre">Buildings.Fluid.Interfaces.PartialTwoPortInterface</span></code>.</p>
-</div>
-<div class="section" id="summary-of-questions-and-next-steps">
-<h4>5.4.1.5. Summary of Questions and Next Steps<a class="headerlink" href="#summary-of-questions-and-next-steps" title="Permalink to this headline">¶</a></h4>
-<p><strong>Questions</strong>:</p>
-<ul class="simple">
-<li>What pre-processing on the extracted data would be useful?</li>
-</ul>
-<p><strong>Next Steps</strong>:</p>
-<ul class="simple">
-<li>Make a decision as to the JModelica API to use</li>
-<li>Determine what constitutes a significant difference between different versions of the
-Modelica Buildings Library and how to communicate those</li>
-<li>Write the proposed programs using JModelica to extract AST data from Modelica
-Models in a library and write that data out as XML.</li>
-<li>Create diff tool for comparing versions of the MBL in a meaningful way</li>
-</ul>
 <p class="rubric">Footnotes</p>
-<table class="docutils footnote" frame="void" id="fn-mbl" rules="none">
+<table class="docutils footnote" frame="void" id="fn-flu" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>Our main focus is to support the Modelica Buildings Library but
-the tool should also work for other Modelica libraries.</td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>We anticipate that the MBL will be redesigned so that users no longer
+need to assign media.</td></tr>
 </tbody>
 </table>
 </div>
