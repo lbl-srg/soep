@@ -179,18 +179,18 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.6292419"
-     inkscape:cx="261.16441"
+     inkscape:zoom="4.5779772"
+     inkscape:cx="285.71571"
      inkscape:cy="45.10034"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:snap-global="true"
      showguides="true"
-     inkscape:window-width="1386"
-     inkscape:window-height="815"
+     inkscape:window-width="3266"
+     inkscape:window-height="1715"
      inkscape:window-x="37"
-     inkscape:window-y="2"
+     inkscape:window-y="27"
      inkscape:window-maximized="0"
      guidetolerance="10000"
      objecttolerance="10000"
@@ -224,7 +224,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -236,7 +236,7 @@
     <g
        transform="matrix(4.9767865,0,0,2.0472136,-56.438515,-271.27144)"
        id="g3111-6-2"
-       style="fill:#ececec">
+       style="fill:#ececec;stroke-width:0.31328811;stroke-miterlimit:4;stroke-dasharray:none">
       <rect
          transform="scale(-1,1)"
          y="221.85735"
@@ -244,7 +244,7 @@
          height="43.632595"
          width="48.539581"
          id="rect3069-1-0-4"
-         style="fill:#ececec;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.42762399;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+         style="fill:#ececec;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.31328811;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     </g>
     <text
        xml:space="preserve"
@@ -260,13 +260,14 @@
          style="font-size:10px">Modelica </tspan></text>
     <g
        id="g7667"
-       transform="translate(12,0)">
+       transform="translate(12,0)"
+       style="stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none">
       <g
-         style="fill:#ececec"
+         style="fill:#ececec;stroke-width:0.314987;stroke-miterlimit:4;stroke-dasharray:none"
          id="g3111-6"
          transform="matrix(4.9345106,0,0,2.0425404,-392.58028,-270.2288)">
         <rect
-           style="fill:#ececec;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.31498694;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           style="fill:#ececec;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.314987;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
            id="rect3069-1-0"
            width="48.539581"
            height="43.632595"
@@ -279,9 +280,9 @@
          id="text4398-8-0-2-2-7"
          y="199.95984"
          x="70.561523"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:125%;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:125%;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none"
          xml:space="preserve"><tspan
-           style="font-size:10px"
+           style="font-size:10px;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none"
            y="199.95984"
            x="70.561523"
            sodipodi:role="line"
@@ -319,7 +320,7 @@
            y="239.95984"
            x="97.919922"
            id="tspan4402-3"
-           sodipodi:role="line">envelop</tspan><tspan
+           sodipodi:role="line">envelope</tspan><tspan
            style="font-size:10px"
            id="tspan3839"
            y="252.45984"

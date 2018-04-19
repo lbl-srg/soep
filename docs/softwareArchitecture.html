@@ -1058,8 +1058,8 @@ For simplicity the figure only
 shows single FMUs, but we anticipated having multiple interconnected FMUs.</p>
 <div class="figure" id="id14">
 <span id="fig-sof-arc-qss-jmod2"></span><p class="plantuml">
-<object data="_images/plantuml-dff98e155f65fbc0b2445a9eccbd85d8e023f77c.svg" type="image/svg+xml" style="width:959px;height:419px;">
-<img src="_images/plantuml-dff98e155f65fbc0b2445a9eccbd85d8e023f77c.png" alt="title Software architecture for QSS integration with JModelica with extended FMI API
+<object data="_images/plantuml-24c6e5725ea55a6b194775fd3c024e2e3075f32d.svg" type="image/svg+xml" style="width:713px;height:547px;">
+<img src="_images/plantuml-24c6e5725ea55a6b194775fd3c024e2e3075f32d.png" alt="title Software architecture for QSS integration with JModelica with extended FMI API
 
 skinparam componentStyle uml2
 
@@ -1079,15 +1079,11 @@ package PyFMI {
 [Sundials] -&gt; ode : &quot;(x, t)&quot;
 [Sundials] &lt;- ode : &quot;dx/dt&quot;
 
-[FMU-ME (envelope)] as ep_env
-[Master algorithm] -&gt; ep_env : &quot;h&quot;
-[Master algorithm] &lt;- ep_env : &quot;(next event time, discrete states)&quot;
-
 package Optimica {
 [JModelica compiler] as jmc
 }
 
-jmc -&gt; FMU_QSS
+jmc -l-&gt; FMU_QSS
 
 FMU_QSS -down-&gt; qss_sol : &quot;derivatives&quot;
 qss_sol -down-&gt; FMU_QSS : &quot;inputs, time, states&quot;" />
@@ -1096,14 +1092,6 @@ qss_sol -down-&gt; FMU_QSS : &quot;inputs, time, states&quot;" />
 <p class="caption"><span class="caption-number">Fig. 5.3 </span>: Software architecture for QSS integration with JModelica
 with extended FMI API.<a class="headerlink" href="#id14" title="Permalink to this image">¶</a></p>
 </div>
-<p>In <a class="reference internal" href="#fig-sof-arc-qss-jmod2"><span class="std std-numref">Fig. 5.3</span></a>, <code class="docutils literal"><span class="pre">FMU-ME</span> <span class="pre">(envelope)</span></code> is the envelop
-model that uses a refactored version of the EnergyPlus code. In earlier
-design, this was an FMU-CS. However, the PyFMI master algorithm requires
-either all FMU-ME, or all FMU-CS, but if the latter were used, then
-direct feedthrough would not be allowed. Hence, we are using FMU-ME
-for EnergyPlus, but similiar as the <code class="docutils literal"><span class="pre">FMU-QSS</span></code>, the <code class="docutils literal"><span class="pre">FMU-ME</span> <span class="pre">(envelope)</span></code>
-has only discrete states, and the time instant when these states are updated
-is constant and equal to the EnergyPlus CTF time step.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">We still need to design how to handle algebraic loops inside the FMU

@@ -624,28 +624,14 @@ shows single FMUs, but we anticipated having multiple interconnected FMUs.
    [Sundials] -> ode : "(x, t)"
    [Sundials] <- ode : "dx/dt"
 
-   [FMU-ME (envelope)] as ep_env
-   [Master algorithm] -> ep_env : "h"
-   [Master algorithm] <- ep_env : "(next event time, discrete states)"
-
    package Optimica {
    [JModelica compiler] as jmc
    }
 
-   jmc -> FMU_QSS
+   jmc -l-> FMU_QSS
 
    FMU_QSS -down-> qss_sol : "derivatives"
    qss_sol -down-> FMU_QSS : "inputs, time, states"
-
-
-In :numref:`fig_sof_arc_qss_jmod2`, ``FMU-ME (envelope)`` is the envelop
-model that uses a refactored version of the EnergyPlus code. In earlier
-design, this was an FMU-CS. However, the PyFMI master algorithm requires
-either all FMU-ME, or all FMU-CS, but if the latter were used, then
-direct feedthrough would not be allowed. Hence, we are using FMU-ME
-for EnergyPlus, but similiar as the ``FMU-QSS``, the ``FMU-ME (envelope)``
-has only discrete states, and the time instant when these states are updated
-is constant and equal to the EnergyPlus CTF time step.
 
 .. note::
 
