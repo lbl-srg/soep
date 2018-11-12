@@ -2,40 +2,28 @@
 
 <!DOCTYPE html>
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>3. Use Cases &#8212; Spawn of EnergyPlus</title>
-    
-    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootswatch-3.3.6/united/bootstrap.min.css" type="text/css" />
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootstrap.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootstrap-theme.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootstrap_custom.css" type="text/css" />
-    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-    <link rel="stylesheet" href="_static/custom-sphinx.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap_custom.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom-sphinx.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
     <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="_static/lbl-icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
@@ -47,8 +35,7 @@
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
 
-  </head>
-  <body role="document">
+  </head><body>
 
   <div id="navbar" class="navbar navbar-default ">
     <div class="container-fluid">
@@ -287,7 +274,7 @@ not exist for this library, it is generated.</td>
 models.</td>
 </tr>
 <tr class="row-even"><td><strong>Extensions</strong></td>
-<td>&nbsp;</td>
+<td>&#160;</td>
 </tr>
 <tr class="row-odd"><td>5.1</td>
 <td>OpenStudio integration tests are run.</td>
@@ -318,7 +305,7 @@ else Update the existing library
       &quot;Conversion Script&quot; -&gt; &quot;OpenStudio Model Library&quot;: createLibrary()
     end
   end
-end" />
+end"/>
 
 </object></p>
 <p class="caption"><span class="caption-number">Fig. 3.1 </span>: Updating an OpenStudio Model Library.<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
@@ -402,14 +389,14 @@ code is generated that specifies the component
 location. For example, dropping the control
 sequence generates
 code such
-as <code class="docutils literal"><span class="pre">Buildings.Controls.AHU.VAV</span>
+as <code class="docutils literal notranslate"><span class="pre">Buildings.Controls.AHU.VAV</span>
 <span class="pre">conVav</span> <span class="pre">&quot;VAV</span> <span class="pre">control&quot;</span>
 <span class="pre">annotation</span> <span class="pre">(Placement(</span>
 <span class="pre">transformation(extent={{-10,0},{10,20}})));</span></code></td>
 </tr>
 <tr class="row-odd"><td>5</td>
-<td>The user right-clicks on the <code class="docutils literal"><span class="pre">conVav</span></code> instance
-and selects &#8220;Edit in Modelica editor&#8221;.</td>
+<td>The user right-clicks on the <code class="docutils literal notranslate"><span class="pre">conVav</span></code> instance
+and selects “Edit in Modelica editor”.</td>
 </tr>
 <tr class="row-even"><td>6</td>
 <td>The <cite>Schematic Editor</cite> opens and the user
@@ -417,13 +404,13 @@ customizes the controls.</td>
 </tr>
 <tr class="row-odd"><td>7</td>
 <td>The user saves the control model as the
-<code class="docutils literal"><span class="pre">Custom/ControlVAV.mo</span></code> Modelica model.</td>
+<code class="docutils literal notranslate"><span class="pre">Custom/ControlVAV.mo</span></code> Modelica model.</td>
 </tr>
 <tr class="row-even"><td>8</td>
 <td>The user switches to the <cite>HVAC System Editor</cite>,
 which changed the <cite>conVAV</cite> instance to a new
 Modelica class such as
-<code class="docutils literal"><span class="pre">Custom.ControlVAV</span>
+<code class="docutils literal notranslate"><span class="pre">Custom.ControlVAV</span>
 <span class="pre">conVav</span> <span class="pre">&quot;VAV</span> <span class="pre">control&quot;</span>
 <span class="pre">annotation</span> <span class="pre">(Placement(</span>
 <span class="pre">transformation(extent={{-10,0},{10,20}})));</span></code></td>
@@ -435,13 +422,13 @@ the new control sensor input to the new control
 input/output block.</td>
 </tr>
 <tr class="row-even"><td>10</td>
-<td>As the <code class="docutils literal"><span class="pre">Custom.ControlVAV</span></code> has an additional
+<td>As the <code class="docutils literal notranslate"><span class="pre">Custom.ControlVAV</span></code> has an additional
 sensor input, the user connects this sensor input
 in the <cite>HVAC Systems Editor</cite> to an output
 of a model.</td>
 </tr>
 <tr class="row-odd"><td><strong>Extensions</strong></td>
-<td>&nbsp;</td>
+<td>&#160;</td>
 </tr>
 <tr class="row-even"><td>5.1</td>
 <td>Rather than selecting a single component for
@@ -449,7 +436,7 @@ editing in the <cite>Schematic Editor</cite>, a user
 could select multiple OpenStudio components
 (that are connected), and they would then
 be grouped to form one Modelica model. The grouping
-would essentially consist of writing <code class="docutils literal"><span class="pre">connect</span></code>
+would essentially consist of writing <code class="docutils literal notranslate"><span class="pre">connect</span></code>
 statements between the ports of the components.</td>
 </tr>
 </tbody>
@@ -475,14 +462,14 @@ statements between the ports of the components.</td>
 &quot;User&quot; -&gt; &quot;Schematic Editor&quot; : switch to HVAC System Editor
 &quot;HVAC System Editor&quot; -&gt; &quot;HVAC System Editor&quot; : read Custom/ControlVAV.mo file to get new I/O
 &quot;User&quot; -&gt; &quot;HVAC System Editor&quot;: Connect new inputs &amp; outputs
-&quot;User&quot; &lt;- &quot;HVAC System Editor&quot;" />
+&quot;User&quot; &lt;- &quot;HVAC System Editor&quot;"/>
 
 </object></p>
 <p class="caption"><span class="caption-number">Fig. 3.2 </span>: Modeling of an AHU with custom control.<a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Getting the new inputs and outputs of <code class="docutils literal"><span class="pre">Custom/ControlVAV.mo</span></code> requires
+<p class="last">Getting the new inputs and outputs of <code class="docutils literal notranslate"><span class="pre">Custom/ControlVAV.mo</span></code> requires
 parsing its AST, which would be easiest if JModelica would be invoked
 to get the AST.</p>
 </div>
@@ -505,12 +492,12 @@ uses the OpenStudio <cite>Model Library</cite> only.</p>
 <h3>3.2.1. Simple parameter assignment<a class="headerlink" href="#simple-parameter-assignment" title="Permalink to this headline">¶</a></h3>
 <p>An example which requires changes to a single parameters of the model is to
 set in a Modelica model of the form</p>
-<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="o">...</span>
+<div class="highlight-modelica notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
 <span class="kr">parameter</span> <span class="nb">Real</span> <span class="n">eta</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">=</span> <span class="mf">0.8</span> <span class="s2">&quot;Boiler efficiency&quot;</span><span class="p">;</span>
 <span class="o">...</span>
 </pre></div>
 </div>
-<p>the top-level parameter for the boiler efficiency <span class="math">\(\eta = 0.9\)</span>.</p>
+<p>the top-level parameter for the boiler efficiency <span class="math notranslate nohighlight">\(\eta = 0.9\)</span>.</p>
 <p>The use case description is as follows:</p>
 <table border="1" class="docutils">
 <colgroup>
@@ -540,7 +527,7 @@ SOEP <cite>Schematic Editor</cite>.</td>
 <tr class="row-even"><td>Failed End Condition</td>
 <td>The script returns with an error if no such
 parameter exist, or if the parameter is set to
-<code class="docutils literal"><span class="pre">final</span></code> (and hence cannot be modified).</td>
+<code class="docutils literal notranslate"><span class="pre">final</span></code> (and hence cannot be modified).</td>
 </tr>
 <tr class="row-odd"><td>Primary Actors</td>
 <td>An end-user, or an application that is built on
@@ -561,10 +548,10 @@ OpenStudio.</td>
 <tr class="row-even"><td>2</td>
 <td>The script searches for the parameter value
 and returns a flag to show whether it
-has been found (return value <code class="docutils literal"><span class="pre">0</span></code>),
+has been found (return value <code class="docutils literal notranslate"><span class="pre">0</span></code>),
 it has been found but is final (return value
-<code class="docutils literal"><span class="pre">1</span></code>),
-or it has not been found (return value <code class="docutils literal"><span class="pre">2</span></code>).</td>
+<code class="docutils literal notranslate"><span class="pre">1</span></code>),
+or it has not been found (return value <code class="docutils literal notranslate"><span class="pre">2</span></code>).</td>
 </tr>
 <tr class="row-odd"><td>3</td>
 <td>If the return value is non-zero, the script
@@ -573,21 +560,21 @@ terminates with an error.</td>
 <tr class="row-even"><td>4</td>
 <td>If the return value is zero, the ruby script
 makes a new model of the form
-<code class="docutils literal"><span class="pre">model</span> <span class="pre">modifiedModel</span> <span class="pre">extends</span>
+<code class="docutils literal notranslate"><span class="pre">model</span> <span class="pre">modifiedModel</span> <span class="pre">extends</span>
 <span class="pre">buiding(eta=0.9);</span>
 <span class="pre">end</span> <span class="pre">modifiedModel;</span></code>
 (or similar if the efficiency is part of a
-Modelica <code class="docutils literal"><span class="pre">record</span></code>).</td>
+Modelica <code class="docutils literal notranslate"><span class="pre">record</span></code>).</td>
 </tr>
 <tr class="row-odd"><td><strong>Extensions</strong></td>
-<td>&nbsp;</td>
+<td>&#160;</td>
 </tr>
 <tr class="row-even"><td>4.1</td>
 <td>The parameter assignment could be done directly
 in the model <cite>building</cite>, as long as it is not
 part of a write-protected library. Then, the
 assignment looks like
-<code class="docutils literal"><span class="pre">parameter</span> <span class="pre">Real</span> <span class="pre">eta(min=0)</span> <span class="pre">=</span> <span class="pre">0.9</span> <span class="pre">&quot;Efficiency&quot;;</span></code></td>
+<code class="docutils literal notranslate"><span class="pre">parameter</span> <span class="pre">Real</span> <span class="pre">eta(min=0)</span> <span class="pre">=</span> <span class="pre">0.9</span> <span class="pre">&quot;Efficiency&quot;;</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -608,7 +595,7 @@ alt found parameter
   Measure -&gt; &quot;OpenStudio Model Library&quot;: setValue()
 else
   Measure -&gt; Measure: reportError()
-end" />
+end"/>
 
 </object></p>
 <p class="caption"><span class="caption-number">Fig. 3.3 </span>: Applying an OpenStudio measure to a single parameter.<a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
@@ -618,7 +605,7 @@ end" />
 <h3>3.2.2. Changes to multiple parts of the Modelica model<a class="headerlink" href="#changes-to-multiple-parts-of-the-modelica-model" title="Permalink to this headline">¶</a></h3>
 <p>An example which requires changes to multiple parts of the model is the following
 measure.</p>
-<div class="highlight-ruby"><div class="highlight"><pre><span></span><span class="n">new_lights_def</span> <span class="o">=</span> <span class="no">OpenStudio</span><span class="o">::</span><span class="no">Model</span><span class="o">::</span><span class="no">LightsDefinition</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<div class="highlight-ruby notranslate"><div class="highlight"><pre><span></span><span class="n">new_lights_def</span> <span class="o">=</span> <span class="no">OpenStudio</span><span class="o">::</span><span class="no">Model</span><span class="o">::</span><span class="no">LightsDefinition</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
 <span class="n">new_lights_def</span><span class="o">.</span><span class="n">setWattsperSpaceFloorArea</span><span class="p">(</span><span class="mi">10</span><span class="o">.</span><span class="mi">0</span><span class="p">)</span>
 <span class="n">new_lights_def</span><span class="o">.</span><span class="n">setName</span><span class="p">(</span><span class="s2">&quot;10 W/m^2 Lights Definition&quot;</span><span class="p">)</span>
 
@@ -686,17 +673,17 @@ OpenStudio.</td>
 are thermal zones, and within them, it searches for
 all lighting power densities.
 It returns two lists
-of model names, one list (<code class="docutils literal"><span class="pre">l1</span></code>) containing only
+of model names, one list (<code class="docutils literal notranslate"><span class="pre">l1</span></code>) containing only
 the parameters (or records) that are not final, and
-one list (<code class="docutils literal"><span class="pre">l2</span></code>) that contains the parameters
+one list (<code class="docutils literal notranslate"><span class="pre">l2</span></code>) that contains the parameters
 (or records) that are final.</td>
 </tr>
 <tr class="row-even"><td>4</td>
-<td>If <code class="docutils literal"><span class="pre">l1</span></code> is empty, the script triggers an error
+<td>If <code class="docutils literal notranslate"><span class="pre">l1</span></code> is empty, the script triggers an error
 and stops.</td>
 </tr>
 <tr class="row-odd"><td>5</td>
-<td>If <code class="docutils literal"><span class="pre">l2</span></code> is non-empty, the script triggers a
+<td>If <code class="docutils literal notranslate"><span class="pre">l2</span></code> is non-empty, the script triggers a
 warning and continues.</td>
 </tr>
 <tr class="row-even"><td>6</td>
@@ -709,11 +696,11 @@ lighting power density is returned.</td>
 </tr>
 <tr class="row-odd"><td>7</td>
 <td>The ruby script makes a new model of the form
-<code class="docutils literal"><span class="pre">model</span> <span class="pre">modifiedModel</span> <span class="pre">extends</span>
+<code class="docutils literal notranslate"><span class="pre">model</span> <span class="pre">modifiedModel</span> <span class="pre">extends</span>
 <span class="pre">buiding(zone1(pLig=0.8),</span> <span class="pre">zone2(pLig=0.8));</span>
 <span class="pre">end</span> <span class="pre">modifiedModel;</span></code>
 (or similar if the efficiency is part of a
-Modelica <code class="docutils literal"><span class="pre">record</span></code>).</td>
+Modelica <code class="docutils literal notranslate"><span class="pre">record</span></code>).</td>
 </tr>
 </tbody>
 </table>
@@ -748,7 +735,7 @@ else
     Measure -&gt; Measure: getCodeSnippet()
     Measure -&gt; &quot;OpenStudio Model Library&quot;: setValue()
 
-end" />
+end"/>
 
 </object></p>
 <p class="caption"><span class="caption-number">Fig. 3.4 </span>: Applying an OpenStudio measure to a set of models.<a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
@@ -774,7 +761,7 @@ end" />
     </p>
     <p>
         &copy; Copyright (c) All rights reserved.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.<br/>
     </p>
   </div>
 </footer>

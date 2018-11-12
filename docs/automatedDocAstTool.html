@@ -2,40 +2,28 @@
 
 <!DOCTYPE html>
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>Automated Documentation/AST Support Tool &#8212; Spawn of EnergyPlus</title>
-    
-    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootswatch-3.3.6/united/bootstrap.min.css" type="text/css" />
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootstrap.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootstrap-theme.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootstrap_custom.css" type="text/css" />
-    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-    <link rel="stylesheet" href="_static/custom-sphinx.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap_custom.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom-sphinx.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
     <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="_static/lbl-icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
@@ -45,8 +33,7 @@
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
 
-  </head>
-  <body role="document">
+  </head><body>
 
   <div id="navbar" class="navbar navbar-default ">
     <div class="container-fluid">
@@ -197,7 +184,7 @@ structure consisting mainly of packages which contain models and other objects
 as well as sub-packages. Models themselves can be composed of multiple, possibly
 replaceable, components. Much of this information will be required by the
 OpenStudio tool in order to understand which component models are available,
-where they reside in the library&#8217;s package structure which determines their fully
+where they reside in the library’s package structure which determines their fully
 qualified name, what parameters they have, how they can be configured, how to
 display them, and what other meta-data are available, such as documentation
 strings and type of connectors that can be connected with each other.</p>
@@ -229,7 +216,7 @@ Modelica input file or library into a json file. The json file shall contain:</p
 package structure of the library</li>
 <li>for each package,<ul>
 <li>what models are available</li>
-<li>what connection &#8220;ports&#8221; are available</li>
+<li>what connection “ports” are available</li>
 <li>for fluid ports, which ports carry the same fluid
 (so that media assignments can be propagated through a circuit) <a class="footnote-reference" href="#fn-flu" id="id1">[1]</a></li>
 <li>what control inputs/outputs are available</li>
@@ -246,12 +233,12 @@ that complicate the distribution to users.</p>
 <p>The tool shall also have options to exclude certain packages. For example,
 OpenStudio may give access to the package <cite>Modelica.Blocks</cite>
 but not to <cite>Modelica.Magnetic</cite>.</p>
-<p>The tool shall also allow to perform a &#8220;diff&#8221; (i.e., logical
+<p>The tool shall also allow to perform a “diff” (i.e., logical
 differences) between two generated json files.
 The purpose of the diff tool would be to detect non-trivial
 differences between two generated json files that hold the AST of a Modelica
 library and report those changes. The content of the
-&#8220;difference&#8221; file would show the differences between the two
+“difference” file would show the differences between the two
 input manifests.</p>
 <p>The diff tool would be of use in particular when new versions of the
 MBL are released and the OpenStudio team would like to check if there are
@@ -282,11 +269,11 @@ whitespace, reordering within a section)</li>
 <li>changes to <cite>protected</cite> sections of code</li>
 <li>changes to <cite>equation</cite> or <cite>algorithm</cite> sections of code</li>
 <li>changes to some models/blocks/functions may be completely ignored if, by
-convention, we deem certain paths as &#8220;not directly consumable&#8221; by OpenStudio.
+convention, we deem certain paths as “not directly consumable” by OpenStudio.
 For example, we may wish to not consume classes in the packages <cite>BaseClasses</cite>,
 <cite>Examples</cite> and <cite>Validations</cite>.</li>
 </ul>
-<p>To summarize, the creation of or changes to the &#8220;public API&#8221; (public
+<p>To summarize, the creation of or changes to the “public API” (public
 parameters, variables, subcomponents, connectors) of models, blocks, or
 functions must be compared for change detection. Documentation (html)/
 documentation strings/graphics annotations will not affect the model interface
@@ -300,7 +287,7 @@ Modelica in the past (<a class="reference internal" href="zreferences.html#landi
 <a class="reference internal" href="zreferences.html#pop2003" id="id4">[PF03]</a>, <a class="reference internal" href="zreferences.html#pop2005" id="id5">[PSAssmannF05]</a>, and <a class="reference internal" href="zreferences.html#reisenbichler2006" id="id6">[RKH+06]</a>).</p>
 <p>In particular, Landin <a class="reference internal" href="zreferences.html#landin2014" id="id7">[Lan14]</a> did work with Modelon using JModelica to export XML for
 the purpose of model exchange, which is similar to our use case.
-Unfortunately, this work deals only with &#8220;flattened&#8221; models &#8211; Modelica models
+Unfortunately, this work deals only with “flattened” models – Modelica models
 that have been instantiated with all of the hierarchy removed. For our use
 case, the hierarchy must be preserved so that the OpenStudio team can
 build a new model through instantiation of models from the MBL.
@@ -330,7 +317,7 @@ For ANTLR, a Modelica grammar is available at
 <p>Work started on the implementation of a modelica-json translator.
 The development page is <a class="reference external" href="https://github.com/lbl-srg/modelica-json">https://github.com/lbl-srg/modelica-json</a></p>
 <p>To illustrate the translation, consider the following simple model:</p>
-<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">within</span> <span class="nn">FromModelica</span><span class="p">;</span>
+<div class="highlight-modelica notranslate"><div class="highlight"><pre><span></span><span class="kr">within</span> <span class="nn">FromModelica</span><span class="p">;</span>
 <span class="kr">block</span> <span class="nc">BlockWithBlock1</span> <span class="s2">&quot;A block that instantiates another public and protected block&quot;</span>
   <span class="n">Block1</span> <span class="n">bloPub</span> <span class="s2">&quot;A public block&quot;</span><span class="p">;</span>
 <span class="kr">protected</span>
@@ -339,7 +326,7 @@ The development page is <a class="reference external" href="https://github.com/l
 </pre></div>
 </div>
 <p>When parsed to json, the output is:</p>
-<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="p">[</span>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
   <span class="p">{</span>
     <span class="s2">&quot;modelicaFile&quot;</span><span class="o">:</span> <span class="s2">&quot;./BlockWithBlock1.mo&quot;</span><span class="p">,</span>
     <span class="s2">&quot;within&quot;</span><span class="o">:</span> <span class="s2">&quot;FromModelica&quot;</span><span class="p">,</span>
@@ -395,7 +382,7 @@ need to assign media.</td></tr>
     </p>
     <p>
         &copy; Copyright (c) All rights reserved.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.<br/>
     </p>
   </div>
 </footer>

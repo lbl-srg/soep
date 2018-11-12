@@ -2,40 +2,28 @@
 
 <!DOCTYPE html>
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>5. Software Architecture &#8212; Spawn of EnergyPlus</title>
-    
-    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootswatch-3.3.6/united/bootstrap.min.css" type="text/css" />
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootstrap.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootstrap-theme.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootstrap_custom.css" type="text/css" />
-    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-    <link rel="stylesheet" href="_static/custom-sphinx.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap_custom.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom-sphinx.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
     <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="_static/lbl-icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
@@ -47,8 +35,7 @@
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
 
-  </head>
-  <body role="document">
+  </head><body>
 
   <div id="navbar" class="navbar navbar-default ">
     <div class="container-fluid">
@@ -147,7 +134,7 @@
 <li><a class="reference internal" href="#event-handling">5.3.1.1. Event Handling</a><ul>
 <li><a class="reference internal" href="#state-events">5.3.1.1.1. State Events</a></li>
 <li><a class="reference internal" href="#event-indicators-that-depend-on-the-input">5.3.1.1.2. Event indicators that depend on the input</a></li>
-<li><a class="reference internal" href="#handling-of-variables-reinitialized-with-reinit">5.3.1.1.3. Handling of variables reinitialized with <code class="docutils literal"><span class="pre">reinit()</span></code></a></li>
+<li><a class="reference internal" href="#handling-of-variables-reinitialized-with-reinit">5.3.1.1.3. Handling of variables reinitialized with <code class="docutils literal notranslate"><span class="pre">reinit()</span></code></a></li>
 <li><a class="reference internal" href="#workaround-for-implementing-event-indicators">5.3.1.1.4. Workaround for implementing event indicators</a></li>
 <li><a class="reference internal" href="#time-events">5.3.1.1.5. Time Events</a></li>
 </ul>
@@ -234,7 +221,7 @@ Modelica model library of their product line, which allows
 a sales person to test and size equipment for a particular customer.</p>
 <p>The <cite>HVAC Systems Editor</cite> allows drag and drop of components,
 which are read dynamically from the <cite>Modelica Library AST</cite>,
-similar to what can be done in today&#8217;s OS schematic editor.
+similar to what can be done in today’s OS schematic editor.
 In contrast, the <cite>Schematic Editor</cite> allows to freely place
 and graphically connect Modelica components.
 Once models have been manipulated in the
@@ -254,7 +241,7 @@ dynamic load models for the SOEP mode.
 Note that the JModelica distribution includes a C++ compiler.</p>
 <div class="figure" id="id12">
 <span id="fig-overall-software-architecture"></span><p class="plantuml">
-<object data="_images/plantuml-42b14e268a4f127550932a42892ae7433788991a.svg" type="image/svg+xml" style="width:1005px;height:737px;">
+<object data="_images/plantuml-42b14e268a4f127550932a42892ae7433788991a.svg" type="image/svg+xml" style="width:1011px;height:778px;">
 <img src="_images/plantuml-42b14e268a4f127550932a42892ae7433788991a.png" alt="title Overall software architecture
 
 scale max 1024 width
@@ -340,7 +327,7 @@ end note
 note right of Application
   Application that uses
   the OpenStudio SDK.
-end note" />
+end note"/>
 
 </object></p>
 <p class="caption"><span class="caption-number">Fig. 5.1 </span>: Overall software architecture.<a class="headerlink" href="#id12" title="Permalink to this image">¶</a></p>
@@ -378,7 +365,7 @@ The reason is to keep focus and make progress before increasing complexity.</p>
 <li><p class="first">The HVAC and the pressure driven air exchange (airflow network) are
 either in legacy EnergyPlus or in FMUs of the SOEP.
 The two methods cannot be combined.
-The reason is that the legacy EnergyPlus computes in its &#8220;predictor/corrector&#8221;
+The reason is that the legacy EnergyPlus computes in its “predictor/corrector”
 the room temperature as follows:</p>
 <ol class="loweralpha simple">
 <li>It computes the HVAC power required to meet the temperature set point.</li>
@@ -433,17 +420,17 @@ exchanges with the master algorithm.</p>
 <tr class="row-even"><td colspan="4"><em>From EnergyPlus to Modelica</em></td>
 </tr>
 <tr class="row-odd"><td>V</td>
-<td><span class="math">\(1\)</span></td>
+<td><span class="math notranslate nohighlight">\(1\)</span></td>
 <td>Volume of the zone air</td>
 <td>m3</td>
 </tr>
 <tr class="row-even"><td>AFlo</td>
-<td><span class="math">\(1\)</span></td>
+<td><span class="math notranslate nohighlight">\(1\)</span></td>
 <td>Floor area of the zone</td>
 <td>m2</td>
 </tr>
 <tr class="row-odd"><td>mSenFac</td>
-<td><span class="math">\(1\)</span></td>
+<td><span class="math notranslate nohighlight">\(1\)</span></td>
 <td>Factor for scaling the sensible thermal mass of the zone air volume</td>
 <td>1</td>
 </tr>
@@ -469,33 +456,33 @@ for each thermal zone.</p>
 <tr class="row-even"><td colspan="4"><em>From Modelica to EnergyPlus</em></td>
 </tr>
 <tr class="row-odd"><td>T</td>
-<td><span class="math">\(1\)</span></td>
+<td><span class="math notranslate nohighlight">\(1\)</span></td>
 <td>Temperature of the zone air</td>
 <td>degC</td>
 </tr>
 <tr class="row-even"><td>X</td>
-<td><span class="math">\(1\)</span></td>
+<td><span class="math notranslate nohighlight">\(1\)</span></td>
 <td>Water vapor mass fraction per total air mass of the zone</td>
 <td>kg/kg</td>
 </tr>
 <tr class="row-odd"><td>mInlets_flow</td>
-<td><span class="math">\(1\)</span></td>
+<td><span class="math notranslate nohighlight">\(1\)</span></td>
 <td>Sum of positive mass flow rates into the zone for all air inlets (including infiltration)</td>
 <td>kg/s</td>
 </tr>
 <tr class="row-even"><td>TInlet</td>
-<td><span class="math">\(1\)</span></td>
+<td><span class="math notranslate nohighlight">\(1\)</span></td>
 <td>Average of inlets medium temperatures carried by the mass flow rates</td>
 <td>degC</td>
 </tr>
 <tr class="row-odd"><td>QGaiRad_flow</td>
-<td><span class="math">\(1\)</span></td>
+<td><span class="math notranslate nohighlight">\(1\)</span></td>
 <td>Radiative sensible heat gain added to the zone</td>
 <td>W</td>
 </tr>
 <tr class="row-even"><td>t</td>
-<td><span class="math">\(1\)</span></td>
-<td>Model time at which the above inputs are valid, with <span class="math">\(t=0\)</span> defined as January 1, 0 am local time,
+<td><span class="math notranslate nohighlight">\(1\)</span></td>
+<td>Model time at which the above inputs are valid, with <span class="math notranslate nohighlight">\(t=0\)</span> defined as January 1, 0 am local time,
 and with
 no correction for daylight savings time</td>
 <td>s</td>
@@ -503,35 +490,35 @@ no correction for daylight savings time</td>
 <tr class="row-odd"><td colspan="4"><em>From EnergyPlus to Modelica</em></td>
 </tr>
 <tr class="row-even"><td>TRad</td>
-<td><span class="math">\(1\)</span></td>
+<td><span class="math notranslate nohighlight">\(1\)</span></td>
 <td>Average radiative temperature in the room</td>
 <td>degC</td>
 </tr>
 <tr class="row-odd"><td>QConSen_flow</td>
-<td><span class="math">\(1\)</span></td>
+<td><span class="math notranslate nohighlight">\(1\)</span></td>
 <td>Convective sensible heat added to the zone, e.g., as entered in
-the EnergyPlus&#8217; <code class="docutils literal"><span class="pre">People</span></code> or <code class="docutils literal"><span class="pre">Equipment</span></code> schedule</td>
+the EnergyPlus’ <code class="docutils literal notranslate"><span class="pre">People</span></code> or <code class="docutils literal notranslate"><span class="pre">Equipment</span></code> schedule</td>
 <td>W</td>
 </tr>
 <tr class="row-even"><td>QLat_flow</td>
-<td><span class="math">\(1\)</span></td>
+<td><span class="math notranslate nohighlight">\(1\)</span></td>
 <td>Latent heat gain added to the zone, e.g., from mass transfer with moisture buffering material and
-from EnergyPlus&#8217; <code class="docutils literal"><span class="pre">People</span></code> schedule</td>
+from EnergyPlus’ <code class="docutils literal notranslate"><span class="pre">People</span></code> schedule</td>
 <td>W</td>
 </tr>
 <tr class="row-odd"><td>QPeo_flow</td>
-<td><span class="math">\(1\)</span></td>
+<td><span class="math notranslate nohighlight">\(1\)</span></td>
 <td>Heat gain due to people (only to be used to optionally compute CO2 emitted by people)</td>
 <td>W</td>
 </tr>
 <tr class="row-even"><td>nextEventTime</td>
-<td><span class="math">\(1\)</span></td>
-<td>Model time <span class="math">\(t\)</span> when EnergyPlus needs to be called next (typically the next zone time step)</td>
+<td><span class="math notranslate nohighlight">\(1\)</span></td>
+<td>Model time <span class="math notranslate nohighlight">\(t\)</span> when EnergyPlus needs to be called next (typically the next zone time step)</td>
 <td>s</td>
 </tr>
 </tbody>
 </table>
-<p>Note that the EnergyPlus object <code class="docutils literal"><span class="pre">ZoneAirContaminantBalance</span></code> either allows CO2 concentration modeling,
+<p>Note that the EnergyPlus object <code class="docutils literal notranslate"><span class="pre">ZoneAirContaminantBalance</span></code> either allows CO2 concentration modeling,
 or a generic contaminant modeling (such as from material outgasing),
 or no contaminant modeling, or both. To allow ambiguities regarding what contaminant
 is being modeled, we do not receive the contaminant emission from EnergyPlus.
@@ -544,10 +531,10 @@ For example, if a building has two zones, then both zones need to be modeled in 
 <span id="sec-time-sync"></span><h3>5.2.4. Time synchronization<a class="headerlink" href="#time-synchronization" title="Permalink to this headline">¶</a></h3>
 <p>As shown in <a class="pageref" href="#fig-partition-envelop-room-hvac">Figure  2</a>, the EnergyPlus FMU is invoked
 at a variable time step.
-Internally, it samples its heat conduction model at the envelope time step <span class="math">\(\Delta t_z\)</span>.
+Internally, it samples its heat conduction model at the envelope time step <span class="math notranslate nohighlight">\(\Delta t_z\)</span>.
 EnergyPlus needs to report this to the FMI interface. To report such time events,
-the FMI interface uses a C structure called <code class="docutils literal"><span class="pre">fmi2EventInfo</span></code> which is implemented as follows:</p>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">typedef</span> <span class="n">struct</span><span class="p">{</span>
+the FMI interface uses a C structure called <code class="docutils literal notranslate"><span class="pre">fmi2EventInfo</span></code> which is implemented as follows:</p>
+<div class="code c highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">typedef</span> <span class="n">struct</span><span class="p">{</span>
   <span class="n">fmi2Boolean</span> <span class="n">newDiscreteStatesNeeded</span><span class="p">;</span>
   <span class="n">fmi2Boolean</span> <span class="n">terminateSimulation</span><span class="p">;</span>
   <span class="n">fmi2Boolean</span> <span class="n">nominalsOfContinuousStatesChanged</span><span class="p">;</span>
@@ -558,12 +545,12 @@ the FMI interface uses a C structure called <code class="docutils literal"><span
   <span class="p">}</span> <span class="n">fmi2EventInfo</span><span class="p">;</span>
 </pre></div>
 </div>
-<p>The variable <code class="docutils literal"><span class="pre">nextEventTime</span></code> needs to be set to the time when the next event happens
+<p>The variable <code class="docutils literal notranslate"><span class="pre">nextEventTime</span></code> needs to be set to the time when the next event happens
 in EnergyPlus. This is, for example, whenever the envelope model advances time,
 or when a schedule changes its value and this change affects the variables
 that are sent from the EnergyPlus FMU to the master algorithm.
 Such a schedule could for example be a time schedule for internal heat gains,
-which may change at times that do not coincide with the zone time step <span class="math">\(\Delta t_z\)</span>.</p>
+which may change at times that do not coincide with the zone time step <span class="math notranslate nohighlight">\(\Delta t_z\)</span>.</p>
 </div>
 <div class="section" id="requirements-for-exporting-energyplus-as-an-fmu-for-model-exchange">
 <h3>5.2.5. Requirements for Exporting EnergyPlus as an FMU for model exchange<a class="headerlink" href="#requirements-for-exporting-energyplus-as-an-fmu-for-model-exchange" title="Permalink to this headline">¶</a></h3>
@@ -576,27 +563,27 @@ These functions are then used by the FMI for model exchange wrapper that LBL is 
 This will otherwise require EnergyPlus to be able to save and restore its complete internal state.
 This internal state consists especially of the values of the continuous-time states,
 iteration variables, parameter values, input values, delay buffers, file identifiers and internal status information.
-This limitation is indicated in the model description file with the capability flag <code class="docutils literal"><span class="pre">canGetAndSetFMUstate</span></code>
-being set to <code class="docutils literal"><span class="pre">false</span></code>. If this capability were supported, then EnergyPlus could be used
+This limitation is indicated in the model description file with the capability flag <code class="docutils literal notranslate"><span class="pre">canGetAndSetFMUstate</span></code>
+being set to <code class="docutils literal notranslate"><span class="pre">false</span></code>. If this capability were supported, then EnergyPlus could be used
 with ODE solvers which can reject and repeat steps. Rejecting steps is needed by ODE solvers
 such as DASSL or even Euler with step size control (but not for QSS)
 as they may reject a step size if the error is too large.
 Also, rejecting steps is needed to identify state events (but not for QSS solvers).</p>
 </div>
-<p>In the remainder of this section, we note that <code class="docutils literal"><span class="pre">time</span></code> is</p>
+<p>In the remainder of this section, we note that <code class="docutils literal notranslate"><span class="pre">time</span></code> is</p>
 <blockquote>
 <div><ul class="simple">
-<li>the variable described as <code class="docutils literal"><span class="pre">t</span></code> in the table of section <a class="reference internal" href="#sec-data-exchange"><span class="std std-numref">Section 5.2.3</span></a>,</li>
+<li>the variable described as <code class="docutils literal notranslate"><span class="pre">t</span></code> in the table of section <a class="reference internal" href="#sec-data-exchange"><span class="std std-numref">Section 5.2.3</span></a>,</li>
 <li>a monotonically increasing variable.</li>
 </ul>
 </div></blockquote>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Monotonically increasing means that if a function has as argument <code class="docutils literal"><span class="pre">time</span></code> and is called at time <code class="docutils literal"><span class="pre">t1</span></code>, then its next call must happen at time <code class="docutils literal"><span class="pre">t2</span></code> with <code class="docutils literal"><span class="pre">t2</span></code> &gt;= <code class="docutils literal"><span class="pre">t1</span></code>.
+<p class="last">Monotonically increasing means that if a function has as argument <code class="docutils literal notranslate"><span class="pre">time</span></code> and is called at time <code class="docutils literal notranslate"><span class="pre">t1</span></code>, then its next call must happen at time <code class="docutils literal notranslate"><span class="pre">t2</span></code> with <code class="docutils literal notranslate"><span class="pre">t2</span></code> &gt;= <code class="docutils literal notranslate"><span class="pre">t1</span></code>.
 For efficiency reasons, if a function which updates internal variables is called at the same time instant multiple times,
 then only the first call will update the variables, subsequent calls will cause the functions to return the same variable values.</p>
 </div>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">instantiate</span><span class="p">(</span><span class="n">const</span> <span class="n">char</span> <span class="n">const</span> <span class="o">*</span><span class="nb">input</span><span class="p">,</span>
+<div class="code c highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">instantiate</span><span class="p">(</span><span class="n">const</span> <span class="n">char</span> <span class="n">const</span> <span class="o">*</span><span class="nb">input</span><span class="p">,</span>
                          <span class="n">const</span> <span class="n">char</span> <span class="n">const</span> <span class="o">*</span><span class="n">weather</span><span class="p">,</span>
                          <span class="n">const</span> <span class="n">char</span> <span class="n">const</span> <span class="o">*</span><span class="n">idd</span><span class="p">,</span>
                          <span class="n">const</span> <span class="n">char</span> <span class="n">const</span> <span class="o">*</span><span class="n">instanceName</span><span class="p">,</span>
@@ -613,137 +600,137 @@ then only the first call will update the variables, subsequent calls will cause 
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">input</span></code>: Absolute or relative path to an EnergyPlus input file with file name.</li>
-<li><code class="docutils literal"><span class="pre">weather</span></code>: Absolute or relative path to an EnergyPlus weather file with file name.</li>
-<li><code class="docutils literal"><span class="pre">idd</span></code>: Absolute or relative path to an EnergyPlus idd file with file name.</li>
-<li><code class="docutils literal"><span class="pre">instanceName</span></code>: String to uniquely identify an EnergyPlus instance. This string must be non-empty and will be used for logging message.</li>
-<li><code class="docutils literal"><span class="pre">parameterNames</span></code>: A vector of <code class="docutils literal"><span class="pre">nPar</span></code> strings that identifies the names of the parameters that are to be retrieved from EnergyPlus.</li>
-<li><code class="docutils literal"><span class="pre">parameterValueReferences</span></code>: A vector of value references for the quantities in <code class="docutils literal"><span class="pre">parameterNames</span></code>.
-Value references uniquely identify the variables, and are used in the <code class="docutils literal"><span class="pre">setVariables</span></code>
-and <code class="docutils literal"><span class="pre">getVariables</span></code> calls below.</li>
-<li><code class="docutils literal"><span class="pre">nPar</span></code>: Number of elements of the parameter vector, e.g.,
-length of <code class="docutils literal"><span class="pre">parameterNames</span></code> and <code class="docutils literal"><span class="pre">parameterValueReferences</span></code>.</li>
-<li><code class="docutils literal"><span class="pre">inputNames</span></code>: A vector of <code class="docutils literal"><span class="pre">nInp</span></code> strings that identifies the names of the inputs sent to EnergyPlus.</li>
-<li><code class="docutils literal"><span class="pre">inputValueReferences</span></code>: A vector of value references for the quantities in <code class="docutils literal"><span class="pre">inputNames</span></code>.</li>
-<li><code class="docutils literal"><span class="pre">nInp</span></code>: Number of elements of the input vector, e.g.,
-length of <code class="docutils literal"><span class="pre">inputNames</span></code> and <code class="docutils literal"><span class="pre">inputValueReferences</span></code>.</li>
-<li><code class="docutils literal"><span class="pre">outputNames</span></code>: A vector of <code class="docutils literal"><span class="pre">nOut</span></code> strings that identifies the names of the outputs to be
+<li><code class="docutils literal notranslate"><span class="pre">input</span></code>: Absolute or relative path to an EnergyPlus input file with file name.</li>
+<li><code class="docutils literal notranslate"><span class="pre">weather</span></code>: Absolute or relative path to an EnergyPlus weather file with file name.</li>
+<li><code class="docutils literal notranslate"><span class="pre">idd</span></code>: Absolute or relative path to an EnergyPlus idd file with file name.</li>
+<li><code class="docutils literal notranslate"><span class="pre">instanceName</span></code>: String to uniquely identify an EnergyPlus instance. This string must be non-empty and will be used for logging message.</li>
+<li><code class="docutils literal notranslate"><span class="pre">parameterNames</span></code>: A vector of <code class="docutils literal notranslate"><span class="pre">nPar</span></code> strings that identifies the names of the parameters that are to be retrieved from EnergyPlus.</li>
+<li><code class="docutils literal notranslate"><span class="pre">parameterValueReferences</span></code>: A vector of value references for the quantities in <code class="docutils literal notranslate"><span class="pre">parameterNames</span></code>.
+Value references uniquely identify the variables, and are used in the <code class="docutils literal notranslate"><span class="pre">setVariables</span></code>
+and <code class="docutils literal notranslate"><span class="pre">getVariables</span></code> calls below.</li>
+<li><code class="docutils literal notranslate"><span class="pre">nPar</span></code>: Number of elements of the parameter vector, e.g.,
+length of <code class="docutils literal notranslate"><span class="pre">parameterNames</span></code> and <code class="docutils literal notranslate"><span class="pre">parameterValueReferences</span></code>.</li>
+<li><code class="docutils literal notranslate"><span class="pre">inputNames</span></code>: A vector of <code class="docutils literal notranslate"><span class="pre">nInp</span></code> strings that identifies the names of the inputs sent to EnergyPlus.</li>
+<li><code class="docutils literal notranslate"><span class="pre">inputValueReferences</span></code>: A vector of value references for the quantities in <code class="docutils literal notranslate"><span class="pre">inputNames</span></code>.</li>
+<li><code class="docutils literal notranslate"><span class="pre">nInp</span></code>: Number of elements of the input vector, e.g.,
+length of <code class="docutils literal notranslate"><span class="pre">inputNames</span></code> and <code class="docutils literal notranslate"><span class="pre">inputValueReferences</span></code>.</li>
+<li><code class="docutils literal notranslate"><span class="pre">outputNames</span></code>: A vector of <code class="docutils literal notranslate"><span class="pre">nOut</span></code> strings that identifies the names of the outputs to be
 retrieved from EnergyPlus.</li>
-<li><code class="docutils literal"><span class="pre">outputValueReferences</span></code>: A vector of value references for the quantities in <code class="docutils literal"><span class="pre">outputNames</span></code>.</li>
-<li><code class="docutils literal"><span class="pre">nOut</span></code>: Number of elements of the output vector, e.g.,
-length of <code class="docutils literal"><span class="pre">outputNames</span></code> and <code class="docutils literal"><span class="pre">outputValueReferences</span></code>.</li>
-<li><code class="docutils literal"><span class="pre">log</span></code>: Logging message returned on error.</li>
+<li><code class="docutils literal notranslate"><span class="pre">outputValueReferences</span></code>: A vector of value references for the quantities in <code class="docutils literal notranslate"><span class="pre">outputNames</span></code>.</li>
+<li><code class="docutils literal notranslate"><span class="pre">nOut</span></code>: Number of elements of the output vector, e.g.,
+length of <code class="docutils literal notranslate"><span class="pre">outputNames</span></code> and <code class="docutils literal notranslate"><span class="pre">outputValueReferences</span></code>.</li>
+<li><code class="docutils literal notranslate"><span class="pre">log</span></code>: Logging message returned on error.</li>
 </ul>
-<p>For example, if a building has two zones called <code class="docutils literal"><span class="pre">basement</span></code> and <code class="docutils literal"><span class="pre">office</span></code>, then the parameter names are</p>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">const</span> <span class="n">char</span> <span class="o">**</span> <span class="n">parameterNames</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;basement,V&quot;</span><span class="p">,</span> <span class="s2">&quot;basement,AFlo&quot;</span><span class="p">,</span> <span class="s2">&quot;basement,mSenFac&quot;</span><span class="p">,</span> <span class="s2">&quot;office,V&quot;</span><span class="p">,</span> <span class="s2">&quot;office,AFlo&quot;</span><span class="p">,</span> <span class="s2">&quot;office,mSenFac&quot;</span><span class="p">};</span>
+<p>For example, if a building has two zones called <code class="docutils literal notranslate"><span class="pre">basement</span></code> and <code class="docutils literal notranslate"><span class="pre">office</span></code>, then the parameter names are</p>
+<div class="code c highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">const</span> <span class="n">char</span> <span class="o">**</span> <span class="n">parameterNames</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;basement,V&quot;</span><span class="p">,</span> <span class="s2">&quot;basement,AFlo&quot;</span><span class="p">,</span> <span class="s2">&quot;basement,mSenFac&quot;</span><span class="p">,</span> <span class="s2">&quot;office,V&quot;</span><span class="p">,</span> <span class="s2">&quot;office,AFlo&quot;</span><span class="p">,</span> <span class="s2">&quot;office,mSenFac&quot;</span><span class="p">};</span>
 <span class="n">const</span> <span class="n">unsigned</span> <span class="nb">int</span> <span class="n">parameterValueReferences</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">};</span>
 </pre></div>
 </div>
 <p>The inputs into EnergyPlus will be</p>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">const</span> <span class="n">char</span> <span class="o">**</span> <span class="n">inputNames</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;basement,T&quot;</span><span class="p">,</span> <span class="s2">&quot;basement,X&quot;</span><span class="p">,</span> <span class="s2">&quot;basement,mInlets_flow&quot;</span><span class="p">,</span> <span class="s2">&quot;basement,TInlet&quot;</span><span class="p">,</span> <span class="s2">&quot;basement,QGaiRad_flow&quot;</span><span class="p">,</span>
+<div class="code c highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">const</span> <span class="n">char</span> <span class="o">**</span> <span class="n">inputNames</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;basement,T&quot;</span><span class="p">,</span> <span class="s2">&quot;basement,X&quot;</span><span class="p">,</span> <span class="s2">&quot;basement,mInlets_flow&quot;</span><span class="p">,</span> <span class="s2">&quot;basement,TInlet&quot;</span><span class="p">,</span> <span class="s2">&quot;basement,QGaiRad_flow&quot;</span><span class="p">,</span>
                             <span class="s2">&quot;office,T&quot;</span><span class="p">,</span> <span class="s2">&quot;office,X&quot;</span><span class="p">,</span> <span class="s2">&quot;office,mInlets_flow&quot;</span><span class="p">,</span> <span class="s2">&quot;office,TInlet&quot;</span><span class="p">,</span> <span class="s2">&quot;office,QGaiRad_flow&quot;</span><span class="p">};</span>
 <span class="n">const</span> <span class="n">unsigned</span> <span class="nb">int</span> <span class="n">inputValueReferences</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">};</span>
 </pre></div>
 </div>
 <p>The outputs of EnergyPlus will be</p>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">const</span> <span class="n">char</span> <span class="o">**</span> <span class="n">outputNames</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;basement,TRad&quot;</span><span class="p">,</span> <span class="s2">&quot;basement,QConSen_flow&quot;</span><span class="p">,</span> <span class="s2">&quot;basement,QLat_flow&quot;</span><span class="p">,</span> <span class="s2">&quot;basement,QPeo_flow&quot;</span><span class="p">,</span>
+<div class="code c highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">const</span> <span class="n">char</span> <span class="o">**</span> <span class="n">outputNames</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;basement,TRad&quot;</span><span class="p">,</span> <span class="s2">&quot;basement,QConSen_flow&quot;</span><span class="p">,</span> <span class="s2">&quot;basement,QLat_flow&quot;</span><span class="p">,</span> <span class="s2">&quot;basement,QPeo_flow&quot;</span><span class="p">,</span>
                              <span class="s2">&quot;office,TRad&quot;</span><span class="p">,</span> <span class="s2">&quot;office,QConSen_flow&quot;</span><span class="p">,</span> <span class="s2">&quot;office,QLat_flow&quot;</span><span class="p">,</span> <span class="s2">&quot;office,QPeo_flow&quot;</span><span class="p">};</span>
 <span class="n">const</span> <span class="n">unsigned</span> <span class="nb">int</span> <span class="n">outputValueReferences</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">17</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">24</span><span class="p">};</span>
 </pre></div>
 </div>
-<p>This function will read the <code class="docutils literal"><span class="pre">idf</span></code> file and sets up the data structure in EnergyPlus.</p>
+<p>This function will read the <code class="docutils literal notranslate"><span class="pre">idf</span></code> file and sets up the data structure in EnergyPlus.</p>
 <p>It returns zero if there was no error, or else a positive non-zero integer.</p>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">setupExperiment</span><span class="p">(</span><span class="n">double</span> <span class="n">tStart</span><span class="p">,</span>
+<div class="code c highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">setupExperiment</span><span class="p">(</span><span class="n">double</span> <span class="n">tStart</span><span class="p">,</span>
                              <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">tStart</span></code>: Start of simulation in seconds.</li>
-<li><code class="docutils literal"><span class="pre">log</span></code>: Logging message returned on error.</li>
+<li><code class="docutils literal notranslate"><span class="pre">tStart</span></code>: Start of simulation in seconds.</li>
+<li><code class="docutils literal notranslate"><span class="pre">log</span></code>: Logging message returned on error.</li>
 </ul>
-<p>This functions sets the start time of EnergyPlus to the value <code class="docutils literal"><span class="pre">tStart</span></code>.
+<p>This functions sets the start time of EnergyPlus to the value <code class="docutils literal notranslate"><span class="pre">tStart</span></code>.
 There is no warm-up simulation. EnergyPlus will continue the simulation until
-<code class="docutils literal"><span class="pre">terminate(const</span> <span class="pre">char</span> <span class="pre">*)</span></code> (see below) is called.</p>
+<code class="docutils literal notranslate"><span class="pre">terminate(const</span> <span class="pre">char</span> <span class="pre">*)</span></code> (see below) is called.</p>
 <p>It returns zero if there was no error, or else a positive non-zero integer.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p>The EnergyPlus start time is as retrieved from the argument of
-<code class="docutils literal"><span class="pre">setupExperiment(...)</span></code>. The <code class="docutils literal"><span class="pre">RunPeriod</span></code> in the <code class="docutils literal"><span class="pre">idf</span></code> file is only
+<code class="docutils literal notranslate"><span class="pre">setupExperiment(...)</span></code>. The <code class="docutils literal notranslate"><span class="pre">RunPeriod</span></code> in the <code class="docutils literal notranslate"><span class="pre">idf</span></code> file is only
 used to determine the day of the week.</p>
 <p><em>Possible complication</em>:</p>
-<p class="last">Users may set <code class="docutils literal"><span class="pre">tStart</span></code>
+<p class="last">Users may set <code class="docutils literal notranslate"><span class="pre">tStart</span></code>
 to a time other than midnight. We think EnergyPlus cannot yet handle an arbitrary start time.
 In this case, it should return an error.</p>
 </div>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">setTime</span><span class="p">(</span><span class="n">double</span> <span class="n">time</span><span class="p">,</span>
+<div class="code c highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">setTime</span><span class="p">(</span><span class="n">double</span> <span class="n">time</span><span class="p">,</span>
                      <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">time</span></code>: Model time.</li>
-<li><code class="docutils literal"><span class="pre">log</span></code>: Logging message returned on error.</li>
+<li><code class="docutils literal notranslate"><span class="pre">time</span></code>: Model time.</li>
+<li><code class="docutils literal notranslate"><span class="pre">log</span></code>: Logging message returned on error.</li>
 </ul>
 <p>This function sets a new time in EnergyPlus. This time becomes the current model time.</p>
 <p>It returns zero if there was no error, or else a positive non-zero integer.</p>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">setVariables</span><span class="p">(</span><span class="n">const</span> <span class="n">unsigned</span> <span class="nb">int</span> <span class="n">valueReferences</span><span class="p">[],</span>
+<div class="code c highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">setVariables</span><span class="p">(</span><span class="n">const</span> <span class="n">unsigned</span> <span class="nb">int</span> <span class="n">valueReferences</span><span class="p">[],</span>
                           <span class="n">const</span> <span class="n">double</span><span class="o">*</span> <span class="n">const</span> <span class="n">variablePointers</span><span class="p">[],</span>
                           <span class="n">size_t</span> <span class="n">nVars1</span><span class="p">,</span>
                           <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">valueReferences</span></code>: Vector of value references.</li>
-<li><code class="docutils literal"><span class="pre">variablePointers</span></code>: Vector of pointers to variables.</li>
-<li><code class="docutils literal"><span class="pre">nVars1</span></code>: Number of elements of <code class="docutils literal"><span class="pre">valueReferences</span></code>, and <code class="docutils literal"><span class="pre">variablePointers</span></code>.</li>
-<li><code class="docutils literal"><span class="pre">log</span></code>: Logging message returned on error.</li>
+<li><code class="docutils literal notranslate"><span class="pre">valueReferences</span></code>: Vector of value references.</li>
+<li><code class="docutils literal notranslate"><span class="pre">variablePointers</span></code>: Vector of pointers to variables.</li>
+<li><code class="docutils literal notranslate"><span class="pre">nVars1</span></code>: Number of elements of <code class="docutils literal notranslate"><span class="pre">valueReferences</span></code>, and <code class="docutils literal notranslate"><span class="pre">variablePointers</span></code>.</li>
+<li><code class="docutils literal notranslate"><span class="pre">log</span></code>: Logging message returned on error.</li>
 </ul>
 <p>This function sets the value of variables in EnergyPlus.
-The vector <code class="docutils literal"><span class="pre">valueReferences</span></code> could be a subset of the pointer <code class="docutils literal"><span class="pre">inputValueReferences</span></code>
-that was setup in <code class="docutils literal"><span class="pre">instantiate(...)</span></code>, i.e., <code class="docutils literal"><span class="pre">nVars1</span> <span class="pre">&lt;=</span> <span class="pre">nInp</span></code>
+The vector <code class="docutils literal notranslate"><span class="pre">valueReferences</span></code> could be a subset of the pointer <code class="docutils literal notranslate"><span class="pre">inputValueReferences</span></code>
+that was setup in <code class="docutils literal notranslate"><span class="pre">instantiate(...)</span></code>, i.e., <code class="docutils literal notranslate"><span class="pre">nVars1</span> <span class="pre">&lt;=</span> <span class="pre">nInp</span></code>
 (to allow updating only specific variables
 as needed by QSS).</p>
 <p>It returns zero if there was no error, or else a positive non-zero integer.</p>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">getVariables</span><span class="p">(</span><span class="n">const</span> <span class="n">unsigned</span> <span class="nb">int</span> <span class="n">valueReferences</span><span class="p">[],</span>
+<div class="code c highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">getVariables</span><span class="p">(</span><span class="n">const</span> <span class="n">unsigned</span> <span class="nb">int</span> <span class="n">valueReferences</span><span class="p">[],</span>
                           <span class="n">const</span> <span class="n">double</span><span class="o">*</span> <span class="n">variablePointers</span><span class="p">[],</span>
                           <span class="n">size_t</span> <span class="n">nVars2</span><span class="p">,</span>
                           <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">valueReferences</span></code>: Vector of value references.</li>
-<li><code class="docutils literal"><span class="pre">variablePointers</span></code>: Vector of pointers to variables.</li>
-<li><code class="docutils literal"><span class="pre">nVars2</span></code>: Number of elements of <code class="docutils literal"><span class="pre">valueReferences</span></code>, and <code class="docutils literal"><span class="pre">variablePointers</span></code>.</li>
-<li><code class="docutils literal"><span class="pre">log</span></code>: Logging message returned on error.</li>
+<li><code class="docutils literal notranslate"><span class="pre">valueReferences</span></code>: Vector of value references.</li>
+<li><code class="docutils literal notranslate"><span class="pre">variablePointers</span></code>: Vector of pointers to variables.</li>
+<li><code class="docutils literal notranslate"><span class="pre">nVars2</span></code>: Number of elements of <code class="docutils literal notranslate"><span class="pre">valueReferences</span></code>, and <code class="docutils literal notranslate"><span class="pre">variablePointers</span></code>.</li>
+<li><code class="docutils literal notranslate"><span class="pre">log</span></code>: Logging message returned on error.</li>
 </ul>
 <p>This function gets the value of variables in EnergyPlus.
-EnergyPlus must write the values to the elements that are setup in <code class="docutils literal"><span class="pre">outputValueReferences</span></code>
-during the <code class="docutils literal"><span class="pre">instantiate(...)</span></code> call.
-<code class="docutils literal"><span class="pre">nVars2</span> <span class="pre">&lt;=</span> <span class="pre">nOut</span></code> if only certain output variables are required.</p>
+EnergyPlus must write the values to the elements that are setup in <code class="docutils literal notranslate"><span class="pre">outputValueReferences</span></code>
+during the <code class="docutils literal notranslate"><span class="pre">instantiate(...)</span></code> call.
+<code class="docutils literal notranslate"><span class="pre">nVars2</span> <span class="pre">&lt;=</span> <span class="pre">nOut</span></code> if only certain output variables are required.</p>
 <p>It returns zero if there was no error, or else a positive non-zero integer.</p>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">getNextEventTime</span><span class="p">(</span><span class="n">fmi2EventInfo</span> <span class="o">*</span><span class="n">eventInfo</span><span class="p">,</span>
+<div class="code c highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">getNextEventTime</span><span class="p">(</span><span class="n">fmi2EventInfo</span> <span class="o">*</span><span class="n">eventInfo</span><span class="p">,</span>
                               <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">eventInfo</span></code>: A structure with event info as defined in section <a class="reference internal" href="#sec-time-sync"><span class="std std-ref">Time synchronization</span></a></li>
-<li><code class="docutils literal"><span class="pre">log</span></code>: Logging message returned on error.</li>
+<li><code class="docutils literal notranslate"><span class="pre">eventInfo</span></code>: A structure with event info as defined in section <a class="reference internal" href="#sec-time-sync"><span class="std std-ref">Time synchronization</span></a></li>
+<li><code class="docutils literal notranslate"><span class="pre">log</span></code>: Logging message returned on error.</li>
 </ul>
 <p>This function writes a structure which contains among its variables a non-zero flag to indicate that the next event time is defined, and the next event time in EnergyPlus.</p>
 <p>It returns zero if there was no error, or else a positive non-zero integer.</p>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">terminate</span><span class="p">(</span><span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
+<div class="code c highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">terminate</span><span class="p">(</span><span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">log</span></code>: Logging message returned on error.</li>
+<li><code class="docutils literal notranslate"><span class="pre">log</span></code>: Logging message returned on error.</li>
 </ul>
 <p>This function must free all allocated variables in EnergyPlus.</p>
 <p>Any further call to the EnergyPlus shared library is prohibited after call to this function.</p>
 <p>It returns zero if there was no error, or else a positive non-zero integer.</p>
-<div class="code c highlight-default"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">writeOutputFiles</span><span class="p">(</span><span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
+<div class="code c highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">unsigned</span> <span class="nb">int</span> <span class="n">writeOutputFiles</span><span class="p">(</span><span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">log</span><span class="p">);</span>
 </pre></div>
 </div>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">log</span></code>: Logging message returned on error.</li>
+<li><code class="docutils literal notranslate"><span class="pre">log</span></code>: Logging message returned on error.</li>
 </ul>
 <p>This function writes the output to the EnergyPlus output files.</p>
 <p>It returns zero if there was no error, or else a positive non-zero integer.</p>
@@ -752,8 +739,8 @@ during the <code class="docutils literal"><span class="pre">instantiate(...)</sp
 <h3>5.2.6. Pseudo Code Example<a class="headerlink" href="#pseudo-code-example" title="Permalink to this headline">¶</a></h3>
 <p>In the next section, the usage of the FMI functions along with the equivalent EnergyPlus functions are used in a typical calling sequence.
 This should clarify the need of the EnergyPlus equivalent functions and show how these functions will be used in a simulation environment.
-In the pseudo code, <code class="docutils literal"><span class="pre">-&gt;</span></code> points to the EnergyPlus equivalent FMI functions. <code class="docutils literal"><span class="pre">NA</span></code> indicates that the FMI functions do not require EnergyPlus equivalent.</p>
-<div class="highlight-C"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>  1
+In the pseudo code, <code class="docutils literal notranslate"><span class="pre">-&gt;</span></code> points to the EnergyPlus equivalent FMI functions. <code class="docutils literal notranslate"><span class="pre">NA</span></code> indicates that the FMI functions do not require EnergyPlus equivalent.</p>
+<div class="highlight-C notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>  1
   2
   3
   4
@@ -1014,7 +1001,7 @@ which contains the inputs, outputs, and states of EnergyPlus to be exposed
 through the FMI interface.
 The utility will compile the EnergyPlus FMI functions into a shared library,
 and package the library with the idf, idd, and weather file in the
-<code class="docutils literal"><span class="pre">resources</span></code> folder of the FMU.
+<code class="docutils literal notranslate"><span class="pre">resources</span></code> folder of the FMU.
 An approach to develop such a utility is to extend EnergyPlusToFMU
 (<a class="reference external" href="http://simulationresearch.lbl.gov/fmu/EnergyPlus/export/index.html">http://simulationresearch.lbl.gov/fmu/EnergyPlus/export/index.html</a>)
 to support FMI 2.0 for model exchange.
@@ -1027,28 +1014,28 @@ to support the export of EnergyPlus.</p>
 <p>This section describes the integration of the QSS solver in JModelica.</p>
 <p>We will first introduce terminology.
 Consider the code-snippet</p>
-<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="o">...</span>
+<div class="highlight-modelica notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
 <span class="kr">when</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="n">a</span><span class="p">)</span> <span class="kr">then</span>
   <span class="o">...</span>
 <span class="kr">end</span> <span class="kr">when</span><span class="p">;</span>
 <span class="o">...</span>
 </pre></div>
 </div>
-<p>We will say that <span class="math">\(z = a - x\)</span> is the <em>event indicator</em>.</p>
+<p>We will say that <span class="math notranslate nohighlight">\(z = a - x\)</span> is the <em>event indicator</em>.</p>
 <p>For the discussion, we consider a system of initial value ODEs of the form</p>
-<div class="math" id="equation-eqn_ini_val">
-<span class="eqno">(1)</span>\[\begin{split}[\dot x_c(t), x_d(t)] &amp; = f(x_c(t), x_d(t^-), u_c(t), u_d(t), p, t),\end{split}\]\[\begin{split}[y_c(t), y_d(t)] &amp; = g(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\\\end{split}\]\[\begin{split}0         &amp; = z(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\\\end{split}\]\[\begin{split}[x_c(t_0), x_d(t_0)] &amp; = [x_{c,0}, x_{d,0}],\end{split}\]</div>
+<div class="math notranslate nohighlight" id="equation-eqn-ini-val">
+<span class="eqno">(5.1)<a class="headerlink" href="#equation-eqn-ini-val" title="Permalink to this equation">¶</a></span>\[ \begin{align}\begin{aligned}\left[\dot x_c(t), x_d(t)\right] = f(x_c(t), x_d(t^-), u_c(t), u_d(t), p, t),\\\begin{split}\left[y_c(t), y_d(t)\right]  = g(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\\\end{split}\\\begin{split}0          = z(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\\\end{split}\\\left[x_c(t_0), x_d(t_0)\right]  = [x_{c,0}, x_{d,0}],\end{aligned}\end{align} \]</div>
 <p>where
-<span class="math">\(x(\cdot)\)</span> is the continuous-time state vector, with superscript
-<span class="math">\(c\)</span> denoting continuous-time states and <span class="math">\(d\)</span> denoting discrete variables or states,
-<span class="math">\(u(\cdot)\)</span> is the external input,
-<span class="math">\(p\)</span> are parameters,
-<span class="math">\(f(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)\)</span> is the state transitions function,
-<span class="math">\(g(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)\)</span> is the output function,
-<span class="math">\(z(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)\)</span> is the event indicator (sometimes called zero crossing function).</p>
+<span class="math notranslate nohighlight">\(x(\cdot)\)</span> is the continuous-time state vector, with superscript
+<span class="math notranslate nohighlight">\(c\)</span> denoting continuous-time states and <span class="math notranslate nohighlight">\(d\)</span> denoting discrete variables or states,
+<span class="math notranslate nohighlight">\(u(\cdot)\)</span> is the external input,
+<span class="math notranslate nohighlight">\(p\)</span> are parameters,
+<span class="math notranslate nohighlight">\(f(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)\)</span> is the state transitions function,
+<span class="math notranslate nohighlight">\(g(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)\)</span> is the output function,
+<span class="math notranslate nohighlight">\(z(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)\)</span> is the event indicator (sometimes called zero crossing function).</p>
 <p>Because we anticipate that the FMU can have
 direct feed-through from the input
-<span class="math">\(u(t)\)</span> to the output <span class="math">\(y(t)\)</span>, we use
+<span class="math notranslate nohighlight">\(u(t)\)</span> to the output <span class="math notranslate nohighlight">\(y(t)\)</span>, we use
 FMI for Model-Exchange (FMI-ME) version 2.0, because the Co-Simulation
 standard does not allow a zero time step size as needed for direct feed-through.</p>
 <p><a class="reference internal" href="#fig-sof-arc-qss-jmod2"><span class="std std-numref">Fig. 5.3</span></a> shows the software architecture
@@ -1057,7 +1044,7 @@ For simplicity the figure only
 shows single FMUs, but we anticipated having multiple interconnected FMUs.</p>
 <div class="figure" id="id14">
 <span id="fig-sof-arc-qss-jmod2"></span><p class="plantuml">
-<object data="_images/plantuml-24c6e5725ea55a6b194775fd3c024e2e3075f32d.svg" type="image/svg+xml" style="width:713px;height:547px;">
+<object data="_images/plantuml-24c6e5725ea55a6b194775fd3c024e2e3075f32d.svg" type="image/svg+xml" style="width:874px;height:981px;">
 <img src="_images/plantuml-24c6e5725ea55a6b194775fd3c024e2e3075f32d.png" alt="title Software architecture for QSS integration with JModelica with extended FMI API
 
 skinparam componentStyle uml2
@@ -1085,7 +1072,7 @@ package Optimica {
 jmc -l-&gt; FMU_QSS
 
 FMU_QSS -down-&gt; qss_sol : &quot;derivatives&quot;
-qss_sol -down-&gt; FMU_QSS : &quot;inputs, time, states&quot;" />
+qss_sol -down-&gt; FMU_QSS : &quot;inputs, time, states&quot;"/>
 
 </object></p>
 <p class="caption"><span class="caption-number">Fig. 5.3 </span>: Software architecture for QSS integration with JModelica
@@ -1094,12 +1081,12 @@ with extended FMI API.<a class="headerlink" href="#id14" title="Permalink to thi
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">We still need to design how to handle algebraic loops inside the FMU
-(see also Cellier&#8217;s and Kofman&#8217;s book) and algebraic loops that
+(see also Cellier’s and Kofman’s book) and algebraic loops that
 cross multiple FMUs.</p>
 </div>
 <p>The QSS solvers require the derivatives shown in <a class="reference internal" href="#tab-qss-der"><span class="std std-numref">Table 5.1</span></a>.</p>
-<table border="1" class="docutils" id="id15">
-<span id="tab-qss-der"></span><caption><span class="caption-number">Table 5.1 </span><span class="caption-text">Derivatives required by QSS algorithms. One asteriks indicates
+<span id="tab-qss-der"></span><table border="1" class="docutils" id="id15">
+<caption><span class="caption-number">Table 5.1 </span><span class="caption-text">Derivatives required by QSS algorithms. One asteriks indicates
         that they are provided by FMI-ME 2.0, and two asteriks indicate
         that they can optionally be computed exactly if directional
         derivatives are provided by the FMU.
@@ -1117,16 +1104,16 @@ cross multiple FMUs.</p>
 </thead>
 <tbody valign="top">
 <tr class="row-even"><td>QSS1</td>
-<td><span class="math">\(dx_c/dt\)</span> *</td>
-<td><span class="math">\(dz/dt\)</span></td>
+<td><span class="math notranslate nohighlight">\(dx_c/dt\)</span> *</td>
+<td><span class="math notranslate nohighlight">\(dz/dt\)</span></td>
 </tr>
 <tr class="row-odd"><td>QSS2</td>
-<td><span class="math">\(dx_c/dt\)</span> * , <span class="math">\(d^2x_c/dt^2\)</span> **</td>
-<td><span class="math">\(dz/dt\)</span> , <span class="math">\(d^2z/dt^2\)</span></td>
+<td><span class="math notranslate nohighlight">\(dx_c/dt\)</span> * , <span class="math notranslate nohighlight">\(d^2x_c/dt^2\)</span> **</td>
+<td><span class="math notranslate nohighlight">\(dz/dt\)</span> , <span class="math notranslate nohighlight">\(d^2z/dt^2\)</span></td>
 </tr>
 <tr class="row-even"><td>QSS3</td>
-<td><span class="math">\(dx_c/dt\)</span> * , <span class="math">\(d^2x_c/dt^2\)</span> ** , <span class="math">\(d^3x_c/dt^3\)</span></td>
-<td><span class="math">\(dz/dt\)</span> , <span class="math">\(d^2z/dt^2\)</span>, <span class="math">\(d^3z/dt^3\)</span></td>
+<td><span class="math notranslate nohighlight">\(dx_c/dt\)</span> * , <span class="math notranslate nohighlight">\(d^2x_c/dt^2\)</span> ** , <span class="math notranslate nohighlight">\(d^3x_c/dt^3\)</span></td>
+<td><span class="math notranslate nohighlight">\(dz/dt\)</span> , <span class="math notranslate nohighlight">\(d^2z/dt^2\)</span>, <span class="math notranslate nohighlight">\(d^3z/dt^3\)</span></td>
 </tr>
 </tbody>
 </table>
@@ -1137,7 +1124,7 @@ that are needed for an efficient implementation of QSS.</p>
 <h3>5.3.1. FMI Changes for QSS<a class="headerlink" href="#fmi-changes-for-qss" title="Permalink to this headline">¶</a></h3>
 <p>QSS generally requires to only update a subset of the continuous-time state vector. We therefore
 propose to use the function</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">fmi2Status</span> <span class="nf">fmi2SetReal</span><span class="p">(</span><span class="n">fmi2Component</span> <span class="n">c</span><span class="p">,</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">fmi2Status</span> <span class="nf">fmi2SetReal</span><span class="p">(</span><span class="n">fmi2Component</span> <span class="n">c</span><span class="p">,</span>
                        <span class="k">const</span> <span class="n">fmi2Real</span> <span class="n">x</span><span class="p">[],</span>
                        <span class="k">const</span> <span class="n">fmi2ValueReference</span> <span class="n">vr</span><span class="p">[],</span>
                        <span class="kt">size_t</span> <span class="n">nx</span><span class="p">);</span>
@@ -1148,15 +1135,15 @@ This function exists in FMI-ME 2.0, but the standard only allows to call it for
 continuous-time state variables during the initialization.</p>
 <p>We therefore propose that the standard is being changed as follows:</p>
 <blockquote>
-<div><code class="docutils literal"><span class="pre">fmi2SetReal</span></code> can be called during the continuous time mode
+<div><code class="docutils literal notranslate"><span class="pre">fmi2SetReal</span></code> can be called during the continuous time mode
 and during event mode not only for inputs,
 as is allowed in FMI-ME 2.0, but also for continuous-time states.</div></blockquote>
 <p>To retrieve individual state derivatives, we introduce the extensions
 shown in <a class="reference internal" href="#fig-der-ext"><span class="std std-numref">Listing 5.1</span></a>
-to the <code class="docutils literal"><span class="pre">&lt;Derivatives&gt;</span></code> element of the <code class="docutils literal"><span class="pre">modelDescription.xml</span></code> file.</p>
+to the <code class="docutils literal notranslate"><span class="pre">&lt;Derivatives&gt;</span></code> element of the <code class="docutils literal notranslate"><span class="pre">modelDescription.xml</span></code> file.</p>
 <div class="literal-block-wrapper docutils container" id="id16">
 <span id="fig-der-ext"></span><div class="code-block-caption"><span class="caption-number">Listing 5.1 </span><span class="caption-text">Extensions for obtaining higher order state derivatives. XML additions are marked yellow.</span><a class="headerlink" href="#id16" title="Permalink to this code">¶</a></div>
-<div class="highlight-xml"><div class="highlight"><pre><span></span> &lt;ModelVariables&gt; &lt;!-- Remains unchanged --&gt;
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span> &lt;ModelVariables&gt; &lt;!-- Remains unchanged --&gt;
    ...
    &lt;ScalarVariable name=&quot;x&quot;,      ...&gt; ... &lt;/ScalarVariable&gt; &lt;!-- index=&quot;5&quot; --&gt;
    ...
@@ -1184,7 +1171,7 @@ event indicator. FMI 2.0 outputs an array of real-valued event indicators,
 but no variable dependencies.</p>
 <p>Therefore, we introduce the following xml section, which assumes we have
 three event indicators.</p>
-<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;ModelStructure&gt;</span>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;ModelStructure&gt;</span>
   <span class="nt">&lt;EventIndicators&gt;</span>
     <span class="c">&lt;!-- This is z[0] which depends on ScalarVariable with index 2 and 3 --&gt;</span>
     <span class="nt">&lt;Element</span> <span class="na">index=</span><span class="s">&quot;1&quot;</span> <span class="na">order=</span><span class="s">&quot;0&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;2 3&quot;</span> <span class="na">valueReference=</span><span class="s">&quot;200&quot;</span> <span class="nt">/&gt;</span>
@@ -1200,27 +1187,27 @@ three event indicators.</p>
 <span class="nt">&lt;/ModelStructure&gt;</span>
 </pre></div>
 </div>
-<p>The attribute <code class="docutils literal"><span class="pre">dependencies</span></code> is optional. However, if it is not specified,
+<p>The attribute <code class="docutils literal notranslate"><span class="pre">dependencies</span></code> is optional. However, if it is not specified,
 a tool shall assume that the event indicator depends on all variables.
-Write <code class="docutils literal"><span class="pre">dependencies=&quot;&quot;</span></code> to declare that this event indicator depends on no variable
+Write <code class="docutils literal notranslate"><span class="pre">dependencies=&quot;&quot;</span></code> to declare that this event indicator depends on no variable
 (other than possibly time).
-Note that for performance reasons, for QSS <code class="docutils literal"><span class="pre">dependencies</span></code> should be declared
-for <code class="docutils literal"><span class="pre">order=&quot;0&quot;</span></code>. For higher order, QSS does not use the dependencies.</p>
+Note that for performance reasons, for QSS <code class="docutils literal notranslate"><span class="pre">dependencies</span></code> should be declared
+for <code class="docutils literal notranslate"><span class="pre">order=&quot;0&quot;</span></code>. For higher order, QSS does not use the dependencies.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p>The <code class="docutils literal"><span class="pre">index</span></code> uses in the <code class="docutils literal"><span class="pre">&lt;EventIndicators&gt;</span></code> element is different from the <code class="docutils literal"><span class="pre">index</span></code>
-used in the <code class="docutils literal"><span class="pre">&lt;ModelVariables&gt;</span></code> element. The first event indicator has an <code class="docutils literal"><span class="pre">index</span></code> 1,
-the second has an <code class="docutils literal"><span class="pre">index</span></code> 2, and so on. A new index is introduced because the event
-indicators do not show up in the list of <code class="docutils literal"><span class="pre">&lt;ModelVariables&gt;</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">index</span></code> uses in the <code class="docutils literal notranslate"><span class="pre">&lt;EventIndicators&gt;</span></code> element is different from the <code class="docutils literal notranslate"><span class="pre">index</span></code>
+used in the <code class="docutils literal notranslate"><span class="pre">&lt;ModelVariables&gt;</span></code> element. The first event indicator has an <code class="docutils literal notranslate"><span class="pre">index</span></code> 1,
+the second has an <code class="docutils literal notranslate"><span class="pre">index</span></code> 2, and so on. A new index is introduced because the event
+indicators do not show up in the list of <code class="docutils literal notranslate"><span class="pre">&lt;ModelVariables&gt;</span></code>.</p>
 <p>The dependencies variables of event indicators are</p>
 <ul class="last simple">
-<li>inputs (variables with causality = &#8220;input&#8221;)</li>
+<li>inputs (variables with causality = “input”)</li>
 <li>continuous-time states</li>
-<li>independent variable (usually time; causality = &#8220;independent&#8221;)</li>
+<li>independent variable (usually time; causality = “independent”)</li>
 </ul>
 </div>
 <p>Consider the following model</p>
-<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">within</span> <span class="nn">QSS</span><span class="o">.</span><span class="n">Docs</span><span class="p">;</span>
+<div class="highlight-modelica notranslate"><div class="highlight"><pre><span></span><span class="kr">within</span> <span class="nn">QSS</span><span class="o">.</span><span class="n">Docs</span><span class="p">;</span>
 <span class="kr">model</span> <span class="nc">StateEvent1</span> <span class="s2">&quot;This model tests state event detection&quot;</span>
   <span class="kr">extends</span> <span class="n">Modelica</span><span class="o">.</span><span class="n">Icons</span><span class="o">.</span><span class="n">Example</span><span class="p">;</span>
   <span class="nb">Real</span> <span class="n">x1</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">)</span> <span class="s2">&quot;State variable&quot;</span><span class="p">;</span>
@@ -1243,30 +1230,30 @@ and one at t=0.6924 when simulated from 0 to 1 s.
 </pre></div>
 </div>
 <p>For efficiency reason, QSS requires the FMU which exports this model to indicate in its model description file
-the dependency of <code class="docutils literal"><span class="pre">der(x1)</span></code> on <code class="docutils literal"><span class="pre">y</span></code>. This allows <code class="docutils literal"><span class="pre">der(x1)</span></code> to update when <code class="docutils literal"><span class="pre">y</span></code> changes.
-However, <code class="docutils literal"><span class="pre">y</span></code> can only change when an event indicator changes its domain. Hence,
-rather than declaring the dependency on <code class="docutils literal"><span class="pre">y</span></code>, it suffices to declare the dependency on
+the dependency of <code class="docutils literal notranslate"><span class="pre">der(x1)</span></code> on <code class="docutils literal notranslate"><span class="pre">y</span></code>. This allows <code class="docutils literal notranslate"><span class="pre">der(x1)</span></code> to update when <code class="docutils literal notranslate"><span class="pre">y</span></code> changes.
+However, <code class="docutils literal notranslate"><span class="pre">y</span></code> can only change when an event indicator changes its domain. Hence,
+rather than declaring the dependency on <code class="docutils literal notranslate"><span class="pre">y</span></code>, it suffices to declare the dependency on
 the event indicator.
 Therefore, we propose to
 include event indicators to the list of state derivative dependencies.</p>
-<p>However, FMI states on page 61 that <code class="docutils literal"><span class="pre">dependencies</span></code> are optional attributes
+<p>However, FMI states on page 61 that <code class="docutils literal notranslate"><span class="pre">dependencies</span></code> are optional attributes
 defining the dependencies of the unknown (directly or indirectly via auxiliary variables)
 with respect to known.
 For state derivatives and outputs, known variables are</p>
 <ul class="simple">
-<li>inputs (variables with causality = &#8220;input&#8221;)</li>
+<li>inputs (variables with causality = “input”)</li>
 <li>continuous-time states</li>
-<li>independent variable (usually time; causality = &#8220;independent&#8221;)</li>
+<li>independent variable (usually time; causality = “independent”)</li>
 </ul>
-<p>Therefore we require to extend the <code class="docutils literal"><span class="pre">&lt;Derivatives&gt;</span></code> element
-with a new attribute <code class="docutils literal"><span class="pre">eventIndicatorsDependencies</span></code> which lists
+<p>Therefore we require to extend the <code class="docutils literal notranslate"><span class="pre">&lt;Derivatives&gt;</span></code> element
+with a new attribute <code class="docutils literal notranslate"><span class="pre">eventIndicatorsDependencies</span></code> which lists
 all event indicator variables which trigger
 changes to state derivative trajectories.</p>
-<p>An excerpt of such a <code class="docutils literal"><span class="pre">&lt;Derivatives&gt;</span></code> element with the new addition is
+<p>An excerpt of such a <code class="docutils literal notranslate"><span class="pre">&lt;Derivatives&gt;</span></code> element with the new addition is
 shown in <a class="reference internal" href="#fig-hig-der"><span class="std std-numref">Listing 5.2</span></a>.</p>
 <div class="literal-block-wrapper docutils container" id="id17">
 <span id="fig-hig-der"></span><div class="code-block-caption"><span class="caption-number">Listing 5.2 </span><span class="caption-text">Extensions with inclusion of a new attribute for event indicator dependencies. XML additions are marked yellow.</span><a class="headerlink" href="#id17" title="Permalink to this code">¶</a></div>
-<div class="highlight-xml"><div class="highlight"><pre><span></span>  <span class="nt">&lt;Derivatives&gt;</span>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span>  <span class="nt">&lt;Derivatives&gt;</span>
     <span class="c">&lt;!-- The ScalarVariable with index 8 is der(x) --&gt;</span>
 <span class="hll">    <span class="c">&lt;!-- eventIndicatorsDependencies=&quot;1&quot; declares that der(x)</span>
 </span><span class="c">         depends on the event indicator with index 1  --&gt;</span>
@@ -1278,31 +1265,31 @@ shown in <a class="reference internal" href="#fig-hig-der"><span class="std std-
 </pre></div>
 </div>
 </div>
-<p>For the elements <code class="docutils literal"><span class="pre">Unknown</span></code> and <code class="docutils literal"><span class="pre">HigherOrder</span></code>, the
-attributes <code class="docutils literal"><span class="pre">dependencies</span></code> and <code class="docutils literal"><span class="pre">eventIndicatorsDependencies</span></code> are optional.
-However, if <code class="docutils literal"><span class="pre">dependencies</span></code> is not declared,
+<p>For the elements <code class="docutils literal notranslate"><span class="pre">Unknown</span></code> and <code class="docutils literal notranslate"><span class="pre">HigherOrder</span></code>, the
+attributes <code class="docutils literal notranslate"><span class="pre">dependencies</span></code> and <code class="docutils literal notranslate"><span class="pre">eventIndicatorsDependencies</span></code> are optional.
+However, if <code class="docutils literal notranslate"><span class="pre">dependencies</span></code> is not declared,
 a tool shall assume that they
 depend on all variables.
-Similarly, if <code class="docutils literal"><span class="pre">eventIndicatorsDependencies</span></code> is not declared,
+Similarly, if <code class="docutils literal notranslate"><span class="pre">eventIndicatorsDependencies</span></code> is not declared,
 a tool shall assume that they
 depend on all event indicators.
-Write <code class="docutils literal"><span class="pre">dependencies=&quot;&quot;</span></code> to declare that this derivative depends on no variable.
+Write <code class="docutils literal notranslate"><span class="pre">dependencies=&quot;&quot;</span></code> to declare that this derivative depends on no variable.
 Similarly,
-write <code class="docutils literal"><span class="pre">eventIndicatorsDependencies=&quot;&quot;</span></code> to declare that this derivative depends on no event indicator.
-Note that for performance reasons, for QSS <code class="docutils literal"><span class="pre">dependencies</span></code> and <code class="docutils literal"><span class="pre">eventIndicatorsDependencies</span></code> should be declared
-for <code class="docutils literal"><span class="pre">Unknown</span></code>. For <code class="docutils literal"><span class="pre">HigherOrder</span></code>, QSS does not use the
-<code class="docutils literal"><span class="pre">dependencies</span></code> and <code class="docutils literal"><span class="pre">eventIndicatorsDependencies</span></code>.</p>
+write <code class="docutils literal notranslate"><span class="pre">eventIndicatorsDependencies=&quot;&quot;</span></code> to declare that this derivative depends on no event indicator.
+Note that for performance reasons, for QSS <code class="docutils literal notranslate"><span class="pre">dependencies</span></code> and <code class="docutils literal notranslate"><span class="pre">eventIndicatorsDependencies</span></code> should be declared
+for <code class="docutils literal notranslate"><span class="pre">Unknown</span></code>. For <code class="docutils literal notranslate"><span class="pre">HigherOrder</span></code>, QSS does not use the
+<code class="docutils literal notranslate"><span class="pre">dependencies</span></code> and <code class="docutils literal notranslate"><span class="pre">eventIndicatorsDependencies</span></code>.</p>
 <p>In <a class="reference internal" href="#fig-hig-der"><span class="std std-numref">Listing 5.2</span></a>, the higher order derivatives depend on the event indicator.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The indexes of <code class="docutils literal"><span class="pre">eventIndicatorsDependencies</span></code> are the indexes of the
-event indicators specified in the <code class="docutils literal"><span class="pre">&lt;EventIndicators&gt;</span></code> element.</p>
+<p class="last">The indexes of <code class="docutils literal notranslate"><span class="pre">eventIndicatorsDependencies</span></code> are the indexes of the
+event indicators specified in the <code class="docutils literal notranslate"><span class="pre">&lt;EventIndicators&gt;</span></code> element.</p>
 </div>
 </div>
 <div class="section" id="event-indicators-that-depend-on-the-input">
 <span id="subsec-te"></span><h5>5.3.1.1.2. Event indicators that depend on the input<a class="headerlink" href="#event-indicators-that-depend-on-the-input" title="Permalink to this headline">¶</a></h5>
 <p>Consider following model</p>
-<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">within</span> <span class="nn">QSS</span><span class="o">.</span><span class="n">Docs</span><span class="p">;</span>
+<div class="highlight-modelica notranslate"><div class="highlight"><pre><span></span><span class="kr">within</span> <span class="nn">QSS</span><span class="o">.</span><span class="n">Docs</span><span class="p">;</span>
 <span class="kr">model</span> <span class="nc">StateEvent2</span> <span class="s2">&quot;This model tests state event detection&quot;</span>
   <span class="kr">extends</span> <span class="n">Modelica</span><span class="o">.</span><span class="n">Icons</span><span class="o">.</span><span class="n">Example</span><span class="p">;</span>
   <span class="nb">Real</span> <span class="n">x</span><span class="p">(</span><span class="n">start</span><span class="o">=-</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">)</span> <span class="s2">&quot;State variable&quot;</span><span class="p">;</span>
@@ -1323,22 +1310,22 @@ when u becomes bigger than x.
 <span class="kr">end</span> <span class="nc">StateEvent2</span><span class="p">;</span>
 </pre></div>
 </div>
-<p>This model has one event indicator <span class="math">\(z = u-x\)</span>.
-The derivative of the event indicator is <span class="math">\({dz}/{dt} = {du}/{dt} - {dx}/{dt}\)</span>.</p>
-<p>Hence, a tool requires the derivative of the input <code class="docutils literal"><span class="pre">u</span></code>
+<p>This model has one event indicator <span class="math notranslate nohighlight">\(z = u-x\)</span>.
+The derivative of the event indicator is <span class="math notranslate nohighlight">\({dz}/{dt} = {du}/{dt} - {dx}/{dt}\)</span>.</p>
+<p>Hence, a tool requires the derivative of the input <code class="docutils literal notranslate"><span class="pre">u</span></code>
 to compute the derivative of the event indicator.
-Since the derivative of the input <code class="docutils literal"><span class="pre">u</span></code> is unkown in the FMU,
+Since the derivative of the input <code class="docutils literal notranslate"><span class="pre">u</span></code> is unkown in the FMU,
 we propose for cases where the event indicator
 has a direct feedthrough on the input to exclude
-event indicator derivatives from the <code class="docutils literal"><span class="pre">&lt;EventIndicators&gt;</span></code>
+event indicator derivatives from the <code class="docutils literal notranslate"><span class="pre">&lt;EventIndicators&gt;</span></code>
 element. In this situation, the QSS solver will detect the missing
 information from the XML file and numerically approximate
 the event indicator derivatives.</p>
 </div>
 <div class="section" id="handling-of-variables-reinitialized-with-reinit">
-<h5>5.3.1.1.3. Handling of variables reinitialized with <code class="docutils literal"><span class="pre">reinit()</span></code><a class="headerlink" href="#handling-of-variables-reinitialized-with-reinit" title="Permalink to this headline">¶</a></h5>
+<h5>5.3.1.1.3. Handling of variables reinitialized with <code class="docutils literal notranslate"><span class="pre">reinit()</span></code><a class="headerlink" href="#handling-of-variables-reinitialized-with-reinit" title="Permalink to this headline">¶</a></h5>
 <p>Consider following model</p>
-<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">within</span> <span class="nn">QSS</span><span class="o">.</span><span class="n">Docs</span><span class="p">;</span>
+<div class="highlight-modelica notranslate"><div class="highlight"><pre><span></span><span class="kr">within</span> <span class="nn">QSS</span><span class="o">.</span><span class="n">Docs</span><span class="p">;</span>
 <span class="kr">model</span> <span class="nc">StateEvent3</span> <span class="s2">&quot;This model tests state event detection&quot;</span>
   <span class="kr">extends</span> <span class="n">Modelica</span><span class="o">.</span><span class="n">Icons</span><span class="o">.</span><span class="n">Example</span><span class="p">;</span>
   <span class="nb">Real</span> <span class="n">x1</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">)</span> <span class="s2">&quot;State variable&quot;</span><span class="p">;</span>
@@ -1358,15 +1345,15 @@ when simulated from 0 to 1s.
 <span class="kr">end</span> <span class="nc">StateEvent3</span><span class="p">;</span>
 </pre></div>
 </div>
-<p>This model has a variable <code class="docutils literal"><span class="pre">x1</span></code> which
-is reinitialized with the <code class="docutils literal"><span class="pre">reinit()</span></code> function.
+<p>This model has a variable <code class="docutils literal notranslate"><span class="pre">x1</span></code> which
+is reinitialized with the <code class="docutils literal notranslate"><span class="pre">reinit()</span></code> function.
 Such variables have in the model description file
-an attribute <code class="docutils literal"><span class="pre">reinit</span></code> which can be set to
-<code class="docutils literal"><span class="pre">true</span></code> or <code class="docutils literal"><span class="pre">false</span></code> depending on whether they can
+an attribute <code class="docutils literal notranslate"><span class="pre">reinit</span></code> which can be set to
+<code class="docutils literal notranslate"><span class="pre">true</span></code> or <code class="docutils literal notranslate"><span class="pre">false</span></code> depending on whether they can
 be reinitialized at an event or not.
-Since  a <code class="docutils literal"><span class="pre">reinit()</span></code> statement is only valid
-in a <code class="docutils literal"><span class="pre">when-equation</span></code> block, we propose for
-variables with <code class="docutils literal"><span class="pre">reinit</span></code> set to true,
+Since  a <code class="docutils literal notranslate"><span class="pre">reinit()</span></code> statement is only valid
+in a <code class="docutils literal notranslate"><span class="pre">when-equation</span></code> block, we propose for
+variables with <code class="docutils literal notranslate"><span class="pre">reinit</span></code> set to true,
 that at every state event, the QSS solver gets the value of
 the variable, updates variables which depend on it, and proceeds
 with its calculation.</p>
@@ -1376,24 +1363,24 @@ with its calculation.</p>
 <p>While waiting for the implementation of the FMI extensions in JModelica,
 LBNL will refactor some Modelica models to expose event indicators and
 their first derivatives as FMU output variables.</p>
-<p>The names of event indicators variables will start with <code class="docutils literal"><span class="pre">__zc_</span></code>. The names of derivatives of event
-indicators will start with <code class="docutils literal"><span class="pre">__zc_der_</span></code>.  As an example, <code class="docutils literal"><span class="pre">__zc_z1</span></code> and <code class="docutils literal"><span class="pre">__zc_der_z1</span></code>
-are the names of the event indicator <code class="docutils literal"><span class="pre">z1</span></code> with its derivative <code class="docutils literal"><span class="pre">der_z1</span></code>.</p>
-<p>If the number of event indicators is equal to the <code class="docutils literal"><span class="pre">numberOfEventIndicators</span></code> attribute,
-then only <code class="docutils literal"><span class="pre">__zc_</span></code> and <code class="docutils literal"><span class="pre">__zc_der_</span></code> need to be used by QSS.
+<p>The names of event indicators variables will start with <code class="docutils literal notranslate"><span class="pre">__zc_</span></code>. The names of derivatives of event
+indicators will start with <code class="docutils literal notranslate"><span class="pre">__zc_der_</span></code>.  As an example, <code class="docutils literal notranslate"><span class="pre">__zc_z1</span></code> and <code class="docutils literal notranslate"><span class="pre">__zc_der_z1</span></code>
+are the names of the event indicator <code class="docutils literal notranslate"><span class="pre">z1</span></code> with its derivative <code class="docutils literal notranslate"><span class="pre">der_z1</span></code>.</p>
+<p>If the number of event indicators is equal to the <code class="docutils literal notranslate"><span class="pre">numberOfEventIndicators</span></code> attribute,
+then only <code class="docutils literal notranslate"><span class="pre">__zc_</span></code> and <code class="docutils literal notranslate"><span class="pre">__zc_der_</span></code> need to be used by QSS.
 If the number of event indicators does not match, the FMU shall be rejected with an error message.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Per design, Dymola (2018) generates twice as many event indicators as actually existing in the model.
 Hence the master algorithm shall detect if the tool which exported the FMU is Dymola, and if it is, the
-number of event indicators shall be equal to half the value of the <code class="docutils literal"><span class="pre">numberOfEventIndicators</span></code> attribute.</p>
+number of event indicators shall be equal to half the value of the <code class="docutils literal notranslate"><span class="pre">numberOfEventIndicators</span></code> attribute.</p>
 </div>
 </div>
 <div class="section" id="time-events">
 <h5>5.3.1.1.5. Time Events<a class="headerlink" href="#time-events" title="Permalink to this headline">¶</a></h5>
 <p>This section discusses additional requirements for handling time events with QSS.</p>
 <p>Consider following model</p>
-<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">within</span> <span class="nn">QSS</span><span class="o">.</span><span class="n">Docs</span><span class="p">;</span>
+<div class="highlight-modelica notranslate"><div class="highlight"><pre><span></span><span class="kr">within</span> <span class="nn">QSS</span><span class="o">.</span><span class="n">Docs</span><span class="p">;</span>
 <span class="kr">model</span> <span class="nc">TimeEvent</span> <span class="s2">&quot;This model tests time event detection&quot;</span>
   <span class="kr">extends</span> <span class="n">Modelica</span><span class="o">.</span><span class="n">Icons</span><span class="o">.</span><span class="n">Example</span><span class="p">;</span>
   <span class="nb">Real</span> <span class="n">x1</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">)</span> <span class="s2">&quot;State variable&quot;</span><span class="p">;</span>
@@ -1415,22 +1402,22 @@ when simulated from 0 to 1s.
 <span class="kr">end</span> <span class="nc">TimeEvent</span><span class="p">;</span>
 </pre></div>
 </div>
-<p>This model has a time event at <span class="math">\(t \ge 0.5\)</span>.
+<p>This model has a time event at <span class="math notranslate nohighlight">\(t \ge 0.5\)</span>.
 For efficiency, QSS requires the FMU which exports
 this model to indicate in its model description file
-the dependency of <code class="docutils literal"><span class="pre">der(x1)</span></code> on <code class="docutils literal"><span class="pre">y</span></code>.
-However, since <code class="docutils literal"><span class="pre">y</span></code> updates when a time event happens
+the dependency of <code class="docutils literal notranslate"><span class="pre">der(x1)</span></code> on <code class="docutils literal notranslate"><span class="pre">y</span></code>.
+However, since <code class="docutils literal notranslate"><span class="pre">y</span></code> updates when a time event happens
 but a time event is not described with event indicator,
 it is not possible to use the same approach as done for
-<code class="docutils literal"><span class="pre">StateEvent1</span></code> without further modificaton.</p>
+<code class="docutils literal notranslate"><span class="pre">StateEvent1</span></code> without further modificaton.</p>
 <p>We therefore propose that JModelica turns all time events into state events,
-add new event indicators generated by those state events to the <code class="docutils literal"><span class="pre">&lt;EventIndicators&gt;</span></code>
-element, and include those event indicators to the <code class="docutils literal"><span class="pre">eventIndicatorsDependencies</span></code> attribute
+add new event indicators generated by those state events to the <code class="docutils literal notranslate"><span class="pre">&lt;EventIndicators&gt;</span></code>
+element, and include those event indicators to the <code class="docutils literal notranslate"><span class="pre">eventIndicatorsDependencies</span></code> attribute
 of state derivatives which depend on them.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">All proposed XML changes will be initially implemented
-in the <code class="docutils literal"><span class="pre">VendorAnnotation</span></code> element of the model description file until
+in the <code class="docutils literal notranslate"><span class="pre">VendorAnnotation</span></code> element of the model description file until
 they got approved and included in the FMI standard.</p>
 </div>
 </div>
@@ -1440,66 +1427,66 @@ they got approved and included in the FMI standard.</p>
 <p>This section discusses a proposal for a new data type which should be used for input and output variables of FMU-QSS.
 FMU-QSS is an FMU for Model Exchange (FMU-ME) which uses QSS to integrate an imported FMU-ME.
 We propose that FMU-QSS communicates with other FMUs using a SmoothToken data type.</p>
-<p>A smooth token is a time-stamped event that has a real value (approximated as a <code class="docutils literal"><span class="pre">double</span></code>)
+<p>A smooth token is a time-stamped event that has a real value (approximated as a <code class="docutils literal notranslate"><span class="pre">double</span></code>)
 that represents the current sample of a real-valued smooth signal. But in addition to the sample value,
 the smooth token contains zero or more time-derivatives of the signal at the stored time stamp.
-For example, in the figure below, FMU-ME has a real input <span class="math">\(u\)</span> and a real output <span class="math">\(y\)</span>.
-A smooth token of the input variable will be a variable <span class="math">\(u^* \triangleq [u, n, du/dt, ...,  d^n u/dt^n, t_u]\)</span>,
-where <span class="math">\(n \in \{0, 1, 2, \ldots \}\)</span> is a parameter that defines the number of time derivatives that are present in the smooth token and
-<span class="math">\(t_u\)</span> is the timestamp of the smooth token.
-If <span class="math">\(u^*\)</span> has a discontinuity at <span class="math">\(t_u\)</span>,
-then the derivatives are the derivatives from above, e.g., <span class="math">\(du/dt \triangleq \lim_{s \downarrow 0} (u(t_u+s)-u(t_u))/s\)</span>.</p>
-<p>At simulation time <span class="math">\(t\)</span>, FMU-QSS will receive <span class="math">\(u^*\)</span> and convert it to a real signal
+For example, in the figure below, FMU-ME has a real input <span class="math notranslate nohighlight">\(u\)</span> and a real output <span class="math notranslate nohighlight">\(y\)</span>.
+A smooth token of the input variable will be a variable <span class="math notranslate nohighlight">\(u^* \triangleq [u, n, du/dt, ...,  d^n u/dt^n, t_u]\)</span>,
+where <span class="math notranslate nohighlight">\(n \in \{0, 1, 2, \ldots \}\)</span> is a parameter that defines the number of time derivatives that are present in the smooth token and
+<span class="math notranslate nohighlight">\(t_u\)</span> is the timestamp of the smooth token.
+If <span class="math notranslate nohighlight">\(u^*\)</span> has a discontinuity at <span class="math notranslate nohighlight">\(t_u\)</span>,
+then the derivatives are the derivatives from above, e.g., <span class="math notranslate nohighlight">\(du/dt \triangleq \lim_{s \downarrow 0} (u(t_u+s)-u(t_u))/s\)</span>.</p>
+<p>At simulation time <span class="math notranslate nohighlight">\(t\)</span>, FMU-QSS will receive <span class="math notranslate nohighlight">\(u^*\)</span> and convert it to a real signal
 using the Taylor expansion</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[y_s(t) = \frac{u^{(n)}(t_u)}{n!} \, (t-t_u)^n,\]</div>
-<p>where <span class="math">\(u^{(n)}\)</span> denotes the <span class="math">\(n\)</span>-th derivative. As shown in <a class="reference internal" href="#fig-fmu-qss"><span class="std std-numref">Fig. 5.4</span></a>, the FMU-ME will receive
-the value <span class="math">\(y_s(t)\)</span>.</p>
+<p>where <span class="math notranslate nohighlight">\(u^{(n)}\)</span> denotes the <span class="math notranslate nohighlight">\(n\)</span>-th derivative. As shown in <a class="reference internal" href="#fig-fmu-qss"><span class="std std-numref">Fig. 5.4</span></a>, the FMU-ME will receive
+the value <span class="math notranslate nohighlight">\(y_s(t)\)</span>.</p>
 <div class="figure" id="id18">
 <span id="fig-fmu-qss"></span><a class="reference internal image-reference" href="_images/fmu-qss.png"><img alt="_images/fmu-qss.png" src="_images/fmu-qss.png" style="width: 1069.2px; height: 392.15px;" /></a>
 <p class="caption"><span class="caption-number">Fig. 5.4 </span>: Conversion of input signal between FMU-QSS and FMU-ME.</span></p>
 </div>
 <p>To avoid frequent changes in the input signal, each input signal will have a quantum defined.
-The quantum <span class="math">\(\delta q\)</span> will be computed at runtime as</p>
-<div class="math">
+The quantum <span class="math notranslate nohighlight">\(\delta q\)</span> will be computed at runtime as</p>
+<div class="math notranslate nohighlight">
 \[\delta q = \max(\epsilon_{rel} \, |u^-|, \epsilon_{abs}),\]</div>
-<p>where <span class="math">\(\epsilon_{rel}\)</span> is the relative tolerance,
-<span class="math">\(u^-\)</span> is the last value seen at the input of FMU-ME, and
-<span class="math">\(\epsilon_{abs} \triangleq \epsilon_{rel} \, |u_{nom}|\)</span>,
-where <span class="math">\(u_{nom}\)</span> is the nominal value of the variable <span class="math">\(u\)</span>.
-During initialization, we set <span class="math">\(u^- = u_0\)</span>.
+<p>where <span class="math notranslate nohighlight">\(\epsilon_{rel}\)</span> is the relative tolerance,
+<span class="math notranslate nohighlight">\(u^-\)</span> is the last value seen at the input of FMU-ME, and
+<span class="math notranslate nohighlight">\(\epsilon_{abs} \triangleq \epsilon_{rel} \, |u_{nom}|\)</span>,
+where <span class="math notranslate nohighlight">\(u_{nom}\)</span> is the nominal value of the variable <span class="math notranslate nohighlight">\(u\)</span>.
+During initialization, we set <span class="math notranslate nohighlight">\(u^- = u_0\)</span>.
 The input signal will be updated only if it has changed by more than a quantum,</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[|y_s(t) - u^-| \ge \delta q.\]</div>
 <p>To parametrize the smooth token, we propose to extend the FMI for model exchange specification to include
-<code class="docutils literal"><span class="pre">fmi2SetRealInputDerivatives</span></code> and <code class="docutils literal"><span class="pre">fmi2GetRealOutputDerivatives</span></code>. These two functions exist in the FMI for
+<code class="docutils literal notranslate"><span class="pre">fmi2SetRealInputDerivatives</span></code> and <code class="docutils literal notranslate"><span class="pre">fmi2GetRealOutputDerivatives</span></code>. These two functions exist in the FMI for
 co-simulation API.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <ul class="last">
 <li><p class="first">If a tool can not provide the derivative of an output variable with respect to time,
-<code class="docutils literal"><span class="pre">fmi2GetRealOutputDerivatives</span></code> then a master algorithm could approximate
+<code class="docutils literal notranslate"><span class="pre">fmi2GetRealOutputDerivatives</span></code> then a master algorithm could approximate
 the output derivative as follows:</p>
 <ul>
 <li><p class="first">If there was no event, then the time derivatives from below and above are equal, and
 hence past and current output values can be used, e.g.,</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[dy/dt \approx \frac{y(t_k)-y(t_{k-1})}{t_k - t_{k-1}}.\]</div>
 </li>
 <li><p class="first">If there was an event, then the derivative from above need to be approximated.
-This could be done by assuming first <span class="math">\(dy/dt =0\)</span> and then building up derivative
-information in the next step, or by evaluating the FMU for <span class="math">\(t=t_k+\epsilon\)</span>, where
-<span class="math">\(\epsilon\)</span> is a small number, and then computing</p>
-<div class="math">
+This could be done by assuming first <span class="math notranslate nohighlight">\(dy/dt =0\)</span> and then building up derivative
+information in the next step, or by evaluating the FMU for <span class="math notranslate nohighlight">\(t=t_k+\epsilon\)</span>, where
+<span class="math notranslate nohighlight">\(\epsilon\)</span> is a small number, and then computing</p>
+<div class="math notranslate nohighlight">
 \[dy/dt \approx \frac{y(t_k+\epsilon)-y(t_{k})}{\epsilon}.\]</div>
 </li>
 </ul>
 </li>
-<li><p class="first">For FMU-ME, if there is a direct feedthrough, e.g., <span class="math">\(y=f(u)\)</span>,
-then <span class="math">\(dy/dt\)</span> cannot be computed, because by the chain rule,</p>
-<div class="math">
+<li><p class="first">For FMU-ME, if there is a direct feedthrough, e.g., <span class="math notranslate nohighlight">\(y=f(u)\)</span>,
+then <span class="math notranslate nohighlight">\(dy/dt\)</span> cannot be computed, because by the chain rule,</p>
+<div class="math notranslate nohighlight">
 \[\frac{df(u)}{dt} = \frac{df(u)}{du} \, \frac{du}{dt}\]</div>
-<p>but <span class="math">\(du/dt\)</span> is not available in the FMU.</p>
+<p>but <span class="math notranslate nohighlight">\(du/dt\)</span> is not available in the FMU.</p>
 </li>
 </ul>
 </div>
@@ -1509,28 +1496,28 @@ then <span class="math">\(dy/dt\)</span> cannot be computed, because by the chai
 <h3>5.3.2. Summary of Proposed Changes<a class="headerlink" href="#summary-of-proposed-changes" title="Permalink to this headline">¶</a></h3>
 <p>Here is a list with a summary of proposed changes</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">fmi2SetReal</span></code> can be called during the continuous, and event time mode for continuous-time states.</li>
-<li>The <code class="docutils literal"><span class="pre">&lt;Derivatives&gt;</span></code> element of the model description file will
+<li><code class="docutils literal notranslate"><span class="pre">fmi2SetReal</span></code> can be called during the continuous, and event time mode for continuous-time states.</li>
+<li>The <code class="docutils literal notranslate"><span class="pre">&lt;Derivatives&gt;</span></code> element of the model description file will
 be extended to include higher order derivatives information.</li>
-<li>A new <code class="docutils literal"><span class="pre">&lt;EventIndicators&gt;</span></code> element wil be added to the model description file.
-This element will expose event indicators with their <code class="docutils literal"><span class="pre">dependencies</span></code> and time derivatives.</li>
+<li>A new <code class="docutils literal notranslate"><span class="pre">&lt;EventIndicators&gt;</span></code> element wil be added to the model description file.
+This element will expose event indicators with their <code class="docutils literal notranslate"><span class="pre">dependencies</span></code> and time derivatives.</li>
 <li>If a model has an event indicator, and the event indicator has a direct
 feedthrough on an input variable, then JModelica will exclude the derivatives
 of that event indicator from the model description file.</li>
-<li>A new dependency attribute <code class="docutils literal"><span class="pre">eventIndicatorsDependencies</span></code> will be added to state derivatives listed
-in the <code class="docutils literal"><span class="pre">&lt;Derivatives&gt;</span></code> element to include event indicators on which the state derivatives depend on.</li>
+<li>A new dependency attribute <code class="docutils literal notranslate"><span class="pre">eventIndicatorsDependencies</span></code> will be added to state derivatives listed
+in the <code class="docutils literal notranslate"><span class="pre">&lt;Derivatives&gt;</span></code> element to include event indicators on which the state derivatives depend on.</li>
 <li>JModelica will convert time event into state events, generate event indicators
-for those state events, and add those event indicators to the <code class="docutils literal"><span class="pre">eventIndicatorsDependencies</span></code>
+for those state events, and add those event indicators to the <code class="docutils literal notranslate"><span class="pre">eventIndicatorsDependencies</span></code>
 of state derivatives which depend on them.</li>
-<li>A new function <code class="docutils literal"><span class="pre">fmi2SetRealInputDerivatives</span></code> will be included to parametrize smooth token.</li>
-<li>A new function <code class="docutils literal"><span class="pre">fmi2GetRealOutputDerivatives</span></code> will be included to parametrize smooth token.</li>
-<li>All proposed XML changes will be initially implemented in the <code class="docutils literal"><span class="pre">VendorAnnotation</span></code>
+<li>A new function <code class="docutils literal notranslate"><span class="pre">fmi2SetRealInputDerivatives</span></code> will be included to parametrize smooth token.</li>
+<li>A new function <code class="docutils literal notranslate"><span class="pre">fmi2GetRealOutputDerivatives</span></code> will be included to parametrize smooth token.</li>
+<li>All proposed XML changes will be initially implemented in the <code class="docutils literal notranslate"><span class="pre">VendorAnnotation</span></code>
 element of the model description file until they got approved and included in the FMI standard.</li>
 </ul>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <ul class="last simple">
-<li>We need to determine when to efficiently call <code class="docutils literal"><span class="pre">fmi2CompletedIntegratorStep()</span></code> to signalize that
+<li>We need to determine when to efficiently call <code class="docutils literal notranslate"><span class="pre">fmi2CompletedIntegratorStep()</span></code> to signalize that
 an integrator step is complete.</li>
 <li>We need to determine how an FMU deals with state selection, detect it, and reject it
 on the QSS side.</li>
@@ -1566,7 +1553,7 @@ and allows practical development of 3rd order QSS solvers.</p>
 <li>Input functions with discontinuities up to the QSS order need to be exposed to
 QSS and provide next event time access to the master algorithm.</li>
 <li>Input functions need to be true (non-path-dependent) functions for
-QSS use or at least provide a way to evaluate without &#8220;memory&#8221;
+QSS use or at least provide a way to evaluate without “memory”
 to allow numeric differentiation and event trigger stepping.</li>
 </ul>
 </div>
@@ -1574,9 +1561,9 @@ to allow numeric differentiation and event trigger stepping.</li>
 <h4>5.3.3.5. Annotations<a class="headerlink" href="#annotations" title="Permalink to this headline">¶</a></h4>
 <p>Some per-variable annotations that will allow for more efficient solutions by overriding global settings (which are also needed as annotations) include:</p>
 <ul class="simple">
-<li>Various time steps: <code class="docutils literal"><span class="pre">dt_min</span></code>, <code class="docutils literal"><span class="pre">dt_max</span></code>, <code class="docutils literal"><span class="pre">dt_inf</span></code>, ...</li>
-<li>Various flags: QSS method/order (or traditional ODE method for mixed solutions), inflection point requantization, ...</li>
-<li>Extra variability flags: constant, linear, quadratic, cubic, variable, ...</li>
+<li>Various time steps: <code class="docutils literal notranslate"><span class="pre">dt_min</span></code>, <code class="docutils literal notranslate"><span class="pre">dt_max</span></code>, <code class="docutils literal notranslate"><span class="pre">dt_inf</span></code>, …</li>
+<li>Various flags: QSS method/order (or traditional ODE method for mixed solutions), inflection point requantization, …</li>
+<li>Extra variability flags: constant, linear, quadratic, cubic, variable, …</li>
 </ul>
 </div>
 <div class="section" id="conditional-expressions-and-event-indicators">
@@ -1584,29 +1571,29 @@ to allow numeric differentiation and event trigger stepping.</li>
 <ul>
 <li><p class="first">How to reliably get the FMU to detect an event at the time QSS predicts one?</p>
 <p>QSS predicts zero-crossing event times that, even with Newton refinement,
-may be slightly off. To get the FMU to &#8220;detect&#8221; these events with its
-&#8220;after the fact&#8221; event indicators the QSS currently bumps the time forward
+may be slightly off. To get the FMU to “detect” these events with its
+“after the fact” event indicators the QSS currently bumps the time forward
 by some epsilon past the predicted event time in the hopes that the FMU will detect it.
 Even if made smarter about how big a step to take this will never be robust.
 Missing events can invalidate simulations. If there is no good and efficient FMU API
-solution we may need to add the capability for the QSS to handle &#8220;after the fact&#8221; detected
+solution we may need to add the capability for the QSS to handle “after the fact” detected
 events but with the potential for large QSS time steps and without rollback
 capability this would give degraded results at best.</p>
 </li>
 <li><p class="first">How much conditional structure should we expose to QSS?</p>
 <p>Without full conditional structure information the QSS must fire events
-that aren&#8217;t relevant in the model/FMU. This will be inefficient
+that aren’t relevant in the model/FMU. This will be inefficient
 for models with many/complex conditionals. These non-event events also
 alter the QSS trajectories so, for example, adding a conditional
 clause that never actually fires will change the solution somewhat, which is non-ideal.</p>
 </li>
-<li><p class="first">QSS needs a mechanism similar to zero crossing functions to deal with Modelica&#8217;s event generating functions (such as
-<code class="docutils literal"><span class="pre">div(x,y)</span></code> See <a class="reference external" href="http://book.xogeny.com/behavior/discrete/events/#event-generating-functions">http://book.xogeny.com/behavior/discrete/events/#event-generating-functions</a>) to avoid missing solution discontinuities.</p>
+<li><p class="first">QSS needs a mechanism similar to zero crossing functions to deal with Modelica’s event generating functions (such as
+<code class="docutils literal notranslate"><span class="pre">div(x,y)</span></code> See <a class="reference external" href="http://book.xogeny.com/behavior/discrete/events/#event-generating-functions">http://book.xogeny.com/behavior/discrete/events/#event-generating-functions</a>) to avoid missing solution discontinuities.</p>
 </li>
 <li><p class="first">Discrete and non-smooth internal variables need to be converted to input variables or exposed (with dependencies) to QSS.</p>
 </li>
 <li><p class="first">QSS need dependency information for algebraic and boolean/discrete variables
-either explicitly or short-circuited through the exposed variables for those the QSS won&#8217;t track.</p>
+either explicitly or short-circuited through the exposed variables for those the QSS won’t track.</p>
 </li>
 <li><p class="first">The xml needs to expose the structure of each conditional block:
 if or when, sequence order of if/when/else conditionals,
@@ -1666,7 +1653,7 @@ structure consisting mainly of packages which contain models and other objects
 as well as sub-packages. Models themselves can be composed of multiple, possibly
 replaceable, components. Much of this information will be required by the
 OpenStudio tool in order to understand which component models are available,
-where they reside in the library&#8217;s package structure which determines their fully
+where they reside in the library’s package structure which determines their fully
 qualified name, what parameters they have, how they can be configured, how to
 display them, and what other meta-data are available, such as documentation
 strings and type of connectors that can be connected with each other.</p>
@@ -1698,7 +1685,7 @@ Modelica input file or library into a json file. The json file shall contain:</p
 package structure of the library</li>
 <li>for each package,<ul>
 <li>what models are available</li>
-<li>what connection &#8220;ports&#8221; are available</li>
+<li>what connection “ports” are available</li>
 <li>for fluid ports, which ports carry the same fluid
 (so that media assignments can be propagated through a circuit) <a class="footnote-reference" href="#fn-flu" id="id1">[1]</a></li>
 <li>what control inputs/outputs are available</li>
@@ -1715,12 +1702,12 @@ that complicate the distribution to users.</p>
 <p>The tool shall also have options to exclude certain packages. For example,
 OpenStudio may give access to the package <cite>Modelica.Blocks</cite>
 but not to <cite>Modelica.Magnetic</cite>.</p>
-<p>The tool shall also allow to perform a &#8220;diff&#8221; (i.e., logical
+<p>The tool shall also allow to perform a “diff” (i.e., logical
 differences) between two generated json files.
 The purpose of the diff tool would be to detect non-trivial
 differences between two generated json files that hold the AST of a Modelica
 library and report those changes. The content of the
-&#8220;difference&#8221; file would show the differences between the two
+“difference” file would show the differences between the two
 input manifests.</p>
 <p>The diff tool would be of use in particular when new versions of the
 MBL are released and the OpenStudio team would like to check if there are
@@ -1751,11 +1738,11 @@ whitespace, reordering within a section)</li>
 <li>changes to <cite>protected</cite> sections of code</li>
 <li>changes to <cite>equation</cite> or <cite>algorithm</cite> sections of code</li>
 <li>changes to some models/blocks/functions may be completely ignored if, by
-convention, we deem certain paths as &#8220;not directly consumable&#8221; by OpenStudio.
+convention, we deem certain paths as “not directly consumable” by OpenStudio.
 For example, we may wish to not consume classes in the packages <cite>BaseClasses</cite>,
 <cite>Examples</cite> and <cite>Validations</cite>.</li>
 </ul>
-<p>To summarize, the creation of or changes to the &#8220;public API&#8221; (public
+<p>To summarize, the creation of or changes to the “public API” (public
 parameters, variables, subcomponents, connectors) of models, blocks, or
 functions must be compared for change detection. Documentation (html)/
 documentation strings/graphics annotations will not affect the model interface
@@ -1769,7 +1756,7 @@ Modelica in the past (<a class="reference internal" href="zreferences.html#landi
 <a class="reference internal" href="zreferences.html#pop2003" id="id4">[PF03]</a>, <a class="reference internal" href="zreferences.html#pop2005" id="id5">[PSAssmannF05]</a>, and <a class="reference internal" href="zreferences.html#reisenbichler2006" id="id6">[RKH+06]</a>).</p>
 <p>In particular, Landin <a class="reference internal" href="zreferences.html#landin2014" id="id7">[Lan14]</a> did work with Modelon using JModelica to export XML for
 the purpose of model exchange, which is similar to our use case.
-Unfortunately, this work deals only with &#8220;flattened&#8221; models &#8211; Modelica models
+Unfortunately, this work deals only with “flattened” models – Modelica models
 that have been instantiated with all of the hierarchy removed. For our use
 case, the hierarchy must be preserved so that the OpenStudio team can
 build a new model through instantiation of models from the MBL.
@@ -1799,7 +1786,7 @@ For ANTLR, a Modelica grammar is available at
 <p>Work started on the implementation of a modelica-json translator.
 The development page is <a class="reference external" href="https://github.com/lbl-srg/modelica-json">https://github.com/lbl-srg/modelica-json</a></p>
 <p>To illustrate the translation, consider the following simple model:</p>
-<div class="highlight-modelica"><div class="highlight"><pre><span></span><span class="kr">within</span> <span class="nn">FromModelica</span><span class="p">;</span>
+<div class="highlight-modelica notranslate"><div class="highlight"><pre><span></span><span class="kr">within</span> <span class="nn">FromModelica</span><span class="p">;</span>
 <span class="kr">block</span> <span class="nc">BlockWithBlock1</span> <span class="s2">&quot;A block that instantiates another public and protected block&quot;</span>
   <span class="n">Block1</span> <span class="n">bloPub</span> <span class="s2">&quot;A public block&quot;</span><span class="p">;</span>
 <span class="kr">protected</span>
@@ -1808,7 +1795,7 @@ The development page is <a class="reference external" href="https://github.com/l
 </pre></div>
 </div>
 <p>When parsed to json, the output is:</p>
-<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="p">[</span>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
   <span class="p">{</span>
     <span class="s2">&quot;modelicaFile&quot;</span><span class="o">:</span> <span class="s2">&quot;./BlockWithBlock1.mo&quot;</span><span class="p">,</span>
     <span class="s2">&quot;within&quot;</span><span class="o">:</span> <span class="s2">&quot;FromModelica&quot;</span><span class="p">,</span>
@@ -1866,7 +1853,7 @@ need to assign media.</td></tr>
     </p>
     <p>
         &copy; Copyright (c) All rights reserved.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.<br/>
     </p>
   </div>
 </footer>

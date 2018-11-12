@@ -2,40 +2,28 @@
 
 <!DOCTYPE html>
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>6. Numerical Methods of the Master Algorithm &#8212; Spawn of EnergyPlus</title>
-    
-    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootswatch-3.3.6/united/bootstrap.min.css" type="text/css" />
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootstrap.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootstrap-theme.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootstrap_custom.css" type="text/css" />
-    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-    <link rel="stylesheet" href="_static/custom-sphinx.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap_custom.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom-sphinx.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
     <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="_static/lbl-icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
@@ -47,8 +35,7 @@
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
 
-  </head>
-  <body role="document">
+  </head><body>
 
   <div id="navbar" class="navbar navbar-default ">
     <div class="container-fluid">
@@ -192,7 +179,7 @@
   <div class="section" id="numerical-methods-of-the-master-algorithm">
 <h1>6. Numerical Methods of the Master Algorithm<a class="headerlink" href="#numerical-methods-of-the-master-algorithm" title="Permalink to this headline">¶</a></h1>
 <p>This section describes the numerical methods that are used by the master algorithm.</p>
-<p>First, we note that conventional continuous time integration algorithms have the following fundamental properties in common <a class="reference internal" href="zreferences.html#cellierkofman2006" id="id1">[CK06]</a>: Given a time <span class="math">\(t_{k+1}\)</span>, a polynomial approximation is performed to determine the values
+<p>First, we note that conventional continuous time integration algorithms have the following fundamental properties in common <a class="reference internal" href="zreferences.html#cellierkofman2006" id="id1">[CK06]</a>: Given a time <span class="math notranslate nohighlight">\(t_{k+1}\)</span>, a polynomial approximation is performed to determine the values
 of all state variables at that time instant. If an error estimate is too large, the computation is repeated with a shorter time step. If an event happened, an iteration takes place across
 all states to determine when the event occurred. At the event, the approximations of the higher-order derivatives, which are the basis for multi-step methods, become invalid.
 Hence multi-step methods need to be restarted with a low-order method. This is very expensive as it involves a global event iteration followed by an integrator reset to a low order method.
@@ -200,7 +187,7 @@ As event iteration is computationally expensive, and as our models will have a l
 <div class="section" id="time-integration">
 <h2>6.1. Time Integration<a class="headerlink" href="#time-integration" title="Permalink to this headline">¶</a></h2>
 <p>QSS methods follow entirely different approach:
-Let <span class="math">\(t_k\)</span> be the current time. We ask each state individually at what time <span class="math">\(t_{k+1}\)</span> it will deviate more than a quantum <span class="math">\(\Delta q&gt; 0\)</span> from its current value.
+Let <span class="math notranslate nohighlight">\(t_k\)</span> be the current time. We ask each state individually at what time <span class="math notranslate nohighlight">\(t_{k+1}\)</span> it will deviate more than a quantum <span class="math notranslate nohighlight">\(\Delta q&gt; 0\)</span> from its current value.
 This is a fundamentally different approach as the state space is discretized, rather than time, and all communication occurs through discrete events.
 Furthermore, when a state variable changes to a new quantization level, the change need only be communicated to other components whose derivatives depend on that state,
 hence communication is local. We thus selected for the SOEP QSS as our integration methods.</p>
@@ -222,32 +209,32 @@ We also give insights into which algorithms appear to be suitable for the SOEP.<
 <h3>6.1.1. QSS1<a class="headerlink" href="#qss1" title="Permalink to this headline">¶</a></h3>
 <p>We will first discuss QSS1 and then show how it has been extended to higher order and implicit QSS methods.
 Consider the following ODE</p>
-<div class="math" id="equation-eq_ode">
-<span class="eqno">(1)</span>\[\dot x(t) = f (x(t), u(t)),\]</div>
-<p>with <span class="math">\(t \in [t_0, \, t_f]\)</span>, and initial conditions <span class="math">\(x(t_0) = x_0\)</span>,
-where <span class="math">\(x(t) \in \Re^n\)</span> is the state vector and <span class="math">\(u(t) \in \Re^m\)</span> is the input vector. For simplicity, suppose <span class="math">\(u(\cdot)\)</span> is piece-wise constant.
+<div class="math notranslate nohighlight" id="equation-eq-ode">
+<span class="eqno">(6.1)<a class="headerlink" href="#equation-eq-ode" title="Permalink to this equation">¶</a></span>\[\dot x(t) = f (x(t), u(t)),\]</div>
+<p>with <span class="math notranslate nohighlight">\(t \in [t_0, \, t_f]\)</span>, and initial conditions <span class="math notranslate nohighlight">\(x(t_0) = x_0\)</span>,
+where <span class="math notranslate nohighlight">\(x(t) \in \Re^n\)</span> is the state vector and <span class="math notranslate nohighlight">\(u(t) \in \Re^m\)</span> is the input vector. For simplicity, suppose <span class="math notranslate nohighlight">\(u(\cdot)\)</span> is piece-wise constant.
 The QSS1 method solves analytically an approximate ODE, which is called QSS, of the form</p>
-<div class="math" id="equation-eq_odeQSS">
-<span class="eqno">(2)</span>\[\dot x(t) = f (q(t), u(t)),\]</div>
-<p>where <span class="math">\(q(t)\)</span> is a vector of quantized values of the state <span class="math">\(x(t)\)</span>. Each component <span class="math">\(q_i(t)\)</span>
-of <span class="math">\(q(t)\)</span> follows a piecewise constant trajectory, related with the corresponding component <span class="math">\(x_i(t)\)</span> by a hysteretic
+<div class="math notranslate nohighlight" id="equation-eq-odeqss">
+<span class="eqno">(6.2)<a class="headerlink" href="#equation-eq-odeqss" title="Permalink to this equation">¶</a></span>\[\dot x(t) = f (q(t), u(t)),\]</div>
+<p>where <span class="math notranslate nohighlight">\(q(t)\)</span> is a vector of quantized values of the state <span class="math notranslate nohighlight">\(x(t)\)</span>. Each component <span class="math notranslate nohighlight">\(q_i(t)\)</span>
+of <span class="math notranslate nohighlight">\(q(t)\)</span> follows a piecewise constant trajectory, related with the corresponding component <span class="math notranslate nohighlight">\(x_i(t)\)</span> by a hysteretic
 quantization function. The hysteretic
 quantization function is defined as follows:
-For some <span class="math">\(K \in \mathbb N_+\)</span>,
-let <span class="math">\(j \in \{0, \ldots, K-1\}\)</span> denote the counter for the time intervals.
-Then, for <span class="math">\(t_j \le t &lt; t_{j+1}\)</span>,
+For some <span class="math notranslate nohighlight">\(K \in \mathbb N_+\)</span>,
+let <span class="math notranslate nohighlight">\(j \in \{0, \ldots, K-1\}\)</span> denote the counter for the time intervals.
+Then, for <span class="math notranslate nohighlight">\(t_j \le t &lt; t_{j+1}\)</span>,
 the hysteretic quantization function is defined as</p>
-<div class="math" id="equation-eq_hysQua1stOrd">
-<span class="eqno">(3)</span>\[\begin{split}     q_i (t) =
+<div class="math notranslate nohighlight" id="equation-eq-hysqua1stord">
+<span class="eqno">(6.3)<a class="headerlink" href="#equation-eq-hysqua1stord" title="Permalink to this equation">¶</a></span>\[\begin{split}     q_i (t) =
      \begin{cases}
      x_i(t), &amp; \text{if } |x_i (t)-q_i(t^{-})| = \Delta q_i, \\
      q_i(t_j), &amp; \text{otherwise},
      \end{cases}\end{split}\]</div>
-<p>with initial condition <span class="math">\(q_i(t_0) = x_i(t_0)\)</span>,
-where the sequence <span class="math">\(\{t_{j}\}_{j=0}^{K-1}\)</span> is constructed as</p>
-<div class="math">
-\[\begin{split}t_{j+1} = \min \{t \in \Re \, | \, t &gt; t_j, \,  |x_i(t_j) - x_i(t)| = \Delta q_i \}.\end{split}\]</div>
-<p>Thus, the component <span class="math">\(q_i(t)\)</span> changes its state when it differs from <span class="math">\(x_i(t)\)</span> by <span class="math">\(\pm\Delta q_i\)</span>.
+<p>with initial condition <span class="math notranslate nohighlight">\(q_i(t_0) = x_i(t_0)\)</span>,
+where the sequence <span class="math notranslate nohighlight">\(\{t_{j}\}_{j=0}^{K-1}\)</span> is constructed as</p>
+<div class="math notranslate nohighlight">
+\[t_{j+1} = \min \{t \in \Re \, | \, t &gt; t_j, \,  |x_i(t_j) - x_i(t)| = \Delta q_i \}.\]</div>
+<p>Thus, the component <span class="math notranslate nohighlight">\(q_i(t)\)</span> changes its state when it differs from <span class="math notranslate nohighlight">\(x_i(t)\)</span> by <span class="math notranslate nohighlight">\(\pm\Delta q_i\)</span>.
 <a class="pageref" href="#fig-qss1-example">Figure  2</a> shows an example of a quantization function for QSS1.</p>
 <div class="figure" id="id15">
 <span id="fig-qss1-example"></span><a class="reference internal image-reference" href="_images/qss1.png"><img alt="_images/qss1.png" src="_images/qss1.png" style="width: 900.0px; height: 551.4px;" /></a>
@@ -256,9 +243,9 @@ where the sequence <span class="math">\(\{t_{j}\}_{j=0}^{K-1}\)</span> is constr
 <p><strong>Example</strong></p>
 <p>For illustration, consider the following differential equation where on the left,
 we have the original form, and on the right, we have its QSS form. Here, we took the simplest quantization function,
-e.g, the ceiling function <span class="math">\(q(x)=\lceil{x}\rceil = \arg \min_{z \in \mathbb Z} \{ x \le z \}\)</span>, but in practice,
+e.g, the ceiling function <span class="math notranslate nohighlight">\(q(x)=\lceil{x}\rceil = \arg \min_{z \in \mathbb Z} \{ x \le z \}\)</span>, but in practice,
 finer spacing with hysteresis is used for higher accuracy and to avoid chattering. Consider</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[\begin{split}\begin{aligned}[c]
 \dot x_1(t) &amp; = - x_1(t) \\
 \dot x_2(t) &amp; = - 2 \, x_1(t) \\
@@ -275,32 +262,32 @@ x(0) &amp; = (10, 10, 10)
 <p><a class="pageref" href="#fig-qss-ceil-example">Figure  3</a> shows the time series of the solution of the differential equation computed by QSS1.</p>
 <div class="figure" id="id16">
 <span id="fig-qss-ceil-example"></span><a class="reference internal image-reference" href="_images/qssCeil.png"><img alt="_images/qssCeil.png" src="_images/qssCeil.png" style="width: 1100.0px; height: 400.0px;" /></a>
-<p class="caption"><span class="caption-number">Fig. 6.3 </span>: Time series computed by QSS1 for <span class="math">\(t \in [0, 0.1]\)</span>.</span></p>
+<p class="caption"><span class="caption-number">Fig. 6.3 </span>: Time series computed by QSS1 for <span class="math notranslate nohighlight">\(t \in [0, 0.1]\)</span>.</span></p>
 </div>
 <p>The computation is as follows:
 In QSS, each state can be integrated asynchronously until its right-hand side changes.
-Therefore, we can compute directly the first transitions as <span class="math">\(\chi_1(0.1) = 9\)</span>, <span class="math">\(\chi_2(0.05) = 9\)</span>, <span class="math">\(\chi_3(0.01667) = 9\)</span>. We can keep integrating <span class="math">\(\chi_3(\cdot)\)</span> until its input <span class="math">\(\chi_2(\cdot)\)</span> changes, which will be at <span class="math">\(t=0.05\)</span>. Thus, we compute <span class="math">\(\chi_3(0.0339) = 8\)</span>. The next transition of <span class="math">\(\chi_3(\cdot)\)</span> would be at <span class="math">\(t=0.0518\)</span>. But <span class="math">\(\chi_2(\cdot)\)</span> transitions from <span class="math">\(10\)</span> to <span class="math">\(9\)</span> at <span class="math">\(t=0.05\)</span> so we can not integrate beyond that. Hence, we compute the next potential transition of <span class="math">\(\chi_3(\cdot)\)</span> (from <span class="math">\(8\)</span> to <span class="math">\(7\)</span>) as <span class="math">\(t = 0.05190 = \arg \min \{\Delta \in \Re_0^+ \, | 7 = 8 + \int_{0.0339}^{0.05} (-2 \, (2 \cdot 10 + 8) \, ds + \int_{0.05}^{\Delta} (-2 \, (2 \cdot 9+8)) \, ds\}\)</span>. Hence, <span class="math">\(\chi_3(\cdot)\)</span> will transition next at <span class="math">\(t=0.05190\)</span> provided that its input does not change within this time. The input won&#8217;t change because the next transition of <span class="math">\(\chi_2(\cdot)\)</span> will be <span class="math">\(\chi_2(0.1) = 8\)</span>. Therefore, we integrate <span class="math">\(\chi_3(\cdot)\)</span> until <span class="math">\(t=0.1\)</span>, at which time <span class="math">\(\chi_1(\cdot)\)</span> and <span class="math">\(\chi_2(\cdot)\)</span> transition.</p>
+Therefore, we can compute directly the first transitions as <span class="math notranslate nohighlight">\(\chi_1(0.1) = 9\)</span>, <span class="math notranslate nohighlight">\(\chi_2(0.05) = 9\)</span>, <span class="math notranslate nohighlight">\(\chi_3(0.01667) = 9\)</span>. We can keep integrating <span class="math notranslate nohighlight">\(\chi_3(\cdot)\)</span> until its input <span class="math notranslate nohighlight">\(\chi_2(\cdot)\)</span> changes, which will be at <span class="math notranslate nohighlight">\(t=0.05\)</span>. Thus, we compute <span class="math notranslate nohighlight">\(\chi_3(0.0339) = 8\)</span>. The next transition of <span class="math notranslate nohighlight">\(\chi_3(\cdot)\)</span> would be at <span class="math notranslate nohighlight">\(t=0.0518\)</span>. But <span class="math notranslate nohighlight">\(\chi_2(\cdot)\)</span> transitions from <span class="math notranslate nohighlight">\(10\)</span> to <span class="math notranslate nohighlight">\(9\)</span> at <span class="math notranslate nohighlight">\(t=0.05\)</span> so we can not integrate beyond that. Hence, we compute the next potential transition of <span class="math notranslate nohighlight">\(\chi_3(\cdot)\)</span> (from <span class="math notranslate nohighlight">\(8\)</span> to <span class="math notranslate nohighlight">\(7\)</span>) as <span class="math notranslate nohighlight">\(t = 0.05190 = \arg \min \{\Delta \in \Re_0^+ \, | 7 = 8 + \int_{0.0339}^{0.05} (-2 \, (2 \cdot 10 + 8) \, ds + \int_{0.05}^{\Delta} (-2 \, (2 \cdot 9+8)) \, ds\}\)</span>. Hence, <span class="math notranslate nohighlight">\(\chi_3(\cdot)\)</span> will transition next at <span class="math notranslate nohighlight">\(t=0.05190\)</span> provided that its input does not change within this time. The input won’t change because the next transition of <span class="math notranslate nohighlight">\(\chi_2(\cdot)\)</span> will be <span class="math notranslate nohighlight">\(\chi_2(0.1) = 8\)</span>. Therefore, we integrate <span class="math notranslate nohighlight">\(\chi_3(\cdot)\)</span> until <span class="math notranslate nohighlight">\(t=0.1\)</span>, at which time <span class="math notranslate nohighlight">\(\chi_1(\cdot)\)</span> and <span class="math notranslate nohighlight">\(\chi_2(\cdot)\)</span> transition.</p>
 </div>
 <div class="section" id="qss2">
 <h3>6.1.2. QSS2<a class="headerlink" href="#qss2" title="Permalink to this headline">¶</a></h3>
 <p>We will now describe the second order QSS2 method.
 This method replaces the simple hysteretic quantization function of QSS1
-<a class="reference internal" href="#equation-eq_hysQua1stOrd">(3)</a> with a first order-quantizer. This leads,
-for <span class="math">\(t_j \leq t &lt; t_{j+1}\)</span>, to</p>
-<div class="math">
+<a class="reference internal" href="#equation-eq-hysqua1stord">(6.3)</a> with a first order-quantizer. This leads,
+for <span class="math notranslate nohighlight">\(t_j \leq t &lt; t_{j+1}\)</span>, to</p>
+<div class="math notranslate nohighlight">
 \[\begin{split}q_i(t) =
 \begin{cases}
 x_i(t), &amp; \text{if } |x_i(t)-q_i(t^{-})| = \Delta q_i, \\
 q_i(t_j) + m_{ij} (t-t_j), &amp; \text{otherwise},
 \end{cases}\end{split}\]</div>
-<p>with initial condition <span class="math">\(q_i(t_0) = x_i(t_0)\)</span>,
-where the sequence <span class="math">\(\{t_{j}\}_{j=0}^{K-1}\)</span> is constructed as</p>
-<div class="math">
-\[\begin{split}t_{j+1} = \min \{t \in \Re \, | \, t &gt; t_j, \,  |x_i(t_j) + m_{ij} (t-t_j) - x_i(t)| = \Delta q_i \},\end{split}\]</div>
-<p>with the slope <span class="math">\(m_{ij}\)</span> defined as <span class="math">\(m_{i0}=0\)</span> and <span class="math">\(m_{ij}= \dot x_i(t_j^-)\)</span> for <span class="math">\(j \in \{1, \ldots, K-1\}\)</span>.</p>
+<p>with initial condition <span class="math notranslate nohighlight">\(q_i(t_0) = x_i(t_0)\)</span>,
+where the sequence <span class="math notranslate nohighlight">\(\{t_{j}\}_{j=0}^{K-1}\)</span> is constructed as</p>
+<div class="math notranslate nohighlight">
+\[t_{j+1} = \min \{t \in \Re \, | \, t &gt; t_j, \,  |x_i(t_j) + m_{ij} (t-t_j) - x_i(t)| = \Delta q_i \},\]</div>
+<p>with the slope <span class="math notranslate nohighlight">\(m_{ij}\)</span> defined as <span class="math notranslate nohighlight">\(m_{i0}=0\)</span> and <span class="math notranslate nohighlight">\(m_{ij}= \dot x_i(t_j^-)\)</span> for <span class="math notranslate nohighlight">\(j \in \{1, \ldots, K-1\}\)</span>.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">For <span class="math">\(m_{ij}\)</span>, the limit from below <span class="math">\(\dot x_i(t_j^-)\)</span> is used.</p>
+<p class="last">For <span class="math notranslate nohighlight">\(m_{ij}\)</span>, the limit from below <span class="math notranslate nohighlight">\(\dot x_i(t_j^-)\)</span> is used.</p>
 </div>
 <p>The figure below shows an example of a quantization function for QSS2.</p>
 <div class="figure" id="id17">
@@ -310,22 +297,22 @@ where the sequence <span class="math">\(\{t_{j}\}_{j=0}^{K-1}\)</span> is constr
 </div>
 <div class="section" id="qss3">
 <h3>6.1.3. QSS3<a class="headerlink" href="#qss3" title="Permalink to this headline">¶</a></h3>
-<p>In QSS3, the trajectories of <span class="math">\(x_i(t)\)</span> and <span class="math">\(q_i(t)\)</span> are related by a second order quantization function.
-This leads, for <span class="math">\(t_j \leq t &lt; t_{j+1}\)</span>, to</p>
-<div class="math">
+<p>In QSS3, the trajectories of <span class="math notranslate nohighlight">\(x_i(t)\)</span> and <span class="math notranslate nohighlight">\(q_i(t)\)</span> are related by a second order quantization function.
+This leads, for <span class="math notranslate nohighlight">\(t_j \leq t &lt; t_{j+1}\)</span>, to</p>
+<div class="math notranslate nohighlight">
 \[\begin{split}q_i(t) =
 \begin{cases}
 x_i(t), &amp; \text{if } |x_i(t)-q_i(t^{-})| = \Delta q_i, \\
 q_i(t_j) + m_{ij} (t-t_j) + p_{ij} (t-t_j)^2, &amp; \text{otherwise},
 \end{cases}\end{split}\]</div>
-<p>with initial condition <span class="math">\(q_i(t_0) = x_i(t_0)\)</span>,
-where the sequence <span class="math">\(\{t_{j}\}_{j=0}^{K-1}\)</span> is constructed as</p>
-<div class="math">
-\[\begin{split}t_{j+1} = \min \{t \in \Re \, | \, t &gt; t_j, \,  |x_i(t_j) + m_{ij} (t-t_j) + p_{ij} (t-t_j)^2 - x_i(t)| = \Delta q_i \},\end{split}\]</div>
+<p>with initial condition <span class="math notranslate nohighlight">\(q_i(t_0) = x_i(t_0)\)</span>,
+where the sequence <span class="math notranslate nohighlight">\(\{t_{j}\}_{j=0}^{K-1}\)</span> is constructed as</p>
+<div class="math notranslate nohighlight">
+\[t_{j+1} = \min \{t \in \Re \, | \, t &gt; t_j, \,  |x_i(t_j) + m_{ij} (t-t_j) + p_{ij} (t-t_j)^2 - x_i(t)| = \Delta q_i \},\]</div>
 <p>with the slopes defined as
-<span class="math">\(m_{i0}=0\)</span> and <span class="math">\(m_{ij}= \dot x_i(t_j^-)\)</span>,
-for <span class="math">\(j \in \{1, \ldots, K-1\}\)</span>, for the first order term, and
-<span class="math">\(p_{i0}=0\)</span> and <span class="math">\(p_{ij}= \dot m_{ij}\)</span> for the second order term.</p>
+<span class="math notranslate nohighlight">\(m_{i0}=0\)</span> and <span class="math notranslate nohighlight">\(m_{ij}= \dot x_i(t_j^-)\)</span>,
+for <span class="math notranslate nohighlight">\(j \in \{1, \ldots, K-1\}\)</span>, for the first order term, and
+<span class="math notranslate nohighlight">\(p_{i0}=0\)</span> and <span class="math notranslate nohighlight">\(p_{ij}= \dot m_{ij}\)</span> for the second order term.</p>
 </div>
 <div class="section" id="discussion-of-qss">
 <h3>6.1.4. Discussion of QSS<a class="headerlink" href="#discussion-of-qss" title="Permalink to this headline">¶</a></h3>
@@ -339,10 +326,10 @@ As building simulation models can be stiff, we will now present these methods.</
 <div class="section" id="liqss">
 <h3>6.1.5. LIQSS<a class="headerlink" href="#liqss" title="Permalink to this headline">¶</a></h3>
 <p>We will now focus our discussion on LIQSS methods, which seem to be the most applicable classes of QSS methods for building simulation.
-We will start our discussion with the first order LIQSS (LIQSS1) and expand the discussion to higher order LIQSS methods. The basic idea of LIQSS1 is to select the value of <span class="math">\(q_i(t)\)</span> so that <span class="math">\(x_i(t)\)</span> approaches <span class="math">\(q_i(t)\)</span>.
-This implies that <span class="math">\((q_i(t)-x_i(t)) \, \dot {x}_i(t) \geq 0\)</span> for <span class="math">\(t_j \leq t &lt; t_{j+1}\)</span>.
-Given the ODE defined in <a class="reference internal" href="#equation-eq_ode">(1)</a>, LIQSS1 approximates it by <a class="reference internal" href="#equation-eq_odeQSS">(2)</a>, where each <span class="math">\(q_i(t)\)</span> is defined in <a class="reference internal" href="zreferences.html#migonikofman2007-1" id="id10">[MK07]</a> as</p>
-<div class="math">
+We will start our discussion with the first order LIQSS (LIQSS1) and expand the discussion to higher order LIQSS methods. The basic idea of LIQSS1 is to select the value of <span class="math notranslate nohighlight">\(q_i(t)\)</span> so that <span class="math notranslate nohighlight">\(x_i(t)\)</span> approaches <span class="math notranslate nohighlight">\(q_i(t)\)</span>.
+This implies that <span class="math notranslate nohighlight">\((q_i(t)-x_i(t)) \, \dot {x}_i(t) \geq 0\)</span> for <span class="math notranslate nohighlight">\(t_j \leq t &lt; t_{j+1}\)</span>.
+Given the ODE defined in <a class="reference internal" href="#equation-eq-ode">(6.1)</a>, LIQSS1 approximates it by <a class="reference internal" href="#equation-eq-odeqss">(6.2)</a>, where each <span class="math notranslate nohighlight">\(q_i(t)\)</span> is defined in <a class="reference internal" href="zreferences.html#migonikofman2007-1" id="id10">[MK07]</a> as</p>
+<div class="math notranslate nohighlight">
 \[\begin{split}q_i(t) =
 \begin{cases}
 \underline{q}_i(t), &amp; \text{if } f_{i}(q(t), u(t)) \,(\underline{q}_i(t) - x_{i}(t)) \geq 0, \\
@@ -350,7 +337,7 @@ Given the ODE defined in <a class="reference internal" href="#equation-eq_ode">(
 \tilde{q}_i(t), &amp; \text{otherwise},
 \end{cases}\end{split}\]</div>
 <p>with</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[\begin{split}\underline{q}_i(t) &amp; =
     \begin{cases}
        \underline{q}_i(t^-) - \Delta q_i, &amp; \text{if } x_i(t) - \underline{q}_i(t^-) \le 0, \\
@@ -362,11 +349,11 @@ Given the ODE defined in <a class="reference internal" href="#equation-eq_ode">(
                 \bar q_i(t) - \frac{1}{A_{i,i}} f_i(\bar {q}^i(t), u(t)), &amp; \text{if } A_{i,i} \not = 0,\\
                      q_i(t^-),                                              &amp; \text{otherwise,}\\
                   \end{cases}\end{split}\]</div>
-<p>where <span class="math">\(A_{i,i}\)</span> is an estimate of the <span class="math">\(i\)</span>-th diagonal element of the Jacobian.
+<p>where <span class="math notranslate nohighlight">\(A_{i,i}\)</span> is an estimate of the <span class="math notranslate nohighlight">\(i\)</span>-th diagonal element of the Jacobian.
 For its computation, and for how to compute
-<span class="math">\(\bar {q}^i(t)\)</span>, we refer to <a class="reference internal" href="zreferences.html#migonikofman2007-1" id="id11">[MK07]</a>.</p>
+<span class="math notranslate nohighlight">\(\bar {q}^i(t)\)</span>, we refer to <a class="reference internal" href="zreferences.html#migonikofman2007-1" id="id11">[MK07]</a>.</p>
 <p>Higher order LIQSS methods (e.g. LIQSS2, LIQSS3) combine the ideas of higher order QSS methods and LIQSS. Reference <a class="reference internal" href="zreferences.html#migonibortolottokofmancellier2013-1" id="id12">[MBKC13]</a> gives a detailed formal definition of such methods.
-Rather than using the first order condition, the <span class="math">\(N\)</span>-th order method LIQSSN uses <span class="math">\((q_i(t)-x_i(t)) \, x_i^{(N)}(t) \geq 0\)</span>, where <span class="math">\(x_i^{(N)}: \Re \rightarrow \Re\)</span> is the <span class="math">\(N\)</span>-th order derivative of <span class="math">\(x_i( \cdot)\)</span> with respect to time.</p>
+Rather than using the first order condition, the <span class="math notranslate nohighlight">\(N\)</span>-th order method LIQSSN uses <span class="math notranslate nohighlight">\((q_i(t)-x_i(t)) \, x_i^{(N)}(t) \geq 0\)</span>, where <span class="math notranslate nohighlight">\(x_i^{(N)}: \Re \rightarrow \Re\)</span> is the <span class="math notranslate nohighlight">\(N\)</span>-th order derivative of <span class="math notranslate nohighlight">\(x_i( \cdot)\)</span> with respect to time.</p>
 </div>
 <div class="section" id="discussion-of-liqss">
 <h3>6.1.6. Discussion of LIQSS<a class="headerlink" href="#discussion-of-liqss" title="Permalink to this headline">¶</a></h3>
@@ -403,7 +390,7 @@ of these methods.</p>
 <ol class="arabic simple">
 <li>FMUs need to provide information about their input dependencies.
 This information is stored in the model description file of the FMU
-as output dependency under the element <code class="docutils literal"><span class="pre">&lt;ModelStructure&gt;</span></code>. In
+as output dependency under the element <code class="docutils literal notranslate"><span class="pre">&lt;ModelStructure&gt;</span></code>. In
 FMI 2.0, this data is specified as optional.
 For SOEP, we require the output dependency to be declared as the
 master requires it to determine the existence and location of
@@ -414,10 +401,10 @@ Integrators, however, break algebraic loops.</li>
 <li>FMUs need to provide derivatives of their outputs with respect to
 their inputs. This information is needed by the Newton-Raphson
 method. The Newton-Raphson
-method finds the root of the residual function <span class="math">\(f(x) = y-x\)</span>.
+method finds the root of the residual function <span class="math notranslate nohighlight">\(f(x) = y-x\)</span>.
 The root of this function is calculated iteratively as
-<span class="math">\(x_{k+1}=x_k -{y_k}/{f'(x_k)}\)</span> with
-<span class="math">\(f'(x) = {df(x)}/{dx}\)</span>. If the derivative with respect to the
+<span class="math notranslate nohighlight">\(x_{k+1}=x_k -{y_k}/{f'(x_k)}\)</span> with
+<span class="math notranslate nohighlight">\(f'(x) = {df(x)}/{dx}\)</span>. If the derivative with respect to the
 input cannot be provided, then the derivative would need to be
 approximated numerically. This is computationally costly and
 less robust than providing derivative functions.</li>
@@ -443,7 +430,7 @@ less robust than providing derivative functions.</li>
     </p>
     <p>
         &copy; Copyright (c) All rights reserved.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.<br/>
     </p>
   </div>
 </footer>
