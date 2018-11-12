@@ -21,7 +21,7 @@ sys.path.append(os.path.abspath('.'))
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 #extensions = ['sphinx.ext.autodoc', 'sphinx.ext.pngmath']
 extensions = ['sphinx.ext.autodoc', \
-              'mathjax', \
+#              'mathjax', \
               'numfig', \
               'sphinxcontrib.bibtex', \
               'sphinxcontrib.plantuml', \
@@ -456,6 +456,15 @@ latex_elements['preamble'] = r'''
 \usepackage{pdfpages}
 '''
 
+
+def setup(app):
+    app.add_stylesheet('basic.css')
+    app.add_stylesheet('pygments.css')
+    app.add_stylesheet('bootstrap.css')
+    app.add_stylesheet('bootstrap-theme.css')
+    app.add_stylesheet('bootstrap_custom.css')
+    app.add_stylesheet('custom.css')
+    app.add_stylesheet('custom-sphinx.css')
 
 # Documents to append as an appendix to all manuals.
 #latex_appendices = []

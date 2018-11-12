@@ -95,13 +95,13 @@ The general form is :cite:`Wetter2005:1`
 .. math::
    :label: eq_DAEPhy
 
-   [ \dot x_c(t), x_d(t)] & = f(x_c(t), x_d(t^-), u_c(t), u_d(t), p, t),
+   \left[\dot x_c(t), x_d(t)\right] & = f(x_c(t), x_d(t^-), u_c(t), u_d(t), p, t),
 
-   [y_c(t), y_d(t)] & = g(x_c(t), x_d(t), u_c(t), u_d(t), p, t),
+   \left[y_c(t), y_d(t)\right] & = g(x_c(t), x_d(t), u_c(t), u_d(t), p, t),
 
    0 & = \gamma\bigl(u_c(t), y_c(t), y_d(t) \bigr),
 
-   [x_c(t_0), x_d(t_0)] & = [x_{c,0}, x_{d,0}],
+   \left[x_c(t_0), x_d(t_0)\right] & = (x_{c,0}, x_{d,0}),
 
 where
 :math:`x(\cdot)` is the state vector, with superscript
@@ -173,8 +173,7 @@ the function
 .. math::
    :label: eq_tilFDef
 
-   \widetilde f(x(t), p, t) & \triangleq
-       f(x(t), \mu^*(x), p, t),
+   \widetilde f(x(t), p, t) \triangleq f(x(t), \mu^*(x), p, t)
 
 and write the DAE system :eq:`eq_DAEPhyCon` in the form
 
@@ -215,7 +214,7 @@ as in
 
     .. math::
 
-       \| \widetilde f_p(x', p', t) - \widetilde f_p(x'', p'', t) \| &
+       \| \widetilde f_p(x', p', t) - \widetilde f_p(x'', p'', t) \|
        \le K \, (\| x' - x'' \| + \| p' - p'' \| ).
 
 With these conditions, it follows as a special case of Corollary 5.6.9 in :cite:`Pol97:1`,

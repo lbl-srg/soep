@@ -569,13 +569,13 @@ For the discussion, we consider a system of initial value ODEs of the form
 .. math::
    :label: eqn_ini_val
 
-   [\dot x_c(t), x_d(t)] & = f(x_c(t), x_d(t^-), u_c(t), u_d(t), p, t),
+   \left[\dot x_c(t), x_d(t)\right] = f(x_c(t), x_d(t^-), u_c(t), u_d(t), p, t),
 
-   [y_c(t), y_d(t)] & = g(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\\
+   \left[y_c(t), y_d(t)\right]  = g(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\\
 
-   0         & = z(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\\
+   0          = z(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\\
 
-   [x_c(t_0), x_d(t_0)] & = [x_{c,0}, x_{d,0}],
+   \left[x_c(t_0), x_d(t_0)\right]  = [x_{c,0}, x_{d,0}],
 
 where
 :math:`x(\cdot)` is the continuous-time state vector, with superscript
