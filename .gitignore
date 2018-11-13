@@ -1,4 +1,3 @@
 *.pyc
 doc-design/build
 docs/_sources/
-docs/_static/
