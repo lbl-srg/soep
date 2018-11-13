@@ -1,5 +1,5 @@
 Automated Documentation/AST Support Tool
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------------------
 
 This section describes how to
 generate automated SOEP documentation and abstract syntax trees from
@@ -13,7 +13,7 @@ discover available models and their parameters and other metadata for use
 from the OpenStudio interface for SOEP.
 
 Background
-""""""""""
+^^^^^^^^^^
 
 Modelica source code contains a lot of meta-data in addition to the
 mathematical model itself. An annotation system exists within Modelica and
@@ -55,7 +55,7 @@ able to support additional third party libraries.
 
 
 Requirements
-""""""""""""
+^^^^^^^^^^^^
 
 This section will describe the requirements of a batch-process program
 that will transform any
@@ -135,7 +135,7 @@ or semantics. Changes to protected properties or equations will not affect
 the interface (but may affect the actual numeric output quantities).
 
 Literature review
-"""""""""""""""""
+^^^^^^^^^^^^^^^^^
 
 There have been several attempts to represent or use XML in relation to
 Modelica in the past (:cite:`Landin2014`, :cite:`Fritzson2003G`,
@@ -172,7 +172,7 @@ For ANTLR, a Modelica grammar is available at
 https://github.com/antlr/grammars-v4/blob/master/modelica/modelica.g4.
 
 Implementation
-""""""""""""""
+^^^^^^^^^^^^^^
 
 Work started on the implementation of a modelica-json translator.
 The development page is https://github.com/lbl-srg/modelica-json
