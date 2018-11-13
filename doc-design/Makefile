@@ -60,6 +60,7 @@ clean:
 html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) ../docs
 	./fixHtml.py
+	@cp ../.nojekyll ../docs/
 	@echo
 	@echo "Build finished. The HTML pages are in ../docs"
 
