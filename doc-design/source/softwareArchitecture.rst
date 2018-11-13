@@ -1,10 +1,11 @@
 .. _sec_soft_arch:
 
+*********************
 Software Architecture
----------------------
+*********************
 
 Overall software architecture
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+=============================
 
 :numref:`fig_overall_software_architecture`
 shows the overall software architecture of SOEP.
@@ -133,7 +134,7 @@ Note that the JModelica distribution includes a C++ compiler.
 
 
 Coupling of EnergyPlus envelope and room with Modelica-based HVAC and control
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+=============================================================================
 
 This section describes the refactoring of the
 EnergyPlus room model, which will remain in the C/C++ implementation
@@ -161,7 +162,7 @@ and the heat flow rates due to conduction, short-wave and long-wave radiation.
 
 
 Assumptions and limitations
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------
 
 For the current implementation, we will make the following assumption:
 
@@ -187,7 +188,7 @@ For the current implementation, we will make the following assumption:
 
 
 Partitioning of the models
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------
 
 To link the envelope model, the room model and the HVAC model, we partition the simulation
 as shown in :num:`Figure #fig-partition-envelop-room-hvac`.
@@ -211,7 +212,7 @@ exchanges with the master algorithm.
 .. _sec_data_exchange:
 
 Data exchange
-~~~~~~~~~~~~~
+-------------
 
 The following parameters are sent from EnergyPlus to Modelica. These are sent only once during the initialization for each thermal zone.
 
@@ -277,7 +278,7 @@ For example, if a building has two zones, then both zones need to be modeled in 
 .. _sec_time_sync:
 
 Time synchronization
-~~~~~~~~~~~~~~~~~~~~
+--------------------
 
 As shown in :num:`Figure #fig-partition-envelop-room-hvac`, the EnergyPlus FMU is invoked
 at a variable time step.
@@ -305,7 +306,7 @@ Such a schedule could for example be a time schedule for internal heat gains,
 which may change at times that do not coincide with the zone time step :math:`\Delta t_z`.
 
 Requirements for Exporting EnergyPlus as an FMU for model exchange
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------------------------------------------------
 
 To export EnergyPlus as an FMU for model exchange, EnergyPlus must be compiled as a shared library.
 The shared library must export the functions which are described in the next section.
@@ -334,6 +335,10 @@ In the remainder of this section, we note that ``time`` is
     Monotonically increasing means that if a function has as argument ``time`` and is called at time ``t1``, then its next call must happen at time ``t2`` with ``t2`` >= ``t1``.
     For efficiency reasons, if a function which updates internal variables is called at the same time instant multiple times,
     then only the first call will update the variables, subsequent calls will cause the functions to return the same variable values.
+
+
+Instantiation
+^^^^^^^^^^^^^
 
 .. code:: c
 
@@ -375,6 +380,12 @@ In the remainder of this section, we note that ``time`` is
 
 For example, if a building has two zones called ``basement`` and ``office``, then the parameter names are
 
+
+Configuring variables to be exchanged
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To configure the variables to be exchanged, the following data structures will be used.
+
 .. code:: c
 
    const char ** parameterNames = {"basement,V", "basement,AFlo", "basement,mSenFac", "office,V", "office,AFlo", "office,mSenFac"};
@@ -399,6 +410,9 @@ The outputs of EnergyPlus will be
 This function will read the ``idf`` file and sets up the data structure in EnergyPlus.
 
 It returns zero if there was no error, or else a positive non-zero integer.
+
+Setting up the experiment time
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code:: c
 
@@ -426,6 +440,8 @@ It returns zero if there was no error, or else a positive non-zero integer.
    to a time other than midnight. We think EnergyPlus cannot yet handle an arbitrary start time.
    In this case, it should return an error.
 
+Setting the current time
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code:: c
 
@@ -438,6 +454,9 @@ It returns zero if there was no error, or else a positive non-zero integer.
 This function sets a new time in EnergyPlus. This time becomes the current model time.
 
 It returns zero if there was no error, or else a positive non-zero integer.
+
+Sending parameters and variables to EnergyPlus
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code:: c
 
@@ -459,6 +478,9 @@ as needed by QSS).
 
 It returns zero if there was no error, or else a positive non-zero integer.
 
+Retrieving parameters and variables from EnergyPlus
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 .. code:: c
 
    unsigned int getVariables(const unsigned int valueReferences[],
@@ -479,6 +501,9 @@ during the ``instantiate(...)`` call.
 
 It returns zero if there was no error, or else a positive non-zero integer.
 
+Retrieving the next event time
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 .. code:: c
 
    unsigned int getNextEventTime(fmi2EventInfo *eventInfo,
@@ -491,6 +516,9 @@ This function writes a structure which contains among its variables a non-zero f
 
 It returns zero if there was no error, or else a positive non-zero integer.
 
+Terminating the EnergyPlus simulation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 .. code:: c
 
    unsigned int terminate(const char *log);
@@ -502,6 +530,9 @@ This function must free all allocated variables in EnergyPlus.
 Any further call to the EnergyPlus shared library is prohibited after call to this function.
 
 It returns zero if there was no error, or else a positive non-zero integer.
+
+Writing EnergyPlus output files
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code:: c
 
@@ -516,7 +547,7 @@ It returns zero if there was no error, or else a positive non-zero integer.
 
 
 Pseudo Code Example
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 In the next section, the usage of the FMI functions along with the equivalent EnergyPlus functions are used in a typical calling sequence.
 This should clarify the need of the EnergyPlus equivalent functions and show how these functions will be used in a simulation environment.
@@ -528,7 +559,7 @@ In the pseudo code, ``->`` points to the EnergyPlus equivalent FMI functions. ``
    :linenos:
 
 Tool for Exporting EnergyPlus as an FMU
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------------
 
 To export EnergyPlus as an FMU, a utility is needed which will get as inputs
 the paths to the EnergyPlus idf, idd, and weather files.
@@ -546,7 +577,7 @@ to support the export of EnergyPlus.
 
 
 JModelica Integration
-^^^^^^^^^^^^^^^^^^^^^
+=====================
 
 This section describes the integration of the QSS solver in JModelica.
 
@@ -666,7 +697,7 @@ and FMI has limited support for QSS, we discuss extensions
 that are needed for an efficient implementation of QSS.
 
 FMI Changes for QSS
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 QSS generally requires to only update a subset of the continuous-time state vector. We therefore
 propose to use the function
@@ -714,12 +745,12 @@ to the ``<Derivatives>`` element of the ``modelDescription.xml`` file.
     </Derivatives>
 
 Event Handling
-""""""""""""""
+^^^^^^^^^^^^^^
 
 .. _subsec_se:
 
 State Events
-............
+""""""""""""
 
 For efficiency, QSS requires to know the dependencies
 of event indicators. Also, it will need to
@@ -841,7 +872,7 @@ In :numref:`fig_hig_der`, the higher order derivatives depend on the event indic
 .. _subsec_te:
 
 Event indicators that depend on the input
-.........................................
+"""""""""""""""""""""""""""""""""""""""""
 
 
 Consider following model
@@ -864,7 +895,7 @@ the event indicator derivatives.
 
 
 Handling of variables reinitialized with ``reinit()``
-.....................................................
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 
 Consider following model
@@ -886,7 +917,7 @@ the variable, updates variables which depend on it, and proceeds
 with its calculation.
 
 Workaround for implementing event indicators
-............................................
+""""""""""""""""""""""""""""""""""""""""""""
 
 While waiting for the implementation of the FMI extensions in JModelica,
 LBNL will refactor some Modelica models to expose event indicators and
@@ -907,7 +938,7 @@ If the number of event indicators does not match, the FMU shall be rejected with
   number of event indicators shall be equal to half the value of the ``numberOfEventIndicators`` attribute.
 
 Time Events
-...........
+"""""""""""
 
 This section discusses additional requirements for handling time events with QSS.
 
@@ -937,7 +968,7 @@ of state derivatives which depend on them.
    they got approved and included in the FMI standard.
 
 SmoothToken for QSS
-"""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^
 
 This section discusses a proposal for a new data type which should be used for input and output variables of FMU-QSS.
 FMU-QSS is an FMU for Model Exchange (FMU-ME) which uses QSS to integrate an imported FMU-ME.
@@ -1026,7 +1057,7 @@ co-simulation API.
 
 
 Summary of Proposed Changes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Here is a list with a summary of proposed changes
 
@@ -1065,7 +1096,7 @@ Here is a list with a summary of proposed changes
 
 
 Open Topics
-~~~~~~~~~~~
+^^^^^^^^^^^
 
 This section includes a list of measures which could further improve the efficiency of QSS.
 Some of the measures should be implemented and benchmarked to ensure their necessity for QSS.
@@ -1164,7 +1195,7 @@ Conditional Expressions and Event Indicators
 - If the xml can expose the zero crossing directions of interest that will allow for more efficiency.
 
 OpenStudio integration
-^^^^^^^^^^^^^^^^^^^^^^
+======================
 
 .. note:: This section needs to be revised in view of the move towards a json-driven architecture.
 
