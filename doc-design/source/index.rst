@@ -5,8 +5,7 @@ Spawn of EnergyPlus -- Design and Implementation (Working Draft)
 .. only:: html
 
    The Spawn of EnergyPlus, called SOEP, is a next-generation simulation engine,
-   for building and control energy systems.
-   SOEP will combine
+   for building and control energy systems. SOEP will combine
 
     * The `OpenStudio <https://www.openstudio.net/>`_ front-end for model authoring, simulation
       and as a workflow automation tool,
