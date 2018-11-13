@@ -23,6 +23,8 @@
     previous_z = zeros(nz)
 
     // The time in EnergyPlus is now at Tstart
+    // Retrieve solution at t=Tstart, e.g., for Output:Variable
+    M_fmi2GetReal(...) -> getVariables (...)
 
     do
       // handle events
