@@ -130,40 +130,30 @@ Note that the JModelica distribution includes a C++ compiler.
      the OpenStudio SDK.
    end note
 
+Coupling of EnergyPlus with Modelica
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+This section describes the coupling of EnergyPlus with Modelica.
+The coupling allows two types of interactions between the two tools:
 
-Coupling of EnergyPlus envelope and room with Modelica-based HVAC and control
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Coupling of EnergyPlus envelope and room with Modelica-based HVAC. This is
+described in Section :numref:`sec_cou_env`.
+The coupling also allows sending EnergyPlus output variables to Modelica, and receiving
+values for schedules, EMS variables and EMS actuators from Modelica.
+This is described in Section xxxx.
 
-This section describes the refactoring of the
-EnergyPlus room model, which will remain in the C/C++ implementation
-of EnergyPlus, to a form that exposes the time derivative of its room model.
-EnergyPlus will be exported as an FMU for model exchange.
-
-The time integration of the room air temperature, moisture and
-trace substance concentrations will be done by the master algorithm.
-
-EnergyPlus will synchronize the room model and the envelope model.
-
-We will use the following terminology: By `envelope model`, we mean
-the model for the heat and moisture transfer through opaque constructions
-and through windows.
-By `room model`, we mean the room air heat, mass and trace substance balance.
-By `HVAC model`, we mean the HVAC and control model.
-
-The physical quantities that need to be exchanged are as follows.
-For a convective HVAC system, the convective and latent heat gain added
-by the HVAC system,
-the mass flow rates of trace substances such as CO2 and VoC, and
-the state of the return air, e.g., temperature, relative humidity and pressure.
-For radiant systems, the temperature of the radiant surface,
-and the heat flow rates due to conduction, short-wave and long-wave radiation.
+EnergyPlus will be exported as a dynamically linked library, with
+C functions that conform to the FMI 2.0 for model exchange standard.
+Modelica functions, that are encapsulated in Modelica blocks and models,
+are used to call these C functions. This will users to define the
+interaction in such a way that these interfaces look and behave like
+usual Modelica blocks or models.
 
 
 Assumptions and limitations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-For the current implementation, we will make the following assumption:
+To implement the coupling, will make the following assumption:
 
 1. Only the lumped room air model will be refactored, not the
    room model with stratified room air.
@@ -207,6 +197,30 @@ pressure differences, are computed in the HVAC FMUs.
 There can be one or several HVAC FMUs, which is irrelevant
 as EnergyPlus will only see one set of variables that it
 exchanges with the master algorithm.
+
+.. _sec_cou_env:
+
+Coupling of EnergyPlus envelope and room with Modelica-based HVAC and control
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This section describes the refactoring of the
+EnergyPlus room model, which will remain in the C/C++ implementation
+of EnergyPlus, to a form that exposes the time derivative of its room model.
+
+We will use the following terminology: By `envelope model`, we mean
+the model for the heat and moisture transfer through opaque constructions
+and through windows.
+By `room model`, we mean the room air heat, mass and trace substance balance.
+By `HVAC model`, we mean the HVAC and control model.
+
+The physical quantities that need to be exchanged are as follows.
+For a convective HVAC system, the convective and latent heat gain added
+by the HVAC system,
+the mass flow rates of trace substances such as CO2 and VoC, and
+the state of the return air, e.g., temperature, relative humidity and pressure.
+For radiant systems, the temperature of the radiant surface,
+and the heat flow rates due to conduction, short-wave and long-wave radiation.
+
 
 .. _sec_data_exchange:
 
@@ -273,6 +287,104 @@ CO2 emitted by people.
 
 For this coupling, all zones of EnergyPlus will be accessed from Modelica.
 For example, if a building has two zones, then both zones need to be modeled in Modelica.
+
+
+.. _sec_cou_var:
+
+Coupling of EnergyPlus output variables with Modelica
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This section describes how to retrieve in Modelica values from the EnergyPlus objects
+``Output:Variable`` and ``EnergyManagementSystem:OutputVariable``.
+
+
+The following parameters are sent from Modelica to EnergyPlus. These are sent only once during the instantiation of EnergyPlus.
+
++---------------------------+--------------------------------------------------------------------------------------------------+
+| Variable                  | Quantity                                                                                         |
++===========================+==================================================================================================+
+| *From Modelica to EnergyPlus*                                                                                                |
++---------------------------+--------------------------------------------------------------------------------------------------+
+| Type                      | String with value ``Output``                                                                     |
++---------------------------+--------------------------------------------------------------------------------------------------+
+| Key value                 | String, if it is an ``Output:Variable`` its values will be as in the ``.rdd`` or ``.mdd``        |
+|                           | or if it is an ``EnergyManagementSystem:OutputVariable`` its value will be ``EMS``.              |
++---------------------------+--------------------------------------------------------------------------------------------------+
+| Variable name             | String, if it is an ``Output:Variable`` its values will be as in the InputOutputReference,       |
+|                           | or if it is an ``EnergyManagementSystem:OutputVariable`` its value will be                       |
+|                           | the name of the ``EnergyManagementSystem:OutputVariable`` .                                      |
++---------------------------+--------------------------------------------------------------------------------------------------+
+| *From EnergyPlus to Modelica*                                                                                                |
++---------------------------+--------------------------------------------------------------------------------------------------+
+| Unit string               | String with the units of this quantity (list of allowed units TBD).                              |
++---------------------------+--------------------------------------------------------------------------------------------------+
+
+At each invocation of the function ``fmi2GetReal``, EnergyPlus will send the output variable that is computed for
+the current time and all the values set prior to the call with ``fmi2SetReal``.
+During the initialization, EnergyPlus will send an initial value to Modelica.
+
+.. note:: As EnergyPlus has no notion of real versus integer (or boolean) variables, we retrieve only real values.
+          While the Erl language has built-in variables ``True`` and ``False`` and ``On`` and ``Off``, Erl represents them
+          as a real value.
+
+For Modelica, reading variables will be done using a block with no input and one output.
+
+There will be a block called ``Read.OutputVariable`` with parameters
+
++---------------------------+--------------------------------------------------------------------------------------------------+
+| Name                      | Comment                                                                                          |
++===========================+==================================================================================================+
+| key                       | EnergyPlus key value, as defined by the EnergyPlus .rdd or .mdd file                             |
++---------------------------+--------------------------------------------------------------------------------------------------+
+| name                      | EnergyPlus variable name, as defined in the Input Output Reference                               |
++---------------------------+--------------------------------------------------------------------------------------------------+
+
+There will also be a block called ``Read.EnergyManagementOutputVariable`` with parameters
+
++---------------------------+--------------------------------------------------------------------------------------------------+
+| Name                      | Comment                                                                                          |
++===========================+==================================================================================================+
+| name                      | Name of the ``EnergyManagementSystem:OutputVariable``                                            |
++---------------------------+--------------------------------------------------------------------------------------------------+
+
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+
+
+Modelica provides to EnergyPlus the following values:
+
+EnergyPlus Key Value
+
+This field contains a Key Value for an EnergyPlus output variable as described in the result dictionary file (ref Output:Variable/.rdd file).
+For an ``EnergyManagementSystem:OutputVariable``, the EnergyPlus Key Value is ``EMS``.
+
+EnergyPlus Variable Name
+
+This field contains the Variable Name as defined in the InputOutput Reference. For an EnergyManagementSystem:OutputVariable, the EnergyPlus Variable Name is the name of the EnergyManagementSystem:OutputVariable s object.
+Field: FMU Variable Name
+
+This field contains the name of the variable in the model description file of the FMU that will be mapped to the corresponding variable in EnergyPlus.
+
+ExternalInterface:FunctionalMockupUnitExport:From:Variable,
+  Environment,                         !- EnergyPlus Key Value
+  Site Outdoor Air Drybulb Temperature,   !- EnergyPlus Variable Name
+  TDryBul;                                 !- FMU Variable Name
+
+  ExternalInterface: FunctionalMockupUnitExport:From:Variable,
+  ZONE ONE,                                   !- EnergyPlus Key Value
+  Zone Mean Air Temperature, !- EnergyPlus Variable Name
+  TRooMea;                                     !- FMU Variable Name
+
+  ExternalInterface: FunctionalMockupUnitExport:From:Variable,
+  Environment,                               !- EnergyPlus Key Value
+  Site Outdoor Air Relative Humidity,   !- EnergyPlus Variable Name
+  outRelHum;                                   !- FMU Variable Name
+
+  ExternalInterface:FunctionalMockupUnitExport:From:Variable,
+  ZONE ONE,                                       !- EnergyPlus Key Value
+  Zone Air Relative Humidity,   !- EnergyPlus Variable Name
+  rooRelHum;                                     !- FMU Variable Name
+
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 
 .. _sec_time_sync:
 
