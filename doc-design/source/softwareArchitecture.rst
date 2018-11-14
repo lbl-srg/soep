@@ -202,7 +202,7 @@ exchanges with the master algorithm.
 .. _sec_cou_env:
 
 Coupling of EnergyPlus envelope and room with Modelica-based HVAC and control
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------------------------------------------------------------
 
 This section describes the refactoring of the
 EnergyPlus room model, which will remain in the C/C++ implementation
@@ -225,10 +225,11 @@ and the heat flow rates due to conduction, short-wave and long-wave radiation.
 
 .. _sec_data_exchange:
 
-Data exchange
--------------
+Coupling of envelope model
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The following parameters are sent from EnergyPlus to Modelica. These are sent only once during the initialization for each thermal zone.
+To couple the Modelica room air balance to the EnergyPlus envelope model,
+the following parameters are sent from EnergyPlus to Modelica. These are sent only once during the initialization for each thermal zone.
 
 +---------------------------+-----------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
 | Variable                  | Dimension                   | Quantity                                                                                                    | Unit            |
@@ -290,23 +291,36 @@ For this coupling, all zones of EnergyPlus will be accessed from Modelica.
 For example, if a building has two zones, then both zones need to be modeled in Modelica.
 
 
-.. _sec_cou_var:
+.. _sec_out_var:
 
-Coupling of EnergyPlus output variables with Modelica
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Retrieving output variables from EnergyPlus
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This section describes how to retrieve in Modelica values from the EnergyPlus objects
 ``Output:Variable`` and ``EnergyManagementSystem:OutputVariable``.
 
+The implemented functionality is similar to the EnergyPlus object ``ExternalInterface:FunctionalMockupUnitExport:From:Variable``,
+which is instantiated as
 
+.. code::
+
+   ExternalInterface:FunctionalMockupUnitExport:From:Variable,
+     Environment,                           !- EnergyPlus Key Value
+     Site Outdoor Air Drybulb Temperature,  !- EnergyPlus Variable Name
+     TDryBul;                               !- FMU Variable Name
+
+However, the last argument is not needed.
 The following parameters are sent from Modelica to EnergyPlus. These are sent only once during the instantiation of EnergyPlus.
+No entry in the idf file is required.
 
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | Variable                  | Quantity                                                                                         |
 +===========================+==================================================================================================+
 | *From Modelica to EnergyPlus*                                                                                                |
 +---------------------------+--------------------------------------------------------------------------------------------------+
-| Type                      | String with value ``Output``                                                                     |
+| Idf file name             | String with name of the idf file.                                                                |
++---------------------------+--------------------------------------------------------------------------------------------------+
+| Type                      | String with value ``Output``.                                                                    |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | Key value                 | String, if it is an ``Output:Variable`` its values will be as in the ``.rdd`` or ``.mdd``        |
 |                           | or if it is an ``EnergyManagementSystem:OutputVariable`` its value will be ``EMS``.              |
@@ -317,7 +331,25 @@ The following parameters are sent from Modelica to EnergyPlus. These are sent on
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | *From EnergyPlus to Modelica*                                                                                                |
 +---------------------------+--------------------------------------------------------------------------------------------------+
-| Unit string               | String with the units of this quantity (list of allowed units TBD).                              |
+| Unit string               | String with the unit of this quantity (list of allowed units TBD).                               |
++---------------------------+--------------------------------------------------------------------------------------------------+
+
+There will be a Modelica block called ``From.OutputVariable`` with parameters
+
++---------------------------+--------------------------------------------------------------------------------------------------+
+| Name                      | Comment                                                                                          |
++===========================+==================================================================================================+
+| key                       | EnergyPlus key value, as defined by the EnergyPlus .rdd or .mdd file                             |
++---------------------------+--------------------------------------------------------------------------------------------------+
+| name                      | EnergyPlus variable name, as defined in the Input Output Reference                               |
++---------------------------+--------------------------------------------------------------------------------------------------+
+
+There will also be a block called ``From.EnergyManagementOutputVariable`` with parameters
+
++---------------------------+--------------------------------------------------------------------------------------------------+
+| Name                      | Comment                                                                                          |
++===========================+==================================================================================================+
+| name                      | Name of the ``EnergyManagementSystem:OutputVariable``                                            |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 
 At each invocation of the function ``fmi2GetReal``, EnergyPlus will send the output variable that is computed for
@@ -330,67 +362,271 @@ During the initialization, EnergyPlus will send an initial value to Modelica.
 
 For Modelica, reading variables will be done using a block with no input and one output.
 
-There will be a block called ``Read.OutputVariable`` with parameters
+We assume that these variables are "discrete", and hence per the FMI-ME 2.0 specification (p.47),
+the value of the variable is constant between external and internal
+events (= time, state, step events defined implicitly in the FMU).
+
+
+The Modelica pseudo-code is
+
+.. code:: modelica
+
+   when sampleTrigger then
+      y = readFromEnergyPlus(ptr);
+   end when;
+
+where ``extObj`` is the pointer to the external object that communicates with EnergyPlus.
+
+
+.. _sec_sen_var:
+
+Sending input to EnergyPlus
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This section describes how to send Modelica values to the EnergyPlus objects
+``ExternalInterface:FunctionalMockupUnitExport:To:Schedule``,
+``ExternalInterface:FunctionalMockupUnitExport:To:Actuator``, and
+``ExternalInterface:FunctionalMockupUnitExport:To:Variable``.
+
+For reference, examples of instances in EnergyPlus for these objects are
+as follows.
+
+.. code::
+
+   ExternalInterface:FunctionalMockupUnitExport:To:Schedule,
+     FMU_OthEquSen_ZoneOne,                        !- EnergyPlus Schedule Name
+     Any Number,                                   !- Schedule Type Limits Names
+     QSensible,                                    !- FMU Variable Name
+     0;                                            !- Initial Value
+
+   ExternalInterface:FunctionalMockupUnitExport:To:Actuator,
+     Zn001_Wall001_Win001_Shading_Deploy_Status,   !- EnergyPlus Variable Name
+     Zn001:Wall001:Win001,                         !- Actuated Component Unique Name
+     Window Shading Control,                       !- Actuated Component Type
+     Control Status,                               !- Actuated Component Control Type
+     yShade,                                       !- FMU Variable Name
+     6;                                            !- Initial Value
+
+   ExternalInterface:FunctionalMockupUnitExport:To:Variable,
+     Shade_Signal,                                 !- EnergyPlus Variable Name
+     yShade,                                       !- FMU Variable Name
+     1;                                            !- Initial Value
+
+
+For Modelica, exchanging variables with these objects will be done
+using a Modelica block that has only one input and no output,
+or no input and only one output.
+
+We assume that these variables are "discrete", and hence per the FMI-ME 2.0 specification (p.47),
+the value of the variable is constant between external and internal
+events (= time, state, step events defined implicitly in the FMU).
+
+
+Schedules
+"""""""""
+
+For writing to schedules,
+the following parameters are sent from Modelica to EnergyPlus. These are sent only once during the instantiation of EnergyPlus.
+No entry in the idf file is required.
+
++---------------------------+--------------------------------------------------------------------------------------------------+
+| Variable                  | Quantity                                                                                         |
++===========================+==================================================================================================+
+| *From Modelica to EnergyPlus*                                                                                                |
++---------------------------+--------------------------------------------------------------------------------------------------+
+| Idf file name             | String with name of the idf file.                                                                |
++---------------------------+--------------------------------------------------------------------------------------------------+
+| Type                      | String with value ``To:Schedule``.                                                               |
++---------------------------+--------------------------------------------------------------------------------------------------+
+| Schedule name             | String with the value of an EnergyPlus schedule.                                                 |
++---------------------------+--------------------------------------------------------------------------------------------------+
+| *From EnergyPlus to Modelica*                                                                                                |
++---------------------------+--------------------------------------------------------------------------------------------------+
+| Unit string               | String with the unit of this quantity (list of allowed units TBD).                               |
++---------------------------+--------------------------------------------------------------------------------------------------+
+
+
+.. note:: As EnergyPlus has no notion of real versus integer (or boolean) variables,
+          values will be sent as doubles.
+
+Modelica will send the initial value to EnergyPlus using the pseudo-code
+
+.. code:: C
+
+   ...
+   M_fmi2SetTime(m, time)
+   // set all variable start values (of "ScalarVariable / <type> / start") and
+   // set the input values at time = Tstart
+   M_fmi2SetReal/Integer/Boolean/String(m, ...)
+   // initialize
+   // determine continuous and discrete states
+   M_fmi2SetupExperiment(m,fmi2False,0.0, Tstart, fmi2True,Tend)
+   ...
+
+
+There will be a Modelica block called ``To.Schedule`` with parameters
 
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | Name                      | Comment                                                                                          |
 +===========================+==================================================================================================+
-| key                       | EnergyPlus key value, as defined by the EnergyPlus .rdd or .mdd file                             |
+| idfName                   | Name of the idf file that contains this schedule.                                                |
 +---------------------------+--------------------------------------------------------------------------------------------------+
-| name                      | EnergyPlus variable name, as defined in the Input Output Reference                               |
+| name                      | Name of an EnergyPlus schedule that is present in the idf file.                                  |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 
-There will also be a block called ``Read.EnergyManagementOutputVariable`` with parameters
+.. todo:: Do we really need an instance of a schedule in the idf file in order to write to EnergyPlus?
+          Would a user really set up a schedule, just to overwrite it?
+
+The Modelica pseudo-code is
+
+.. code:: modelica
+
+   when sampleTrigger then
+      sendScheduleToEnergyPlus(pre(u), ptr);
+   end when;
+
+where ``pre(u)`` is the value of the input before ``sampleTrigger`` becomes ``true``.
+
+
+Actuators
+"""""""""
+
+For writing to EMS actuators,
+the following parameters are sent from Modelica to EnergyPlus. These are sent only once during the instantiation of EnergyPlus.
+No entry in the idf file is required.
+
+
++---------------------------------+--------------------------------------------------------------------------------------------+
+| Variable                        | Quantity                                                                                   |
++=================================+============================================================================================+
+| *From Modelica to EnergyPlus*                                                                                                |
++---------------------------------+--------------------------------------------------------------------------------------------+
+| Idf file name                   | String with name of the idf file.                                                          |
++---------------------------------+--------------------------------------------------------------------------------------------+
+| Type                            | String with value ``To:Actuator``                                                          |
++---------------------------------+--------------------------------------------------------------------------------------------+
+| Variable name                   | String with the value of the EnergyPlus variable name (WHY IS THIS NEEDED? DO WE NEED IT?  |
++---------------------------------+--------------------------------------------------------------------------------------------+
+| Component name                  | String with the actuated component unique name                                             |
++---------------------------------+--------------------------------------------------------------------------------------------+
+| Actuated component type         | String with the actuated component type                                                    |
++---------------------------------+--------------------------------------------------------------------------------------------+
+| Actuated component control type | String with the actuated component control type                                            |
++---------------------------------+--------------------------------------------------------------------------------------------+
+| *From EnergyPlus to Modelica*                                                                                                |
++---------------------------------+--------------------------------------------------------------------------------------------+
+| Unit string                     | String with the unit of this quantity (list of allowed units TBD).                         |
++---------------------------------+--------------------------------------------------------------------------------------------+
+
+
+.. note:: As EnergyPlus has no notion of real versus integer (or boolean) variables,
+          values will be sent as doubles.
+
+Modelica will send the initial value as for ``To:Schedule``.
+
+
+There will be a Modelica block called ``To.Actuator`` with parameters
 
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | Name                      | Comment                                                                                          |
 +===========================+==================================================================================================+
-| name                      | Name of the ``EnergyManagementSystem:OutputVariable``                                            |
+| idfName                   | Name of the idf file that contains this actuator.                                                |
++---------------------------+--------------------------------------------------------------------------------------------------+
+| variableName              | Name of the EnergyPlus variable                                                                  |
++---------------------------+--------------------------------------------------------------------------------------------------+
+| componentName             | Name of the actuated component unique name                                                       |
++---------------------------+--------------------------------------------------------------------------------------------------+
+| componentType             | Actuated comonent type                                                                           |
++---------------------------+--------------------------------------------------------------------------------------------------+
+| controlType               | Actuated component control type                                                                  |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 
-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+The Modelica pseudo-code is
+
+.. code:: modelica
+
+   when sampleTrigger then
+      sendActuatorToEnergyPlus(pre(u), ptr);
+   end when;
+
+where ``pre(u)`` is the value of the input before ``sampleTrigger`` becomes ``true``.
 
 
-Modelica provides to EnergyPlus the following values:
+Variables
+"""""""""
 
-EnergyPlus Key Value
+For writing to EMS variables,
+the following parameters are sent from Modelica to EnergyPlus. These are sent only once during the instantiation of EnergyPlus.
+No entry in the idf file is required.
 
-This field contains a Key Value for an EnergyPlus output variable as described in the result dictionary file (ref Output:Variable/.rdd file).
-For an ``EnergyManagementSystem:OutputVariable``, the EnergyPlus Key Value is ``EMS``.
 
-EnergyPlus Variable Name
++---------------------------------+--------------------------------------------------------------------------------------------+
+| Variable                        | Quantity                                                                                   |
++=================================+============================================================================================+
+| *From Modelica to EnergyPlus*                                                                                                |
++---------------------------------+--------------------------------------------------------------------------------------------+
+| Idf file name                   | String with name of the idf file.                                                          |
++---------------------------------+--------------------------------------------------------------------------------------------+
+| Type                            | String with value ``To:Variable``                                                          |
++---------------------------------+--------------------------------------------------------------------------------------------+
+| Variable name                   | String with the value of the EnergyPlus variable name                                      |
++---------------------------------+--------------------------------------------------------------------------------------------+
+| *From EnergyPlus to Modelica*                                                                                                |
++---------------------------------+--------------------------------------------------------------------------------------------+
+| Unit string                     | String with the unit of this quantity (list of allowed units TBD).                         |
++---------------------------------+--------------------------------------------------------------------------------------------+
 
-This field contains the Variable Name as defined in the InputOutput Reference. For an EnergyManagementSystem:OutputVariable, the EnergyPlus Variable Name is the name of the EnergyManagementSystem:OutputVariable s object.
-Field: FMU Variable Name
 
-This field contains the name of the variable in the model description file of the FMU that will be mapped to the corresponding variable in EnergyPlus.
+.. note:: As EnergyPlus has no notion of real versus integer (or boolean) variables,
+          values will be sent as doubles.
 
-ExternalInterface:FunctionalMockupUnitExport:From:Variable,
-  Environment,                         !- EnergyPlus Key Value
-  Site Outdoor Air Drybulb Temperature,   !- EnergyPlus Variable Name
-  TDryBul;                                 !- FMU Variable Name
+Modelica will send the initial value as for ``To:Schedule``.
 
-  ExternalInterface: FunctionalMockupUnitExport:From:Variable,
-  ZONE ONE,                                   !- EnergyPlus Key Value
-  Zone Mean Air Temperature, !- EnergyPlus Variable Name
-  TRooMea;                                     !- FMU Variable Name
 
-  ExternalInterface: FunctionalMockupUnitExport:From:Variable,
-  Environment,                               !- EnergyPlus Key Value
-  Site Outdoor Air Relative Humidity,   !- EnergyPlus Variable Name
-  outRelHum;                                   !- FMU Variable Name
+There will be a Modelica block called ``To.Variable`` with parameters
 
-  ExternalInterface:FunctionalMockupUnitExport:From:Variable,
-  ZONE ONE,                                       !- EnergyPlus Key Value
-  Zone Air Relative Humidity,   !- EnergyPlus Variable Name
-  rooRelHum;                                     !- FMU Variable Name
++---------------------------+--------------------------------------------------------------------------------------------------+
+| Name                      | Comment                                                                                          |
++===========================+==================================================================================================+
+| idfName                   | Name of the idf file that contains this variable.                                                |
++---------------------------+--------------------------------------------------------------------------------------------------+
+| variableName              | Name of the EnergyPlus variable                                                                  |
++---------------------------+--------------------------------------------------------------------------------------------------+
 
-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+The Modelica pseudo-code is
+
+.. code:: modelica
+
+   when sampleTrigger then
+      sendVariableToEnergyPlus(pre(u), ptr);
+   end when;
+
+where ``pre(u)`` is the value of the input before ``sampleTrigger`` becomes ``true``.
+
+
+.. todo:: General question: Is reusing these EnergyPlus objects the right approach?
+          E.g., why instantiating as schedule, just to overwrite it? While these was OK
+          when we had an external interface to overwrite values, now we want a tighter
+          coupling.
 
 .. _sec_time_sync:
 
 Time synchronization
 --------------------
+
+:num:`Figure #fig-fmi-me-20-state-machine` shows the state machine for calling an FMU 2.0 for Model Exchange.
+To communicate with EnergyPlus, we are using the same API and calling sequence.
+TODO: Verify that this is what the C code does.
+
+.. _fig-fmi-me-20-state-machine:
+
+.. figure:: img/StateMachineModelExchange.*
+   :scale: 100 %
+
+   Calling sequence of Model Exchange C functions in form of an UML 2.0 state machine (Figure
+   reproduced from :cite:`modelisar2014`.
+
+
 
 As shown in :num:`Figure #fig-partition-envelop-room-hvac`, the EnergyPlus FMU is invoked
 at a variable time step.
