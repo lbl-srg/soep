@@ -21,7 +21,7 @@ sys.path.append(os.path.abspath('.'))
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 #extensions = ['sphinx.ext.autodoc', 'sphinx.ext.pngmath']
 extensions = ['sphinx.ext.autodoc', \
-#              'mathjax', \
+              'mathjax', \
               'numfig', \
               'sphinxcontrib.bibtex', \
               'sphinxcontrib.plantuml', \
