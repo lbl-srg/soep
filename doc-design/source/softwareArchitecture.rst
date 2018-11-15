@@ -362,10 +362,13 @@ During the initialization, EnergyPlus will send an initial value to Modelica.
 
 For Modelica, reading variables will be done using a block with no input and one output.
 
-We assume that these variables are "discrete", and hence per the FMI-ME 2.0 specification (p.47),
-the value of the variable is constant between external and internal
-events (= time, state, step events defined implicitly in the FMU).
-
+We assume that these variables are :term:`discrete-time variables<discrete-time variable>`
+and hence change their values only at events. Specifically, if
+:math:`y(\cdot)` is a variable of time that is computed in EnergyPlus
+that is sampled at some time instant :math:`t`,
+then Modelica will retrieve :math:`y(t^+)`, where
+:math:`t^+ = (\lim_{\epsilon \to 0} (t+\epsilon), t_{I_{max}})` and
+:math:`I_{max}` is the largest occuring integer of :term:`superdense time`.
 
 The Modelica pseudo-code is
 
@@ -417,9 +420,26 @@ For Modelica, exchanging variables with these objects will be done
 using a Modelica block that has only one input and no output,
 or no input and only one output.
 
-We assume that these variables are "discrete", and hence per the FMI-ME 2.0 specification (p.47),
-the value of the variable is constant between external and internal
-events (= time, state, step events defined implicitly in the FMU).
+As in :numref:`sec_out_var`,
+we assume that these variables are :term:`discrete-time variables<discrete-time variable>`
+and hence change their values only at events. Specifically, if
+:math:`u(\cdot)` is a variable of time that is computed in Modelica
+that is sampled at some time instant :math:`t`,
+then Modelica will send :math:`u(\sideset{^-}{}t)`, where
+:math:`\sideset{^-}{}t = (\lim_{\epsilon \to 0} (t-\epsilon), 0)`.
+
+With this construct, there is no iteration needed if a control loop is closed
+between Modelica and EnergyPlus. To see this, consider
+a controller in Modelica that will send
+a control signal :math:`u(t)` and retrieve from EnergyPlus a measured
+quantity :math:`y(t)`, such as a shade controller that actuates the shade
+based on measured indoor illuminance.
+Then, at the time instant :math:`t`,
+Modelica will send :math:`u(\sideset{^-}{}t)`
+and it will retrieve :math:`y(t^+)` and hence no iteration
+across the tools is required. At the next sample time, Modelica will
+send the update control action that depends on :math:`y(t^+)` to EnergyPlus.
+
 
 
 Schedules
