@@ -37,10 +37,10 @@ Conventions
    :math:`t^+ \triangleq (t_R, \, t_I)^+` for the right limit at :math:`t`.
    It holds that
    :math:`(t_R, \, t_I)^+ \Leftrightarrow (\lim_{\epsilon \to 0} (t_R+\epsilon), t_{I_{max}})`,
-   where :math:`I_{max}` is the largest occuring integer of :term:`superdense time`.
-   Similarly, we write :math:`\sideset{^-}{}t` for the left limit at :math:`t`,
+   where :math:`I_{max}` is the largest occurring integer of :term:`superdense time`.
+   Similarly, we write :math:`\mathbin{^-t}` for the left limit at :math:`t`,
    for which it holds that
-   :math:`\sideset{^-}{}(t_R, \, t_I) \Leftrightarrow (\lim_{\epsilon \to 0} (t_R-\epsilon), 0)`.
+   :math:`\mathbin{^-(t_R, \, t_I)} \Leftrightarrow (\lim_{\epsilon \to 0} (t_R-\epsilon), 0)`.
 
 #. We write a requirement *shall* be met if it must be fulfilled.
    If the feature that implements a shall requirement is not in the final system,

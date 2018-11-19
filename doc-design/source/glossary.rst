@@ -18,7 +18,7 @@ the report.
 
    connector
      In Modelica, a connector is an instance of a class that is used to
-     connect models and blocsk with each other.
+     connect models and blocks with each other.
      Connectors can contain constants, parameters and variables, but no equations.
 
    co-simulation
@@ -30,9 +30,9 @@ the report.
      Each simulator is responsible for integrating in time its
      differential equation. See also :term:`model-exchange`.
 
-   continous-time variable
+   continuous-time variable
      A continuous-time variable is a variable that is a continuous function
-     of time inside each interval :math:`t_i^+ \le t \le \sideset{^-}{}t_{i+1}`.
+     of time inside each interval :math:`t_i^+ \le t \le \mathbin{^-t}_{i+1}`.
 
    block
      In Modelica, a block is a special case of a model

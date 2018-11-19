@@ -4,6 +4,13 @@
 Software Architecture
 *********************
 
+This section describes the overall software architecture (:numref:`sec_ove_sof_arc`),
+the coupling of Modelica with EnergyPlus (:numref:`sec_cou_ene_mod`),
+the integration of the QSS solver with JModelica (:numref:`sec_qss_jmo_int`), and
+the OpenStudio integration (:numref:`sec_int_ope_stu`).
+
+.. _sec_ove_sof_arc:
+
 Overall software architecture
 =============================
 
@@ -131,24 +138,35 @@ Note that the JModelica distribution includes a C++ compiler.
      the OpenStudio SDK.
    end note
 
+
+.. _sec_cou_ene_mod:
+
 Coupling of EnergyPlus with Modelica
 ====================================
 
 This section describes the coupling of EnergyPlus with Modelica.
 The coupling allows two types of interactions between the two tools:
 
-Coupling of EnergyPlus envelope and room with Modelica-based HVAC. This is
-described in Section :numref:`sec_cou_env`.
-The coupling also allows sending EnergyPlus output variables to Modelica, and receiving
-values for schedules, EMS variables and EMS actuators from Modelica.
-This is described in Section xxxx.
+1. The EnergyPlus envelope model can be coupled with the Modelica room model,
+   which in turn is coupled to Modelica HVAC and interzone air exchange.
+   This is described in :numref:`sec_cou_env`.
+2. EnergyPlus output variables and energy management system output variables
+   can be sent from EnergyPlus to Modelica.
+   This is described in :numref:`sec_out_var`.
+3. The values of EnergyPlus schedules, EMS variables and EMS actuators can be set
+   from Modelica.
+   This is described in :numref:`sec_sen_var`.
 
-EnergyPlus will be exported as a dynamically linked library, with
-C functions that conform to the FMI 2.0 for model exchange standard.
-Modelica functions, that are encapsulated in Modelica blocks and models,
-are used to call these C functions. This will users to define the
-interaction in such a way that these interfaces look and behave like
-usual Modelica blocks or models.
+Users will set up this data exchange by instantiating corresponding
+Modelica models or blocks. These Modelica instances will then
+communicate with EnergyPlus, using Modelica C function calls.
+EnergyPlus will be called using a dynamically linked library, with
+C functions that conform to the FMI 2.0 for Model Exchange standard
+as far as possible. The main difference between our implementation
+and FMI 2.0 for Model Exchange is that EnergyPlus is not writing
+a ``modelDescription.xml`` file and is not packaged as a zip file.
+Rather, we load directly the EnergyPlus library and set up the
+data I/O by sending from Modelica the objects required from EnergyPlus.
 
 
 Assumptions and limitations
@@ -160,7 +178,7 @@ To implement the coupling, will make the following assumption:
    room model with stratified room air.
    The reason is to keep focus and make progress before increasing complexity.
 2. The HVAC and the pressure driven air exchange (airflow network) are
-   either in legacy EnergyPlus or in FMUs of the SOEP.
+   either in Modelica or EnergyPlus.
    The two methods cannot be combined.
    The reason is that the legacy EnergyPlus computes in its "predictor/corrector"
    the room temperature as follows:
@@ -170,17 +188,94 @@ To implement the coupling, will make the following assumption:
    c. It updates the room temperature using the HVAC power from step (b).
 
    This is fundamentally different from the ODE solver used by SOEP who sets the new
-   room temperature and time, requests its time derivative, and then recomputes
+   room temperature and time, computes the time derivative, and then recomputes
    the new time step.
 3. In each room, mass, as opposed to volume, is conserved.
    The reason is that this does not induce an air flow in the HVAC system if
    the room temperature changes. Hence, it decouples the thermal and the mass balance.
 
+Unit system
+-----------
+
+Modelica and EnergyPlus each have their own unit systems. The unit conversion
+will be done in the C functions that call the EnergyPlus library. These
+C functions will convert between the units shown in :numref:`tab_uni_spe`.
+The table also shows unit strings that are allowed to use by EnergyPlus
+to tell Modelica the unit of the exchanged inputs and outputs.
+The C functions will then convert the quantity as needed to represent
+it in the units shown in the column `Modelica Unit`.
+
+For composed units, EnergyPlus uses in the output dictonary unit strings
+such as ``W/m2-K``. Therefore, we make the following conventions for the
+EnergyPlus unit string that is sent to Modelica:
+
+1. First, all units in the numerator are listed, and then all
+   units in the denominator, separated by a slash, such as ``W/m``.
+2. In the EnergyPlus unit string, multiplications of units are denoted by a dash, such as in ``m-K``.
+3. Exponents are denoted by an integer that follows the quantity, such as ``m2``.
+4. No brackets are allowed, e.g., use ``W/m2-K`` to denote :math:`\mathrm{W/(m^2 \, K)`.
+5. No prefixes are allowed such as ``m`` for milli, other than for mass, which is reported as
+   ``kg``.
+
+.. _tab_uni_spe:
+
+.. table:: Unit specification of EnergyPlus I/O.
+
+   +------------------------+------------------+---------------------------------+
+   | Quantity               | EnergyPlus       | Modelica Unit                   |
+   |                        | Unit String      |                                 |
+   +========================+==================+=================================+
+   | Angle (rad)            | rad              | rad                             |
+   +------------------------+------------------+---------------------------------+
+   | Angle (deg)            | deg              | rad                             |
+   +------------------------+------------------+---------------------------------+
+   | Energy                 | J                | J                               |
+   +------------------------+------------------+---------------------------------+
+   | Illuminance            | lux              | lm/m2                           |
+   +------------------------+------------------+---------------------------------+
+   | Humidity (absolute)    | kgWater/kgDryAir | 1 (converted to mass fraction   |
+   |                        |                  | per total mass of moist air)    |
+   +------------------------+------------------+---------------------------------+
+   | Humidity (relative)    | %                | 1                               |
+   +------------------------+------------------+---------------------------------+
+   | Luminous flux          | lum              | cd.sr                           |
+   +------------------------+------------------+---------------------------------+
+   | Mass                   | kg               | kg                              |
+   +------------------------+------------------+---------------------------------+
+   | Mass flow rate         | kg/s             | kg/s                            |
+   +------------------------+------------------+---------------------------------+
+   | Power                  | W                | W                               |
+   +------------------------+------------------+---------------------------------+
+   | Pressure               | Pa               | Pa                              |
+   +------------------------+------------------+---------------------------------+
+   | Status (e.g., rain)    | (no character)   | 1                               |
+   +------------------------+------------------+---------------------------------+
+   | Temperature            | K                | C                               |
+   +------------------------+------------------+---------------------------------+
+   | Temperature (absolute) | K                | K                               |
+   +------------------------+------------------+---------------------------------+
+   | Time                   | s                | s                               |
+   +------------------------+------------------+---------------------------------+
+   | Transmittance,         | (no character,   | 1                               |
+   | reflectance, and       | specified as a   |                                 |
+   | absorptance            | value between 0  |                                 |
+   |                        | and 1)           |                                 |
+   +------------------------+------------------+---------------------------------+
+   | Volume                 | m3               | m3                              |
+   +------------------------+------------------+---------------------------------+
+   | Volume flow rate       | m3/s             | m3/s                            |
+   +------------------------+------------------+---------------------------------+
+
+If a unit is sent that is not in this list or can be composed of using
+multiplications and divisions of units in this list,
+the simulation will stop with an error.
+For example, if EnergyPlus were to specify ``N`` for Newton, the simulation
+will stop. Rather, EnergyPlus should specify the quantity in its base unit ``kg-m/s2``.
 
 Partitioning of the models
 --------------------------
 
-To link the envelope model, the room model and the HVAC model, we partition the simulation
+To link EnergyPlus and Modelica, we partition the models
 as shown in :num:`Figure #fig-partition-envelop-room-hvac`.
 
 .. _fig-partition-envelop-room-hvac:
@@ -190,105 +285,104 @@ as shown in :num:`Figure #fig-partition-envelop-room-hvac`.
 
    Partitioning of the envelope, room and HVAC model.
 
-The EnergyPlus FMU is for model exchange and contains the
-envelope and the room surfaces.
-All of the HVAC system and other pressure driven mass flow
-rates, such as infiltration due to wind pressure or static
-pressure differences, are computed in the HVAC FMUs.
-There can be one or several HVAC FMUs, which is irrelevant
-as EnergyPlus will only see one set of variables that it
-exchanges with the master algorithm.
+The EnergyPlus API conforms to the FMI for Model Exchange 2.0 specification.
+However, additional function calls are needed during the instantiation
+to allow us to declare in Modelica the types of objects that are needed
+to be instantiated by EnergyPlus. Without this additional function,
+one would have to declare these objects in the idf file,
+which would be an additional burden on the user and increase
+the complexity of the tool coupling.
+
+We will now describe how to couple the room model and the controls inputs and
+outputs.
 
 .. _sec_cou_env:
-
-Coupling of EnergyPlus envelope and room with Modelica-based HVAC and control
------------------------------------------------------------------------------
-
-This section describes the refactoring of the
-EnergyPlus room model, which will remain in the C/C++ implementation
-of EnergyPlus, to a form that exposes the time derivative of its room model.
-
-We will use the following terminology: By `envelope model`, we mean
-the model for the heat and moisture transfer through opaque constructions
-and through windows.
-By `room model`, we mean the room air heat, mass and trace substance balance.
-By `HVAC model`, we mean the HVAC and control model.
-
-The physical quantities that need to be exchanged are as follows.
-For a convective HVAC system, the convective and latent heat gain added
-by the HVAC system,
-the mass flow rates of trace substances such as CO2 and VoC, and
-the state of the return air, e.g., temperature, relative humidity and pressure.
-For radiant systems, the temperature of the radiant surface,
-and the heat flow rates due to conduction, short-wave and long-wave radiation.
-
-
-.. _sec_data_exchange:
 
 Coupling of envelope model
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To couple the Modelica room air balance to the EnergyPlus envelope model,
+To couple the Modelica room model to the EnergyPlus envelope model,
 the following parameters are sent from EnergyPlus to Modelica. These are sent only once during the initialization for each thermal zone.
 
-+---------------------------+-----------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| Variable                  | Dimension                   | Quantity                                                                                                    | Unit            |
-+===========================+=============================+=============================================================================================================+=================+
-| *From EnergyPlus to Modelica*                                                                                                                                                           |
-+---------------------------+-----------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| V                         | :math:`1`                   | Volume of the zone air                                                                                      |   m3            |
-+---------------------------+-----------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| AFlo                      | :math:`1`                   | Floor area of the zone                                                                                      |   m2            |
-+---------------------------+-----------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| mSenFac                   | :math:`1`                   | Factor for scaling the sensible thermal mass of the zone air volume                                         |   1             |
-+---------------------------+-----------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| Variable                  | Quantity                                                                                                    | Unit            |
++===========================+=============================================================================================================+=================+
+| *From Modelica to EnergyPlus*                                                                                                                             |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| Type                      | String with value ``Zone``.                                                                                 |                 |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| Zone name                 | String with the name of an EnergyPlus zone. This name must be present in the idf file.                      |                 |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| String for volume         | String with value ``V``, specifying that EnergyPlus needs to return the volume of the zone.                 |                 |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| String for floor area     | String with value ``AFlo``, specifying that EnergyPlus needs to return the floor area of the zone.          |                 |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| String for mSenFac        | String with value ``mSenFac``, specifying that EnergyPlus needs to return the scaling factor for the        |                 |
+|                           | sensible thermal mas of the zone air volume.                                                                |                 |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| *From EnergyPlus to Modelica*                                                                                                                             |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| V                         | Volume of the zone air.                                                                                     |   m3            |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| AFlo                      | Floor area of the zone.                                                                                     |   m2            |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| mSenFac                   | Factor for scaling the sensible thermal mass of the zone air volume.                                        |   1             |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+
+The above string arguments will be used as described in :numref:`sec_int_c_api`.
 
 The following time-dependent variables are exchanged between EnergyPlus and Modelica during the time integration
 for each thermal zone.
 
-+---------------------------+-----------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| Variable                  | Dimension                   | Quantity                                                                                                    | Unit            |
-+===========================+=============================+=============================================================================================================+=================+
-| *From Modelica to EnergyPlus*                                                                                                                                                           |
-+---------------------------+-----------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| T                         | :math:`1`                   | Temperature of the zone air                                                                                 |   degC          |
-+---------------------------+-----------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| X                         | :math:`1`                   | Water vapor mass fraction per total air mass of the zone                                                    |   kg/kg         |
-+---------------------------+-----------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| mInlets_flow              | :math:`1`                   | Sum of positive mass flow rates into the zone for all air inlets (including infiltration)                   |   kg/s          |
-+---------------------------+-----------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| TInlet                    | :math:`1`                   | Average of inlets medium temperatures carried by the mass flow rates                                        |   degC          |
-+---------------------------+-----------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| QGaiRad_flow              | :math:`1`                   | Radiative sensible heat gain added to the zone                                                              |   W             |
-+---------------------------+-----------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| t                         | :math:`1`                   | Model time at which the above inputs are valid, with :math:`t=0` defined as January 1, 0 am local time,     |   s             |
-|                           |                             | and with                                                                                                    |                 |
-|                           |                             | no correction for daylight savings time                                                                     |                 |
-+---------------------------+-----------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| *From EnergyPlus to Modelica*                                                                                                                                                           |
-+---------------------------+-----------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| TRad                      | :math:`1`                   | Average radiative temperature in the room                                                                   |   degC          |
-+---------------------------+-----------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| QConSen_flow              | :math:`1`                   | Convective sensible heat added to the zone, e.g., as entered in                                             |   W             |
-|                           |                             | the EnergyPlus' ``People`` or ``Equipment`` schedule                                                        |                 |
-+---------------------------+-----------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| QLat_flow                 | :math:`1`                   | Latent heat gain added to the zone, e.g., from mass transfer with moisture buffering material and           |   W             |
-|                           |                             | from EnergyPlus' ``People`` schedule                                                                        |                 |
-+---------------------------+-----------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| QPeo_flow                 | :math:`1`                   | Heat gain due to people (only to be used to optionally compute CO2 emitted by people)                       |   W             |
-+---------------------------+-----------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| nextEventTime             | :math:`1`                   | Model time :math:`t` when EnergyPlus needs to be called next (typically the next zone time step)            |   s             |
-+---------------------------+-----------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| Variable                  | Quantity                                                                                                    | Unit            |
++===========================+=============================================================================================================+=================+
+| *From Modelica to EnergyPlus*                                                                                                                             |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| T                         | Temperature of the zone air.                                                                                |   degC          |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| X                         | Water vapor mass fraction per total air mass of the zone.                                                   |   kg/kg         |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| mInlets_flow              | Sum of positive mass flow rates into the zone for all air inlets (including infiltration).                  |   kg/s          |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| TInlet                    | Average of inlets medium temperatures carried by the mass flow rates.                                       |   degC          |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| QGaiRad_flow              | Radiative sensible heat gain added to the zone.                                                             |   W             |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| t                         | Model time at which the above inputs are valid, with :math:`t=0` defined as January 1, 0 am local time,     |   s             |
+|                           | and with                                                                                                    |                 |
+|                           | no correction for daylight savings time.                                                                    |                 |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| *From EnergyPlus to Modelica*                                                                                                                             |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| TRad                      | Average radiative temperature in the room.                                                                  |   degC          |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| QConSen_flow              | Convective sensible heat added to the zone, e.g., from surface convection and from                          |   W             |
+|                           | the EnergyPlus' ``People`` or ``Equipment`` schedule.                                                       |                 |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| QLat_flow                 | Latent heat gain added to the zone, e.g., from mass transfer with moisture buffering material and           |   W             |
+|                           | from EnergyPlus' ``People`` schedule.                                                                       |                 |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| QPeo_flow                 | Heat gain due to people (only to be used to optionally compute CO2 emitted by people).                      |   W             |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| nextEventTime             | Model time :math:`t` when EnergyPlus needs to be called next (typically the next zone time step).           |   s             |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
 
 Note that the EnergyPlus object ``ZoneAirContaminantBalance`` either allows CO2 concentration modeling,
 or a generic contaminant modeling (such as from material outgasing),
-or no contaminant modeling, or both. To allow ambiguities regarding what contaminant
+or no contaminant modeling, or both. To avoid ambiguities regarding what contaminant
 is being modeled, we do not receive the contaminant emission from EnergyPlus.
-Instead, we obtain the heat gain due to people, which is then used to optionally computed the
+Instead, we obtain the heat gain due to people, which is then used to optionally compute the
 CO2 emitted by people.
 
 For this coupling, all zones of EnergyPlus will be accessed from Modelica.
 For example, if a building has two zones, then both zones need to be modeled in Modelica.
+
+The calling sequences of the functions that send data to EnergyPlus and read data from EnergyPlus is
+as for any :term:`continuous-time variable` in FMI. That is, at any time instant,
+variables can be set multiple times, and the values returned by EnergyPlus must reflect
+to updated input variables. (Multiple calls within a time step are used to compute
+the derivative of ``QConSen_flow`` with respect to ``T``.)
 
 
 .. _sec_out_var:
@@ -299,8 +393,9 @@ Retrieving output variables from EnergyPlus
 This section describes how to retrieve in Modelica values from the EnergyPlus objects
 ``Output:Variable`` and ``EnergyManagementSystem:OutputVariable``.
 
-The implemented functionality is similar to the EnergyPlus object ``ExternalInterface:FunctionalMockupUnitExport:From:Variable``,
-which is instantiated as
+For reference, although not required to be specified for this coupling,
+we state how to instantiate the EnergyPlus object that exposes a variable
+at the FMI API of EnergyPlus. The idf snippet is as follows:
 
 .. code::
 
@@ -309,7 +404,8 @@ which is instantiated as
      Site Outdoor Air Drybulb Temperature,  !- EnergyPlus Variable Name
      TDryBul;                               !- FMU Variable Name
 
-However, the last argument is not needed.
+For the Modelica coupling, this need not be specified in the idf file,
+and the last argument is not needed.
 The following parameters are sent from Modelica to EnergyPlus. These are sent only once during the instantiation of EnergyPlus.
 No entry in the idf file is required.
 
@@ -318,20 +414,18 @@ No entry in the idf file is required.
 +===========================+==================================================================================================+
 | *From Modelica to EnergyPlus*                                                                                                |
 +---------------------------+--------------------------------------------------------------------------------------------------+
-| Idf file name             | String with name of the idf file.                                                                |
+| Type                      | String with value ``From:Output``.                                                               |
 +---------------------------+--------------------------------------------------------------------------------------------------+
-| Type                      | String with value ``Output``.                                                                    |
+| Key value                 | String, if it is an ``Output:Variable``, its values will be as in the ``.rdd`` or ``.mdd`` file. |
+|                           | If it is an ``EnergyManagementSystem:OutputVariable``, its value will be ``EMS``.                |
 +---------------------------+--------------------------------------------------------------------------------------------------+
-| Key value                 | String, if it is an ``Output:Variable`` its values will be as in the ``.rdd`` or ``.mdd``        |
-|                           | or if it is an ``EnergyManagementSystem:OutputVariable`` its value will be ``EMS``.              |
-+---------------------------+--------------------------------------------------------------------------------------------------+
-| Variable name             | String, if it is an ``Output:Variable`` its values will be as in the InputOutputReference,       |
-|                           | or if it is an ``EnergyManagementSystem:OutputVariable`` its value will be                       |
-|                           | the name of the ``EnergyManagementSystem:OutputVariable`` .                                      |
+| Variable name             | String, if it is an ``Output:Variable``, its values will be as in the Input Output Reference.    |
+|                           | If it is an ``EnergyManagementSystem:OutputVariable`` its value will be                          |
+|                           | the name of the ``EnergyManagementSystem:OutputVariable``.                                       |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | *From EnergyPlus to Modelica*                                                                                                |
 +---------------------------+--------------------------------------------------------------------------------------------------+
-| Unit string               | String with the unit of this quantity (list of allowed units TBD).                               |
+| EnergyPlus unit string    | String with the unit of this quantity (see :numref:`tab_uni_spe`).                               |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 
 There will be a Modelica block called ``From.OutputVariable`` with parameters
@@ -341,7 +435,7 @@ There will be a Modelica block called ``From.OutputVariable`` with parameters
 +===========================+==================================================================================================+
 | key                       | EnergyPlus key value, as defined by the EnergyPlus .rdd or .mdd file                             |
 +---------------------------+--------------------------------------------------------------------------------------------------+
-| name                      | EnergyPlus variable name, as defined in the Input Output Reference                               |
+| name                      | EnergyPlus variable name, as defined in the EnergyPlus Input Output Reference                    |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 
 There will also be a block called ``From.EnergyManagementOutputVariable`` with parameters
@@ -353,11 +447,12 @@ There will also be a block called ``From.EnergyManagementOutputVariable`` with p
 +---------------------------+--------------------------------------------------------------------------------------------------+
 
 At each invocation of the function ``fmi2GetReal``, EnergyPlus will send the output variable that is computed for
-the current time and all the values set prior to the call with ``fmi2SetReal``.
+the current time and all the values set with ``fmi2SetReal``.
 During the initialization, EnergyPlus will send an initial value to Modelica.
 
-.. note:: As EnergyPlus has no notion of real versus integer (or boolean) variables, we retrieve only real values.
-          While the Erl language has built-in variables ``True`` and ``False`` and ``On`` and ``Off``, Erl represents them
+.. note:: The EnergyPlus Runtime Language (ERL) has no notion of real versus integer (or boolean) variables. Therefore,
+          we retrieve only real values.
+          While the ERL has built-in variables ``True`` and ``False`` and ``On`` and ``Off``, ERL represents them
           as a real value.
 
 For Modelica, reading variables will be done using a block with no input and one output.
@@ -368,17 +463,17 @@ and hence change their values only at events. Specifically, if
 that is sampled at some time instant :math:`t`,
 then Modelica will retrieve :math:`y(t^+)`, where
 :math:`t^+ = (\lim_{\epsilon \to 0} (t+\epsilon), t_{I_{max}})` and
-:math:`I_{max}` is the largest occuring integer of :term:`superdense time`.
+:math:`I_{max}` is the largest occurring integer of :term:`superdense time`.
 
 The Modelica pseudo-code is
 
-.. code:: modelica
+.. code-block:: modelica
 
-   when sampleTrigger then
-      y = readFromEnergyPlus(ptr);
+   when {initial(), time >= pre(tNext)} then
+     (y, tNext) = readFromEnergyPlus(adapter, time);
    end when;
 
-where ``extObj`` is the pointer to the external object that communicates with EnergyPlus.
+where ``adapter`` stores the data structure used to communicate with EnergyPlus.
 
 
 .. _sec_sen_var:
@@ -397,7 +492,7 @@ as follows.
 .. code::
 
    ExternalInterface:FunctionalMockupUnitExport:To:Schedule,
-     FMU_OthEquSen_ZoneOne,                        !- EnergyPlus Schedule Name
+     OfficeSensibleGain,                           !- EnergyPlus Schedule Name
      Any Number,                                   !- Schedule Type Limits Names
      QSensible,                                    !- FMU Variable Name
      0;                                            !- Initial Value
@@ -415,6 +510,7 @@ as follows.
      yShade,                                       !- FMU Variable Name
      1;                                            !- Initial Value
 
+For the Modelica coupling, these objects need not be declared in the idf file.
 
 For Modelica, exchanging variables with these objects will be done
 using a Modelica block that has only one input and no output,
@@ -425,22 +521,27 @@ we assume that these variables are :term:`discrete-time variables<discrete-time 
 and hence change their values only at events. Specifically, if
 :math:`u(\cdot)` is a variable of time that is computed in Modelica
 that is sampled at some time instant :math:`t`,
-then Modelica will send :math:`u(\sideset{^-}{}t)`, where
-:math:`\sideset{^-}{}t = (\lim_{\epsilon \to 0} (t-\epsilon), 0)`.
+then Modelica will send :math:`u(\mathbin{^-t})`, where
+:math:`\mathbin{^-t} = (\lim_{\epsilon \to 0} (t-\epsilon), 0)`.
 
 With this construct, there is no iteration needed if a control loop is closed
-between Modelica and EnergyPlus. To see this, consider
+between Modelica and EnergyPlus that uses outputs from :numref:`sec_out_var`
+and inputs from this section.
+To see this, consider
 a controller in Modelica that will send
 a control signal :math:`u(t)` and retrieve from EnergyPlus a measured
-quantity :math:`y(t)`, such as a shade controller that actuates the shade
-based on measured indoor illuminance.
+quantity :math:`y(t)`, such as a PI controller in Modelica that actuates
+the shade slat angle in EnergyPlus based on indoor illuminance reported by EnergyPlus.
 Then, at the time instant :math:`t`,
-Modelica will send :math:`u(\sideset{^-}{}t)`
-and it will retrieve :math:`y(t^+)` and hence no iteration
+Modelica will send :math:`u(\mathbin{^-t})`
+and it will retrieve :math:`y(t^+)`. Hence, no iteration
 across the tools is required. At the next sample time, Modelica will
 send the update control action that depends on :math:`y(t^+)` to EnergyPlus.
+This simple example also illustrates that inputs and outputs need for certain
+applications be exchanged at a sampling rate that is below the EnergyPlus zone time step.
 
 
+.. _sec_inp_sch:
 
 Schedules
 """""""""
@@ -454,33 +555,31 @@ No entry in the idf file is required.
 +===========================+==================================================================================================+
 | *From Modelica to EnergyPlus*                                                                                                |
 +---------------------------+--------------------------------------------------------------------------------------------------+
-| Idf file name             | String with name of the idf file.                                                                |
-+---------------------------+--------------------------------------------------------------------------------------------------+
 | Type                      | String with value ``To:Schedule``.                                                               |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | Schedule name             | String with the value of an EnergyPlus schedule.                                                 |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | *From EnergyPlus to Modelica*                                                                                                |
 +---------------------------+--------------------------------------------------------------------------------------------------+
-| Unit string               | String with the unit of this quantity (list of allowed units TBD).                               |
+| EnergyPlus unit string    | String with the unit of this quantity (see :numref:`tab_uni_spe`).                               |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 
 
 .. note:: As EnergyPlus has no notion of real versus integer (or boolean) variables,
           values will be sent as doubles.
 
-Modelica will send the initial value to EnergyPlus using the pseudo-code
+Modelica will send the initial value to EnergyPlus as in the following pseudo-code:
 
-.. code:: C
+.. code-block:: C
 
    ...
    M_fmi2SetTime(m, time)
    // set all variable start values (of "ScalarVariable / <type> / start") and
    // set the input values at time = Tstart
-   M_fmi2SetReal/Integer/Boolean/String(m, ...)
+   M_fmi2SetReal(m, ...)
    // initialize
    // determine continuous and discrete states
-   M_fmi2SetupExperiment(m,fmi2False,0.0, Tstart, fmi2True,Tend)
+   M_fmi2SetupExperiment(m, fmi2False, 0.0, Tstart, fmi2True, Tend)
    ...
 
 
@@ -499,13 +598,16 @@ There will be a Modelica block called ``To.Schedule`` with parameters
 
 The Modelica pseudo-code is
 
-.. code:: modelica
+.. code-block:: modelica
 
-   when sampleTrigger then
-      sendScheduleToEnergyPlus(pre(u), ptr);
+   when sample(t0, samplePeriod) then
+      sendScheduleToEnergyPlus(pre(u), adapter);
    end when;
 
-where ``pre(u)`` is the value of the input before ``sampleTrigger`` becomes ``true``.
+where
+``t0`` is the start of the simulation,
+``samplePeriod`` is the sample period if this block, and
+``pre(u)`` is the value of the input before ``sample(t0, samplePeriod)`` becomes ``true``.
 
 
 Actuators
@@ -521,25 +623,25 @@ No entry in the idf file is required.
 +=================================+============================================================================================+
 | *From Modelica to EnergyPlus*                                                                                                |
 +---------------------------------+--------------------------------------------------------------------------------------------+
-| Idf file name                   | String with name of the idf file.                                                          |
+| Type                            | String with value ``To:Actuator``.                                                         |
 +---------------------------------+--------------------------------------------------------------------------------------------+
-| Type                            | String with value ``To:Actuator``                                                          |
+| Variable name                   | String with the value of the EnergyPlus variable name.                                     |
 +---------------------------------+--------------------------------------------------------------------------------------------+
-| Variable name                   | String with the value of the EnergyPlus variable name (WHY IS THIS NEEDED? DO WE NEED IT?  |
+| Component name                  | String with the actuated component unique name.                                            |
 +---------------------------------+--------------------------------------------------------------------------------------------+
-| Component name                  | String with the actuated component unique name                                             |
+| Actuated component type         | String with the actuated component type.                                                   |
 +---------------------------------+--------------------------------------------------------------------------------------------+
-| Actuated component type         | String with the actuated component type                                                    |
-+---------------------------------+--------------------------------------------------------------------------------------------+
-| Actuated component control type | String with the actuated component control type                                            |
+| Actuated component control type | String with the actuated component control type.                                           |
 +---------------------------------+--------------------------------------------------------------------------------------------+
 | *From EnergyPlus to Modelica*                                                                                                |
 +---------------------------------+--------------------------------------------------------------------------------------------+
-| Unit string                     | String with the unit of this quantity (list of allowed units TBD).                         |
+| EnergyPlus unit string          | String with the unit of this quantity (see :numref:`tab_uni_spe`).                         |
 +---------------------------------+--------------------------------------------------------------------------------------------+
 
 
-.. note:: As EnergyPlus has no notion of real versus integer (or boolean) variables,
+.. todo:: Why is the *Variable name* needed? Should this be left out?
+
+.. note:: As the ERL has no notion of real versus integer (or boolean) variables,
           values will be sent as doubles.
 
 Modelica will send the initial value as for ``To:Schedule``.
@@ -552,24 +654,24 @@ There will be a Modelica block called ``To.Actuator`` with parameters
 +===========================+==================================================================================================+
 | idfName                   | Name of the idf file that contains this actuator.                                                |
 +---------------------------+--------------------------------------------------------------------------------------------------+
-| variableName              | Name of the EnergyPlus variable                                                                  |
+| variableName              | Name of the EnergyPlus variable.                                                                 |
 +---------------------------+--------------------------------------------------------------------------------------------------+
-| componentName             | Name of the actuated component unique name                                                       |
+| componentName             | Name of the actuated component unique name.                                                      |
 +---------------------------+--------------------------------------------------------------------------------------------------+
-| componentType             | Actuated comonent type                                                                           |
+| componentType             | Actuated comonent type.                                                                          |
 +---------------------------+--------------------------------------------------------------------------------------------------+
-| controlType               | Actuated component control type                                                                  |
+| controlType               | Actuated component control type.                                                                 |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 
 The Modelica pseudo-code is
 
-.. code:: modelica
+.. code-block:: modelica
 
-   when sampleTrigger then
-      sendActuatorToEnergyPlus(pre(u), ptr);
+   when sample(t0, samplePeriod) then
+      sendActuatorToEnergyPlus(pre(u), adapter);
    end when;
 
-where ``pre(u)`` is the value of the input before ``sampleTrigger`` becomes ``true``.
+where ``pre(u)`` is the value of the input before ``sample(t0, samplePeriod)`` becomes ``true``.
 
 
 Variables
@@ -585,15 +687,13 @@ No entry in the idf file is required.
 +=================================+============================================================================================+
 | *From Modelica to EnergyPlus*                                                                                                |
 +---------------------------------+--------------------------------------------------------------------------------------------+
-| Idf file name                   | String with name of the idf file.                                                          |
-+---------------------------------+--------------------------------------------------------------------------------------------+
 | Type                            | String with value ``To:Variable``                                                          |
 +---------------------------------+--------------------------------------------------------------------------------------------+
 | Variable name                   | String with the value of the EnergyPlus variable name                                      |
 +---------------------------------+--------------------------------------------------------------------------------------------+
 | *From EnergyPlus to Modelica*                                                                                                |
 +---------------------------------+--------------------------------------------------------------------------------------------+
-| Unit string                     | String with the unit of this quantity (list of allowed units TBD).                         |
+| EnergyPlus unit string          | String with the unit of this quantity (see :numref:`tab_uni_spe`).                         |
 +---------------------------------+--------------------------------------------------------------------------------------------+
 
 
@@ -615,17 +715,17 @@ There will be a Modelica block called ``To.Variable`` with parameters
 
 The Modelica pseudo-code is
 
-.. code:: modelica
+.. code-block:: modelica
 
-   when sampleTrigger then
-      sendVariableToEnergyPlus(pre(u), ptr);
+   when sample(t0, samplePeriod) then
+      sendVariableToEnergyPlus(pre(u), adapter);
    end when;
 
-where ``pre(u)`` is the value of the input before ``sampleTrigger`` becomes ``true``.
+where ``pre(u)`` is the value of the input before ``sample(t0, samplePeriod)`` becomes ``true``.
 
 
 .. todo:: General question: Is reusing these EnergyPlus objects the right approach?
-          E.g., why instantiating as schedule, just to overwrite it? While these was OK
+          E.g., why instantiating a schedule, just to overwrite it? While this was fine
           when we had an external interface to overwrite values, now we want a tighter
           coupling.
 
@@ -634,9 +734,7 @@ where ``pre(u)`` is the value of the input before ``sampleTrigger`` becomes ``tr
 Time synchronization
 --------------------
 
-:num:`Figure #fig-fmi-me-20-state-machine` shows the state machine for calling an FMU 2.0 for Model Exchange.
-To communicate with EnergyPlus, we are using the same API and calling sequence.
-TODO: Verify that this is what the C code does.
+.. todo:: Verify that this is what the C code does.
 
 .. _fig-fmi-me-20-state-machine:
 
@@ -646,15 +744,16 @@ TODO: Verify that this is what the C code does.
    Calling sequence of Model Exchange C functions in form of an UML 2.0 state machine (Figure
    reproduced from :cite:`modelisar2014`.
 
-
-
-As shown in :num:`Figure #fig-partition-envelop-room-hvac`, the EnergyPlus FMU is invoked
+:numref:`fig-fmi-me-20-state-machine` shows the state machine for calling an FMU 2.0 for Model Exchange.
+To communicate with EnergyPlus, we are using the same API and calling sequence.
+As shown in :numref:`fig-partition-envelop-room-hvac`, the EnergyPlus FMU is invoked
 at a variable time step.
-Internally, it samples its heat conduction model at the envelope time step :math:`\Delta t_z`.
+Therefore, data is exchanged within the mode labelled *Continuous Time Mode* in :numref:`fig-fmi-me-20-state-machine`.
+Internally, EnergyPlus samples its heat conduction model at the envelope time step :math:`\Delta t_z`.
 EnergyPlus needs to report this to the FMI interface. To report such time events,
 the FMI interface uses a C structure called ``fmi2EventInfo`` which is implemented as follows:
 
-.. code:: c
+.. code-block:: c
 
    typedef struct{
      fmi2Boolean newDiscreteStatesNeeded;
@@ -672,6 +771,12 @@ or when a schedule changes its value and this change affects the variables
 that are sent from the EnergyPlus FMU to the master algorithm.
 Such a schedule could for example be a time schedule for internal heat gains,
 which may change at times that do not coincide with the zone time step :math:`\Delta t_z`.
+
+In contrast, reading outputs and sending inputs to schedule, EMS variables and EMS actuators,
+happens in the mode labelled *EventMode*.
+This allows to avoid algebraic loops that may be formed by adding a controller
+between an EnergyPlus output and an EnergyPlus input, as described in :numref:`sec_sen_var`.
+
 
 Requirements for Exporting EnergyPlus as an FMU for model exchange
 ------------------------------------------------------------------
@@ -695,7 +800,7 @@ These functions are then used by the FMI for model exchange wrapper that LBL is 
 
 In the remainder of this section, we note that ``time`` is
 
-   - the variable described as ``t`` in the table of section :numref:`sec_data_exchange`,
+   - the variable described as ``t`` in the table of section :numref:`sec_cou_env`,
    - a monotonically increasing variable.
 
 .. note::
@@ -705,10 +810,12 @@ In the remainder of this section, we note that ``time`` is
     then only the first call will update the variables, subsequent calls will cause the functions to return the same variable values.
 
 
+.. _sec_int_c_api:
+
 Instantiation
 ^^^^^^^^^^^^^
 
-.. code:: c
+.. code-block:: c
 
    unsigned int instantiate(const char const *input,
                             const char const *weather,
@@ -746,43 +853,88 @@ Instantiation
   length of ``outputNames`` and ``outputValueReferences``.
 - ``log``: Logging message returned on error.
 
-For example, if a building has two zones called ``basement`` and ``office``, then the parameter names are
-
-
-Configuring variables to be exchanged
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-To configure the variables to be exchanged, the following data structures will be used.
-
-.. code:: c
-
-   const char ** parameterNames = {"basement,V", "basement,AFlo", "basement,mSenFac", "office,V", "office,AFlo", "office,mSenFac"};
-   const unsigned int parameterValueReferences[] = {0, 1, 2, 3, 4, 5, 6};
-
-The inputs into EnergyPlus will be
-
-.. code:: c
-
-   const char ** inputNames = {"basement,T", "basement,X", "basement,mInlets_flow", "basement,TInlet", "basement,QGaiRad_flow",
-                               "office,T", "office,X", "office,mInlets_flow", "office,TInlet", "office,QGaiRad_flow"};
-   const unsigned int inputValueReferences[] = {7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-
-The outputs of EnergyPlus will be
-
-.. code:: c
-
-   const char ** outputNames = {"basement,TRad", "basement,QConSen_flow", "basement,QLat_flow", "basement,QPeo_flow",
-                                "office,TRad", "office,QConSen_flow", "office,QLat_flow", "office,QPeo_flow"};
-   const unsigned int outputValueReferences[] = {17, 18, 19, 20, 21, 22, 23, 24};
-
 This function will read the ``idf`` file and sets up the data structure in EnergyPlus.
 
 It returns zero if there was no error, or else a positive non-zero integer.
 
+
+We will now describe how to the exchanged variables are configured.
+
+Envelope model
+""""""""""""""
+
+To configure the variables to be exchanged for the envelope model described in :numref:`sec_cou_env`,
+the following data structures will be used for a building with a zone called ``basement`` and a zone called ``office``.
+
+.. code-block:: c
+
+   const char ** parameterNames = {"zone,basement,V",
+                                   "zone,basement,AFlo",
+                                   "zone,basement,mSenFac",
+                                   "zone,office,V",
+                                   "zone,office,AFlo",
+                                   "zone,office,mSenFac"};
+   const unsigned int parameterValueReferences[] = {0, 1, 2, 3, 4, 5, 6};
+
+The inputs into EnergyPlus will be
+
+.. code-block:: c
+
+   const char ** inputNames = {"zone,basement,T", "zone,basement,X", "zone,basement,mInlets_flow",
+                               "zone,basement,TInlet", "zone,basement,QGaiRad_flow",
+                               "zone,office,T", "office,X", "zone,office,mInlets_flow",
+                               "zone,office,TInlet", "zone,office,QGaiRad_flow"};
+   const unsigned int inputValueReferences[] = {7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+
+The outputs of EnergyPlus will be
+
+.. code-block:: c
+
+   const char ** outputNames = {"zone,basement,TRad",      "zone,basement,QConSen_flow",
+                                "zone,basement,QLat_flow", "zone,basement,QPeo_flow",
+                                "zone,office,TRad",        "zone,office,QConSen_flow",
+                                "zone,office,QLat_flow",   "zone,office,QPeo_flow"};
+   const unsigned int outputValueReferences[] = {17, 18, 19, 20, 21, 22, 23, 24};
+
+
+Output variables
+""""""""""""""""
+
+To configure the data exchange for output variables, as described in :numref:`sec_out_var`,
+consider an example where one wants to retrieve the outdoor drybulb temperature from EnergyPlus.
+Then, the following functions will be called during the instantiation, where we added the suffix
+``,Unit`` or ``,Value`` to indicate what quantity to return.
+
+.. code-block:: c
+
+   const char ** parameterNames = {"From:Output,Environment,Site Outdoor Air Drybulb Temperature,Unit"};
+   const unsigned int parameterValueReferences[] = {0};
+
+   const char ** outputNames = {"From:Output,Environment,Site Outdoor Air Drybulb Temperature,Value"};
+   const unsigned int outputValueReferences[] = {1};
+
+Schedules, EMS actuators and EMS variables
+""""""""""""""""""""""""""""""""""""""""""
+
+To configure the data exchange with a schedule, as described in :numref:`sec_inp_sch`,
+consider the example where we want to write to a schedule called ``OfficeSensibleGain``.
+Then, the following functions will be called during the instantiation, where we added the suffix
+``,Unit`` or ``,Value`` to indicate what quantity to return.
+
+.. code-block:: c
+
+   const char ** parameterNames = {"To:Schedule,OfficeSensibleGain,Unit"};
+   const unsigned int parameterValueReferences[] = {0};
+
+   const char ** inputNames = {"To:Schedule,OfficeSensibleGain,Value"};
+   const unsigned int inputValueReferences[] = {1};
+
+EMS actuators and EMS variables have a similar configuration.
+
 Setting up the experiment time
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code:: c
+.. code-block:: c
 
    unsigned int setupExperiment(double tStart,
                                 const char *log);
@@ -811,7 +963,7 @@ It returns zero if there was no error, or else a positive non-zero integer.
 Setting the current time
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code:: c
+.. code-block:: c
 
    unsigned int setTime(double time,
                         const char *log);
@@ -826,7 +978,7 @@ It returns zero if there was no error, or else a positive non-zero integer.
 Sending parameters and variables to EnergyPlus
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code:: c
+.. code-block:: c
 
    unsigned int setVariables(const unsigned int valueReferences[],
                              const double* const variablePointers[],
@@ -849,7 +1001,7 @@ It returns zero if there was no error, or else a positive non-zero integer.
 Retrieving parameters and variables from EnergyPlus
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code:: c
+.. code-block:: c
 
    unsigned int getVariables(const unsigned int valueReferences[],
                              const double* variablePointers[],
@@ -872,7 +1024,7 @@ It returns zero if there was no error, or else a positive non-zero integer.
 Retrieving the next event time
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code:: c
+.. code-block:: c
 
    unsigned int getNextEventTime(fmi2EventInfo *eventInfo,
                                  const char *log);
@@ -887,7 +1039,7 @@ It returns zero if there was no error, or else a positive non-zero integer.
 Terminating the EnergyPlus simulation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code:: c
+.. code-block:: c
 
    unsigned int terminate(const char *log);
 
@@ -902,7 +1054,7 @@ It returns zero if there was no error, or else a positive non-zero integer.
 Writing EnergyPlus output files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code:: c
+.. code-block:: c
 
    unsigned int writeOutputFiles(const char *log);
 
@@ -921,31 +1073,17 @@ In the next section, the usage of the FMI functions along with the equivalent En
 This should clarify the need of the EnergyPlus equivalent functions and show how these functions will be used in a simulation environment.
 In the pseudo code, ``->`` points to the EnergyPlus equivalent FMI functions. ``NA`` indicates that the FMI functions do not require EnergyPlus equivalent.
 
+.. todo:: The code below needs to be revised.
 
 .. literalinclude:: models/pseudo/pseudo.c
    :language: C
    :linenos:
 
-Tool for Exporting EnergyPlus as an FMU
----------------------------------------
 
-To export EnergyPlus as an FMU, a utility is needed which will get as inputs
-the paths to the EnergyPlus idf, idd, and weather files.
-The utility will parse the idf file and write an XML model description file
-which contains the inputs, outputs, and states of EnergyPlus to be exposed
-through the FMI interface.
-The utility will compile the EnergyPlus FMI functions into a shared library,
-and package the library with the idf, idd, and weather file in the
-``resources`` folder of the FMU.
-An approach to develop such a utility is to extend EnergyPlusToFMU
-(http://simulationresearch.lbl.gov/fmu/EnergyPlus/export/index.html)
-to support FMI 2.0 for model exchange.
-Another approach is to extend SimulatorToFMU (https://github.com/LBNL-ETA/SimulatorToFMU)
-to support the export of EnergyPlus.
+.. _sec_qss_jmo_int:
 
-
-JModelica Integration
-=====================
+Integration of QSS solver with JModelica
+========================================
 
 This section describes the integration of the QSS solver in JModelica.
 
@@ -1093,7 +1231,7 @@ to the ``<Derivatives>`` element of the ``modelDescription.xml`` file.
 
 .. _fig_der_ext:
 
-.. code-block:: xml
+.. code-block:: XML
    :caption: Extensions for obtaining higher order state derivatives. XML additions are marked yellow.
    :emphasize-lines: 12,13
 
@@ -1562,8 +1700,10 @@ Conditional Expressions and Event Indicators
 
 - If the xml can expose the zero crossing directions of interest that will allow for more efficiency.
 
-OpenStudio integration
-======================
+.. _sec_int_ope_stu:
+
+Integration with OpenStudio
+===========================
 
 .. note:: This section needs to be revised in view of the move towards a json-driven architecture.
 
