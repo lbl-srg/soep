@@ -43,7 +43,6 @@ Currently, the OpenStudio Model Library is compiled C++ code.
 Our integration will generate a representation of the
 Modelica library that allows OpenStudio to
 dynamic load models for the SOEP mode.
-Note that the JModelica distribution includes a C++ compiler.
 
 
 .. _fig_overall_software_architecture:
@@ -150,7 +149,7 @@ The coupling allows two types of interactions between the two tools:
 1. The EnergyPlus envelope model can be coupled with the Modelica room model,
    which in turn is coupled to Modelica HVAC and interzone air exchange.
    This is described in :numref:`sec_cou_env`.
-2. EnergyPlus output variables and energy management system output variables
+2. EnergyPlus output variables and Energy Management System (EMS) output variables
    can be sent from EnergyPlus to Modelica.
    This is described in :numref:`sec_out_var`.
 3. The values of EnergyPlus schedules, EMS variables and EMS actuators can be set
@@ -166,7 +165,8 @@ as far as possible. The main difference between our implementation
 and FMI 2.0 for Model Exchange is that EnergyPlus is not writing
 a ``modelDescription.xml`` file and is not packaged as a zip file.
 Rather, we load directly the EnergyPlus library and set up the
-data I/O by sending from Modelica the objects required from EnergyPlus.
+data I/O by sending from Modelica to EnergyPlus a specification of the objects
+that EnergyPlus needs to instantiate.
 
 
 Assumptions and limitations
@@ -194,11 +194,13 @@ To implement the coupling, will make the following assumption:
    The reason is that this does not induce an air flow in the HVAC system if
    the room temperature changes. Hence, it decouples the thermal and the mass balance.
 
+.. _sec_uni_sys:
+
 Unit system
 -----------
 
-Modelica and EnergyPlus each have their own unit systems. The unit conversion
-will be done in the C functions that call the EnergyPlus library. These
+Modelica and EnergyPlus each have their own unit system. The unit conversion
+will be done in the C library that is used to call the EnergyPlus library. These
 C functions will convert between the units shown in :numref:`tab_uni_spe`.
 The table also shows unit strings that are allowed to use by EnergyPlus
 to tell Modelica the unit of the exchanged inputs and outputs.
@@ -209,11 +211,13 @@ For composed units, EnergyPlus uses in the output dictonary unit strings
 such as ``W/m2-K``. Therefore, we make the following conventions for the
 EnergyPlus unit string that is sent to Modelica:
 
-1. First, all units in the numerator are listed, and then all
-   units in the denominator, separated by a slash, such as ``W/m``.
-2. In the EnergyPlus unit string, multiplications of units are denoted by a dash, such as in ``m-K``.
-3. Exponents are denoted by an integer that follows the quantity, such as ``m2``.
-4. No brackets are allowed, e.g., use ``W/m2-K`` to denote :math:`\mathrm{W/(m^2 \, K)`.
+1. In the EnergyPlus unit string, multiplications of units are denoted by a dash, such as in ``m-K``
+   for :math:`\mathrm{m \, K}`.
+2. For units that are fractions, first all units in the numerator are listed, and then all
+   units in the denominator are listed, separated by a forward slash, such as in ``W/m-K``
+   for :math:`\mathrm{W/(m \, K)}`. Note that EnergyPlus does not use brackets.
+3. No brackets are allowed, e.g., use ``W/m-K`` to denote :math:`\mathrm{W/(m \, K)}`.
+4. Exponents are denoted by an integer that follows the quantity, such as ``m2``.
 5. No prefixes are allowed such as ``m`` for milli, other than for mass, which is reported as
    ``kg``.
 
@@ -266,9 +270,9 @@ EnergyPlus unit string that is sent to Modelica:
    | Volume flow rate       | m3/s             | m3/s                            |
    +------------------------+------------------+---------------------------------+
 
-If a unit is sent that is not in this list or can be composed of using
+If a unit is sent that is neither in this list nor can be composed by using
 multiplications and divisions of units in this list,
-the simulation will stop with an error.
+then the simulation will stop with an error.
 For example, if EnergyPlus were to specify ``N`` for Newton, the simulation
 will stop. Rather, EnergyPlus should specify the quantity in its base unit ``kg-m/s2``.
 
@@ -288,7 +292,7 @@ as shown in :num:`Figure #fig-partition-envelop-room-hvac`.
 The EnergyPlus API conforms to the FMI for Model Exchange 2.0 specification.
 However, additional function calls are needed during the instantiation
 to allow us to declare in Modelica the types of objects that are needed
-to be instantiated by EnergyPlus. Without this additional function,
+to be instantiated by EnergyPlus. Without these additional function calls,
 one would have to declare these objects in the idf file,
 which would be an additional burden on the user and increase
 the complexity of the tool coupling.
@@ -380,8 +384,8 @@ For example, if a building has two zones, then both zones need to be modeled in 
 
 The calling sequences of the functions that send data to EnergyPlus and read data from EnergyPlus is
 as for any :term:`continuous-time variable` in FMI. That is, at any time instant,
-variables can be set multiple times, and the values returned by EnergyPlus must reflect
-to updated input variables. (Multiple calls within a time step are used to compute
+variables can be set multiple times, and the values returned by EnergyPlus must be computed
+using the current input variables. (For example, multiple calls within a time step are used to compute
 the derivative of ``QConSen_flow`` with respect to ``T``.)
 
 
@@ -404,7 +408,7 @@ at the FMI API of EnergyPlus. The idf snippet is as follows:
      Site Outdoor Air Drybulb Temperature,  !- EnergyPlus Variable Name
      TDryBul;                               !- FMU Variable Name
 
-For the Modelica coupling, this need not be specified in the idf file,
+For the Modelica coupling, this entry need not be specified in the idf file,
 and the last argument is not needed.
 The following parameters are sent from Modelica to EnergyPlus. These are sent only once during the instantiation of EnergyPlus.
 No entry in the idf file is required.
@@ -425,7 +429,7 @@ No entry in the idf file is required.
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | *From EnergyPlus to Modelica*                                                                                                |
 +---------------------------+--------------------------------------------------------------------------------------------------+
-| EnergyPlus unit string    | String with the unit of this quantity (see :numref:`tab_uni_spe`).                               |
+| EnergyPlus unit string    | String with the unit of this quantity (see :numref:`sec_uni_sys`).                               |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 
 There will be a Modelica block called ``From.OutputVariable`` with parameters
@@ -433,16 +437,23 @@ There will be a Modelica block called ``From.OutputVariable`` with parameters
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | Name                      | Comment                                                                                          |
 +===========================+==================================================================================================+
+| idfName                   | Name of the idf file that contains this variable.                                                |
++---------------------------+--------------------------------------------------------------------------------------------------+
 | key                       | EnergyPlus key value, as defined by the EnergyPlus .rdd or .mdd file                             |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | name                      | EnergyPlus variable name, as defined in the EnergyPlus Input Output Reference                    |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 
+The name of the idf file is specified to allow simulation of multiple EnergyPlus files.
+The Modelica implementation will use an inner/outer declaration to allow users to easily set and propagate to
+other models the name of the idf file.
 There will also be a block called ``From.EnergyManagementOutputVariable`` with parameters
 
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | Name                      | Comment                                                                                          |
 +===========================+==================================================================================================+
+| idfName                   | Name of the idf file that contains this variable.                                                |
++---------------------------+--------------------------------------------------------------------------------------------------+
 | name                      | Name of the ``EnergyManagementSystem:OutputVariable``                                            |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 
@@ -452,7 +463,7 @@ During the initialization, EnergyPlus will send an initial value to Modelica.
 
 .. note:: The EnergyPlus Runtime Language (ERL) has no notion of real versus integer (or boolean) variables. Therefore,
           we retrieve only real values.
-          While the ERL has built-in variables ``True`` and ``False`` and ``On`` and ``Off``, ERL represents them
+          While ERL has built-in variables ``True`` and ``False`` and ``On`` and ``Off``, ERL represents them
           as a real value.
 
 For Modelica, reading variables will be done using a block with no input and one output.
@@ -482,9 +493,10 @@ Sending input to EnergyPlus
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This section describes how to send Modelica values to the EnergyPlus objects
-``ExternalInterface:FunctionalMockupUnitExport:To:Schedule``,
-``ExternalInterface:FunctionalMockupUnitExport:To:Actuator``, and
-``ExternalInterface:FunctionalMockupUnitExport:To:Variable``.
+
+1. ``ExternalInterface:FunctionalMockupUnitExport:To:Schedule``,
+2. ``ExternalInterface:FunctionalMockupUnitExport:To:Actuator``, and
+3. ``ExternalInterface:FunctionalMockupUnitExport:To:Variable``.
 
 For reference, examples of instances in EnergyPlus for these objects are
 as follows.
@@ -513,8 +525,7 @@ as follows.
 For the Modelica coupling, these objects need not be declared in the idf file.
 
 For Modelica, exchanging variables with these objects will be done
-using a Modelica block that has only one input and no output,
-or no input and only one output.
+using a Modelica block that has only one input and no output.
 
 As in :numref:`sec_out_var`,
 we assume that these variables are :term:`discrete-time variables<discrete-time variable>`
@@ -529,16 +540,18 @@ between Modelica and EnergyPlus that uses outputs from :numref:`sec_out_var`
 and inputs from this section.
 To see this, consider
 a controller in Modelica that will send
-a control signal :math:`u(t)` and retrieve from EnergyPlus a measured
-quantity :math:`y(t)`, such as a PI controller in Modelica that actuates
+a control signal :math:`u(t)` to EnergyPlus and retrieve from EnergyPlus a measured
+quantity :math:`y(t)`.
+A specific example is a PI controller in Modelica that actuates
 the shade slat angle in EnergyPlus based on indoor illuminance reported by EnergyPlus.
 Then, at the time instant :math:`t`,
 Modelica will send :math:`u(\mathbin{^-t})`
 and it will retrieve :math:`y(t^+)`. Hence, no iteration
 across the tools is required. At the next sample time, Modelica will
-send the update control action that depends on :math:`y(t^+)` to EnergyPlus.
-This simple example also illustrates that inputs and outputs need for certain
-applications be exchanged at a sampling rate that is below the EnergyPlus zone time step.
+send the updated control signal that depends on :math:`y(t^+)` to EnergyPlus.
+This simple example also illustrates that inputs and outputs may need for certain
+applications be exchanged at a sampling rate that is below the EnergyPlus zone time step
+in order to get satisfactory closed loop control performance.
 
 
 .. _sec_inp_sch:
@@ -561,7 +574,7 @@ No entry in the idf file is required.
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | *From EnergyPlus to Modelica*                                                                                                |
 +---------------------------+--------------------------------------------------------------------------------------------------+
-| EnergyPlus unit string    | String with the unit of this quantity (see :numref:`tab_uni_spe`).                               |
+| EnergyPlus unit string    | String with the unit of this quantity (see :numref:`sec_uni_sys`).                               |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 
 
@@ -591,6 +604,10 @@ There will be a Modelica block called ``To.Schedule`` with parameters
 | idfName                   | Name of the idf file that contains this schedule.                                                |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | name                      | Name of an EnergyPlus schedule that is present in the idf file.                                  |
++---------------------------+--------------------------------------------------------------------------------------------------+
+| sampleAtZoneTimeStep      | Set to true to sample at the EnergyPlus zone time step, or to false to use samplePeriod.         |
++---------------------------+--------------------------------------------------------------------------------------------------+
+| samplePeriod              | Sample period of component.                                                                      |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 
 .. todo:: Do we really need an instance of a schedule in the idf file in order to write to EnergyPlus?
@@ -635,13 +652,13 @@ No entry in the idf file is required.
 +---------------------------------+--------------------------------------------------------------------------------------------+
 | *From EnergyPlus to Modelica*                                                                                                |
 +---------------------------------+--------------------------------------------------------------------------------------------+
-| EnergyPlus unit string          | String with the unit of this quantity (see :numref:`tab_uni_spe`).                         |
+| EnergyPlus unit string          | String with the unit of this quantity (see :numref:`sec_uni_sys`).                         |
 +---------------------------------+--------------------------------------------------------------------------------------------+
 
 
 .. todo:: Why is the *Variable name* needed? Should this be left out?
 
-.. note:: As the ERL has no notion of real versus integer (or boolean) variables,
+.. note:: As ERL has no notion of real versus integer (or boolean) variables,
           values will be sent as doubles.
 
 Modelica will send the initial value as for ``To:Schedule``.
@@ -661,6 +678,10 @@ There will be a Modelica block called ``To.Actuator`` with parameters
 | componentType             | Actuated comonent type.                                                                          |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | controlType               | Actuated component control type.                                                                 |
++---------------------------+--------------------------------------------------------------------------------------------------+
+| sampleAtZoneTimeStep      | Set to true to sample at the EnergyPlus zone time step, or to false to use samplePeriod.         |
++---------------------------+--------------------------------------------------------------------------------------------------+
+| samplePeriod              | Sample period of component.                                                                      |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 
 The Modelica pseudo-code is
@@ -693,7 +714,7 @@ No entry in the idf file is required.
 +---------------------------------+--------------------------------------------------------------------------------------------+
 | *From EnergyPlus to Modelica*                                                                                                |
 +---------------------------------+--------------------------------------------------------------------------------------------+
-| EnergyPlus unit string          | String with the unit of this quantity (see :numref:`tab_uni_spe`).                         |
+| EnergyPlus unit string          | String with the unit of this quantity (see :numref:`sec_uni_sys`).                         |
 +---------------------------------+--------------------------------------------------------------------------------------------+
 
 
@@ -711,6 +732,10 @@ There will be a Modelica block called ``To.Variable`` with parameters
 | idfName                   | Name of the idf file that contains this variable.                                                |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | variableName              | Name of the EnergyPlus variable                                                                  |
++---------------------------+--------------------------------------------------------------------------------------------------+
+| sampleAtZoneTimeStep      | Set to true to sample at the EnergyPlus zone time step, or to false to use samplePeriod.         |
++---------------------------+--------------------------------------------------------------------------------------------------+
+| samplePeriod              | Sample period of component.                                                                      |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 
 The Modelica pseudo-code is
@@ -746,9 +771,10 @@ Time synchronization
 
 :numref:`fig-fmi-me-20-state-machine` shows the state machine for calling an FMU 2.0 for Model Exchange.
 To communicate with EnergyPlus, we are using the same API and calling sequence.
-As shown in :numref:`fig-partition-envelop-room-hvac`, the EnergyPlus FMU is invoked
+As shown in :numref:`fig-partition-envelop-room-hvac`, the EnergyPlus envelope model is invoked
 at a variable time step.
-Therefore, data is exchanged within the mode labelled *Continuous Time Mode* in :numref:`fig-fmi-me-20-state-machine`.
+Therefore, for the envelope model, data is exchanged within the mode labelled *Continuous Time Mode*
+in :numref:`fig-fmi-me-20-state-machine`.
 Internally, EnergyPlus samples its heat conduction model at the envelope time step :math:`\Delta t_z`.
 EnergyPlus needs to report this to the FMI interface. To report such time events,
 the FMI interface uses a C structure called ``fmi2EventInfo`` which is implemented as follows:
@@ -772,7 +798,8 @@ that are sent from the EnergyPlus FMU to the master algorithm.
 Such a schedule could for example be a time schedule for internal heat gains,
 which may change at times that do not coincide with the zone time step :math:`\Delta t_z`.
 
-In contrast, reading outputs and sending inputs to schedule, EMS variables and EMS actuators,
+In contrast to the envelope model, reading outputs and sending inputs to schedule,
+EMS variables and EMS actuators,
 happens in the mode labelled *EventMode*.
 This allows to avoid algebraic loops that may be formed by adding a controller
 between an EnergyPlus output and an EnergyPlus input, as described in :numref:`sec_sen_var`.
@@ -802,12 +829,6 @@ In the remainder of this section, we note that ``time`` is
 
    - the variable described as ``t`` in the table of section :numref:`sec_cou_env`,
    - a monotonically increasing variable.
-
-.. note::
-
-    Monotonically increasing means that if a function has as argument ``time`` and is called at time ``t1``, then its next call must happen at time ``t2`` with ``t2`` >= ``t1``.
-    For efficiency reasons, if a function which updates internal variables is called at the same time instant multiple times,
-    then only the first call will update the variables, subsequent calls will cause the functions to return the same variable values.
 
 
 .. _sec_int_c_api:
@@ -903,14 +924,16 @@ Output variables
 To configure the data exchange for output variables, as described in :numref:`sec_out_var`,
 consider an example where one wants to retrieve the outdoor drybulb temperature from EnergyPlus.
 Then, the following functions will be called during the instantiation, where we added the suffix
-``,Unit`` or ``,Value`` to indicate what quantity to return.
+``Unit`` or ``Value`` to indicate what quantity to return.
 
 .. code-block:: c
 
-   const char ** parameterNames = {"From:Output,Environment,Site Outdoor Air Drybulb Temperature,Unit"};
+   const char ** parameterNames =
+     {"From:Output,Environment,Site Outdoor Air Drybulb Temperature,Unit"};
    const unsigned int parameterValueReferences[] = {0};
 
-   const char ** outputNames = {"From:Output,Environment,Site Outdoor Air Drybulb Temperature,Value"};
+   const char ** outputNames =
+     {"From:Output,Environment,Site Outdoor Air Drybulb Temperature,Value"};
    const unsigned int outputValueReferences[] = {1};
 
 Schedules, EMS actuators and EMS variables
@@ -919,7 +942,7 @@ Schedules, EMS actuators and EMS variables
 To configure the data exchange with a schedule, as described in :numref:`sec_inp_sch`,
 consider the example where we want to write to a schedule called ``OfficeSensibleGain``.
 Then, the following functions will be called during the instantiation, where we added the suffix
-``,Unit`` or ``,Value`` to indicate what quantity to return.
+``Unit`` or ``Value`` to indicate what quantity to return.
 
 .. code-block:: c
 
@@ -1073,7 +1096,7 @@ In the next section, the usage of the FMI functions along with the equivalent En
 This should clarify the need of the EnergyPlus equivalent functions and show how these functions will be used in a simulation environment.
 In the pseudo code, ``->`` points to the EnergyPlus equivalent FMI functions. ``NA`` indicates that the FMI functions do not require EnergyPlus equivalent.
 
-.. todo:: The code below needs to be revised.
+.. todo:: The code below needs to be reviewed and/or revised to properly handle events needed for controls I/O.
 
 .. literalinclude:: models/pseudo/pseudo.c
    :language: C
