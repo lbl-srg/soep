@@ -798,8 +798,8 @@ that are sent from the EnergyPlus FMU to the master algorithm.
 Such a schedule could for example be a time schedule for internal heat gains,
 which may change at times that do not coincide with the zone time step :math:`\Delta t_z`.
 
-In contrast to the envelope model, reading outputs and sending inputs to schedule,
-EMS variables and EMS actuators,
+Reading outputs and sending inputs to schedule,
+EMS variables and EMS actuators
 happens in the mode labelled *EventMode*.
 This allows to avoid algebraic loops that may be formed by adding a controller
 between an EnergyPlus output and an EnergyPlus input, as described in :numref:`sec_sen_var`.
@@ -980,8 +980,10 @@ It returns zero if there was no error, or else a positive non-zero integer.
    *Possible complication*:
 
    Users may set ``tStart``
-   to a time other than midnight. We think EnergyPlus cannot yet handle an arbitrary start time.
-   In this case, it should return an error.
+   to a time other than midnight.
+   If EnergyPlus cannot handle an arbitrary start time, it shall
+   return an error.
+
 
 Setting the current time
 ^^^^^^^^^^^^^^^^^^^^^^^^
