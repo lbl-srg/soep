@@ -836,6 +836,10 @@ In the remainder of this section, we note that ``time`` is
 Instantiation
 ^^^^^^^^^^^^^
 
+The instantiation of EnergyPlus differs from the FMI standard
+because Modelica will send to EnergyPlus data that it needs to
+instantiate a model.
+
 .. code-block:: c
 
    unsigned int instantiate(const char const *input,
@@ -1095,15 +1099,31 @@ Pseudo Code Example
 -------------------
 
 In the next section, the usage of the FMI functions along with the equivalent EnergyPlus functions are used in a typical calling sequence.
-This should clarify the need of the EnergyPlus equivalent functions and show how these functions will be used in a simulation environment.
-In the pseudo code, ``->`` points to the EnergyPlus equivalent FMI functions. ``NA`` indicates that the FMI functions do not require EnergyPlus equivalent.
+This should clarify the need of the EnergyPlus equivalent functions and
+show how these functions will be used in a simulation environment.
+In the pseudo code, ``->`` points to the EnergyPlus equivalent FMI functions.
+``NA`` indicates that the FMI functions do not require EnergyPlus equivalent.
 
 .. todo:: The code below needs to be reviewed and/or revised to properly handle events needed for controls I/O.
 
-.. literalinclude:: models/pseudo/pseudo.c
+The initialization is done as follows:
+
+.. literalinclude:: models/pseudo/pseudoInitialization.c
    :language: C
    :linenos:
 
+During the time integration, the calling sequence is as follows:
+
+.. literalinclude:: models/pseudo/pseudoTimeStepping.c
+   :language: C
+   :linenos:
+
+When final time is reached, or when an error occured,
+the calling sequence is as follows:
+
+.. literalinclude:: models/pseudo/pseudoTermination.c
+   :language: C
+   :linenos:
 
 .. _sec_qss_jmo_int:
 
