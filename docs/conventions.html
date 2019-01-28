@@ -87,9 +87,9 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="softwareArchitecture.html">5. Software Architecture</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#overall-software-architecture">5.1. Overall software architecture</a></li>
-<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#coupling-of-energyplus-envelope-and-room-with-modelica-based-hvac-and-control">5.2. Coupling of EnergyPlus envelope and room with Modelica-based HVAC and control</a></li>
-<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#jmodelica-integration">5.3. JModelica Integration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#openstudio-integration">5.4. OpenStudio integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#coupling-of-energyplus-with-modelica">5.2. Coupling of EnergyPlus with Modelica</a></li>
+<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#integration-of-qss-solver-with-jmodelica">5.3. Integration of QSS solver with JModelica</a></li>
+<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#integration-with-openstudio">5.4. Integration with OpenStudio</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="numericalMethods.html">6. Numerical Methods of the Master Algorithm</a><ul>
@@ -103,7 +103,8 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="benchmarks.html">8. Benchmarks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="acknowledgments.html">9. Acknowledgments</a></li>
-<li class="toctree-l1"><a class="reference internal" href="zreferences.html">10. References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">10. Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zreferences.html">11. References</a></li>
 </ul>
 </ul>
 </li>
@@ -187,6 +188,14 @@ we denote by <span class="math notranslate nohighlight">\(f^{(N)}(\cdot)\)</span
 we denote by <span class="math notranslate nohighlight">\(f(t^-) \triangleq \lim_{s \uparrow t}  f(s)\)</span> the limit from below.</li>
 <li>For <span class="math notranslate nohighlight">\(s \in \Re\)</span>, we define the ceiling function as
 <span class="math notranslate nohighlight">\(\lceil s \rceil \triangleq \arg \min\{ k \in \mathbb Z \ | \ s \le k \}\)</span>.</li>
+<li>For <span class="math notranslate nohighlight">\(t_R \in \Re\)</span> and <span class="math notranslate nohighlight">\(t_I \in \mathbb N\)</span>, we write
+<span class="math notranslate nohighlight">\(t^+ \triangleq (t_R, \, t_I)^+\)</span> for the right limit at <span class="math notranslate nohighlight">\(t\)</span>.
+It holds that
+<span class="math notranslate nohighlight">\((t_R, \, t_I)^+ \Leftrightarrow (\lim_{\epsilon \to 0} (t_R+\epsilon), t_{I_{max}})\)</span>,
+where <span class="math notranslate nohighlight">\(I_{max}\)</span> is the largest occurring integer of <a class="reference internal" href="glossary.html#term-superdense-time"><span class="xref std std-term">superdense time</span></a>.
+Similarly, we write <span class="math notranslate nohighlight">\(\mathbin{^-t}\)</span> for the left limit at <span class="math notranslate nohighlight">\(t\)</span>,
+for which it holds that
+<span class="math notranslate nohighlight">\(\mathbin{^-(t_R, \, t_I)} \Leftrightarrow (\lim_{\epsilon \to 0} (t_R-\epsilon), 0)\)</span>.</li>
 <li>We write a requirement <em>shall</em> be met if it must be fulfilled.
 If the feature that implements a shall requirement is not in the final system,
 then the system does not meet this requirement.

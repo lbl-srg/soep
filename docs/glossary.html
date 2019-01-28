@@ -1,0 +1,315 @@
+
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>10. Glossary &#8212; Spawn of EnergyPlus</title>
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap_custom.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom-sphinx.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="shortcut icon" href="_static/lbl-icon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="11. References" href="zreferences.html" />
+    <link rel="prev" title="9. Acknowledgments" href="acknowledgments.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default ">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html"><img src="_static/soep-logo.png">
+           </a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="index.html">Index</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="preample.html">1. Preample</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="preample.html#purpose-of-the-document">1.1. Purpose of the Document</a></li>
+<li class="toctree-l2"><a class="reference internal" href="preample.html#contributors">1.2. Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">2. Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="useCases.html">3. Use Cases</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="useCases.html#openstudio-integration">3.1. OpenStudio Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="useCases.html#measures">3.2. Measures</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="requirements.html">4. Requirements</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="requirements.html#openstudio-integration">4.1. OpenStudio integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="requirements.html#mathematics">4.2. Mathematics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="requirements.html#fmu-requirements">4.3. FMU Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="requirements.html#qss-implementation">4.4. QSS Implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="requirements.html#master-algorithm">4.5. Master Algorithm</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="softwareArchitecture.html">5. Software Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#overall-software-architecture">5.1. Overall software architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#coupling-of-energyplus-with-modelica">5.2. Coupling of EnergyPlus with Modelica</a></li>
+<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#integration-of-qss-solver-with-jmodelica">5.3. Integration of QSS solver with JModelica</a></li>
+<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#integration-with-openstudio">5.4. Integration with OpenStudio</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="numericalMethods.html">6. Numerical Methods of the Master Algorithm</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="numericalMethods.html#time-integration">6.1. Time Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="numericalMethods.html#algebraic-loops">6.2. Algebraic Loops</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">7. Application Programming Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api.html#generating-openstudio-models">7.1. Generating OpenStudio Models</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">8. Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgments.html">9. Acknowledgments</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">10. Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zreferences.html">11. References</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">10. Glossary</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="acknowledgments.html" title="Previous Chapter: 9. Acknowledgments"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; 9. Acknowledgments</span>
+    </a>
+  </li>
+  <li>
+    <a href="zreferences.html" title="Next Chapter: 11. References"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">11. References &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+          </ul>
+
+<!--
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+-->
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 content">
+      
+  <div class="section" id="glossary">
+<span id="id1"></span><h1>10. Glossary<a class="headerlink" href="#glossary" title="Permalink to this headline">¶</a></h1>
+<p>This section defines various technical terms that are used throughout
+the report.</p>
+<dl class="glossary docutils">
+<dt id="term-package">package</dt>
+<dd>In Modelica, a package is a collection of models, functions,
+or other packages that
+are used to hierarchically structure a Modelica library.</dd>
+<dt id="term-class">class</dt>
+<dd>In Modelica, a <em>class</em> is a term that includes models, blocks, functions and packages.</dd>
+<dt id="term-connector">connector</dt>
+<dd>In Modelica, a connector is an instance of a class that is used to
+connect models and blocks with each other.
+Connectors can contain constants, parameters and variables, but no equations.</dd>
+<dt id="term-co-simulation">co-simulation</dt>
+<dd>Co-simulation refers to a simulation in which different simulation programs
+exchange run-time data at certain synchronization time points.
+A master algorithm sets the current time, input and states,
+and request the simulator to advance time, after which the
+master will retrieve the new values for the state.
+Each simulator is responsible for integrating in time its
+differential equation. See also <a class="reference internal" href="#term-model-exchange"><span class="xref std std-term">model-exchange</span></a>.</dd>
+<dt id="term-continuous-time-variable">continuous-time variable</dt>
+<dd>A continuous-time variable is a variable that is a continuous function
+of time inside each interval <span class="math notranslate nohighlight">\(t_i^+ \le t \le \mathbin{^-t}_{i+1}\)</span>.</dd>
+<dt id="term-block">block</dt>
+<dd>In Modelica, a block is a special case of a model
+in which all connectors are either inputs or outputs.</dd>
+<dt id="term-discrete-time-variable">discrete-time variable</dt>
+<dd>A discrete-time variable is a variable that changes its value only at
+an event instant <span class="math notranslate nohighlight">\(t_i\)</span>.</dd>
+<dt id="term-events">events</dt>
+<dd>An event is either a <a class="reference internal" href="#term-time-event"><span class="xref std std-term">time event</span></a> if time triggers the change,
+or a <a class="reference internal" href="#term-state-event"><span class="xref std std-term">state event</span></a> if a test on the state triggers the change.</dd>
+<dt id="term-model">model</dt>
+<dd>In Modelica, a model is a special class in which the causality
+of its connector need not be specified.</dd>
+<dt id="term-model-exchange">model-exchange</dt>
+<dd>Model-exchange refers to a simulation in which different simulation programs
+exchange run-time data.
+A master algorithm sets time, inputs and states, and requests
+from the simulator the time derivative. The master algorithm
+integrates the differential equations in time.
+See also <a class="reference internal" href="#term-co-simulation"><span class="xref std std-term">co-simulation</span></a>.</dd>
+<dt id="term-zero-crossing-function">zero-crossing function</dt>
+<dd><p class="first">A zero crossing function is a function that is used by solvers to indicate
+when variables cross a threshold. For example, suppose a thermostat should switch
+off a heater when the room temperature <span class="math notranslate nohighlight">\(T_r(t)\)</span> crosses a set point
+<span class="math notranslate nohighlight">\(T_s(t)\)</span>. For this case, a zero crossing function is
+<span class="math notranslate nohighlight">\(f(t) = T_r(t) - T_s(t)\)</span>.</p>
+<p class="last">Zero-crossing functions are used by numerical solvers to detect where
+such discrete changes in a model occur. Specifically, at
+<span class="math notranslate nohighlight">\(t=t_1\)</span>, they
+search for <span class="math notranslate nohighlight">\(\tau \in \arg \min \{ t &gt; t_1 \, | \, f(t) = 0 \}\)</span>.</p>
+</dd>
+<dt id="term-direct-dependency">direct dependency</dt>
+<dd><p class="first">A variable is said to directly depend on another variable if there is an
+algebraic constraint between these variables. For example, consider
+the model shown in <a class="reference internal" href="#fig-direct-dependency"><span class="std std-numref">Fig. 10.1</span></a>.
+If the input <span class="math notranslate nohighlight">\(u\)</span> changes, then the output
+<span class="math notranslate nohighlight">\(y_3\)</span> immediately changes, whereas <span class="math notranslate nohighlight">\(y_1\)</span> and
+<span class="math notranslate nohighlight">\(y_2\)</span> only change after time is advanced.
+Hence, the output <span class="math notranslate nohighlight">\(y_3\)</span> is said to have a direct
+dependency on <span class="math notranslate nohighlight">\(u\)</span>. Similarly, the state derivative <span class="math notranslate nohighlight">\(\dot x_1\)</span>
+directly depends on the input <span class="math notranslate nohighlight">\(u\)</span>, and
+<span class="math notranslate nohighlight">\(\dot x_2\)</span> directly depends on the state <span class="math notranslate nohighlight">\(x_1\)</span>.
+The outputs <span class="math notranslate nohighlight">\(y_1\)</span> and <span class="math notranslate nohighlight">\(y_2\)</span> directly depend
+on the states <span class="math notranslate nohighlight">\(x_1\)</span> and <span class="math notranslate nohighlight">\(x_2\)</span>, respectively.
+Hence, unless time is advanced,
+if <span class="math notranslate nohighlight">\(u\)</span> is updated, only <span class="math notranslate nohighlight">\(y_3\)</span> needs to
+be updated, whereas if <span class="math notranslate nohighlight">\(y_1\)</span> and <span class="math notranslate nohighlight">\(y_2\)</span>
+need not be updated.
+Such information is useful to detect the existence of
+algebraic loops, and to implement certain numerical time
+integration methods such as the QSS methods.</p>
+<div class="last figure" id="id3">
+<span id="fig-direct-dependency"></span><a class="reference internal image-reference" href="_images/directDependency.svg"><img alt="_images/directDependency.svg" src="_images/directDependency.svg" width="250px" /></a>
+<p class="caption"><span class="caption-number">Fig. 10.1 </span>: Signal flow diagram that illustrates direct dependency.</span></p>
+</div>
+</dd>
+<dt id="term-functional-mockup-interface">Functional Mockup Interface</dt>
+<dd>The Functional Mockup Interface (FMI) standard defines an open interface
+to be implemented by an executable called <a class="reference internal" href="#term-functional-mockup-unit"><span class="xref std std-term">Functional Mockup Unit</span></a> (FMU).
+The FMI functions are called by a simulator to create one or more instances of the FMU,
+called models, and to run these models, typically together with other models.
+An FMU may either be self-integrating (co-simulation) or require the simulator
+to perform the numerical integration.</dd>
+<dt id="term-functional-mockup-unit">Functional Mockup Unit</dt>
+<dd>Compiled code or source code that can be executed using the
+application programming interface defined in the <a class="reference internal" href="#term-functional-mockup-interface"><span class="xref std std-term">Functional Mockup Interface</span></a> standard.</dd>
+<dt id="term-rollback">rollback</dt>
+<dd>We say that a simulator is doing a rollback if its model time is set to a previous
+time instant, and all its state variables are set to the values they had at that previous
+time instant.</dd>
+<dt id="term-time-event">time event</dt>
+<dd><p class="first">We say that a simulation has a time event if its model changes based on a test
+that only depends on time. For example,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}y =
+\begin{cases}
+  0, &amp; \text{if } t &lt; 1, \\
+  1, &amp; \text{otherwise,}
+ \end{cases}\end{split}\]</div>
+<p class="last">has a time event at <span class="math notranslate nohighlight">\(t=1\)</span>.</p>
+</dd>
+<dt id="term-state-event">state event</dt>
+<dd><p class="first">We say that a simulation has a state event if its model changes based on a test
+that depends on a state variable. For example, for some initial condition <span class="math notranslate nohighlight">\(x(0)=x_0\)</span>,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\frac{dx}{dt} =
+\begin{cases}
+  1,  &amp; \text{if } x &lt; 1, \\
+  0,  &amp; \text{otherwise,}
+\end{cases}\end{split}\]</div>
+<p class="last">has a state event when <span class="math notranslate nohighlight">\(x=1\)</span>.</p>
+</dd>
+<dt id="term-superdense-time">superdense time</dt>
+<dd>Superdense time <span class="math notranslate nohighlight">\(t\)</span> is a tuple <span class="math notranslate nohighlight">\(t \triangleq (t_R, \, t_I)\)</span>, where
+<span class="math notranslate nohighlight">\(t_R \in \Re\)</span> and <span class="math notranslate nohighlight">\(t_I \in \mathbb N\)</span>. The real part <span class="math notranslate nohighlight">\(t_R\)</span> of this tuple
+is the independent variable for describing the <a class="reference internal" href="#term-continuous-time-variable"><span class="xref std std-term">continuous-time behavior</span></a>
+of the model between events. In this phase, <span class="math notranslate nohighlight">\(t_I = 0\)</span>.
+The integer part <span class="math notranslate nohighlight">\(t_I\)</span> of this tuple is a counter to enumerate, and therefore distinguish,
+the events at the same continuous-time instant <span class="math notranslate nohighlight">\(t_R\)</span> <a class="reference internal" href="zreferences.html#leezheng2007-1" id="id2">[LZ07]</a>.</dd>
+</dl>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+  
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+      
+    </p>
+    <p>
+        &copy; Copyright (c) All rights reserved.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.<br/>
+    </p>
+  </div>
+</footer>
+
+  </body>
+</html>

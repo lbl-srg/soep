@@ -86,9 +86,9 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="softwareArchitecture.html">5. Software Architecture</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#overall-software-architecture">5.1. Overall software architecture</a></li>
-<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#coupling-of-energyplus-envelope-and-room-with-modelica-based-hvac-and-control">5.2. Coupling of EnergyPlus envelope and room with Modelica-based HVAC and control</a></li>
-<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#jmodelica-integration">5.3. JModelica Integration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#openstudio-integration">5.4. OpenStudio integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#coupling-of-energyplus-with-modelica">5.2. Coupling of EnergyPlus with Modelica</a></li>
+<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#integration-of-qss-solver-with-jmodelica">5.3. Integration of QSS solver with JModelica</a></li>
+<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#integration-with-openstudio">5.4. Integration with OpenStudio</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="numericalMethods.html">6. Numerical Methods of the Master Algorithm</a><ul>
@@ -102,7 +102,8 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="benchmarks.html">8. Benchmarks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="acknowledgments.html">9. Acknowledgments</a></li>
-<li class="toctree-l1"><a class="reference internal" href="zreferences.html">10. References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">10. Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zreferences.html">11. References</a></li>
 </ul>
 </ul>
 </li>
@@ -236,28 +237,29 @@ and any of the design may change.</p>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="softwareArchitecture.html">5. Software Architecture</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#overall-software-architecture">5.1. Overall software architecture</a></li>
-<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#coupling-of-energyplus-envelope-and-room-with-modelica-based-hvac-and-control">5.2. Coupling of EnergyPlus envelope and room with Modelica-based HVAC and control</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#coupling-of-energyplus-with-modelica">5.2. Coupling of EnergyPlus with Modelica</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="softwareArchitecture.html#assumptions-and-limitations">5.2.1. Assumptions and limitations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="softwareArchitecture.html#partitioning-of-the-models">5.2.2. Partitioning of the models</a></li>
-<li class="toctree-l3"><a class="reference internal" href="softwareArchitecture.html#data-exchange">5.2.3. Data exchange</a></li>
+<li class="toctree-l3"><a class="reference internal" href="softwareArchitecture.html#unit-system">5.2.2. Unit system</a></li>
+<li class="toctree-l3"><a class="reference internal" href="softwareArchitecture.html#partitioning-of-the-models">5.2.3. Partitioning of the models</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#coupling-of-envelope-model">5.2.3.1. Coupling of envelope model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#retrieving-output-variables-from-energyplus">5.2.3.2. Retrieving output variables from EnergyPlus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#sending-input-to-energyplus">5.2.3.3. Sending input to EnergyPlus</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="softwareArchitecture.html#time-synchronization">5.2.4. Time synchronization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="softwareArchitecture.html#requirements-for-exporting-energyplus-as-an-fmu-for-model-exchange">5.2.5. Requirements for Exporting EnergyPlus as an FMU for model exchange</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#instantiation">5.2.5.1. Instantiation</a></li>
-<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#configuring-variables-to-be-exchanged">5.2.5.2. Configuring variables to be exchanged</a></li>
-<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#setting-up-the-experiment-time">5.2.5.3. Setting up the experiment time</a></li>
-<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#setting-the-current-time">5.2.5.4. Setting the current time</a></li>
-<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#sending-parameters-and-variables-to-energyplus">5.2.5.5. Sending parameters and variables to EnergyPlus</a></li>
-<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#retrieving-parameters-and-variables-from-energyplus">5.2.5.6. Retrieving parameters and variables from EnergyPlus</a></li>
-<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#retrieving-the-next-event-time">5.2.5.7. Retrieving the next event time</a></li>
-<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#terminating-the-energyplus-simulation">5.2.5.8. Terminating the EnergyPlus simulation</a></li>
-<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#writing-energyplus-output-files">5.2.5.9. Writing EnergyPlus output files</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="softwareArchitecture.html#pseudo-code-example">5.2.6. Pseudo Code Example</a></li>
-<li class="toctree-l3"><a class="reference internal" href="softwareArchitecture.html#tool-for-exporting-energyplus-as-an-fmu">5.2.7. Tool for Exporting EnergyPlus as an FMU</a></li>
+<li class="toctree-l3"><a class="reference internal" href="softwareArchitecture.html#pseudo-code-example-for-data-exchange-with-energyplus">5.2.6. Pseudo Code Example for Data Exchange with EnergyPlus</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#initialization">5.2.6.1. Initialization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#time-stepping">5.2.6.2. Time stepping</a></li>
+<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#termination">5.2.6.3. Termination</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#jmodelica-integration">5.3. JModelica Integration</a><ul>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#integration-of-qss-solver-with-jmodelica">5.3. Integration of QSS solver with JModelica</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="softwareArchitecture.html#fmi-changes-for-qss">5.3.1. FMI Changes for QSS</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#event-handling">5.3.1.1. Event Handling</a></li>
 <li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#smoothtoken-for-qss">5.3.1.2. SmoothToken for QSS</a></li>
@@ -267,7 +269,7 @@ and any of the design may change.</p>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#openstudio-integration">5.4. OpenStudio integration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#integration-with-openstudio">5.4. Integration with OpenStudio</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="softwareArchitecture.html#automated-documentation-ast-support-tool">5.4.1. Automated Documentation/AST Support Tool</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#background">5.4.1.1. Background</a></li>
 <li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#requirements">5.4.1.2. Requirements</a></li>
@@ -301,7 +303,8 @@ and any of the design may change.</p>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="benchmarks.html">8. Benchmarks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="acknowledgments.html">9. Acknowledgments</a></li>
-<li class="toctree-l1"><a class="reference internal" href="zreferences.html">10. References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">10. Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zreferences.html">11. References</a></li>
 </ul>
 </div>
 </div>
