@@ -1025,6 +1025,11 @@ with the following code:
    :linenos:
 
 
+.. raw:: latex
+
+   \newpage
+
+
 .. _sec_qss_jmo_int:
 
 Integration of QSS solver with JModelica
