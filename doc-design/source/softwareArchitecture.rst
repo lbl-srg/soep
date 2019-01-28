@@ -958,6 +958,10 @@ Then, the following functions will be called during the instantiation, where we 
 
 EMS actuators and EMS variables have a similar configuration.
 
+**Obsolete Functions: The functions below, up to the the comment "End of obsolete functions"
+can be removed as they are replaced with their equivalent from the FMI 2.0 standard for
+model exchange**
+
 Setting up the experiment time
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -1094,36 +1098,75 @@ This function writes the output to the EnergyPlus output files.
 
 It returns zero if there was no error, or else a positive non-zero integer.
 
+**End of obsolete functions.**
 
-Pseudo Code Example
--------------------
+Pseudo Code Example for Data Exchange with EnergyPlus
+-----------------------------------------------------
 
-In the next section, the usage of the FMI functions along with the equivalent EnergyPlus functions are used in a typical calling sequence.
-This should clarify the need of the EnergyPlus equivalent functions and
-show how these functions will be used in a simulation environment.
-In the pseudo code, ``->`` points to the EnergyPlus equivalent FMI functions.
-``NA`` indicates that the FMI functions do not require EnergyPlus equivalent.
+In the this section, the calling sequence of the FMI functions along with the EnergyPlus functions is shown.
+This should clarify how EnergyPlus is invoked.
+For the initialization and time stepping, different pseudo code
+is presented for the room heat balance, for blocks that only read from EnergyPlus (e.g., to get
+output variables) and for blocks that only write to EnergyPlus (e.g.,
+for schedules, actuators and EMS variables).
 
-.. todo:: The code below needs to be reviewed and/or revised to properly handle events needed for controls I/O.
+The order in which the blocks for initialization, or the blocks for the time stepping,
+are executed, can be arbitrary (as this depends on the equation sorting of the Modelica tool).
 
-The initialization is done as follows:
+Initialization
+^^^^^^^^^^^^^^
 
-.. literalinclude:: models/pseudo/pseudoInitialization.c
+For each instance of a room, code as shown below is executed:
+
+.. literalinclude:: models/pseudo/pseudoInitializationZoneHeatBalance.c
    :language: C
    :linenos:
 
-During the time integration, the calling sequence is as follows:
+For each instance of an output variable, code as shown below is executed:
 
-.. literalinclude:: models/pseudo/pseudoTimeStepping.c
+.. literalinclude:: models/pseudo/pseudoInitializationReadFromEnergyPlus.c
    :language: C
    :linenos:
 
-When final time is reached, or when an error occured,
-the calling sequence is as follows:
+For each instance of a schedule, EMS actuator and EMS variable, code as shown below is executed:
+
+.. literalinclude:: models/pseudo/pseudoInitializationSendToEnergyPlus.c
+   :language: C
+   :linenos:
+
+
+Time stepping
+^^^^^^^^^^^^^
+
+For each instance of a room, code as shown below is executed:
+
+.. literalinclude:: models/pseudo/pseudoTimeSteppingZoneHeatBalance.c
+   :language: C
+   :linenos:
+
+For each instance of an output variable, code as shown below is executed:
+
+.. literalinclude:: models/pseudo/pseudoTimeSteppingReadFromEnergyPlus.c
+   :language: C
+   :linenos:
+
+For each instance of a schedule, EMS actuator and EMS variable, code as shown below is executed:
+
+.. literalinclude:: models/pseudo/pseudoTimeSteppingSendToEnergyPlus.c
+   :language: C
+   :linenos:
+
+
+Termination
+^^^^^^^^^^^
+
+At the end of the simulation, or when an error occurred, the last output is retrieved
+with the following code:
 
 .. literalinclude:: models/pseudo/pseudoTermination.c
    :language: C
    :linenos:
+
 
 .. _sec_qss_jmo_int:
 

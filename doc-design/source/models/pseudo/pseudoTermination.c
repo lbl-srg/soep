@@ -1,7 +1,12 @@
 // terminate simulation and retrieve final values
 TERMINATE_MODEL:
-M_fmi2Terminate(m)
-M_fmi2GetReal/Integer/Boolean/String(m, ...)
+if not fmi2Fatal then
+  if not fmi2Error then
+    fmi2Terminate(bld)
+  end if
 
-// cleanup
-M_fmi2FreeInstance(m)
+  fmi2GetReal(bld, ...)
+  if receivedAllFinalOutputAndRoomHeatFlows then
+    fmi2FreeInstance(bld)
+  end if
+end if
