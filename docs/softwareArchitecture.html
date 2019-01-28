@@ -908,18 +908,6 @@ No entry in the idf file is required.</p>
 <p class="last">As EnergyPlus has no notion of real versus integer (or boolean) variables,
 values will be sent as doubles.</p>
 </div>
-<p>Modelica will send the initial value to EnergyPlus as in the following pseudo-code:</p>
-<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="p">...</span>
-<span class="n">M_fmi2SetTime</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
-<span class="c1">// set all variable start values (of &quot;ScalarVariable / &lt;type&gt; / start&quot;) and</span>
-<span class="c1">// set the input values at time = Tstart</span>
-<span class="n">M_fmi2SetReal</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="p">...)</span>
-<span class="c1">// initialize</span>
-<span class="c1">// determine continuous and discrete states</span>
-<span class="n">M_fmi2SetupExperiment</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">fmi2False</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">Tstart</span><span class="p">,</span> <span class="n">fmi2True</span><span class="p">,</span> <span class="n">Tend</span><span class="p">)</span>
-<span class="p">...</span>
-</pre></div>
-</div>
 <p>There will be a Modelica block called <code class="docutils literal notranslate"><span class="pre">To.Schedule</span></code> with parameters</p>
 <table border="1" class="docutils">
 <colgroup>
@@ -1360,7 +1348,8 @@ are executed, can be arbitrary (as this depends on the equation sorting of the M
 37
 38
 39
-40</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">not</span> <span class="n">instantiatedEnergyPlus</span> <span class="n">then</span>
+40
+41</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">not</span> <span class="n">instantiatedEnergyPlus</span> <span class="n">then</span>
   <span class="c1">// Call instantiate exactly once per building.</span>
   <span class="n">instantiate</span><span class="p">(</span><span class="n">bld</span><span class="p">)</span> <span class="c1">// This differs from FMI2</span>
 
@@ -1381,8 +1370,7 @@ are executed, can be arbitrary (as this depends on the equation sorting of the M
 <span class="c1">// Set the inputs for the room</span>
 <span class="n">fmi2SetReal</span><span class="p">(</span><span class="n">bld</span><span class="p">,</span> <span class="p">...)</span>
 
-<span class="c1">// initialize</span>
-<span class="c1">// determine continuous and discrete states</span>
+<span class="c1">// Enter initialization mode</span>
 <span class="k">if</span> <span class="n">not</span> <span class="n">fmuEnteredInitializationMode</span> <span class="n">then</span>
   <span class="n">fmi2EnterInitializationMode</span><span class="p">(...)</span>
   <span class="n">fmuEnteredInitializationMode</span> <span class="o">=</span> <span class="nb">true</span>
@@ -1392,7 +1380,9 @@ are executed, can be arbitrary (as this depends on the equation sorting of the M
 <span class="n">fmi2GetReal</span><span class="p">(</span><span class="n">bld</span><span class="p">,</span> <span class="p">...)</span>
 
 <span class="c1">// Update data that tracks that all outputs and inputs have been</span>
-<span class="c1">// retrieved or set during the initialization</span>
+<span class="c1">// retrieved or set during the initialization.</span>
+<span class="c1">// This tracker is used so that calledAllGetGet() returns true</span>
+<span class="c1">// if all get and set is called on all data that is exchanged.</span>
 <span class="n">updateGetSetTracker</span><span class="p">(</span><span class="n">bld</span><span class="p">,</span> <span class="p">...)</span>
 
 <span class="k">if</span> <span class="n">calledAllGetSet</span><span class="p">()</span> <span class="n">then</span>
@@ -1439,7 +1429,8 @@ are executed, can be arbitrary (as this depends on the equation sorting of the M
 34
 35
 36
-37</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">not</span> <span class="n">instantiatedEnergyPlus</span> <span class="n">then</span>
+37
+38</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">not</span> <span class="n">instantiatedEnergyPlus</span> <span class="n">then</span>
   <span class="c1">// Call instantiate exactly once per building.</span>
   <span class="n">instantiate</span><span class="p">(</span><span class="n">bld</span><span class="p">)</span> <span class="c1">// This differs from FMI2</span>
 
@@ -1457,8 +1448,7 @@ are executed, can be arbitrary (as this depends on the equation sorting of the M
     <span class="n">instantiatedEnergyPlus</span> <span class="o">=</span> <span class="nb">true</span>
 <span class="n">end</span> <span class="k">if</span>
 
-<span class="c1">// initialize</span>
-<span class="c1">// determine continuous and discrete states</span>
+<span class="c1">// Enter initialization mode</span>
 <span class="k">if</span> <span class="n">not</span> <span class="n">fmuEnteredInitializationMode</span> <span class="n">then</span>
   <span class="n">fmi2EnterInitializationMode</span><span class="p">(...)</span>
   <span class="n">fmuEnteredInitializationMode</span> <span class="o">=</span> <span class="nb">true</span>
@@ -1468,7 +1458,9 @@ are executed, can be arbitrary (as this depends on the equation sorting of the M
 <span class="n">fmi2GetReal</span><span class="p">(</span><span class="n">bld</span><span class="p">,</span> <span class="p">...)</span>
 
 <span class="c1">// Update data that tracks that all outputs and inputs have been</span>
-<span class="c1">// retrieved or set during the initialization</span>
+<span class="c1">// retrieved or set during the initialization.</span>
+<span class="c1">// This tracker is used so that calledAllGetGet() returns true</span>
+<span class="c1">// if all get and set is called on all data that is exchanged.</span>
 <span class="n">updateGetSetTracker</span><span class="p">(</span><span class="n">bld</span><span class="p">,</span> <span class="p">...)</span>
 
 <span class="k">if</span> <span class="n">calledAllGetSet</span><span class="p">()</span> <span class="n">then</span>
@@ -1515,7 +1507,8 @@ are executed, can be arbitrary (as this depends on the equation sorting of the M
 34
 35
 36
-37</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">not</span> <span class="n">instantiatedEnergyPlus</span> <span class="n">then</span>
+37
+38</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">not</span> <span class="n">instantiatedEnergyPlus</span> <span class="n">then</span>
   <span class="c1">// Call instantiate exactly once per building.</span>
   <span class="n">instantiate</span><span class="p">(</span><span class="n">bld</span><span class="p">)</span> <span class="c1">// This differs from FMI2</span>
 
@@ -1536,15 +1529,16 @@ are executed, can be arbitrary (as this depends on the equation sorting of the M
 <span class="c1">// Set the input for the schedule, or the actuator, or the EMS variable</span>
 <span class="n">fmi2SetReal</span><span class="p">(</span><span class="n">bld</span><span class="p">,</span> <span class="n">scheduleValue</span><span class="o">/</span><span class="n">actuatorValue</span><span class="o">/</span><span class="n">variableValue</span><span class="p">)</span>
 
-<span class="c1">// initialize</span>
-<span class="c1">// determine continuous and discrete states</span>
+<span class="c1">// Enter initialization mode</span>
 <span class="k">if</span> <span class="n">not</span> <span class="n">fmuEnteredInitializationMode</span> <span class="n">then</span>
   <span class="n">fmi2EnterInitializationMode</span><span class="p">(...)</span>
   <span class="n">fmuEnteredInitializationMode</span> <span class="o">=</span> <span class="nb">true</span>
 <span class="n">end</span> <span class="k">if</span>
 
 <span class="c1">// Update data that tracks that all outputs and inputs have been</span>
-<span class="c1">// retrieved or set during the initialization</span>
+<span class="c1">// retrieved or set during the initialization.</span>
+<span class="c1">// This tracker is used so that calledAllGetGet() returns true</span>
+<span class="c1">// if all get and set is called on all data that is exchanged.</span>
 <span class="n">updateGetSetTracker</span><span class="p">(</span><span class="n">bld</span><span class="p">,</span> <span class="p">...)</span>
 
 <span class="k">if</span> <span class="n">calledAllGetSet</span><span class="p">()</span> <span class="n">then</span>

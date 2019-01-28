@@ -581,20 +581,6 @@ No entry in the idf file is required.
 .. note:: As EnergyPlus has no notion of real versus integer (or boolean) variables,
           values will be sent as doubles.
 
-Modelica will send the initial value to EnergyPlus as in the following pseudo-code:
-
-.. code-block:: C
-
-   ...
-   M_fmi2SetTime(m, time)
-   // set all variable start values (of "ScalarVariable / <type> / start") and
-   // set the input values at time = Tstart
-   M_fmi2SetReal(m, ...)
-   // initialize
-   // determine continuous and discrete states
-   M_fmi2SetupExperiment(m, fmi2False, 0.0, Tstart, fmi2True, Tend)
-   ...
-
 
 There will be a Modelica block called ``To.Schedule`` with parameters
 

@@ -16,8 +16,7 @@ if not instantiatedEnergyPlus then
     instantiatedEnergyPlus = true
 end if
 
-// initialize
-// determine continuous and discrete states
+// Enter initialization mode
 if not fmuEnteredInitializationMode then
   fmi2EnterInitializationMode(...)
   fmuEnteredInitializationMode = true
@@ -27,7 +26,9 @@ end if
 fmi2GetReal(bld, ...)
 
 // Update data that tracks that all outputs and inputs have been
-// retrieved or set during the initialization
+// retrieved or set during the initialization.
+// This tracker is used so that calledAllGetGet() returns true
+// if all get and set is called on all data that is exchanged.
 updateGetSetTracker(bld, ...)
 
 if calledAllGetSet() then
