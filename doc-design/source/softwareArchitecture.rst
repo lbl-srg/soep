@@ -771,7 +771,7 @@ with an associated entry in the ``modelDescription.xml`` file that looks like
    <VendorAnnotations>
      <Tool name="OCT_StateEvents">
        <EventIndicators>
-         <Element index="10" reverseDependencies="44 45" />
+         <Element index="10" reverseDependencies="44" />
        </EventIndicators>
      </Tool>
    </VendorAnnotations>
@@ -818,9 +818,9 @@ with an associated entry in the ``modelDescription.xml`` file that looks like
 .. note:: In ``EventIndicators``, I removed ``dependencies="42 43"`` because this is already stated for the new output that
           was added for the event indicator function.
 
-.. note:: In ``EventIndicators``, I added ``45`` to the ``reverseDependencies`` as QSS needs to know that ``y`` must be
-          updated when the event fires. In our example, it may be able to deduce that ``y`` changes when ``der(x)`` changes,
-          but this would not be the case if ``y`` would simply be an output.
+.. note:: In ``EventIndicators``, ``45`` is not part of the ``reverseDependencies`` because ``y`` is an internal variable.
+          If ``y`` were declared with ``causality = output``, then it would be listed in ``reverseDependencies``.
+          As a consequence, a master algorithm is only allowed to connect variables that declare ``causality = output``.
 
 
 For efficiency, QSS requires knowledge of what variables an event indicator depends on,
