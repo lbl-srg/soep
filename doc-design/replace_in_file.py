@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import os, sys
+import os, sys, shutil
 from io import open
 import tempfile
 
@@ -10,7 +10,7 @@ def replace_in_file(old_string, new_string, file_name):
         for line in fin:
             fout.write(line.replace(old_string, new_string))
     os.remove(file_name)
-    os.rename(temp_file, file_name)
+    shutil.move(temp_file, file_name)
 
 if __name__ == "__main__":
     arg1 = sys.argv[1]
