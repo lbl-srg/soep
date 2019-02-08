@@ -336,7 +336,7 @@ the following optional properties of the FMI 2.0 standard.
    This property is required for FMUs to make maximum progress
    in each time step. See :cite:`Broman2013`.
 
-#. The FMUs must run on Windows 32/64 bit, Linux 32/64 bit
+#. FMUs distributed with SOEP must run on Windows 32/64 bit, Linux 32/64 bit
    and Mac OS X 64 bit.
 
 
