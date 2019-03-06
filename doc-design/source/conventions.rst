@@ -30,11 +30,20 @@ Conventions
 #. For :math:`f \colon \Re \to \Re` and :math:`t \in \Re`,
    we denote by :math:`f(t^-) \triangleq \lim_{s \uparrow t}  f(s)` the limit from below.
 
-#.  For :math:`s \in \Re`, we define the ceiling function as
-    :math:`\lceil s \rceil \triangleq \arg \min\{ k \in \mathbb Z \ | \ s \le k \}`.
+#. For :math:`s \in \Re`, we define the ceiling function as
+   :math:`\lceil s \rceil \triangleq \arg \min\{ k \in \mathbb Z \ | \ s \le k \}`.
 
-#.  We write a requirement *shall* be met if it must be fulfilled.
-    If the feature that implements a shall requirement is not in the final system,
-    then the system does not meet this requirement.
-    We write a requirment *should* be met if it is not critical
-    to the system working, but is still desirable.
+#. For :math:`t_R \in \Re` and :math:`t_I \in \mathbb N`, we write
+   :math:`t^+ \triangleq (t_R, \, t_I)^+` for the right limit at :math:`t`.
+   It holds that
+   :math:`(t_R, \, t_I)^+ \Leftrightarrow (\lim_{\epsilon \to 0} (t_R+\epsilon), t_{I_{max}})`,
+   where :math:`I_{max}` is the largest occurring integer of :term:`superdense time`.
+   Similarly, we write :math:`\mathbin{^-t}` for the left limit at :math:`t`,
+   for which it holds that
+   :math:`\mathbin{^-(t_R, \, t_I)} \Leftrightarrow (\lim_{\epsilon \to 0} (t_R-\epsilon), 0)`.
+
+#. We write a requirement *shall* be met if it must be fulfilled.
+   If the feature that implements a shall requirement is not in the final system,
+   then the system does not meet this requirement.
+   We write a requirment *should* be met if it is not critical
+   to the system working, but is still desirable.
