@@ -1141,6 +1141,9 @@ that are needed for an efficient implementation of QSS.
 FMI Changes for QSS
 -------------------
 
+Setting individual elements of the state vector
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 QSS generally requires to only update a subset of the continuous-time state vector. We therefore
 propose to use the function
 
@@ -1161,30 +1164,24 @@ We therefore propose that the standard is being changed as follows:
    and during event mode not only for inputs,
    as is allowed in FMI-ME 2.0, but also for continuous-time states.
 
-To retrieve individual state derivatives, we introduce the extensions
-shown in :numref:`fig_der_ext`
-to the ``<Derivatives>`` element of the ``modelDescription.xml`` file.
+Getting derivatives of state variables
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. _fig_der_ext:
+First order derivatives of state variables :math:`\dot x_c(t)` in :eq:`eqn_ini_val`
+can be obtained with the existing
+``fmi2GetReal`` function.
 
-.. code-block:: XML
-   :caption: Extensions for obtaining higher order state derivatives. XML additions are marked yellow.
-   :emphasize-lines: 12,13
+Second order derivatives of state variables :math:`\ddot x_c(t)` can be obtained using directional
+derivatives as
 
-    <ModelVariables> <!-- Remains unchanged -->
-      ...
-      <ScalarVariable name="x",      ...> ... </ScalarVariable> <!-- index="5" -->
-      ...
-      <ScalarVariable name="der(x)", ...> ... </ScalarVariable> <!-- index="8" -->
-    </ModelVariables>
+.. math::
 
-    <Derivatives>
-      <!-- The ScalarVariable with index 8 is der(x) -->
-      <Unknown     index="8" dependencies="6" />
-      <!-- index 5 is the index of the state variable x -->
-      <HigherOrder index="5" order="2" valueReference="124" /> <!-- This is d^2 x/dt^2 -->
-      <HigherOrder index="5" order="3" valueReference="125" /> <!-- This is d^3 x/dt^3 -->
-    </Derivatives>
+
+   \ddot x_c(t) = \frac{d^2 x_c(t)}{dt^2} = \frac{\partial \dot x_c(t)}{\partial x_c} \, \dot x_c(t).
+
+
+How to obtain third order derivatives of state variables :math:`\dddot x_c(t)` is not yet specified.
+
 
 Event Handling
 ^^^^^^^^^^^^^^
@@ -1194,51 +1191,143 @@ Event Handling
 State Events
 """"""""""""
 
-For efficiency, QSS requires to know the dependencies
-of event indicators. Also, it will need to
-have access to, or else approximate numerically, the time derivatives of the
-event indicator. FMI 2.0 outputs an array of real-valued event indicators,
-but no variable dependencies.
+For this discussion, consider the simple model
 
-Therefore, we introduce the following xml section, which assumes we have
-three event indicators.
+.. code-block:: modelica
+
+   model StateEvent2 "This model tests state event detection"
+     Real x(start=-0.5, fixed=true) "State variable";
+     discrete Real y(start=1.0, fixed=true "Discrete variable");
+     Modelica.Blocks.Interfaces.RealInput u "Input variable";
+   equation
+     der(x) = y;
+     when (u > x) then
+       y = -1.0;
+     end when;
+   end StateEvent2;
+
+with an associated entry in the ``modelDescription.xml`` file that looks like
 
 .. code-block:: xml
 
-          <ModelStructure>
-            <EventIndicators>
-              <!-- This is z[0] which depends on ScalarVariable with index 2 and 3 -->
-              <Element index="1" order="0" dependencies="2 3" valueReference="200" />
-              <!-- This is z[1] which declares no dependencies, hence it may depend on everything -->
-              <Element index="2" order="0" valueReference="201" />
-               <!-- This is z[2] which declares that it depends only on time -->
-              <Element index="3" order="0" dependencies="" valueReference="202" />
+   <VendorAnnotations>
+     <Tool name="OCT_StateEvents">
+       <EventIndicators>
+         <Element index="10" reverseDependencies="44" />
+       </EventIndicators>
+     </Tool>
+   </VendorAnnotations>
 
-              <!-- With order > 0, higher order derivatives can be specified. -->
-              <!-- This is dz[0]/dt -->
-              <Element index="1" order="1" valueReference="210" />
-            </EventIndicators>
-          </ModelStructure>
+   <ModelVariables>
+     <!-- Not all elements shown -->
+     <!-- Variable with index #10 -->
+     <ScalarVariable name="_eventIndicator_1" valueReference="42" causality="output" variability="continuous" initial="calculated">
+       <Real relativeQuantity="false" />
+     </ScalarVariable>
+     <!-- Not all elements shown -->
+     <!-- Variable with index #42 -->
+     <ScalarVariable name="u" valueReference="41" description="Input variable" causality="input" variability="continuous">
+       <Real relativeQuantity="false" start="0.0" />
+     </ScalarVariable>
+     <!-- Variable with index #43 -->
+     <ScalarVariable name="x" valueReference="40" description="State variable" causality="local" variability="continuous" initial="exact">
+       <Real relativeQuantity="false" start="-0.5" />
+     </ScalarVariable>
+     <!-- Variable with index #44 -->
+     <ScalarVariable name="der(x)" valueReference="39" causality="local" variability="continuous" initial="calculated">
+       <Real relativeQuantity="false" derivative="43" />
+     </ScalarVariable>
+     <!-- Variable with index #45 -->
+       <ScalarVariable name="y" valueReference="45" causality="local" variability="discrete" initial="exact">
+       <Real relativeQuantity="false" start="1.0" />
+     </ScalarVariable>
 
-The attribute ``dependencies`` is optional. However, if it is not specified,
-a tool shall assume that the event indicator depends on all variables.
-Write ``dependencies=""`` to declare that this event indicator depends on no variable
-(other than possibly time).
-Note that for performance reasons, for QSS ``dependencies`` should be declared
-for ``order="0"``. For higher order, QSS does not use the dependencies.
+   </ModelVariables>
 
-.. note::
+   <ModelStructure>
+     <Outputs>
+       <Unknown index="10" dependencies="42 43" />
+     </Outputs>
+    <Derivatives>
+       <Unknown index="44" dependencies="42 43" />
+     </Derivatives>
+     <InitialUnknowns>
+       <Unknown index="10" dependencies="42 43" />
+       <Unknown index="44" dependencies="" />
+     </InitialUnknowns>
+   </ModelStructure>
 
-   The ``index`` uses in the ``<EventIndicators>`` element is different from the ``index``
-   used in the ``<ModelVariables>`` element. The first event indicator has an ``index`` 1,
-   the second has an ``index`` 2, and so on. A new index is introduced because the event
-   indicators do not show up in the list of ``<ModelVariables>``.
+.. note:: In ``EventIndicators``, I removed ``dependencies="42 43"`` because this is already stated for the new output that
+          was added for the event indicator function.
 
-   The dependencies variables of event indicators are
+.. note:: In ``EventIndicators``, ``45`` is not part of the ``reverseDependencies`` because ``y`` is an internal variable.
+          If ``y`` were declared with ``causality = output``, then it would be listed in ``reverseDependencies``.
+          As a consequence, a master algorithm is only allowed to connect variables that declare ``causality = output``.
 
-   - inputs (variables with causality = "input")
-   - continuous-time states
-   - independent variable (usually time; causality = "independent")
+
+For efficiency, QSS requires knowledge of what variables an event indicator depends on,
+and what variables need to be updated when an event fires.
+Furthermore, QSS will need to
+have access to, or else approximate numerically, the time derivatives of the
+event indicator. FMI 2.0 outputs an array of real-valued event indicators,
+but no variable dependencies. Therefore, JModelica added the output
+
+.. code-block:: xml
+
+   <!-- Variable with index #10 -->
+   <ScalarVariable name="_eventIndicator_1" valueReference="42" causality="output"
+                   variability="continuous" initial="calculated">
+      <Real relativeQuantity="false" />
+   </ScalarVariable>
+
+This causes event indicators to become output variables, and therefore their dependency can be reported
+using existing FMI 2.0 conventions.
+
+Furthermore, JModelica added in the ``<VendorAnnotations>`` the section ``<Tool name="OCT_StateEvents">``.
+The meaning of the entries in this section is as follows:
+
+ - The section ``EventIndicators`` lists all event indicators in an ``<Element>`` section.
+   Its entries are defined as follows:
+
+   - The attribute ``index`` points to the index of the event indicator, which JModelica will add as an output
+     of the FMU.
+   - The attribute ``reverseDependencies`` lists the index of the variables and state derivatives that need to be updated when this
+     event fires.
+
+Note that for the event indicator, the ``dependencies`` can be obtained from the section
+``<ModelStructure><Outputs>...</ModelStructure></Outputs>`` because JModelica added the event indicator as
+an output variable.
+
+
+Getting derivatives of event indicator functions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For some :math:`n,m \in \mathbb N`, let :math:`z \colon \Re^n \times \mathbb Z^m \times \Re \to \Re` be an event indicator function.
+(For simplicity, we omitted the input and parameter dependency of :math:`z(\cdot, \cdot, \cdot)` in :eq:`eqn_ini_val`.)
+Then the first order time derivative of the event indicator :math:`\dot z`
+can be obtained using directional derivatives as
+
+.. math::
+   :label: eq_der_eve_ind
+
+
+   \dot z(x_c(t), x_d(t), t) = \frac{\partial z(x_c(t), x_d(t), t)}{\partial x_c} \, \dot x_c(t) + \frac{\partial z(x_c(t), x_d(t), t)}{\partial t}.
+
+.. note:: To get :math:`\frac{\partial z(x_c(t), x_d(t), t)}{\partial t}`, we need to add an output :math:`\frac{\partial z(x_c(t), x_d(t), t)}{\partial t}`
+          unless it requires a derivative of an input. In this situation, the QSS solver will detect the missing
+          derivative information from the XML file and numerically approximate
+          the event indicator derivatives.
+
+How to obtain second order derivatives of the event indicator functions :math:`\ddot z(x_c(t), x_d(t), t)` is not yet specified.
+
+
+Test models
+^^^^^^^^^^^
+
+This section lists test cases that are corner cases for QSS.
+
+Model with two conditions that fire an event
+""""""""""""""""""""""""""""""""""""""""""""
 
 Consider the following model
 
@@ -1246,78 +1335,16 @@ Consider the following model
 .. literalinclude:: ../../models/modelica_for_qss/QSS/Docs/StateEvent1.mo
    :language: modelica
 
-For efficiency reason, QSS requires the FMU which exports this model to indicate in its model description file
-the dependency of ``der(x1)`` on ``y``. This allows ``der(x1)`` to update when ``y`` changes.
-However, ``y`` can only change when an event indicator changes its domain. Hence,
-rather than declaring the dependency on ``y``, it suffices to declare the dependency on
-the event indicator.
-Therefore, we propose to
-include event indicators to the list of state derivative dependencies.
 
-However, FMI states on page 61 that ``dependencies`` are optional attributes
-defining the dependencies of the unknown (directly or indirectly via auxiliary variables)
-with respect to known.
-For state derivatives and outputs, known variables are
-
-- inputs (variables with causality = "input")
-- continuous-time states
-- independent variable (usually time; causality = "independent")
-
-Therefore we require to extend the ``<Derivatives>`` element
-with a new attribute ``eventIndicatorsDependencies`` which lists
-all event indicator variables which trigger
-changes to state derivative trajectories.
-
-An excerpt of such a ``<Derivatives>`` element with the new addition is
-shown in :numref:`fig_hig_der`.
-
-
-.. _fig_hig_der:
-
-.. code-block:: xml
-  :caption: Extensions with inclusion of a new attribute for event indicator dependencies. XML additions are marked yellow.
-  :emphasize-lines: 3
-
-    <Derivatives>
-      <!-- The ScalarVariable with index 8 is der(x) -->
-      <!-- eventIndicatorsDependencies="1" declares that der(x)
-           depends on the event indicator with index 1  -->
-      <Unknown     index="8" dependencies="6" eventIndicatorsDependencies="1"/>
-      <!-- index 5 is the index of the state variable x -->
-      <HigherOrder index="5" order="2" valueReference="124" /> <!-- This is d^2 x/dt^2 -->
-      <HigherOrder index="5" order="3" valueReference="125" /> <!-- This is d^3 x/dt^3 -->
-    </Derivatives>
-
-For the elements ``Unknown`` and ``HigherOrder``, the
-attributes ``dependencies`` and ``eventIndicatorsDependencies`` are optional.
-However, if ``dependencies`` is not declared,
-a tool shall assume that they
-depend on all variables.
-Similarly, if ``eventIndicatorsDependencies`` is not declared,
-a tool shall assume that they
-depend on all event indicators.
-Write ``dependencies=""`` to declare that this derivative depends on no variable.
-Similarly,
-write ``eventIndicatorsDependencies=""`` to declare that this derivative depends on no event indicator.
-Note that for performance reasons, for QSS ``dependencies`` and ``eventIndicatorsDependencies`` should be declared
-for ``Unknown``. For ``HigherOrder``, QSS does not use the
-``dependencies`` and ``eventIndicatorsDependencies``.
-
-
-In :numref:`fig_hig_der`, the higher order derivatives depend on the event indicator.
-
-.. note::
-
-  The indexes of ``eventIndicatorsDependencies`` are the indexes of the
-  event indicators specified in the ``<EventIndicators>`` element.
+In this model, two conditions need to be satisfied
+for an event to fire.
 
 .. _subsec_te:
 
 Event indicators that depend on the input
 """""""""""""""""""""""""""""""""""""""""
 
-
-Consider following model
+Consider the following model
 
 .. literalinclude:: ../../models/modelica_for_qss/QSS/Docs/StateEvent2.mo
    :language: modelica
@@ -1329,9 +1356,9 @@ Hence, a tool requires the derivative of the input ``u``
 to compute the derivative of the event indicator.
 Since the derivative of the input ``u`` is unkown in the FMU,
 we propose for cases where the event indicator
-has a direct feedthrough on the input to exclude
-event indicator derivatives from the ``<EventIndicators>``
-element. In this situation, the QSS solver will detect the missing
+has a direct feedthrough on the input to not add time derivatives of
+event indicators as outputs.
+In this situation, the QSS solver will detect the missing
 information from the XML file and numerically approximate
 the event indicator derivatives.
 
@@ -1358,20 +1385,6 @@ that at every state event, the QSS solver gets the value of
 the variable, updates variables which depend on it, and proceeds
 with its calculation.
 
-Workaround for implementing event indicators
-""""""""""""""""""""""""""""""""""""""""""""
-
-While waiting for the implementation of the FMI extensions in JModelica,
-LBNL will refactor some Modelica models to expose event indicators and
-their first derivatives as FMU output variables.
-
-The names of event indicators variables will start with ``__zc_``. The names of derivatives of event
-indicators will start with ``__zc_der_``.  As an example, ``__zc_z1`` and ``__zc_der_z1``
-are the names of the event indicator ``z1`` with its derivative ``der_z1``.
-
-If the number of event indicators is equal to the ``numberOfEventIndicators`` attribute,
-then only ``__zc_`` and ``__zc_der_`` need to be used by QSS.
-If the number of event indicators does not match, the FMU shall be rejected with an error message.
 
 .. note::
 
@@ -1398,10 +1411,8 @@ but a time event is not described with event indicator,
 it is not possible to use the same approach as done for
 ``StateEvent1`` without further modificaton.
 
-We therefore propose that JModelica turns all time events into state events,
-add new event indicators generated by those state events to the ``<EventIndicators>``
-element, and include those event indicators to the ``eventIndicatorsDependencies`` attribute
-of state derivatives which depend on them.
+We therefore propose that JModelica turns all time events into state events and
+adds new event indicators as output variables.
 
 .. note::
 
@@ -1500,6 +1511,8 @@ co-simulation API.
 
 Summary of Proposed Changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+**To be updated**
 
 Here is a list with a summary of proposed changes
 
