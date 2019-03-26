@@ -820,46 +820,40 @@ In the remainder of this section, we note that ``time`` is
 Instantiation
 ^^^^^^^^^^^^^
 
-The instantiation of EnergyPlus is done by calling ``fmi2Instantiate``.
-Prior to this call, Modelica will write the json file
-``fmuResourceLocation/ModelicaBuildingsEnergyPlus.json``
-that contains the parameters, inputs and output names and their
-value references.
+To instantiate EnergyPlus, EnergyPlus generates an FMU 2.0 for model exchange.
+This is initiated by Modelica, which invokes a system command of the form
 
+.. code-block:: bash
 
-.. code-block:: c
+   xyz path_to_json
 
-   fmi2Component instantiate(
-                       fmuType,
-                       fmuGUID,
-                       bui->tmpDir,  /* fmuResourceLocation, which is the temporary directory name */
-                       callBackFunctions, /* call back functions so that FMU can report to master */
-                       visible, /* Set to fmi2False, e.g., no user interaction or pop up windows */
-                       loggingOn); /* If fmi2True, debug logging is enabled, else it is disabled */
+where ``xyz`` (name TBD) is a utility provided by EnergyPlus, and ``path_to_json``
+is the absolute path of a JSON file that configures EnergyPlus.
 
-                             fmi2String instanceName,
-                             fmi2Type fmuType,
-                             fmi2String fmuGUID,
-                             fmi2String fmuResourceLocation,
-                             const fmi2CallbackFunctions* functions,
-                             fmi2Boolean visible,
-                             fmi2Boolean loggingOn)
+For the case of a model with one thermal zone, the content of the ``path_to_json``
+file looks as follows:
 
-- ``instanceName``: String to uniquely identify an EnergyPlus instance. This string must be non-empty and will be used for logging message.
-- ``fmuType``: Type of the FMU, set to ``fmi2CoSimulation``.
-- ``fmuGUID``: GUID of the FMU.
-- ``fmuResourceLocation``: URI according to the IETF RFC3986 syntax to indicate the location to the "resources" directory of the unzipped FMU archive. This should be used as the temporary directory of EnergyPlus.
-- ``functions``: Callback functions to be used from the FMU functions to utilize resources from the environment.
-  (Used for example for logging functions.)
-- ``visible``: Flag, set to ``fmi2False``, indicating that there must not be any user interaction required or pop up windows present.
-- ``loggingOn``: If ``fmi2True``, debug logging is enabled, else it is disabled.
+.. code-block:: json
 
-This function will read the ``idf`` file and sets up the data structure in EnergyPlus.
+   {
+    "version": "0.1",
+    "EnergyPlus": {
+      "idf": "/tmp/JModelica.org/jm_tmpPVJfHP/resources/0/RefBldgSmallOfficeNew2004_Chicago.idf",
+      "idd": "/tmp/JModelica.org/jm_tmpPVJfHP/resources/2/Energy+.idd",
+      "weather": "/tmp/JModelica.org/jm_tmpPVJfHP/resources/1/USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.epw"
+    },
+    "fmu": {
+        "name": "/mnt/shared/modelica-buildings/tmp-eplus-fmuName/fmuName.fmu",
+        "version": "2.0",
+        "kind"   : "ME"
+    },
+    "zones": [
+        { "name": "office" }
+     ]
+   }
 
-It returns an ``fmi2Component``.
-If a null pointer is returned, then instantiation failed. In that case, ``functions->logger``
-was called with detailed information about the reason.
-
+Using this information, EnergyPlus creates the FMU with name
+`/mnt/shared/modelica-buildings/tmp-eplus-fmuName/fmuName.fmu``
 
 We will now describe how to the exchanged variables are configured.
 
@@ -872,40 +866,19 @@ the following data structures will be used for a building with a zone called ``b
 .. code-block:: c
 
    "zones": [
-     {
-       "name": "basement",
-       "parameters": [
-         { "name": "V",       "valueReference": 0 },
-         { "name": "AFlo",    "valueReference": 1 },
-         { "name": "mSenFac", "valueReference": 2 },
-        ],
-       "inputs" : [
-         { "name": "T",            "valueReference": 6 },
-         { "name": "X",            "valueReference": 7 },
-         { "name": "mInlets_flow", "valueReference": 8 },
-         { "name": "TInlet",       "valueReference": 9 },
-         { "name": "QGaiRad_flow", "valueReference": 10 }
-       ],
-       "outputs" : [
-         { "name": "TRad",         "valueReference": 11 }
-         { "name": "QConSen_flow", "valueReference": 12 },
-         { "name": "QLat_flow",    "valueReference": 13 },
-         { "name": "QPeo_flow",    "valueReference": 14 }
-       ]
-     },
-     {
-       "name": "office",
-       "parameters": [not shown for brevity, same as above, but different value for valueReference],
-       "inputs"    : [not shown for brevity, same as above, but different value for valueReference],
-       "outputs"   : [not shown for brevity, same as above, but different value for valueReference],
-     }
+      { "name": "basement" },
+      { "name": "office" }
    ]
+
+In this case, the FMU must have parameters called ``basement_V``, ``office_V``, ``basement_AFlo`` etc.
+inputs called ``basement_T`` and ``office_T`` and outputs called
+``basement_QConSen_flow`` and ``office_QConSen_flow``.
 
 
 Output variables
 """"""""""""""""
 
-.. todo: Revise once we support output variables.
+.. todo:: Revise once we support output variables.
 
 To configure the data exchange for output variables, as described in :numref:`sec_out_var`,
 consider an example where one wants to retrieve the outdoor drybulb temperature from EnergyPlus.
@@ -925,7 +898,7 @@ Then, the following functions will be called during the instantiation, where we 
 Schedules, EMS actuators and EMS variables
 """"""""""""""""""""""""""""""""""""""""""
 
-.. todo: Revise to support schedules, EMS actuators and EMS variables
+.. todo:: Revise to support schedules, EMS actuators and EMS variables
 
 To configure the data exchange with a schedule, as described in :numref:`sec_inp_sch`,
 consider the example where we want to write to a schedule called ``OfficeSensibleGain``.
@@ -945,6 +918,8 @@ EMS actuators and EMS variables have a similar configuration.
 
 Pseudo Code Example for Data Exchange with EnergyPlus
 -----------------------------------------------------
+
+.. todo:: Revise once we support output variables.
 
 In the this section, the calling sequence of the FMI functions along with the EnergyPlus functions is shown.
 This should clarify how EnergyPlus is invoked.
