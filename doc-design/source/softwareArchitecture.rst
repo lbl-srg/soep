@@ -847,7 +847,7 @@ file looks as follows:
         "version": "2.0",
         "kind"   : "ME"
     },
-    "models": {
+    "model": {
         "zones": [
             { "name": "office" }
         ]
