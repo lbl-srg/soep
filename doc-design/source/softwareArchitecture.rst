@@ -847,13 +847,15 @@ file looks as follows:
         "version": "2.0",
         "kind"   : "ME"
     },
-    "zones": [
-        { "name": "office" }
-     ]
-   }
+    "models": {
+        "zones": [
+            { "name": "office" }
+        ]
+      }
+    }
 
 Using this information, EnergyPlus creates the FMU with name
-`/mnt/shared/modelica-buildings/tmp-eplus-fmuName/fmuName.fmu``
+``/mnt/shared/modelica-buildings/tmp-eplus-fmuName/fmuName.fmu``
 
 We will now describe how to the exchanged variables are configured.
 
