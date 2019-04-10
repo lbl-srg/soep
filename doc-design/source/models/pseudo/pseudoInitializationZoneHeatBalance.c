@@ -1,6 +1,5 @@
 if not instantiatedEnergyPlus then
   // Call instantiate exactly once per building.
-  instantiate(bld) // This differs from FMI2
 
   // Call instantiate exactly once per building.
   m = fmi2Instantiate(idf_name, ...)
@@ -16,8 +15,10 @@ if not instantiatedEnergyPlus then
     instantiatedEnergyPlus = true
 end if
 
-// Set the inputs for the room
-fmi2SetReal(bld, ...)
+// Get the parameters from EnergyPlus
+// For each room, call
+fmi2GetReal(...)
+
 
 // Enter initialization mode
 if not fmuEnteredInitializationMode then
@@ -25,17 +26,16 @@ if not fmuEnteredInitializationMode then
   fmuEnteredInitializationMode = true
 end if
 
-// Get the outputs for the room
-fmi2GetReal(bld, ...)
+// Set the inputs and get the outputs for the room
+fmi2SetReal(...)
+fmi2GetReal(...)
 
 // Update data that tracks that all outputs and inputs have been
 // retrieved or set during the initialization.
 // This tracker is used so that calledAllGetGet() returns true
 // if all get and set is called on all data that is exchanged.
-updateGetSetTracker(bld, ...)
+updateGetSetTracker(...)
 
 if calledAllGetSet() then
-  M_fmi2ExitInitializationMode(...)
-  // Enter event mode
-  fmi2EnterEventMode(bld)
+fmi2ExitInitializationMode(...) // FMU enters implicitely Event Mode
 end if
