@@ -113,7 +113,7 @@ import sphinx_bootstrap_theme
 html_theme = 'bootstrap'
 html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
 print "*********** {}".format(html_theme_path)
-html_logo = '_static/soep-logo.png'
+html_logo = '_static/spawn_icon_darkbluetxhighres.png'
 # Theme options are theme-specific and customize the look and feel of a
 # theme further.
 html_theme_options = {
@@ -290,7 +290,7 @@ latex_elements = {'babel': '\\usepackage[english]{babel}', \
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
-latex_logo = '_static/soep-logo.png'
+latex_logo = '_static/spawn_icon_darkbluetxhighres.png'
 
 # For "manual" documents, if this is true, then toplevel headings are parts,
 # not chapters.
