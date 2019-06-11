@@ -1,7 +1,3 @@
-================================================================
-Spawn of EnergyPlus -- Design and Implementation (Working Draft)
-================================================================
-
 .. only:: html
 
    The Spawn of EnergyPlus, called SOEP, is a next-generation simulation engine,
