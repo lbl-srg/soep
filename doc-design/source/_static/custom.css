@@ -21,8 +21,8 @@ body{
     top: 5px;
 }
 .navbar {
-    height: 82px;
-    max-height: 82px;
+    height: 152px;
+    max-height: 152px;
 /*    border: none;*/
     -webkit-user-select:none;
     -moz-user-select:none;
@@ -38,7 +38,7 @@ body{
 
 .navbar .navbar-nav > input.form-control{
    position: absolute;
-   top: 30px;
+   top: 170px;
    right: 0;
 }
 
@@ -67,7 +67,7 @@ body{
 .navbar-collapse{
   border-style: none;
   position: absolute;
-  top: 50px;
+  top: 120px;
   z-index: 100;
 }
 /* ---------------------------------- */
@@ -75,8 +75,8 @@ body{
 
 .navbar > .container-fluid .navbar-brand > img{
    position: absolute;
-   left: 10px;
-   height: 30px;
+   left: 30px;
+   height: 100px;
 }
 
 .footer{

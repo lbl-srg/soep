@@ -26,7 +26,7 @@ Spawn of EnergyPlus -- Design and Implementation (Working Draft)
    with control workflows, and allow users and manufacturers to insert
    their own models into SOEP.
 
-   .. figure:: img/bto_modelica_030917.png
+   .. figure:: img/interactions-01-medRes.png
       :scale: 50%
 
       Spawn-of-EnergyPlus (SOEP) is a next-generation BEM engine that
