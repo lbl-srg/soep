@@ -7,10 +7,17 @@
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>5. Software Architecture &#8212; Spawn of EnergyPlus</title>
-    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css" />
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap_custom.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootswatch-3.3.6/united/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-theme.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap_custom.css" />
@@ -20,10 +27,11 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
     <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="_static/lbl-icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
@@ -154,7 +162,7 @@
 </li>
 <li><a class="reference internal" href="#integration-of-qss-solver-with-jmodelica">5.3. Integration of QSS solver with JModelica</a><ul>
 <li><a class="reference internal" href="#fmi-changes-for-qss">5.3.1. FMI Changes for QSS</a><ul>
-<li><a class="reference internal" href="#setting-individual-elements-of-the-state-vector">5.3.1.1. Setting individual elements of the state vector</a></li>
+<li><a class="reference internal" href="#accessing-individual-elements-of-the-state-vector">5.3.1.1. Accessing individual elements of the state vector</a></li>
 <li><a class="reference internal" href="#getting-derivatives-of-state-variables">5.3.1.2. Getting derivatives of state variables</a></li>
 <li><a class="reference internal" href="#event-handling">5.3.1.3. Event Handling</a><ul>
 <li><a class="reference internal" href="#state-events">5.3.1.3.1. State Events</a></li>
@@ -236,7 +244,105 @@
 
 <div class="container">
   <div class="row">
-    <div class="col-md-12 content">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li><a class="reference internal" href="#">5. Software Architecture</a><ul>
+<li><a class="reference internal" href="#overall-software-architecture">5.1. Overall software architecture</a></li>
+<li><a class="reference internal" href="#coupling-of-energyplus-with-modelica">5.2. Coupling of EnergyPlus with Modelica</a><ul>
+<li><a class="reference internal" href="#assumptions-and-limitations">5.2.1. Assumptions and limitations</a></li>
+<li><a class="reference internal" href="#unit-system">5.2.2. Unit system</a></li>
+<li><a class="reference internal" href="#partitioning-of-the-models">5.2.3. Partitioning of the models</a><ul>
+<li><a class="reference internal" href="#coupling-of-envelope-model">5.2.3.1. Coupling of envelope model</a></li>
+<li><a class="reference internal" href="#retrieving-output-variables-from-energyplus">5.2.3.2. Retrieving output variables from EnergyPlus</a></li>
+<li><a class="reference internal" href="#sending-input-to-energyplus">5.2.3.3. Sending input to EnergyPlus</a><ul>
+<li><a class="reference internal" href="#schedules">5.2.3.3.1. Schedules</a></li>
+<li><a class="reference internal" href="#actuators">5.2.3.3.2. Actuators</a></li>
+<li><a class="reference internal" href="#variables">5.2.3.3.3. Variables</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#time-synchronization">5.2.4. Time synchronization</a></li>
+<li><a class="reference internal" href="#requirements-for-exporting-energyplus-as-an-fmu-for-model-exchange">5.2.5. Requirements for Exporting EnergyPlus as an FMU for model exchange</a><ul>
+<li><a class="reference internal" href="#instantiation">5.2.5.1. Instantiation</a><ul>
+<li><a class="reference internal" href="#envelope-model">5.2.5.1.1. Envelope model</a></li>
+<li><a class="reference internal" href="#output-variables">5.2.5.1.2. Output variables</a></li>
+<li><a class="reference internal" href="#schedules-ems-actuators-and-ems-variables">5.2.5.1.3. Schedules, EMS actuators and EMS variables</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pseudo-code-example-for-data-exchange-with-energyplus">5.2.6. Pseudo Code Example for Data Exchange with EnergyPlus</a><ul>
+<li><a class="reference internal" href="#initialization">5.2.6.1. Initialization</a></li>
+<li><a class="reference internal" href="#time-stepping">5.2.6.2. Time stepping</a></li>
+<li><a class="reference internal" href="#termination">5.2.6.3. Termination</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#integration-of-qss-solver-with-jmodelica">5.3. Integration of QSS solver with JModelica</a><ul>
+<li><a class="reference internal" href="#fmi-changes-for-qss">5.3.1. FMI Changes for QSS</a><ul>
+<li><a class="reference internal" href="#accessing-individual-elements-of-the-state-vector">5.3.1.1. Accessing individual elements of the state vector</a></li>
+<li><a class="reference internal" href="#getting-derivatives-of-state-variables">5.3.1.2. Getting derivatives of state variables</a></li>
+<li><a class="reference internal" href="#event-handling">5.3.1.3. Event Handling</a><ul>
+<li><a class="reference internal" href="#state-events">5.3.1.3.1. State Events</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#getting-derivatives-of-event-indicator-functions">5.3.1.4. Getting derivatives of event indicator functions</a></li>
+<li><a class="reference internal" href="#test-models">5.3.1.5. Test models</a><ul>
+<li><a class="reference internal" href="#model-with-two-conditions-that-fire-an-event">5.3.1.5.1. Model with two conditions that fire an event</a></li>
+<li><a class="reference internal" href="#event-indicators-that-depend-on-the-input">5.3.1.5.2. Event indicators that depend on the input</a></li>
+<li><a class="reference internal" href="#handling-of-variables-reinitialized-with-reinit">5.3.1.5.3. Handling of variables reinitialized with <code class="docutils literal notranslate"><span class="pre">reinit()</span></code></a></li>
+<li><a class="reference internal" href="#time-events">5.3.1.5.4. Time Events</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#smoothtoken-for-qss">5.3.1.6. SmoothToken for QSS</a></li>
+<li><a class="reference internal" href="#summary-of-proposed-changes">5.3.1.7. Summary of Proposed Changes</a></li>
+<li><a class="reference internal" href="#open-topics">5.3.1.8. Open Topics</a><ul>
+<li><a class="reference internal" href="#atomic-api">5.3.1.8.1. Atomic API</a></li>
+<li><a class="reference internal" href="#xml-api">5.3.1.8.2. XML/API</a></li>
+<li><a class="reference internal" href="#higher-derivatives">5.3.1.8.3. Higher Derivatives</a></li>
+<li><a class="reference internal" href="#input-variables">5.3.1.8.4. Input Variables</a></li>
+<li><a class="reference internal" href="#annotations">5.3.1.8.5. Annotations</a></li>
+<li><a class="reference internal" href="#conditional-expressions-and-event-indicators">5.3.1.8.6. Conditional Expressions and Event Indicators</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#integration-with-openstudio">5.4. Integration with OpenStudio</a><ul>
+<li><a class="reference internal" href="#automated-documentation-ast-support-tool">5.4.1. Automated Documentation/AST Support Tool</a><ul>
+<li><a class="reference internal" href="#background">5.4.1.1. Background</a></li>
+<li><a class="reference internal" href="#requirements">5.4.1.2. Requirements</a></li>
+<li><a class="reference internal" href="#literature-review">5.4.1.3. Literature review</a></li>
+<li><a class="reference internal" href="#implementation">5.4.1.4. Implementation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <li>
+    <a href="requirements.html" title="Previous Chapter: 4. Requirements"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; 4. Requirements</span>
+    </a>
+  </li>
+  <li>
+    <a href="numericalMethods.html" title="Next Chapter: 6. Numerical Methods of the Master Algorithm"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">6. Numerical ... &raquo;</span>
+    </a>
+  </li>
+<form action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+    <div class="col-md-9 content">
       
   <div class="section" id="software-architecture">
 <span id="sec-soft-arch"></span><h1>5. Software Architecture<a class="headerlink" href="#software-architecture" title="Permalink to this headline">¶</a></h1>
@@ -362,7 +468,7 @@ note right of Application
 end note"/>
 
 </object></p>
-<p class="caption"><span class="caption-number">Fig. 5.1 </span>: Overall software architecture.<a class="headerlink" href="#id13" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 5.1 </span>: Overall software architecture.</span><a class="headerlink" href="#id13" title="Permalink to this image">¶</a></p>
 </div>
 </div>
 <div class="section" id="coupling-of-energyplus-with-modelica">
@@ -1799,7 +1905,7 @@ qss_sol -down-&gt; FMU_QSS : &quot;inputs, time, states&quot;"/>
 
 </object></p>
 <p class="caption"><span class="caption-number">Fig. 5.4 </span>: Software architecture for QSS integration with JModelica
-with extended FMI API.<a class="headerlink" href="#id17" title="Permalink to this image">¶</a></p>
+with extended FMI API.</span><a class="headerlink" href="#id17" title="Permalink to this image">¶</a></p>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -1845,14 +1951,14 @@ and FMI has limited support for QSS, we discuss extensions
 that are needed for an efficient implementation of QSS.</p>
 <div class="section" id="fmi-changes-for-qss">
 <h3>5.3.1. FMI Changes for QSS<a class="headerlink" href="#fmi-changes-for-qss" title="Permalink to this headline">¶</a></h3>
-<div class="section" id="setting-individual-elements-of-the-state-vector">
-<h4>5.3.1.1. Setting individual elements of the state vector<a class="headerlink" href="#setting-individual-elements-of-the-state-vector" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="accessing-individual-elements-of-the-state-vector">
+<h4>5.3.1.1. Accessing individual elements of the state vector<a class="headerlink" href="#accessing-individual-elements-of-the-state-vector" title="Permalink to this headline">¶</a></h4>
 <p>QSS generally requires to only update a subset of the continuous-time state vector. We therefore
 propose to use the function</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">fmi2Status</span> <span class="nf">fmi2SetReal</span><span class="p">(</span><span class="n">fmi2Component</span> <span class="n">c</span><span class="p">,</span>
-                       <span class="k">const</span> <span class="n">fmi2Real</span> <span class="n">x</span><span class="p">[],</span>
                        <span class="k">const</span> <span class="n">fmi2ValueReference</span> <span class="n">vr</span><span class="p">[],</span>
-                       <span class="kt">size_t</span> <span class="n">nx</span><span class="p">);</span>
+                       <span class="kt">size_t</span> <span class="n">nx</span><span class="p">,</span>
+                       <span class="k">const</span> <span class="n">fmi2Real</span> <span class="n">x</span><span class="p">[]);</span>
 </pre></div>
 </div>
 <p>to set a subset of the continuous-time state vector.
@@ -1863,6 +1969,25 @@ continuous-time state variables during the initialization.</p>
 <div><code class="docutils literal notranslate"><span class="pre">fmi2SetReal</span></code> can be called during the continuous time mode
 and during event mode not only for inputs,
 as is allowed in FMI-ME 2.0, but also for continuous-time states.</div></blockquote>
+<p>QSS performance considerations include:</p>
+<ul class="simple">
+<li>QSS generally advances single variables at a time so atomic (single variable) get/set calls for all
+variable quantity types (real, integer, boolean, …) would eliminate the loop overhead. The benefit
+of atomic calls will vary by model type/size but without such calls we cannot assess the benefit and,
+possibly, recommend this as an API extension for future FMI versions. The atomic set-real API might
+look like this:</li>
+</ul>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">fmi2Status</span> <span class="nf">fmi2Set1Real</span><span class="p">(</span><span class="n">fmi2Component</span> <span class="n">c</span><span class="p">,</span>
+                        <span class="k">const</span> <span class="n">fmi2ValueReference</span> <span class="n">vr</span><span class="p">,</span>
+                        <span class="k">const</span> <span class="n">fmi2Real</span> <span class="n">x</span><span class="p">);</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>Avoiding global algebraic solutions when doing atomic/subset lookups when the algebraic dependencies
+can be partitioned is probably difficult but worth investigating.</li>
+<li>FMU generation should assure that calling <code class="docutils literal notranslate"><span class="pre">fmi2GetReal</span></code> on a derivative will not perform a
+compute-all-derivatives operation internally.</li>
+</ul>
 </div>
 <div class="section" id="getting-derivatives-of-state-variables">
 <h4>5.3.1.2. Getting derivatives of state variables<a class="headerlink" href="#getting-derivatives-of-state-variables" title="Permalink to this headline">¶</a></h4>
@@ -1874,6 +1999,16 @@ derivatives as</p>
 <div class="math notranslate nohighlight">
 \[\ddot x_c(t) = \frac{d^2 x_c(t)}{dt^2} = \frac{\partial \dot x_c(t)}{\partial x_c} \, \dot x_c(t).\]</div>
 <p>How to obtain third order derivatives of state variables <span class="math notranslate nohighlight">\(\dddot x_c(t)\)</span> is not yet specified.</p>
+<p>QSS performance considerations include:</p>
+<ul class="simple">
+<li>Using “global” directional derivative calls for inherently atomic QSS derivative accesses is a
+potentially large performance hit that may make the use of the directional derivatives call less
+efficient than the (atomic) numerical differentiation that QSS has used. If atomic directional
+derivatives (computing the necessary subset of the Jacobian) can be supported in the near term
+that would make their use with QSS more practical.</li>
+<li>Longer term, automatic differentiation with atomic 2<sup>nd</sup> and 3<sup>rd</sup> derivative calls
+will be valuable for efficient QSS solutions.</li>
+</ul>
 </div>
 <div class="section" id="event-handling">
 <h4>5.3.1.3. Event Handling<a class="headerlink" href="#event-handling" title="Permalink to this headline">¶</a></h4>
@@ -2177,7 +2312,7 @@ using the Taylor expansion</p>
 <p>where <span class="math notranslate nohighlight">\(u^{(n)}\)</span> denotes the <span class="math notranslate nohighlight">\(n\)</span>-th derivative. As shown in <a class="reference internal" href="#fig-fmu-qss"><span class="std std-numref">Fig. 5.5</span></a>, the FMU-ME will receive
 the value <span class="math notranslate nohighlight">\(y_s(t)\)</span>.</p>
 <div class="figure" id="id19">
-<span id="fig-fmu-qss"></span><a class="reference internal image-reference" href="_images/fmu-qss.png"><img alt="_images/fmu-qss.png" src="_images/fmu-qss.png" style="width: 1069.2px; height: 392.15px;" /></a>
+<span id="fig-fmu-qss"></span><a class="reference internal image-reference" href="_images/fmu-qss.png"><img alt="_images/fmu-qss.png" src="_images/fmu-qss.png" style="width: 1069.2px; height: 392.15000000000003px;" /></a>
 <p class="caption"><span class="caption-number">Fig. 5.5 </span>: Conversion of input signal between FMU-QSS and FMU-ME.</span></p>
 </div>
 <p>To avoid frequent changes in the input signal, each input signal will have a quantum defined.
@@ -2588,7 +2723,7 @@ need to assign media.</td></tr>
     </p>
     <p>
         &copy; Copyright (c) All rights reserved.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.<br/>
     </p>
   </div>
 </footer>

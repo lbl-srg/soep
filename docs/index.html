@@ -7,10 +7,17 @@
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Table of Contents &#8212; Spawn of EnergyPlus</title>
-    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css" />
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap_custom.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootswatch-3.3.6/united/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-theme.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap_custom.css" />
@@ -20,10 +27,11 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
     <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="_static/lbl-icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
@@ -155,7 +163,25 @@
 
 <div class="container">
   <div class="row">
-    <div class="col-md-12 content">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li><a class="reference internal" href="#">Table of Contents</a></li>
+</ul>
+
+  <li>
+    <a href="preample.html" title="Next Chapter: 1. Preample"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">1. Preample &raquo;</span>
+    </a>
+  </li>
+<form action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+    <div class="col-md-9 content">
       
   <p>The Spawn of EnergyPlus, called SOEP, is a next-generation simulation engine,
 for building and control energy systems. SOEP will combine</p>
@@ -256,7 +282,7 @@ and any of the design may change.</p>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#integration-of-qss-solver-with-jmodelica">5.3. Integration of QSS solver with JModelica</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="softwareArchitecture.html#fmi-changes-for-qss">5.3.1. FMI Changes for QSS</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#setting-individual-elements-of-the-state-vector">5.3.1.1. Setting individual elements of the state vector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#accessing-individual-elements-of-the-state-vector">5.3.1.1. Accessing individual elements of the state vector</a></li>
 <li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#getting-derivatives-of-state-variables">5.3.1.2. Getting derivatives of state variables</a></li>
 <li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#event-handling">5.3.1.3. Event Handling</a></li>
 <li class="toctree-l4"><a class="reference internal" href="softwareArchitecture.html#getting-derivatives-of-event-indicator-functions">5.3.1.4. Getting derivatives of event indicator functions</a></li>
@@ -324,7 +350,7 @@ and any of the design may change.</p>
     </p>
     <p>
         &copy; Copyright (c) All rights reserved.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.<br/>
     </p>
   </div>
 </footer>

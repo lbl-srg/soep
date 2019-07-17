@@ -1141,8 +1141,8 @@ that are needed for an efficient implementation of QSS.
 FMI Changes for QSS
 -------------------
 
-Setting individual elements of the state vector
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Accessing individual elements of the state vector
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 QSS generally requires to only update a subset of the continuous-time state vector. We therefore
 propose to use the function
@@ -1150,9 +1150,9 @@ propose to use the function
 .. code-block:: c
 
   fmi2Status fmi2SetReal(fmi2Component c,
-                         const fmi2Real x[],
                          const fmi2ValueReference vr[],
-                         size_t nx);
+                         size_t nx,
+                         const fmi2Real x[]);
 
 to set a subset of the continuous-time state vector.
 This function exists in FMI-ME 2.0, but the standard only allows to call it for
@@ -1163,6 +1163,26 @@ We therefore propose that the standard is being changed as follows:
    ``fmi2SetReal`` can be called during the continuous time mode
    and during event mode not only for inputs,
    as is allowed in FMI-ME 2.0, but also for continuous-time states.
+
+QSS performance considerations include:
+
+- QSS generally advances single variables at a time so atomic (single variable) get/set calls for all
+  variable quantity types (real, integer, boolean, ...) would eliminate the loop overhead. The benefit
+  of atomic calls will vary by model type/size but without such calls we cannot assess the benefit and,
+  possibly, recommend this as an API extension for future FMI versions. The atomic set-real API might
+  look like this:
+
+.. code-block:: c
+
+  fmi2Status fmi2Set1Real(fmi2Component c,
+                          const fmi2ValueReference vr,
+                          const fmi2Real x);
+
+- Avoiding global algebraic solutions when doing atomic/subset lookups when the algebraic dependencies
+  can be partitioned is probably difficult but worth investigating.
+
+- FMU generation should assure that calling ``fmi2GetReal`` on a derivative will not perform a
+  compute-all-derivatives operation internally.
 
 Getting derivatives of state variables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1182,6 +1202,16 @@ derivatives as
 
 How to obtain third order derivatives of state variables :math:`\dddot x_c(t)` is not yet specified.
 
+QSS performance considerations include:
+
+- Using "global" directional derivative calls for inherently atomic QSS derivative accesses is a
+  potentially large performance hit that may make the use of the directional derivatives call less
+  efficient than the (atomic) numerical differentiation that QSS has used. If atomic directional
+  derivatives (computing the necessary subset of the Jacobian) can be supported in the near term
+  that would make their use with QSS more practical.
+
+- Longer term, automatic differentiation with atomic 2\ :sup:`nd` and 3\ :sup:`rd` derivative calls
+  will be valuable for efficient QSS solutions.
 
 Event Handling
 ^^^^^^^^^^^^^^
