@@ -1969,7 +1969,7 @@ continuous-time state variables during the initialization.</p>
 <div><code class="docutils literal notranslate"><span class="pre">fmi2SetReal</span></code> can be called during the continuous time mode
 and during event mode not only for inputs,
 as is allowed in FMI-ME 2.0, but also for continuous-time states.</div></blockquote>
-<p>QSS performance considerations include:</p>
+<p>QSS performance considerations:</p>
 <ul class="simple">
 <li>QSS generally advances single variables at a time so atomic (single variable) get/set calls for all
 variable quantity types (real, integer, boolean, …) would eliminate the loop overhead. The benefit
@@ -1999,7 +1999,7 @@ derivatives as</p>
 <div class="math notranslate nohighlight">
 \[\ddot x_c(t) = \frac{d^2 x_c(t)}{dt^2} = \frac{\partial \dot x_c(t)}{\partial x_c} \, \dot x_c(t).\]</div>
 <p>How to obtain third order derivatives of state variables <span class="math notranslate nohighlight">\(\dddot x_c(t)\)</span> is not yet specified.</p>
-<p>QSS performance considerations include:</p>
+<p>QSS performance considerations:</p>
 <ul class="simple">
 <li>Using “global” directional derivative calls for inherently atomic QSS derivative accesses is a
 potentially large performance hit that may make the use of the directional derivatives call less
@@ -2110,7 +2110,7 @@ The meaning of the entries in this section is as follows:</p>
 Its entries are defined as follows:<ul>
 <li>The attribute <code class="docutils literal notranslate"><span class="pre">index</span></code> points to the index of the event indicator, which JModelica will add as an output
 of the FMU.</li>
-<li>The attribute <code class="docutils literal notranslate"><span class="pre">reverseDependencies</span></code> lists the index of the variables and state derivatives that need to be updated when this
+<li>The attribute <code class="docutils literal notranslate"><span class="pre">reverseDependencies</span></code> lists the index of the variables and state derivatives that can be updated when this
 event fires.</li>
 </ul>
 </li>
@@ -2137,6 +2137,16 @@ derivative information from the XML file and numerically approximate
 the event indicator derivatives.</p>
 </div>
 <p>How to obtain second order derivatives of the event indicator functions <span class="math notranslate nohighlight">\(\ddot z(x_c(t), x_d(t), t)\)</span> is not yet specified.</p>
+<p>QSS performance considerations:</p>
+<ul class="simple">
+<li>Without explicit derivative variables for continuous event indicator (zero-crossing) variables the QSS zero-crossing variable
+cannot accurately track the function of its dependent variables (for which we will have 1<sup>st</sup> and 2<sup>nd</sup> derivatives)
+and thus will have lower crossing accuracy.
+The accuracy of zero crossings is vital not just for solution accuracy but because QSS must accurately predict crossings to
+get robust FMU crossing event detection due to the indirect method QSS must use to try to get the FMU to detect crossings.
+The need to compute numeric 2<sup>nd</sup> derivatives is also a performance hit.
+For these reasons it is strongly encouraged that explicit derivative variables be set up in the FMU for event indicators.</li>
+</ul>
 </div>
 <div class="section" id="test-models">
 <h4>5.3.1.5. Test models<a class="headerlink" href="#test-models" title="Permalink to this headline">¶</a></h4>
