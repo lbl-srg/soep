@@ -1168,7 +1168,7 @@ QSS performance considerations:
 
 - QSS generally advances single variables at a time so atomic (single variable) get/set calls for all
   variable quantity types (real, integer, boolean, ...) would eliminate the loop overhead. The benefit
-  of atomic calls will vary by model type/size but without such calls we cannot assess the benefit and,
+  of atomic calls will vary by model type and size but without such calls we cannot assess the benefit and,
   possibly, recommend this as an API extension for future FMI versions. The atomic set-real API might
   look like this:
 
@@ -1204,7 +1204,8 @@ How to obtain third order derivatives of state variables :math:`\dddot x_c(t)` i
 
 QSS performance considerations:
 
-- Using "global" directional derivative calls for inherently atomic QSS derivative accesses is a
+- Using directional derivative calls that evaulate the whole derivative vector
+  for inherently atomic QSS derivative accesses is a
   potentially large performance hit that may make the use of the directional derivatives call less
   efficient than the (atomic) numerical differentiation that QSS has used. If atomic directional
   derivatives (computing the necessary subset of the Jacobian) can be supported in the near term
@@ -1325,6 +1326,9 @@ The meaning of the entries in this section is as follows:
    - The attribute ``reverseDependencies`` lists the index of the variables and state derivatives that can be updated when this
      event fires.
 
+.. note:: Question to Stuart: Why was "that need to be updated" changed to "that can be updated" above? For correctness,
+          they must be updated, no?
+
 Note that for the event indicator, the ``dependencies`` can be obtained from the section
 ``<ModelStructure><Outputs>...</ModelStructure></Outputs>`` because JModelica added the event indicator as
 an output variable.
@@ -1353,9 +1357,9 @@ How to obtain second order derivatives of the event indicator functions :math:`\
 
 QSS performance considerations:
 
-- Without explicit derivative variables for continuous event indicator (zero-crossing) variables the QSS zero-crossing variable
+- Without explicit derivative variables for continuous event indicator (zero-crossing) variables, the QSS zero-crossing variable
   cannot accurately track the function of its dependent variables (for which we will have 1\ :sup:`st` and 2\ :sup:`nd` derivatives)
-  and thus will have lower crossing accuracy.
+  and thus will have lower accuracy for zero crossings.
   The accuracy of zero crossings is vital not just for solution accuracy but because QSS must accurately predict crossings to
   get robust FMU crossing event detection due to the indirect method QSS must use to try to get the FMU to detect crossings.
   The need to compute numeric 2\ :sup:`nd` derivatives is also a performance hit.
