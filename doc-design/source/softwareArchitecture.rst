@@ -1204,7 +1204,7 @@ How to obtain third order derivatives of state variables :math:`\dddot x_c(t)` i
 
 QSS performance considerations:
 
-- Using directional derivative calls that evaulate the whole derivative vector
+- Using directional derivative calls that evaluate the whole derivative vector
   for inherently atomic QSS derivative accesses is a
   potentially large performance hit that may make the use of the directional derivatives call less
   efficient than the (atomic) numerical differentiation that QSS has used. If atomic directional
@@ -1213,6 +1213,12 @@ QSS performance considerations:
 
 - Longer term, automatic differentiation with atomic 2\ :sup:`nd` and 3\ :sup:`rd` derivative calls
   will be valuable for efficient QSS solutions.
+
+Proposed Future Requirements:
+
+- Automatic differentiation engine to provide (atomic) higher derivative access.
+  This should include at least 2\ :sup:`nd` and 3\ :sup:`rd` derivatives of state variables
+  and 1\ :sup:`st`, 2\ :sup:`nd` and 3\ :sup:`rd` derivatives of event indicator variables.
 
 
 Event Handling
@@ -1297,8 +1303,18 @@ with an associated entry in the ``modelDescription.xml`` file that looks like
           As a consequence, a master algorithm is only allowed to connect variables that declare ``causality = output``.
 
 
+QSS works with the FMU to process events. When a QSS zero-crossing event is at the top
+of the QSS event queue QSS sets the state of all dependencies of the corresponding
+event indicator to their QSS trajectory values as a time slightly past the QSS-predicted
+event time, then runs the FMU event indicator process. The FMU should then detect the event
+and run the event handler process that will modify the "reverse dependencies" of the event
+indicator. QSS then performs the necessary QSS-side updates to those reverse dependency
+variables and their dependent variables. This is an indirect and potentially inefficient
+process, but without an "imperative" API for telling the FMU that a crossing event occurred
+at a given time this procedure is necessary.
+
 For efficiency, QSS requires knowledge of what variables an event indicator depends on,
-and what variables need to be updated when an event fires.
+and what variables the FMU will modify when an event fires.
 Furthermore, QSS will need to
 have access to, or else approximate numerically, the time derivatives of the
 event indicator. FMI 2.0 outputs an array of real-valued event indicators,
@@ -1323,11 +1339,8 @@ The meaning of the entries in this section is as follows:
 
    - The attribute ``index`` points to the index of the event indicator, which JModelica will add as an output
      of the FMU.
-   - The attribute ``reverseDependencies`` lists the index of the variables and state derivatives that can be updated when this
-     event fires.
-
-.. note:: Question to Stuart: Why was "that need to be updated" changed to "that can be updated" above? For correctness,
-          they must be updated, no?
+   - The attribute ``reverseDependencies`` lists the index of the variables and state derivatives that
+     the FMU modifies *via* an event handler when it detects that this event has occurred.
 
 Note that for the event indicator, the ``dependencies`` can be obtained from the section
 ``<ModelStructure><Outputs>...</ModelStructure></Outputs>`` because JModelica added the event indicator as

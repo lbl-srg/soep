@@ -1973,7 +1973,7 @@ as is allowed in FMI-ME 2.0, but also for continuous-time states.</div></blockqu
 <ul class="simple">
 <li>QSS generally advances single variables at a time so atomic (single variable) get/set calls for all
 variable quantity types (real, integer, boolean, …) would eliminate the loop overhead. The benefit
-of atomic calls will vary by model type/size but without such calls we cannot assess the benefit and,
+of atomic calls will vary by model type and size but without such calls we cannot assess the benefit and,
 possibly, recommend this as an API extension for future FMI versions. The atomic set-real API might
 look like this:</li>
 </ul>
@@ -2001,13 +2001,20 @@ derivatives as</p>
 <p>How to obtain third order derivatives of state variables <span class="math notranslate nohighlight">\(\dddot x_c(t)\)</span> is not yet specified.</p>
 <p>QSS performance considerations:</p>
 <ul class="simple">
-<li>Using “global” directional derivative calls for inherently atomic QSS derivative accesses is a
+<li>Using directional derivative calls that evaluate the whole derivative vector
+for inherently atomic QSS derivative accesses is a
 potentially large performance hit that may make the use of the directional derivatives call less
 efficient than the (atomic) numerical differentiation that QSS has used. If atomic directional
 derivatives (computing the necessary subset of the Jacobian) can be supported in the near term
 that would make their use with QSS more practical.</li>
 <li>Longer term, automatic differentiation with atomic 2<sup>nd</sup> and 3<sup>rd</sup> derivative calls
 will be valuable for efficient QSS solutions.</li>
+</ul>
+<p>Proposed Future Requirements:</p>
+<ul class="simple">
+<li>Automatic differentiation engine to provide (atomic) higher derivative access.
+This should include at least 2<sup>nd</sup> and 3<sup>rd</sup> derivatives of state variables
+and 1<sup>st</sup>, 2<sup>nd</sup> and 3<sup>rd</sup> derivatives of event indicator variables.</li>
 </ul>
 </div>
 <div class="section" id="event-handling">
@@ -2087,8 +2094,17 @@ was added for the event indicator function.</p>
 If <code class="docutils literal notranslate"><span class="pre">y</span></code> were declared with <code class="docutils literal notranslate"><span class="pre">causality</span> <span class="pre">=</span> <span class="pre">output</span></code>, then it would be listed in <code class="docutils literal notranslate"><span class="pre">reverseDependencies</span></code>.
 As a consequence, a master algorithm is only allowed to connect variables that declare <code class="docutils literal notranslate"><span class="pre">causality</span> <span class="pre">=</span> <span class="pre">output</span></code>.</p>
 </div>
+<p>QSS works with the FMU to process events. When a QSS zero-crossing event is at the top
+of the QSS event queue QSS sets the state of all dependencies of the corresponding
+event indicator to their QSS trajectory values as a time slightly past the QSS-predicted
+event time, then runs the FMU event indicator process. The FMU should then detect the event
+and run the event handler process that will modify the “reverse dependencies” of the event
+indicator. QSS then performs the necessary QSS-side updates to those reverse dependency
+variables and their dependent variables. This is an indirect and potentially inefficient
+process, but without an “imperative” API for telling the FMU that a crossing event occurred
+at a given time this procedure is necessary.</p>
 <p>For efficiency, QSS requires knowledge of what variables an event indicator depends on,
-and what variables need to be updated when an event fires.
+and what variables the FMU will modify when an event fires.
 Furthermore, QSS will need to
 have access to, or else approximate numerically, the time derivatives of the
 event indicator. FMI 2.0 outputs an array of real-valued event indicators,
@@ -2110,8 +2126,8 @@ The meaning of the entries in this section is as follows:</p>
 Its entries are defined as follows:<ul>
 <li>The attribute <code class="docutils literal notranslate"><span class="pre">index</span></code> points to the index of the event indicator, which JModelica will add as an output
 of the FMU.</li>
-<li>The attribute <code class="docutils literal notranslate"><span class="pre">reverseDependencies</span></code> lists the index of the variables and state derivatives that can be updated when this
-event fires.</li>
+<li>The attribute <code class="docutils literal notranslate"><span class="pre">reverseDependencies</span></code> lists the index of the variables and state derivatives that
+the FMU modifies <em>via</em> an event handler when it detects that this event has occurred.</li>
 </ul>
 </li>
 </ul>
@@ -2139,9 +2155,9 @@ the event indicator derivatives.</p>
 <p>How to obtain second order derivatives of the event indicator functions <span class="math notranslate nohighlight">\(\ddot z(x_c(t), x_d(t), t)\)</span> is not yet specified.</p>
 <p>QSS performance considerations:</p>
 <ul class="simple">
-<li>Without explicit derivative variables for continuous event indicator (zero-crossing) variables the QSS zero-crossing variable
+<li>Without explicit derivative variables for continuous event indicator (zero-crossing) variables, the QSS zero-crossing variable
 cannot accurately track the function of its dependent variables (for which we will have 1<sup>st</sup> and 2<sup>nd</sup> derivatives)
-and thus will have lower crossing accuracy.
+and thus will have lower accuracy for zero crossings.
 The accuracy of zero crossings is vital not just for solution accuracy but because QSS must accurately predict crossings to
 get robust FMU crossing event detection due to the indirect method QSS must use to try to get the FMU to detect crossings.
 The need to compute numeric 2<sup>nd</sup> derivatives is also a performance hit.
