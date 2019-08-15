@@ -820,52 +820,42 @@ In the remainder of this section, we note that ``time`` is
 Instantiation
 ^^^^^^^^^^^^^
 
-The instantiation of EnergyPlus differs from the FMI standard
-because Modelica will send to EnergyPlus data that it needs to
-instantiate a model.
+To instantiate EnergyPlus, EnergyPlus generates an FMU 2.0 for model exchange.
+This is initiated by Modelica, which invokes a system command of the form
 
-.. code-block:: c
+.. code-block:: bash
 
-   unsigned int instantiate(const char const *input,
-                            const char const *weather,
-                            const char const *idd,
-                            const char const *instanceName,
-                            const char ** parameterNames,
-                            const unsigned int parameterValueReferences[],
-                            size_t nPar,
-                            const char ** inputNames,
-                            const unsigned int inputValueReferences[],
-                            size_t nInp,
-                            const char ** outputNames,
-                            const unsigned int outputValueReferences[],
-                            size_t nOut,
-                            const char *log);
+   xyz path_to_json
 
-- ``input``: Absolute or relative path to an EnergyPlus input file with file name.
-- ``weather``: Absolute or relative path to an EnergyPlus weather file with file name.
-- ``idd``: Absolute or relative path to an EnergyPlus idd file with file name.
-- ``instanceName``: String to uniquely identify an EnergyPlus instance. This string must be non-empty and will be used for logging message.
-- ``parameterNames``: A vector of ``nPar`` strings that identifies the names of the parameters that are to be retrieved from EnergyPlus.
-- ``parameterValueReferences``: A vector of value references for the quantities in ``parameterNames``.
-  Value references uniquely identify the variables, and are used in the ``setVariables``
-  and ``getVariables`` calls below.
-- ``nPar``: Number of elements of the parameter vector, e.g.,
-  length of ``parameterNames`` and ``parameterValueReferences``.
-- ``inputNames``: A vector of ``nInp`` strings that identifies the names of the inputs sent to EnergyPlus.
-- ``inputValueReferences``: A vector of value references for the quantities in ``inputNames``.
-- ``nInp``: Number of elements of the input vector, e.g.,
-  length of ``inputNames`` and ``inputValueReferences``.
-- ``outputNames``: A vector of ``nOut`` strings that identifies the names of the outputs to be
-  retrieved from EnergyPlus.
-- ``outputValueReferences``: A vector of value references for the quantities in ``outputNames``.
-- ``nOut``: Number of elements of the output vector, e.g.,
-  length of ``outputNames`` and ``outputValueReferences``.
-- ``log``: Logging message returned on error.
+where ``xyz`` (name TBD) is a utility provided by EnergyPlus, and ``path_to_json``
+is the absolute path of a JSON file that configures EnergyPlus.
 
-This function will read the ``idf`` file and sets up the data structure in EnergyPlus.
+For the case of a model with one thermal zone, the content of the ``path_to_json``
+file looks as follows:
 
-It returns zero if there was no error, or else a positive non-zero integer.
+.. code-block:: json
 
+   {
+    "version": "0.1",
+    "EnergyPlus": {
+      "idf": "/tmp/JModelica.org/jm_tmpPVJfHP/resources/0/RefBldgSmallOfficeNew2004_Chicago.idf",
+      "idd": "/tmp/JModelica.org/jm_tmpPVJfHP/resources/2/Energy+.idd",
+      "weather": "/tmp/JModelica.org/jm_tmpPVJfHP/resources/1/USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.epw"
+    },
+    "fmu": {
+        "name": "/mnt/shared/modelica-buildings/tmp-eplus-fmuName/fmuName.fmu",
+        "version": "2.0",
+        "kind"   : "ME"
+    },
+    "model": {
+        "zones": [
+            { "name": "office" }
+        ]
+      }
+    }
+
+Using this information, EnergyPlus creates the FMU with name
+``/mnt/shared/modelica-buildings/tmp-eplus-fmuName/fmuName.fmu``
 
 We will now describe how to the exchanged variables are configured.
 
@@ -877,37 +867,20 @@ the following data structures will be used for a building with a zone called ``b
 
 .. code-block:: c
 
-   const char ** parameterNames = {"zone,basement,V",
-                                   "zone,basement,AFlo",
-                                   "zone,basement,mSenFac",
-                                   "zone,office,V",
-                                   "zone,office,AFlo",
-                                   "zone,office,mSenFac"};
-   const unsigned int parameterValueReferences[] = {0, 1, 2, 3, 4, 5, 6};
+   "zones": [
+      { "name": "basement" },
+      { "name": "office" }
+   ]
 
-The inputs into EnergyPlus will be
-
-.. code-block:: c
-
-   const char ** inputNames = {"zone,basement,T", "zone,basement,X", "zone,basement,mInlets_flow",
-                               "zone,basement,TInlet", "zone,basement,QGaiRad_flow",
-                               "zone,office,T", "office,X", "zone,office,mInlets_flow",
-                               "zone,office,TInlet", "zone,office,QGaiRad_flow"};
-   const unsigned int inputValueReferences[] = {7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-
-The outputs of EnergyPlus will be
-
-.. code-block:: c
-
-   const char ** outputNames = {"zone,basement,TRad",      "zone,basement,QConSen_flow",
-                                "zone,basement,QLat_flow", "zone,basement,QPeo_flow",
-                                "zone,office,TRad",        "zone,office,QConSen_flow",
-                                "zone,office,QLat_flow",   "zone,office,QPeo_flow"};
-   const unsigned int outputValueReferences[] = {17, 18, 19, 20, 21, 22, 23, 24};
+In this case, the FMU must have parameters called ``basement_V``, ``office_V``, ``basement_AFlo`` etc.
+inputs called ``basement_T`` and ``office_T`` and outputs called
+``basement_QConSen_flow`` and ``office_QConSen_flow``.
 
 
 Output variables
 """"""""""""""""
+
+.. todo:: Revise once we support output variables.
 
 To configure the data exchange for output variables, as described in :numref:`sec_out_var`,
 consider an example where one wants to retrieve the outdoor drybulb temperature from EnergyPlus.
@@ -927,6 +900,8 @@ Then, the following functions will be called during the instantiation, where we 
 Schedules, EMS actuators and EMS variables
 """"""""""""""""""""""""""""""""""""""""""
 
+.. todo:: Revise to support schedules, EMS actuators and EMS variables
+
 To configure the data exchange with a schedule, as described in :numref:`sec_inp_sch`,
 consider the example where we want to write to a schedule called ``OfficeSensibleGain``.
 Then, the following functions will be called during the instantiation, where we added the suffix
@@ -945,6 +920,8 @@ EMS actuators and EMS variables have a similar configuration.
 
 Pseudo Code Example for Data Exchange with EnergyPlus
 -----------------------------------------------------
+
+.. todo:: Revise once we support output variables.
 
 In the this section, the calling sequence of the FMI functions along with the EnergyPlus functions is shown.
 This should clarify how EnergyPlus is invoked.
