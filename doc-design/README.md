@@ -12,10 +12,10 @@ The compilation requires sphinx-doc (http://www.sphinx-doc.org)
 and a few contributions, which can be installed by running
 
 ```
-pip install Sphinx
-pip install sphinx_bootstrap_theme
-pip install sphinxcontrib-plantuml
-pip install sphinxcontrib_bibtex
+pip3 install --user sphinx
+pip3 install --user sphinx_bootstrap_theme
+pip3 install --user sphinxcontrib.bibtex
+pip3 install --user sphinxcontrib-plantuml
 ```
 
 UML graphics are drawn using https://pypi.python.org/pypi/sphinxcontrib-plantuml
