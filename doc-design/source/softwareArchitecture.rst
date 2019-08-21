@@ -1156,10 +1156,9 @@ QSS performance considerations:
                           const fmi2ValueReference vr,
                           const fmi2Real x);
 
-- Avoiding global algebraic solutions when doing atomic/subset lookups when the algebraic dependencies
-  can be partitioned is probably difficult but worth investigating.
-  [Stuart: Can you elaborate? I don't quite
-  understand. Should this be in a section "Getting individual outputs"? Is a "lookup" a call to fmi2GetReal?]
+- Furthermore, if algebraic loops can be partitioned in such a way that a minimum
+  set of equations need to be updated during iterative solutions, this may further
+  reduce computing time for QSS.
 
 
 Getting derivatives of state variables
@@ -1178,8 +1177,6 @@ derivatives as
    \ddot x_c(t) = \frac{d^2 x_c(t)}{dt^2} = \frac{\partial \dot x_c(t)}{\partial x_c} \, \dot x_c(t).
 
 
-How to obtain third order derivatives of state variables :math:`\dddot x_c(t)` is not yet specified.
-
 QSS performance considerations:
 
 - Using directional derivative calls that evaluate the whole derivative vector
@@ -1189,10 +1186,9 @@ QSS performance considerations:
   derivatives (computing the necessary subset of the Jacobian) can be supported in the near term
   that would make their use with QSS more practical.
 
-- Longer term, automatic differentiation with atomic 2\ :sup:`nd` and 3\ :sup:`rd` time-derivative calls
-  will be valuable for efficient QSS solutions.
-  [Stuart: clarify what order you need for the state derivatives, and what order for the time
-  derivative of zero-crossing functions.]
+- Longer term, automatic differentiation with atomic 3rd derivatives of
+  state variables :math:`\dddot x_c(t)` and zero-crossing variables
+  :math:`\dddot z(x_c(t), x_d(t), t)` will be valuable for efficient QSS computations.
 
 - FMU generation should assure that calling ``fmi2GetReal`` on a time-derivative will not perform a
   compute-all-derivatives operation internally.
@@ -1360,10 +1356,10 @@ QSS performance considerations:
   and thus will have lower accuracy for zero crossings.
   The accuracy of zero crossings is vital not just for solution accuracy but because QSS must accurately predict crossings to
   get robust FMU crossing event detection due to the indirect method QSS must use to try to get the FMU to detect crossings.
-  The need to compute numeric 2\ :sup:`nd` derivatives is also a performance hit.
+  The need to numerically approximate derivatives is also a performance hit.
   For these reasons it is strongly encouraged that explicit derivative variables be set up in the FMU for event indicators.
-  [Stuart: To be clear, you want as an output :math:`\dot z(x_c(t), x_d(t), t)` and :math:`\ddot z(x_c(t), x_d(t), t)`?
-  Please clarify to make sure we have the right order specified.]
+  For 3\ :sup:`rd` order QSS, we would require atomic evaluation of
+  :math:`\dot z(x_c(t), x_d(t), t)`, :math:`\ddot z(x_c(t), x_d(t), t)` and :math:`\dddot z(x_c(t), x_d(t), t)`.
 
 
 Test models
