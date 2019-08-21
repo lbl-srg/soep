@@ -4,10 +4,9 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>7. Application Programming Interface &#8212; Spawn of EnergyPlus</title>
-    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css" />
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
@@ -16,8 +15,6 @@
     <link rel="stylesheet" type="text/css" href="_static/bootstrap_custom.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="_static/bootswatch-3.3.6/united/bootstrap.min.css" />
-    <link rel="stylesheet" type="text/css" href="_static/bootstrap-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-theme.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap_custom.css" />
@@ -28,11 +25,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
-    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/lbl-icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -42,6 +35,10 @@
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js "></script>
 
   </head><body>
 
@@ -171,32 +168,7 @@
 
 <div class="container">
   <div class="row">
-      <div class="col-md-3">
-        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
-<li><a class="reference internal" href="#">7. Application Programming Interface</a><ul>
-<li><a class="reference internal" href="#generating-openstudio-models">7.1. Generating OpenStudio Models</a></li>
-</ul>
-</li>
-</ul>
-
-  <li>
-    <a href="numericalMethods.html" title="Previous Chapter: 6. Numerical Methods of the Master Algorithm"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; 6. Numerical ...</span>
-    </a>
-  </li>
-  <li>
-    <a href="benchmarks.html" title="Next Chapter: 8. Benchmarks"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">8. Benchmarks &raquo;</span>
-    </a>
-  </li>
-<form action="search.html" method="get">
- <div class="form-group">
-  <input type="text" name="q" class="form-control" placeholder="Search" />
- </div>
-  <input type="hidden" name="check_keywords" value="yes" />
-  <input type="hidden" name="area" value="default" />
-</form>
-        </div>
-      </div>
-    <div class="col-md-9 content">
+    <div class="body col-md-12 content" role="main">
       
   <div class="section" id="application-programming-interface">
 <h1>7. Application Programming Interface<a class="headerlink" href="#application-programming-interface" title="Permalink to this headline">¶</a></h1>
@@ -216,10 +188,10 @@ graphical model editor.</p>
 <p>A solution for declaring information that is needed to
 integrate Modelica models with the OpenStudio <cite>Model Library</cite>
 this is to use so-called
-vendor annotations <a class="footnote-reference" href="#ven-ann" id="id1">[1]</a> in the Modelica code,
+vendor annotations <a class="footnote-reference brackets" href="#ven-ann" id="id1">1</a> in the Modelica code,
 and encode in these vendor annotations the information required
 to generate the OpenStudio Model API that corresponds to the
-library. <a class="footnote-reference" href="#os-mod-api" id="id2">[2]</a>
+library. <a class="footnote-reference brackets" href="#os-mod-api" id="id2">2</a>
 For example, for a boiler, model, vendor annotation in the <code class="docutils literal notranslate"><span class="pre">EnergyPlus</span></code>
 namespace may look as shown below.</p>
 <div class="highlight-modelica notranslate"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">Boiler</span> <span class="s2">&quot;Hot water boiler&quot;</span>
@@ -259,26 +231,22 @@ could be generated.</p>
 </pre></div>
 </div>
 <p class="rubric">Footnotes</p>
-<table class="docutils footnote" frame="void" id="ven-ann" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>A vendor annotation is an annotation in the Modelica code that is
+<dl class="footnote brackets">
+<dt class="label" id="ven-ann"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>A vendor annotation is an annotation in the Modelica code that is
 typically ignored by Modelica tools other than the tool from
 the vendor who introduced it.
 Vendor annotations allow augmenting the code with information
 that are processed by a particular tool,
-in our case by EnergyPlus and OpenStudio.</td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="os-mod-api" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td>For an example OpenStudio Model API, see
+in our case by EnergyPlus and OpenStudio.</p>
+</dd>
+<dt class="label" id="os-mod-api"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
+<dd><p>For an example OpenStudio Model API, see
 <a class="reference external" href="https://github.com/NREL/OpenStudio/blob/develop/openstudiocore/src/model/BoilerHotWater.hpp">https://github.com/NREL/OpenStudio/blob/develop/openstudiocore/src/model/BoilerHotWater.hpp</a>
 and
-<a class="reference external" href="https://openstudio-sdk-documentation.s3.amazonaws.com/cpp/OpenStudio-1.12.3-doc/model/html/classopenstudio_1_1model_1_1_pipe_adiabatic.html">https://openstudio-sdk-documentation.s3.amazonaws.com/cpp/OpenStudio-1.12.3-doc/model/html/classopenstudio_1_1model_1_1_pipe_adiabatic.html</a>.</td></tr>
-</tbody>
-</table>
+<a class="reference external" href="https://openstudio-sdk-documentation.s3.amazonaws.com/cpp/OpenStudio-1.12.3-doc/model/html/classopenstudio_1_1model_1_1_pipe_adiabatic.html">https://openstudio-sdk-documentation.s3.amazonaws.com/cpp/OpenStudio-1.12.3-doc/model/html/classopenstudio_1_1model_1_1_pipe_adiabatic.html</a>.</p>
+</dd>
+</dl>
 </div>
 </div>
 
@@ -299,7 +267,7 @@ and
     </p>
     <p>
         &copy; Copyright (c) All rights reserved.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.<br/>
     </p>
   </div>
 </footer>

@@ -4,10 +4,9 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>6. Numerical Methods of the Master Algorithm &#8212; Spawn of EnergyPlus</title>
-    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css" />
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
@@ -16,8 +15,6 @@
     <link rel="stylesheet" type="text/css" href="_static/bootstrap_custom.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="_static/bootswatch-3.3.6/united/bootstrap.min.css" />
-    <link rel="stylesheet" type="text/css" href="_static/bootstrap-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-theme.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap_custom.css" />
@@ -28,11 +25,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
-    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/lbl-icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -42,6 +35,10 @@
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js "></script>
 
   </head><body>
 
@@ -183,44 +180,7 @@
 
 <div class="container">
   <div class="row">
-      <div class="col-md-3">
-        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
-<li><a class="reference internal" href="#">6. Numerical Methods of the Master Algorithm</a><ul>
-<li><a class="reference internal" href="#time-integration">6.1. Time Integration</a><ul>
-<li><a class="reference internal" href="#qss1">6.1.1. QSS1</a></li>
-<li><a class="reference internal" href="#qss2">6.1.2. QSS2</a></li>
-<li><a class="reference internal" href="#qss3">6.1.3. QSS3</a></li>
-<li><a class="reference internal" href="#discussion-of-qss">6.1.4. Discussion of QSS</a></li>
-<li><a class="reference internal" href="#liqss">6.1.5. LIQSS</a></li>
-<li><a class="reference internal" href="#discussion-of-liqss">6.1.6. Discussion of LIQSS</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#algebraic-loops">6.2. Algebraic Loops</a><ul>
-<li><a class="reference internal" href="#software-requirements-for-efficient-implementation-of-newton-raphson-method-for-algebraic-loops">6.2.1. Software Requirements for Efficient Implementation of Newton-Raphson Method for Algebraic Loops</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-
-  <li>
-    <a href="softwareArchitecture.html" title="Previous Chapter: 5. Software Architecture"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; 5. Software A...</span>
-    </a>
-  </li>
-  <li>
-    <a href="api.html" title="Next Chapter: 7. Application Programming Interface"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">7. Applicatio... &raquo;</span>
-    </a>
-  </li>
-<form action="search.html" method="get">
- <div class="form-group">
-  <input type="text" name="q" class="form-control" placeholder="Search" />
- </div>
-  <input type="hidden" name="check_keywords" value="yes" />
-  <input type="hidden" name="area" value="default" />
-</form>
-        </div>
-      </div>
-    <div class="col-md-9 content">
+    <div class="body col-md-12 content" role="main">
       
   <div class="section" id="numerical-methods-of-the-master-algorithm">
 <h1>6. Numerical Methods of the Master Algorithm<a class="headerlink" href="#numerical-methods-of-the-master-algorithm" title="Permalink to this headline">¶</a></h1>
@@ -245,9 +205,9 @@ They also handle state events explicitly without requiring an iteration in time 
 On non-stiff problems, QSS3 has been shown to be significantly faster than QSS, and in some cases were faster than DASSL in Dymola <a class="reference internal" href="zreferences.html#florosetal2011-1" id="id3">[FBCK11]</a>.
 To address performance issues observed in QSS, the class of Linear Implicit QSS methods (LIQSS) have been developed for stiff systems <a class="reference internal" href="zreferences.html#kofman2006-1" id="id4">[Kof06]</a> <a class="reference internal" href="zreferences.html#migonibortolottokofmancellier2013-1" id="id5">[MBKC13]</a>.
 For stiff systems, the 3rd order implementation of LIQSS seems to perform best as shown in <a class="pageref" href="#fig-liqss-migoni">Figure  1</a>, which is from <a class="reference internal" href="zreferences.html#migonibortolottokofmancellier2013-1" id="id6">[MBKC13]</a>.</p>
-<div class="figure" id="id14">
+<div class="figure align-default" id="id14">
 <span id="fig-liqss-migoni"></span><a class="reference internal image-reference" href="_images/liqss.png"><img alt="_images/liqss.png" src="_images/liqss.png" style="width: 1396.8000000000002px; height: 728.8000000000001px;" /></a>
-<p class="caption"><span class="caption-number">Fig. 6.1 </span>: LIQSS method have linear growth of computing time, whereas ode15 (MATLAB) and esdirk23a (Dymola) have cubic growth.</span></p>
+<p class="caption"><span class="caption-number">Fig. 6.1 </span>: LIQSS method have linear growth of computing time, whereas ode15 (MATLAB) and esdirk23a (Dymola) have cubic growth.</span><a class="headerlink" href="#id14" title="Permalink to this image">¶</a></p>
 </div>
 <p>Over the past years, different classes of QSS algorithms have been implemented. The next section describes how these algorithms differ from one another.
 We also give insights into which algorithms appear to be suitable for the SOEP.</p>
@@ -282,9 +242,9 @@ where the sequence <span class="math notranslate nohighlight">\(\{t_{j}\}_{j=0}^
 \[t_{j+1} = \min \{t \in \Re \, | \, t &gt; t_j, \,  |x_i(t_j) - x_i(t)| = \Delta q_i \}.\]</div>
 <p>Thus, the component <span class="math notranslate nohighlight">\(q_i(t)\)</span> changes its state when it differs from <span class="math notranslate nohighlight">\(x_i(t)\)</span> by <span class="math notranslate nohighlight">\(\pm\Delta q_i\)</span>.
 <a class="pageref" href="#fig-qss1-example">Figure  2</a> shows an example of a quantization function for QSS1.</p>
-<div class="figure" id="id15">
+<div class="figure align-default" id="id15">
 <span id="fig-qss1-example"></span><a class="reference internal image-reference" href="_images/qss1.png"><img alt="_images/qss1.png" src="_images/qss1.png" style="width: 900.0px; height: 551.4px;" /></a>
-<p class="caption"><span class="caption-number">Fig. 6.2 </span>: Example of quantization function for QSS1.</span></p>
+<p class="caption"><span class="caption-number">Fig. 6.2 </span>: Example of quantization function for QSS1.</span><a class="headerlink" href="#id15" title="Permalink to this image">¶</a></p>
 </div>
 <p><strong>Example</strong></p>
 <p>For illustration, consider the following differential equation where on the left,
@@ -306,9 +266,9 @@ x(0) &amp; = (10, 10, 10)
 \chi(0) &amp; = (10, 10, 10)
 \end{aligned}\end{split}\]</div>
 <p><a class="pageref" href="#fig-qss-ceil-example">Figure  3</a> shows the time series of the solution of the differential equation computed by QSS1.</p>
-<div class="figure" id="id16">
+<div class="figure align-default" id="id16">
 <span id="fig-qss-ceil-example"></span><a class="reference internal image-reference" href="_images/qssCeil.png"><img alt="_images/qssCeil.png" src="_images/qssCeil.png" style="width: 1100.0px; height: 400.0px;" /></a>
-<p class="caption"><span class="caption-number">Fig. 6.3 </span>: Time series computed by QSS1 for <span class="math notranslate nohighlight">\(t \in [0, 0.1]\)</span>.</span></p>
+<p class="caption"><span class="caption-number">Fig. 6.3 </span>: Time series computed by QSS1 for <span class="math notranslate nohighlight">\(t \in [0, 0.1]\)</span>.</span><a class="headerlink" href="#id16" title="Permalink to this image">¶</a></p>
 </div>
 <p>The computation is as follows:
 In QSS, each state can be integrated asynchronously until its right-hand side changes.
@@ -332,13 +292,13 @@ where the sequence <span class="math notranslate nohighlight">\(\{t_{j}\}_{j=0}^
 \[t_{j+1} = \min \{t \in \Re \, | \, t &gt; t_j, \,  |x_i(t_j) + m_{ij} (t-t_j) - x_i(t)| = \Delta q_i \},\]</div>
 <p>with the slope <span class="math notranslate nohighlight">\(m_{ij}\)</span> defined as <span class="math notranslate nohighlight">\(m_{i0}=0\)</span> and <span class="math notranslate nohighlight">\(m_{ij}= \dot x_i(t_j^-)\)</span> for <span class="math notranslate nohighlight">\(j \in \{1, \ldots, K-1\}\)</span>.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">For <span class="math notranslate nohighlight">\(m_{ij}\)</span>, the limit from below <span class="math notranslate nohighlight">\(\dot x_i(t_j^-)\)</span> is used.</p>
+<p class="admonition-title">Note</p>
+<p>For <span class="math notranslate nohighlight">\(m_{ij}\)</span>, the limit from below <span class="math notranslate nohighlight">\(\dot x_i(t_j^-)\)</span> is used.</p>
 </div>
 <p>The figure below shows an example of a quantization function for QSS2.</p>
-<div class="figure" id="id17">
+<div class="figure align-default" id="id17">
 <a class="reference internal image-reference" href="_images/qss2.png"><img alt="_images/qss2.png" src="_images/qss2.png" style="width: 870.0px; height: 551.4px;" /></a>
-<p class="caption"><span class="caption-number">Fig. 6.4 </span>: Example of quantization function for QSS2.</span></p>
+<p class="caption"><span class="caption-number">Fig. 6.4 </span>: Example of quantization function for QSS2.</span><a class="headerlink" href="#id17" title="Permalink to this image">¶</a></p>
 </div>
 </div>
 <div class="section" id="qss3">
@@ -413,11 +373,11 @@ is connected to the output of the same block, either directly, or by a feedback 
 <p>Algebraic loops are generally introduced when the dynamics of a component is approximated by its steady-state solution. For the SOEP,
 subsystems that form algebraic loops include:</p>
 <ol class="arabic simple">
-<li>The infrared radiation network within a thermal zone.
+<li><p>The infrared radiation network within a thermal zone.
 This is not a problem as this system of equations is likely to be
 contained inside an FMU. Hence, an FMU can output the solution to
-this system of algebraic equations.</li>
-<li>Flow networks such as a water loop. Algebraic loops can be formed
+this system of algebraic equations.</p></li>
+<li><p>Flow networks such as a water loop. Algebraic loops can be formed
 for the energy balance, mass balance and the pressure network. For
 the energy and mass balance, these loops can be eliminated by
 adding a transport delay that approximates the travel time of the
@@ -425,7 +385,7 @@ fluid inside the pipe. For the pressure network, an approximation
 through the speed of sound is not suited as this would lead to very
 fast transients. Therefore, we will need a means to solve systems
 of algebraic equations that are formed by coupling multiple FMUs
-with direct feedthrough.</li>
+with direct feedthrough.</p></li>
 </ol>
 <p>Such algebraic loops are generally solved using Newton-Raphson type
 algorithms. In the next section, we describe the requirements
@@ -434,7 +394,7 @@ of these methods.</p>
 <h3>6.2.1. Software Requirements for Efficient Implementation of Newton-Raphson Method for Algebraic Loops<a class="headerlink" href="#software-requirements-for-efficient-implementation-of-newton-raphson-method-for-algebraic-loops" title="Permalink to this headline">¶</a></h3>
 <p>The following requirements are needed by SOEP FMUs to ensure that they can be efficiently solved using the Newton-Raphson method:</p>
 <ol class="arabic simple">
-<li>FMUs need to provide information about their input dependencies.
+<li><p>FMUs need to provide information about their input dependencies.
 This information is stored in the model description file of the FMU
 as output dependency under the element <code class="docutils literal notranslate"><span class="pre">&lt;ModelStructure&gt;</span></code>. In
 FMI 2.0, this data is specified as optional.
@@ -443,8 +403,8 @@ master requires it to determine the existence and location of
 algebraic loops.
 Note that a connection between input and output only causes an
 algebraic loop if the output depends algebraically on the input.
-Integrators, however, break algebraic loops.</li>
-<li>FMUs need to provide derivatives of their outputs with respect to
+Integrators, however, break algebraic loops.</p></li>
+<li><p>FMUs need to provide derivatives of their outputs with respect to
 their inputs. This information is needed by the Newton-Raphson
 method. The Newton-Raphson
 method finds the root of the residual function <span class="math notranslate nohighlight">\(f(x) = y-x\)</span>.
@@ -453,7 +413,7 @@ The root of this function is calculated iteratively as
 <span class="math notranslate nohighlight">\(f'(x) = {df(x)}/{dx}\)</span>. If the derivative with respect to the
 input cannot be provided, then the derivative would need to be
 approximated numerically. This is computationally costly and
-less robust than providing derivative functions.</li>
+less robust than providing derivative functions.</p></li>
 </ol>
 </div>
 </div>
@@ -476,7 +436,7 @@ less robust than providing derivative functions.</li>
     </p>
     <p>
         &copy; Copyright (c) All rights reserved.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.<br/>
     </p>
   </div>
 </footer>

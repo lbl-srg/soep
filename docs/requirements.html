@@ -4,10 +4,9 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>4. Requirements &#8212; Spawn of EnergyPlus</title>
-    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css" />
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
@@ -16,8 +15,6 @@
     <link rel="stylesheet" type="text/css" href="_static/bootstrap_custom.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="_static/bootswatch-3.3.6/united/bootstrap.min.css" />
-    <link rel="stylesheet" type="text/css" href="_static/bootstrap-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-theme.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap_custom.css" />
@@ -28,11 +25,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
-    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/lbl-icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -42,6 +35,10 @@
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js "></script>
 
   </head><body>
 
@@ -183,44 +180,7 @@
 
 <div class="container">
   <div class="row">
-      <div class="col-md-3">
-        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
-<li><a class="reference internal" href="#">4. Requirements</a><ul>
-<li><a class="reference internal" href="#openstudio-integration">4.1. OpenStudio integration</a></li>
-<li><a class="reference internal" href="#mathematics">4.2. Mathematics</a><ul>
-<li><a class="reference internal" href="#differentiability">4.2.1. Differentiability</a></li>
-<li><a class="reference internal" href="#control-of-numerical-noise">4.2.2. Control of Numerical Noise</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#fmu-requirements">4.3. FMU Requirements</a><ul>
-<li><a class="reference internal" href="#fmu-capabilities">4.3.1. FMU Capabilities</a></li>
-<li><a class="reference internal" href="#interface-variables-of-fmu">4.3.2. Interface Variables of FMU</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#qss-implementation">4.4. QSS Implementation</a></li>
-<li><a class="reference internal" href="#master-algorithm">4.5. Master Algorithm</a></li>
-</ul>
-</li>
-</ul>
-
-  <li>
-    <a href="useCases.html" title="Previous Chapter: 3. Use Cases"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; 3. Use Cases</span>
-    </a>
-  </li>
-  <li>
-    <a href="softwareArchitecture.html" title="Next Chapter: 5. Software Architecture"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">5. Software A... &raquo;</span>
-    </a>
-  </li>
-<form action="search.html" method="get">
- <div class="form-group">
-  <input type="text" name="q" class="form-control" placeholder="Search" />
- </div>
-  <input type="hidden" name="check_keywords" value="yes" />
-  <input type="hidden" name="area" value="default" />
-</form>
-        </div>
-      </div>
-    <div class="col-md-9 content">
+    <div class="body col-md-12 content" role="main">
       
   <div class="section" id="requirements">
 <span id="sec-requirements"></span><h1>4. Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h1>
@@ -229,13 +189,13 @@
 <h2>4.1. OpenStudio integration<a class="headerlink" href="#openstudio-integration" title="Permalink to this headline">¶</a></h2>
 <p>Below is an initial list of requirements for the OpenStudio integration.</p>
 <ol class="arabic">
-<li><p class="first"><em>Translation of legacy models</em>: It need not be possible to translate
+<li><p><em>Translation of legacy models</em>: It need not be possible to translate
 legacy OpenStudio HVAC models to SOEP.</p>
 <p>The reason is that the control semantics is too different between the
 load-based control of EnergyPlus and the control of Modelica that
 is based on measurable states such as a room temperature.</p>
 </li>
-<li><p class="first"><em>Measures</em>: OpenStudio measures and the OpenStudio editor shall work,
+<li><p><em>Measures</em>: OpenStudio measures and the OpenStudio editor shall work,
 after some extensions or adaptions,
 with models that are authored in Modelica and subsequently
 integrated in OpenStudio.</p>
@@ -246,7 +206,7 @@ to adapt them for a particular project.</p>
 <p>Another use case is that an equipment vendor creates an OpenStudio
 application for equipment selection and sizing.</p>
 </li>
-<li><p class="first"><em>Opening and saving a model</em>:
+<li><p><em>Opening and saving a model</em>:
 It shall be possible to open in the editor a model that is declared in Modelica
 syntax, manipulate it, and save it again in Modelica syntax. Only items
 that have been changed should be updated in the Modelica syntax.</p>
@@ -255,13 +215,13 @@ improves them during a project, and wants to save the improvements in the
 library for use in the next project. As the custom library is stored in
 git, only the items of the model that have been manipulated should be changed.</p>
 </li>
-<li><p class="first"><em>Hierarchical modeling</em>: The editor shall support hierarchical modeling.</p>
+<li><p><em>Hierarchical modeling</em>: The editor shall support hierarchical modeling.</p>
 <p>A use case is that a user builds a VAV system with 50 terminal units
 with custom control by creating a composite model of a VAV box plus
 its controller, instantiates it 50 times, and later wants to change the
 VAV controller once and propagate these changes to all instances.</p>
 </li>
-<li><p class="first"><em>Adding model inputs, outputs and ports</em>:
+<li><p><em>Adding model inputs, outputs and ports</em>:
 The editor shall allow enabling a conditional input to a model and connect
 it to the output of another model.</p>
 <p>A use case is that a user instantiates a weather data reader, sets
@@ -272,7 +232,7 @@ the measured room temperature as an input, and then
 adds a demand response signal as an input to reset the temperature
 setpoint based on the demand response signal.</p>
 </li>
-<li><p class="first"><em>Typed ports</em>:
+<li><p><em>Typed ports</em>:
 To support Modelica-type connections such as Real, Integer or Boolean
 control signals, and fluid ports, the OpenStudio HVAC editor
 shall have typed ports.</p>
@@ -370,9 +330,8 @@ as in
 <a class="reference internal" href="#equation-eq-tilfsys">(4.4)</a>, we require that</p>
 <blockquote>
 <div><ol class="arabic">
-<li><p class="first">The initial condition <span class="math notranslate nohighlight">\(x_{0}\)</span> is once continuously differentiable in <span class="math notranslate nohighlight">\(p\)</span>.</p>
-</li>
-<li><p class="first">There exists a constant <span class="math notranslate nohighlight">\(K \in [1, \, \infty)\)</span> such that for all
+<li><p>The initial condition <span class="math notranslate nohighlight">\(x_{0}\)</span> is once continuously differentiable in <span class="math notranslate nohighlight">\(p\)</span>.</p></li>
+<li><p>There exists a constant <span class="math notranslate nohighlight">\(K \in [1, \, \infty)\)</span> such that for all
 <span class="math notranslate nohighlight">\(x', x'' \in \Re^n\)</span>, for all <span class="math notranslate nohighlight">\(p', p'' \in \Re^l\)</span> and for all <span class="math notranslate nohighlight">\(t\)</span>, the following relations hold:</p>
 <div class="math notranslate nohighlight">
 \[ \begin{align}\begin{aligned}\| \widetilde f(x', p', t) - \widetilde f(x'', p'', t) \| &amp;
@@ -390,8 +349,8 @@ that the solution
 <span class="math notranslate nohighlight">\(x(t_f)\)</span> to <a class="reference internal" href="#equation-eq-daephycon">(4.2)</a> exists and is once continuously differentiable with
 respect to the parameter <span class="math notranslate nohighlight">\(p\)</span> on bounded sets.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Differentiability with respect to <span class="math notranslate nohighlight">\(p\)</span> is important
+<p class="admonition-title">Note</p>
+<p>Differentiability with respect to <span class="math notranslate nohighlight">\(p\)</span> is important
 if the HVAC system
 is sized by solving an optimization problem.</p>
 </div>
@@ -414,8 +373,8 @@ For example, if <span class="math notranslate nohighlight">\(z(t)\)</span> denot
 The precision of these inner iterations need to be controlled</p>
 <blockquote>
 <div><ol class="arabic simple">
-<li>when these FMUs are part of an algebraic loop, and</li>
-<li>when SOEP is used to evaluate the cost function of an optimization problem.</li>
+<li><p>when these FMUs are part of an algebraic loop, and</p></li>
+<li><p>when SOEP is used to evaluate the cost function of an optimization problem.</p></li>
 </ol>
 </div></blockquote>
 <p>We therefore impose the following requirement.</p>
@@ -441,58 +400,60 @@ algorithms <a class="reference internal" href="zreferences.html#polakwetter2006"
 <p>For computing efficiency, FMUs that are used in the SOEP must support
 the following optional properties of the FMI 2.0 standard.</p>
 <ol class="arabic simple">
-<li>The optional function <code class="docutils literal notranslate"><span class="pre">fmi2GetDirectionalDerivative</span></code> must be
-implemented. This is required in the following situations:<ol class="arabic">
-<li>To compute Jacobian matrices without requiring numerical
-differentiation.</li>
-<li>By numerical integrators for stiff differential equation,
-other than the LIQSS methods discussed below.</li>
-<li>If an FMU is part of an algebraic loop.</li>
-<li>If an FMU, or a composition of FMUs, shall be linearized,
-such as for controls design.</li>
+<li><p>The optional function <code class="docutils literal notranslate"><span class="pre">fmi2GetDirectionalDerivative</span></code> must be
+implemented. This is required in the following situations:</p>
+<ol class="arabic simple">
+<li><p>To compute Jacobian matrices without requiring numerical
+differentiation.</p></li>
+<li><p>By numerical integrators for stiff differential equation,
+other than the LIQSS methods discussed below.</p></li>
+<li><p>If an FMU is part of an algebraic loop.</p></li>
+<li><p>If an FMU, or a composition of FMUs, shall be linearized,
+such as for controls design.</p></li>
 </ol>
 </li>
-<li>The optional output dependency must be provided in the section
+<li><p>The optional output dependency must be provided in the section
 <code class="docutils literal notranslate"><span class="pre">&lt;ModelStructure&gt;&lt;Outputs&gt;</span></code> of the model description file.
 This is required to determine the existence of algebraic loops
-between FMUs.</li>
-<li>The optional derivative dependency must be provided in the section
+between FMUs.</p></li>
+<li><p>The optional derivative dependency must be provided in the section
 <code class="docutils literal notranslate"><span class="pre">&lt;ModelStructure&gt;&lt;Derivatives&gt;</span></code> of the model description file.
 This information declares the dependencies of the state derivatives
 on the knowns at the current time instant for model exchange and at
 the current communication point for co-simulation.
 This is required to create an incidence matrix which can be used by
-an integrator.</li>
-<li>The optional attribute <code class="docutils literal notranslate"><span class="pre">canGetAndSetFMUstate</span></code> must be <code class="docutils literal notranslate"><span class="pre">true</span></code>
+an integrator.</p></li>
+<li><p>The optional attribute <code class="docutils literal notranslate"><span class="pre">canGetAndSetFMUstate</span></code> must be <code class="docutils literal notranslate"><span class="pre">true</span></code>
 in the model description file. This implies that the
 functions <code class="docutils literal notranslate"><span class="pre">fmi2GetFMUstate</span></code>, <code class="docutils literal notranslate"><span class="pre">fmi2SetFMUstate</span></code> and
 <code class="docutils literal notranslate"><span class="pre">fmi2FreeFMUstate</span></code> must be implemented. This is required
-for the following situations:<ol class="arabic">
-<li>To implement rollback in time when an FMU was not able to
+for the following situations:</p>
+<ol class="arabic simple">
+<li><p>To implement rollback in time when an FMU was not able to
 complete the time step, maybe due to an event, or if the
-integration error was too large.</li>
-<li>To provide a state initialization when solving a
+integration error was too large.</p></li>
+<li><p>To provide a state initialization when solving a
 model predictive control problem or when doing an
-input-output linearization.</li>
+input-output linearization.</p></li>
 </ol>
 </li>
-<li>If an FMU for co-simulation accepts a certain communication time
+<li><p>If an FMU for co-simulation accepts a certain communication time
 step <span class="math notranslate nohighlight">\(h\)</span> (i.e., it returns that it can simulate to
 <span class="math notranslate nohighlight">\(h' = h\)</span> ), or at least makes partial progress until
 <span class="math notranslate nohighlight">\(h' &lt; h\)</span>, then it must accept any time step
 <span class="math notranslate nohighlight">\(h''\)</span> smaller than or equal to <span class="math notranslate nohighlight">\(h'\)</span>,
 provided the FMU is started from the same state.
 This is required for proving termination of the master algorithm.
-See <a class="reference internal" href="zreferences.html#broman2013" id="id6">[BBG+13]</a>.</li>
-<li>If an FMU for co-simulation is asked to integrate for some
+See <a class="reference internal" href="zreferences.html#broman2013" id="id6">[BBG+13]</a>.</p></li>
+<li><p>If an FMU for co-simulation is asked to integrate for some
 <span class="math notranslate nohighlight">\(0 &lt; h\)</span>, but it returns that it can only integrate until some
 <span class="math notranslate nohighlight">\(0 &lt; h' &lt; h\)</span>, then if it is asked to integrate
 to some <span class="math notranslate nohighlight">\(h''&gt;h'\)</span>, it will again only integrate until
 <span class="math notranslate nohighlight">\(h'\)</span>.
 This property is required for FMUs to make maximum progress
-in each time step. See <a class="reference internal" href="zreferences.html#broman2013" id="id7">[BBG+13]</a>.</li>
-<li>FMUs distributed with SOEP must run on Windows 32/64 bit, Linux 32/64 bit
-and Mac OS X 64 bit.</li>
+in each time step. See <a class="reference internal" href="zreferences.html#broman2013" id="id7">[BBG+13]</a>.</p></li>
+<li><p>FMUs distributed with SOEP must run on Windows 32/64 bit, Linux 32/64 bit
+and Mac OS X 64 bit.</p></li>
 </ol>
 </div>
 <div class="section" id="interface-variables-of-fmu">
@@ -500,16 +461,16 @@ and Mac OS X 64 bit.</li>
 <p>The parameters, inputs, outputs and state variables of FMUs
 shall provide the following information:</p>
 <ol class="arabic simple">
-<li>A descriptive text that can be used in a user interface.</li>
-<li>Units of the variable.</li>
-<li>Optionally, a start value that may be used as a guess
-for a numerical solvers. If not specified, the default is <code class="docutils literal notranslate"><span class="pre">0</span></code>.</li>
-<li>Optionally, nominal values that indicate the magnitude of
+<li><p>A descriptive text that can be used in a user interface.</p></li>
+<li><p>Units of the variable.</p></li>
+<li><p>Optionally, a start value that may be used as a guess
+for a numerical solvers. If not specified, the default is <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p></li>
+<li><p>Optionally, nominal values that indicate the magnitude of
 the variable.
 This is used to scale variables in convergence tests of
-numerical solvers. If not specified, the default is <code class="docutils literal notranslate"><span class="pre">1</span></code>.</li>
-<li>Optionally, minimum and maximum values that the variable
-is allowed to attain.</li>
+numerical solvers. If not specified, the default is <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p></li>
+<li><p>Optionally, minimum and maximum values that the variable
+is allowed to attain.</p></li>
 </ol>
 <p>Note that a container for exporting HVAC components as an FMU is described
 in <a class="reference internal" href="zreferences.html#wetterfuchsnouidui-2015" id="id8">[WFN15]</a>, and the Modelica Buildings library
@@ -522,18 +483,18 @@ allows exporting HVAC systems and thermal zones.</p>
 <p>This section describes the requirements for the QSS solver implementation.
 The development code for QSS is at <a class="reference external" href="https://gitlab.com/ObjexxEP/QSS/tree/master">https://gitlab.com/ObjexxEP/QSS/tree/master</a>.</p>
 <ol class="arabic simple">
-<li>The implementation shall support the ability to mix traditional discrete time
-simulation of some subsystems with QSS solution of others.</li>
-<li>For different subsystems, it shall be possible to use different QSS solvers,
-such as QSS1, 2, 3, or LIQSS1, 2 or 3.</li>
-<li>It shall be possible to specify absolute and relative tolerances for the quantization.
-(Note: In Modelica, vendor annotations could be used to specify tolerances.)</li>
-<li>If multiple variables end up triggering the next advance with the exact same time,
+<li><p>The implementation shall support the ability to mix traditional discrete time
+simulation of some subsystems with QSS solution of others.</p></li>
+<li><p>For different subsystems, it shall be possible to use different QSS solvers,
+such as QSS1, 2, 3, or LIQSS1, 2 or 3.</p></li>
+<li><p>It shall be possible to specify absolute and relative tolerances for the quantization.
+(Note: In Modelica, vendor annotations could be used to specify tolerances.)</p></li>
+<li><p>If multiple variables end up triggering the next advance with the exact same time,
 then these shall be handled simultaneously.
-An example are distributed discrete time controls.</li>
-<li>Near zero time steps shall be handled without modification.
-If these pose a problem, we may want to avoid them at a later stage in the solver.</li>
-<li>Algebraic loops shall be supported (without the use of micro-delays).</li>
+An example are distributed discrete time controls.</p></li>
+<li><p>Near zero time steps shall be handled without modification.
+If these pose a problem, we may want to avoid them at a later stage in the solver.</p></li>
+<li><p>Algebraic loops shall be supported (without the use of micro-delays).</p></li>
 </ol>
 <p>Open question: Shall we use OpenMP or some other system?</p>
 </div>
@@ -542,32 +503,32 @@ If these pose a problem, we may want to avoid them at a later stage in the solve
 <p><strong>This section should probably be deleted.</strong></p>
 <p>The master algorithm must satisfy the following requirements:</p>
 <ol class="arabic simple">
-<li>The master algorithm must be using the BSD license. Hence,
+<li><p>The master algorithm must be using the BSD license. Hence,
 it must not use any GPL or LGPL licensed code.
 However, calls to such licensed code may be permitted
 as long as it does not affect the license of the master
-algorithm.</li>
-<li>It must be possible to spawn simulations to a server farm
+algorithm.</p></li>
+<li><p>It must be possible to spawn simulations to a server farm
 in order to increase the parallelism. By default,
-the computations run locally.</li>
-<li>It must be possible to simulate very large buildings,
+the computations run locally.</p></li>
+<li><p>It must be possible to simulate very large buildings,
 such as high rise buildings with about 10,000 thermal zones.
 This is required to be able to simulate models that
 are received from a Building Information Model.
 We therefore expect to have models with 100,000 to 1,000,000
 state variables, or more if 2-dimensional heat transfer,
 dynamic moisture transfer, or computational fluid
-dynamics is used.</li>
-<li>If an FMU that computes some part of a building
+dynamics is used.</p></li>
+<li><p>If an FMU that computes some part of a building
 does not converge, then the master algorithm must
 be able to use some default output, log an appropriate
 warning, and proceed with the computation. This must be
 the default behavior. However, it must be possible
 to disable this error handling so that a completion of
 the simulation is only possible if all FMUs
-simulated without error.</li>
-<li>The master algorithm must run on Windows 32/64 bit,
-Linux 32/64 bit, and Mac OS X 64 bit.</li>
+simulated without error.</p></li>
+<li><p>The master algorithm must run on Windows 32/64 bit,
+Linux 32/64 bit, and Mac OS X 64 bit.</p></li>
 </ol>
 </div>
 </div>
@@ -589,7 +550,7 @@ Linux 32/64 bit, and Mac OS X 64 bit.</li>
     </p>
     <p>
         &copy; Copyright (c) All rights reserved.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.<br/>
     </p>
   </div>
 </footer>

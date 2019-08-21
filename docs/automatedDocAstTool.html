@@ -4,10 +4,9 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>Automated Documentation/AST Support Tool &#8212; Spawn of EnergyPlus</title>
-    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css" />
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
@@ -16,8 +15,6 @@
     <link rel="stylesheet" type="text/css" href="_static/bootstrap_custom.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="_static/bootswatch-3.3.6/united/bootstrap.min.css" />
-    <link rel="stylesheet" type="text/css" href="_static/bootstrap-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-theme.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap_custom.css" />
@@ -28,11 +25,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
-    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/lbl-icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -40,6 +33,10 @@
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js "></script>
 
   </head><body>
 
@@ -164,27 +161,7 @@
 
 <div class="container">
   <div class="row">
-      <div class="col-md-3">
-        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
-<li><a class="reference internal" href="#">Automated Documentation/AST Support Tool</a><ul>
-<li><a class="reference internal" href="#background">Background</a></li>
-<li><a class="reference internal" href="#requirements">Requirements</a></li>
-<li><a class="reference internal" href="#literature-review">Literature review</a></li>
-<li><a class="reference internal" href="#implementation">Implementation</a></li>
-</ul>
-</li>
-</ul>
-
-<form action="search.html" method="get">
- <div class="form-group">
-  <input type="text" name="q" class="form-control" placeholder="Search" />
- </div>
-  <input type="hidden" name="check_keywords" value="yes" />
-  <input type="hidden" name="area" value="default" />
-</form>
-        </div>
-      </div>
-    <div class="col-md-9 content">
+    <div class="body col-md-12 content" role="main">
       
   <div class="section" id="automated-documentation-ast-support-tool">
 <h1>Automated Documentation/AST Support Tool<a class="headerlink" href="#automated-documentation-ast-support-tool" title="Permalink to this headline">¶</a></h1>
@@ -240,20 +217,21 @@ able to support additional third party libraries.</p>
 that will transform any
 Modelica input file or library into a json file. The json file shall contain:</p>
 <ul class="simple">
-<li>identification of which models, classes, connectors, functions, etc. exist</li>
-<li>identification of the relative hierarchy of the above components within the
-package structure of the library</li>
-<li>for each package,<ul>
-<li>what models are available</li>
-<li>what connection “ports” are available</li>
-<li>for fluid ports, which ports carry the same fluid
-(so that media assignments can be propagated through a circuit) <a class="footnote-reference" href="#fn-flu" id="id1">[1]</a></li>
-<li>what control inputs/outputs are available</li>
-<li>what parameters are available</li>
-<li>what configuration management options exist (i.e., replaceable components
-and packages and which parameters belong to which component)</li>
-<li>meta-data and attributes for all the above such as graphics
-annotations, vendor annotations, html documentation, etc.</li>
+<li><p>identification of which models, classes, connectors, functions, etc. exist</p></li>
+<li><p>identification of the relative hierarchy of the above components within the
+package structure of the library</p></li>
+<li><p>for each package,</p>
+<ul>
+<li><p>what models are available</p></li>
+<li><p>what connection “ports” are available</p></li>
+<li><p>for fluid ports, which ports carry the same fluid
+(so that media assignments can be propagated through a circuit) <a class="footnote-reference brackets" href="#fn-flu" id="id1">1</a></p></li>
+<li><p>what control inputs/outputs are available</p></li>
+<li><p>what parameters are available</p></li>
+<li><p>what configuration management options exist (i.e., replaceable components
+and packages and which parameters belong to which component)</p></li>
+<li><p>meta-data and attributes for all the above such as graphics
+annotations, vendor annotations, html documentation, etc.</p></li>
 </ul>
 </li>
 </ul>
@@ -276,31 +254,31 @@ non-trivial changes they need to integrate.</p>
 cannot be ignored as well as changes that can be ignored.</p>
 <p><em>Significant Changes (backward-incompatible)</em></p>
 <ul class="simple">
-<li>changes to names of any public package, model, block, function, record, as well
-as public constants, parameters, variables, connectors, or subcomponents</li>
-<li>addition of any public parameters that has no default value,
+<li><p>changes to names of any public package, model, block, function, record, as well
+as public constants, parameters, variables, connectors, or subcomponents</p></li>
+<li><p>addition of any public parameters that has no default value,
 variables that have no equation (in a partial model), connectors (except for output connectors),
-or subcomponents that require changes to models that extend or instantiate these components</li>
-<li>addition/subtraction of packages/models/blocks/functions meant to be consumed
-by OpenStudio</li>
-<li>removing of any public constant, parameter, or class (model, block, function, type etc.)</li>
-<li>moving a class between packages (i.e., changing the path)</li>
+or subcomponents that require changes to models that extend or instantiate these components</p></li>
+<li><p>addition/subtraction of packages/models/blocks/functions meant to be consumed
+by OpenStudio</p></li>
+<li><p>removing of any public constant, parameter, or class (model, block, function, type etc.)</p></li>
+<li><p>moving a class between packages (i.e., changing the path)</p></li>
 </ul>
 <p><em>Changes that may be ignored (backward-compatible)</em></p>
 <ul class="simple">
-<li>changes in style without changes in meaning (addition or removal of
-whitespace, reordering within a section)</li>
-<li>changes to documentation strings</li>
-<li>changes to text in embedded HTML documentation</li>
-<li>changes to revision notes</li>
-<li>changes to graphical annotations</li>
-<li>changes in ordering of models/blocks/functions within a package</li>
-<li>changes to <cite>protected</cite> sections of code</li>
-<li>changes to <cite>equation</cite> or <cite>algorithm</cite> sections of code</li>
-<li>changes to some models/blocks/functions may be completely ignored if, by
+<li><p>changes in style without changes in meaning (addition or removal of
+whitespace, reordering within a section)</p></li>
+<li><p>changes to documentation strings</p></li>
+<li><p>changes to text in embedded HTML documentation</p></li>
+<li><p>changes to revision notes</p></li>
+<li><p>changes to graphical annotations</p></li>
+<li><p>changes in ordering of models/blocks/functions within a package</p></li>
+<li><p>changes to <cite>protected</cite> sections of code</p></li>
+<li><p>changes to <cite>equation</cite> or <cite>algorithm</cite> sections of code</p></li>
+<li><p>changes to some models/blocks/functions may be completely ignored if, by
 convention, we deem certain paths as “not directly consumable” by OpenStudio.
 For example, we may wish to not consume classes in the packages <cite>BaseClasses</cite>,
-<cite>Examples</cite> and <cite>Validations</cite>.</li>
+<cite>Examples</cite> and <cite>Validations</cite>.</p></li>
 </ul>
 <p>To summarize, the creation of or changes to the “public API” (public
 parameters, variables, subcomponents, connectors) of models, blocks, or
@@ -384,13 +362,12 @@ The development page is <a class="reference external" href="https://github.com/l
 </pre></div>
 </div>
 <p class="rubric">Footnotes</p>
-<table class="docutils footnote" frame="void" id="fn-flu" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>We anticipate that the MBL will be redesigned so that users no longer
-need to assign media.</td></tr>
-</tbody>
-</table>
+<dl class="footnote brackets">
+<dt class="label" id="fn-flu"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>We anticipate that the MBL will be redesigned so that users no longer
+need to assign media.</p>
+</dd>
+</dl>
 </div>
 </div>
 
@@ -411,7 +388,7 @@ need to assign media.</td></tr>
     </p>
     <p>
         &copy; Copyright (c) All rights reserved.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.<br/>
     </p>
   </div>
 </footer>
