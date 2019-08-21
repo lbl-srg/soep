@@ -3,7 +3,8 @@
 
 # You can set these variables from the command line.
 SPHINXOPTS    =
-SPHINXBUILD   = sphinx-build
+#SPHINXBUILD   = sphinx-build # Python 2
+SPHINXBUILD   = python3 -msphinx # Python 3
 PAPER         =
 BUILDDIR      = build
 TMP          := $(shell mktemp -u /tmp/sphinx.XXXXXX)

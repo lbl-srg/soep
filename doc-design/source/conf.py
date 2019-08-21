@@ -52,8 +52,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'EnergyPlus Master Algorithm'
-copyright = u'(c) All rights reserved'
+project = 'Spawn of EnergyPlus'
+copyright = '(c) All rights reserved'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -112,7 +112,7 @@ import sphinx_bootstrap_theme
 # Activate the theme.
 html_theme = 'bootstrap'
 html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
-print "*********** {}".format(html_theme_path)
+print("*********** {}".format(html_theme_path))
 html_logo = '_static/spawn_icon_darkbluetxhighres.png'
 # Theme options are theme-specific and customize the look and feel of a
 # theme further.
@@ -281,7 +281,7 @@ latex_additional_files = ['_static/latex-note.png', '_static/latex-warning.png']
 latex_documents = [
   ('index',
    'soep-design.tex',
-   u'Spawn of EnergyPlus',
+   'Spawn of EnergyPlus',
    '', 'manual'),
 ]
 

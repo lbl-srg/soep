@@ -4,8 +4,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>3. Use Cases &#8212; Spawn of EnergyPlus</title>
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -25,11 +24,8 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
-    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="_static/lbl-icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -39,6 +35,10 @@
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js "></script>
 
   </head><body>
 
@@ -177,7 +177,7 @@
 
 <div class="container">
   <div class="row">
-    <div class="col-md-12 content">
+    <div class="body col-md-12 content" role="main">
       
   <div class="section" id="use-cases">
 <span id="sec-use-cases"></span><h1>3. Use Cases<a class="headerlink" href="#use-cases" title="Permalink to this headline">¶</a></h1>
@@ -202,93 +202,93 @@ updated, and we want to have <em>one</em> representation of the connectors,
 parameters, documentation and graphical layout of the models, and
 also check for potential incompatible model changes during the development
 of the Modelica Library.</p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="29%" />
-<col width="71%" />
+<col style="width: 29%" />
+<col style="width: 71%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head"><strong>Use case name</strong></th>
-<th class="head"><strong>Updating an OpenStudio Model Library</strong></th>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Use case name</strong></p></th>
+<th class="head"><p><strong>Updating an OpenStudio Model Library</strong></p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>Related Requirements</td>
-<td>n/a</td>
+<tbody>
+<tr class="row-even"><td><p>Related Requirements</p></td>
+<td><p>n/a</p></td>
 </tr>
-<tr class="row-odd"><td>Goal in Context</td>
-<td>Updating an OpenStudio HVAC and controls library
+<tr class="row-odd"><td><p>Goal in Context</p></td>
+<td><p>Updating an OpenStudio HVAC and controls library
 after changes have been made to the Modelica
-library.</td>
+library.</p></td>
 </tr>
-<tr class="row-even"><td>Preconditions</td>
-<td><p class="first">The Modelica library passes the regression tests.</p>
-<p class="last">An AST of the OpenStudio object representation
+<tr class="row-even"><td><p>Preconditions</p></td>
+<td><p>The Modelica library passes the regression tests.</p>
+<p>An AST of the OpenStudio object representation
 for the library already exists (otherwise
 it will be generated).</p>
 </td>
 </tr>
-<tr class="row-odd"><td>Successful End Condition</td>
-<td>An HVAC and controls library for use in the
-OpenStudio <cite>HVAC System Editor</cite>.</td>
+<tr class="row-odd"><td><p>Successful End Condition</p></td>
+<td><p>An HVAC and controls library for use in the
+OpenStudio <cite>HVAC System Editor</cite>.</p></td>
 </tr>
-<tr class="row-even"><td>Failed End Condition</td>
-<td>Library creation failed due to incompatible
+<tr class="row-even"><td><p>Failed End Condition</p></td>
+<td><p>Library creation failed due to incompatible
 changes in the <cite>Modelica Buildings Library</cite>
 that have not
-been confirmed to be propagated to OpenStudio.</td>
+been confirmed to be propagated to OpenStudio.</p></td>
 </tr>
-<tr class="row-odd"><td>Primary Actors</td>
-<td>A software developer.</td>
+<tr class="row-odd"><td><p>Primary Actors</p></td>
+<td><p>A software developer.</p></td>
 </tr>
-<tr class="row-even"><td>Secondary Actors</td>
-<td><p class="first">The OpenStudio HVAC and controls <cite>Model Library</cite>.</p>
+<tr class="row-even"><td><p>Secondary Actors</p></td>
+<td><p>The OpenStudio HVAC and controls <cite>Model Library</cite>.</p>
 <p>JModelica which returns the AST.</p>
-<p class="last">The <cite>Modelica Buildings Library</cite>.</p>
+<p>The <cite>Modelica Buildings Library</cite>.</p>
 </td>
 </tr>
-<tr class="row-odd"><td>Trigger</td>
-<td>The software developer executes a
-conversion script.</td>
+<tr class="row-odd"><td><p>Trigger</p></td>
+<td><p>The software developer executes a
+conversion script.</p></td>
 </tr>
-<tr class="row-even"><td><strong>Main Flow</strong></td>
-<td><strong>Action</strong></td>
+<tr class="row-even"><td><p><strong>Main Flow</strong></p></td>
+<td><p><strong>Action</strong></p></td>
 </tr>
-<tr class="row-odd"><td>1</td>
-<td>The software developer runs a conversion script
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>The software developer runs a conversion script
 to initiate updating the OpenStudio HVAC
-and controls <cite>Model Library</cite>.</td>
+and controls <cite>Model Library</cite>.</p></td>
 </tr>
-<tr class="row-even"><td>2</td>
-<td><cite>JModelica</cite> loads the <cite>Modelica Buildings Library</cite>
+<tr class="row-even"><td><p>2</p></td>
+<td><p><cite>JModelica</cite> loads the <cite>Modelica Buildings Library</cite>
 and returns its AST. (See also
-<a class="reference external" href="http://www.jmodelica.org/api-docs/usersguide/1.17.0/ch09s01.html">http://www.jmodelica.org/api-docs/usersguide/1.17.0/ch09s01.html</a>.)</td>
+<a class="reference external" href="http://www.jmodelica.org/api-docs/usersguide/1.17.0/ch09s01.html">http://www.jmodelica.org/api-docs/usersguide/1.17.0/ch09s01.html</a>.)</p></td>
 </tr>
-<tr class="row-odd"><td>3</td>
-<td>If the AST representation of OpenStudio exists
+<tr class="row-odd"><td><p>3</p></td>
+<td><p>If the AST representation of OpenStudio exists
 for this library, then the AST is compared
 with the previous AST
 representation to detect and report incompatible
-changes.</td>
+changes.</p></td>
 </tr>
-<tr class="row-even"><td>4</td>
-<td>If the AST representation of OpenStudio does
-not exist for this library, it is generated.</td>
+<tr class="row-even"><td><p>4</p></td>
+<td><p>If the AST representation of OpenStudio does
+not exist for this library, it is generated.</p></td>
 </tr>
-<tr class="row-odd"><td>5</td>
-<td>The AST is converted to OpenStudio object
-models.</td>
+<tr class="row-odd"><td><p>5</p></td>
+<td><p>The AST is converted to OpenStudio object
+models.</p></td>
 </tr>
-<tr class="row-even"><td><strong>Extensions</strong></td>
-<td>&#160;</td>
+<tr class="row-even"><td><p><strong>Extensions</strong></p></td>
+<td></td>
 </tr>
-<tr class="row-odd"><td>5.1</td>
-<td>OpenStudio integration tests are run.</td>
+<tr class="row-odd"><td><p>5.1</p></td>
+<td><p>OpenStudio integration tests are run.</p></td>
 </tr>
 </tbody>
 </table>
 <p>The sequence diagram for this as shown in <a class="reference internal" href="#fig-use-case-loading-modelica-lib"><span class="std std-numref">Fig. 3.1</span></a>.</p>
-<div class="figure" id="id1">
+<div class="figure align-default" id="id1">
 <span id="fig-use-case-loading-modelica-lib"></span><p class="plantuml">
 <object data="_images/plantuml-6a937a736e42d51510f4cb16a224f25736f18733.svg" type="image/svg+xml" style="width:766px;height:532px;">
 <img src="_images/plantuml-6a937a736e42d51510f4cb16a224f25736f18733.png" alt="title Updating an OpenStudio Model Library.
@@ -314,7 +314,7 @@ else Update the existing library
 end"/>
 
 </object></p>
-<p class="caption"><span class="caption-number">Fig. 3.1 </span>: Updating an OpenStudio Model Library.<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 3.1 </span>: Updating an OpenStudio Model Library.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
 </div>
 </div>
 <div class="section" id="modeling-of-an-ahu-with-custom-control">
@@ -323,74 +323,74 @@ end"/>
 pre-configured control sequence in OpenStudio,
 and then customize the control sequence.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The use case assumes two graphical editors for HVAC systems.
+<p class="admonition-title">Note</p>
+<p>The use case assumes two graphical editors for HVAC systems.
 Ideally, we would combine them into one graphical editor. Whether this
 is feasible will depend on the modeling support that the refactored
 OpenStudio <cite>HVAC System Editor</cite> will provide.</p>
 </div>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="35%" />
-<col width="65%" />
+<col style="width: 35%" />
+<col style="width: 65%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head"><strong>Use case name</strong></th>
-<th class="head"><strong>Modeling of an AHU with custom control</strong></th>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Use case name</strong></p></th>
+<th class="head"><p><strong>Modeling of an AHU with custom control</strong></p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>Related Requirements</td>
-<td>n/a</td>
+<tbody>
+<tr class="row-even"><td><p>Related Requirements</p></td>
+<td><p>n/a</p></td>
 </tr>
-<tr class="row-odd"><td>Goal in Context</td>
-<td>A user wants to model an AHU in OpenStudio
+<tr class="row-odd"><td><p>Goal in Context</p></td>
+<td><p>A user wants to model an AHU in OpenStudio
 using component models of the
-OpenStudio Model Library, and add custom control.</td>
+OpenStudio Model Library, and add custom control.</p></td>
 </tr>
-<tr class="row-even"><td>Preconditions</td>
-<td><p class="first">Preconfigured system model of the AHU
+<tr class="row-even"><td><p>Preconditions</p></td>
+<td><p>Preconfigured system model of the AHU
 exist in the OpenStudio Model Library.</p>
-<p class="last">Controls component exist in the Modelica Buildings
+<p>Controls component exist in the Modelica Buildings
 library.</p>
 </td>
 </tr>
-<tr class="row-odd"><td>Successful End Condition</td>
-<td>Created an AHU with custom control.</td>
+<tr class="row-odd"><td><p>Successful End Condition</p></td>
+<td><p>Created an AHU with custom control.</p></td>
 </tr>
-<tr class="row-even"><td>Failed End Condition</td>
-<td>n/a</td>
+<tr class="row-even"><td><p>Failed End Condition</p></td>
+<td><p>n/a</p></td>
 </tr>
-<tr class="row-odd"><td>Primary Actors</td>
-<td>An end user.</td>
+<tr class="row-odd"><td><p>Primary Actors</p></td>
+<td><p>An end user.</p></td>
 </tr>
-<tr class="row-even"><td>Secondary Actors</td>
-<td><p class="first">The OpenStudio HVAC and controls library.</p>
-<p class="last">The Modelica Buildings library.</p>
+<tr class="row-even"><td><p>Secondary Actors</p></td>
+<td><p>The OpenStudio HVAC and controls library.</p>
+<p>The Modelica Buildings library.</p>
 </td>
 </tr>
-<tr class="row-odd"><td>Trigger</td>
-<td>The user drags and drops an AHU model with
-pre-configured control sequence.</td>
+<tr class="row-odd"><td><p>Trigger</p></td>
+<td><p>The user drags and drops an AHU model with
+pre-configured control sequence.</p></td>
 </tr>
-<tr class="row-even"><td><strong>Main Flow</strong></td>
-<td><strong>Action</strong></td>
+<tr class="row-even"><td><p><strong>Main Flow</strong></p></td>
+<td><p><strong>Action</strong></p></td>
 </tr>
-<tr class="row-odd"><td>1</td>
-<td>The user opens the OpenStudio <cite>HVAC System Editor</cite>
-and selects the SOEP mode.</td>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>The user opens the OpenStudio <cite>HVAC System Editor</cite>
+and selects the SOEP mode.</p></td>
 </tr>
-<tr class="row-even"><td>2</td>
-<td>The OpenStudio GUI shows an HVAC and controls
-library.</td>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>The OpenStudio GUI shows an HVAC and controls
+library.</p></td>
 </tr>
-<tr class="row-odd"><td>3</td>
-<td>The user drags and drops the OpenStudio AHU
+<tr class="row-odd"><td><p>3</p></td>
+<td><p>The user drags and drops the OpenStudio AHU
 model, which is connected to an OpenStudio
-control model, into the <cite>HVAC System Editor</cite>.</td>
+control model, into the <cite>HVAC System Editor</cite>.</p></td>
 </tr>
-<tr class="row-even"><td>4</td>
-<td>As a component is dropped into the editor,
+<tr class="row-even"><td><p>4</p></td>
+<td><p>As a component is dropped into the editor,
 code is generated that specifies the component
 location. For example, dropping the control
 sequence generates
@@ -398,57 +398,57 @@ code such
 as <code class="docutils literal notranslate"><span class="pre">Buildings.Controls.AHU.VAV</span>
 <span class="pre">conVav</span> <span class="pre">&quot;VAV</span> <span class="pre">control&quot;</span>
 <span class="pre">annotation</span> <span class="pre">(Placement(</span>
-<span class="pre">transformation(extent={{-10,0},{10,20}})));</span></code></td>
+<span class="pre">transformation(extent={{-10,0},{10,20}})));</span></code></p></td>
 </tr>
-<tr class="row-odd"><td>5</td>
-<td>The user right-clicks on the <code class="docutils literal notranslate"><span class="pre">conVav</span></code> instance
-and selects “Edit in Modelica editor”.</td>
+<tr class="row-odd"><td><p>5</p></td>
+<td><p>The user right-clicks on the <code class="docutils literal notranslate"><span class="pre">conVav</span></code> instance
+and selects “Edit in Modelica editor”.</p></td>
 </tr>
-<tr class="row-even"><td>6</td>
-<td>The <cite>Schematic Editor</cite> opens and the user
-customizes the controls.</td>
+<tr class="row-even"><td><p>6</p></td>
+<td><p>The <cite>Schematic Editor</cite> opens and the user
+customizes the controls.</p></td>
 </tr>
-<tr class="row-odd"><td>7</td>
-<td>The user saves the control model as the
-<code class="docutils literal notranslate"><span class="pre">Custom/ControlVAV.mo</span></code> Modelica model.</td>
+<tr class="row-odd"><td><p>7</p></td>
+<td><p>The user saves the control model as the
+<code class="docutils literal notranslate"><span class="pre">Custom/ControlVAV.mo</span></code> Modelica model.</p></td>
 </tr>
-<tr class="row-even"><td>8</td>
-<td>The user switches to the <cite>HVAC System Editor</cite>,
+<tr class="row-even"><td><p>8</p></td>
+<td><p>The user switches to the <cite>HVAC System Editor</cite>,
 which changed the <cite>conVAV</cite> instance to a new
 Modelica class such as
 <code class="docutils literal notranslate"><span class="pre">Custom.ControlVAV</span>
 <span class="pre">conVav</span> <span class="pre">&quot;VAV</span> <span class="pre">control&quot;</span>
 <span class="pre">annotation</span> <span class="pre">(Placement(</span>
-<span class="pre">transformation(extent={{-10,0},{10,20}})));</span></code></td>
+<span class="pre">transformation(extent={{-10,0},{10,20}})));</span></code></p></td>
 </tr>
-<tr class="row-odd"><td>9</td>
-<td>The user adds a new control sensor input, changes
+<tr class="row-odd"><td><p>9</p></td>
+<td><p>The user adds a new control sensor input, changes
 a control input/output block, and connects
 the new control sensor input to the new control
-input/output block.</td>
+input/output block.</p></td>
 </tr>
-<tr class="row-even"><td>10</td>
-<td>As the <code class="docutils literal notranslate"><span class="pre">Custom.ControlVAV</span></code> has an additional
+<tr class="row-even"><td><p>10</p></td>
+<td><p>As the <code class="docutils literal notranslate"><span class="pre">Custom.ControlVAV</span></code> has an additional
 sensor input, the user connects this sensor input
 in the <cite>HVAC Systems Editor</cite> to an output
-of a model.</td>
+of a model.</p></td>
 </tr>
-<tr class="row-odd"><td><strong>Extensions</strong></td>
-<td>&#160;</td>
+<tr class="row-odd"><td><p><strong>Extensions</strong></p></td>
+<td></td>
 </tr>
-<tr class="row-even"><td>5.1</td>
-<td>Rather than selecting a single component for
+<tr class="row-even"><td><p>5.1</p></td>
+<td><p>Rather than selecting a single component for
 editing in the <cite>Schematic Editor</cite>, a user
 could select multiple OpenStudio components
 (that are connected), and they would then
 be grouped to form one Modelica model. The grouping
 would essentially consist of writing <code class="docutils literal notranslate"><span class="pre">connect</span></code>
-statements between the ports of the components.</td>
+statements between the ports of the components.</p></td>
 </tr>
 </tbody>
 </table>
 <p>The sequence diagram for this as shown in <a class="reference internal" href="#fig-use-case-custom-control"><span class="std std-numref">Fig. 3.2</span></a>.</p>
-<div class="figure" id="id2">
+<div class="figure align-default" id="id2">
 <span id="fig-use-case-custom-control"></span><p class="plantuml">
 <object data="_images/plantuml-32c3dae6e74c4db3386eb0aa5d3636f4b5e19ddc.svg" type="image/svg+xml" style="width:779px;height:548px;">
 <img src="_images/plantuml-32c3dae6e74c4db3386eb0aa5d3636f4b5e19ddc.png" alt="title Modeling of an AHU with custom control
@@ -471,11 +471,11 @@ statements between the ports of the components.</td>
 &quot;User&quot; &lt;- &quot;HVAC System Editor&quot;"/>
 
 </object></p>
-<p class="caption"><span class="caption-number">Fig. 3.2 </span>: Modeling of an AHU with custom control.<a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 3.2 </span>: Modeling of an AHU with custom control.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </div>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Getting the new inputs and outputs of <code class="docutils literal notranslate"><span class="pre">Custom/ControlVAV.mo</span></code> requires
+<p class="admonition-title">Note</p>
+<p>Getting the new inputs and outputs of <code class="docutils literal notranslate"><span class="pre">Custom/ControlVAV.mo</span></code> requires
 parsing its AST, which would be easiest if JModelica would be invoked
 to get the AST.</p>
 </div>
@@ -489,8 +489,8 @@ parameter assignment on the Modelica model, and these who require changes
 to multiple parts of the Modelica model. We assume that users
 edited a model in the SOEP <cite>Schematic Editor</cite>.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">If users simply edit a model in the OpenStudio <cite>HVAC Systems Editor</cite>,
+<p class="admonition-title">Note</p>
+<p>If users simply edit a model in the OpenStudio <cite>HVAC Systems Editor</cite>,
 then measures will work as they do now, because the <cite>HVAC System editor</cite>
 uses the OpenStudio <cite>Model Library</cite> only.</p>
 </div>
@@ -505,87 +505,87 @@ set in a Modelica model of the form</p>
 </div>
 <p>the top-level parameter for the boiler efficiency <span class="math notranslate nohighlight">\(\eta = 0.9\)</span>.</p>
 <p>The use case description is as follows:</p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="35%" />
-<col width="65%" />
+<col style="width: 35%" />
+<col style="width: 65%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head"><strong>Use case name</strong></th>
-<th class="head"><strong>Apply OpenStudio measure to a single parameter</strong></th>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Use case name</strong></p></th>
+<th class="head"><p><strong>Apply OpenStudio measure to a single parameter</strong></p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>Related Requirements</td>
-<td>n/a</td>
+<tbody>
+<tr class="row-even"><td><p>Related Requirements</p></td>
+<td><p>n/a</p></td>
 </tr>
-<tr class="row-odd"><td>Goal in Context</td>
-<td>A user wants to modify a parameter in a model
-from an OpenStudio measure.</td>
+<tr class="row-odd"><td><p>Goal in Context</p></td>
+<td><p>A user wants to modify a parameter in a model
+from an OpenStudio measure.</p></td>
 </tr>
-<tr class="row-even"><td>Preconditions</td>
-<td>A Modelica model that has been edited in the
-SOEP <cite>Schematic Editor</cite>.</td>
+<tr class="row-even"><td><p>Preconditions</p></td>
+<td><p>A Modelica model that has been edited in the
+SOEP <cite>Schematic Editor</cite>.</p></td>
 </tr>
-<tr class="row-odd"><td>Successful End Condition</td>
-<td>The parameter is set to its new value.</td>
+<tr class="row-odd"><td><p>Successful End Condition</p></td>
+<td><p>The parameter is set to its new value.</p></td>
 </tr>
-<tr class="row-even"><td>Failed End Condition</td>
-<td>The script returns with an error if no such
+<tr class="row-even"><td><p>Failed End Condition</p></td>
+<td><p>The script returns with an error if no such
 parameter exist, or if the parameter is set to
-<code class="docutils literal notranslate"><span class="pre">final</span></code> (and hence cannot be modified).</td>
+<code class="docutils literal notranslate"><span class="pre">final</span></code> (and hence cannot be modified).</p></td>
 </tr>
-<tr class="row-odd"><td>Primary Actors</td>
-<td>An end-user, or an application that is built on
-OpenStudio.</td>
+<tr class="row-odd"><td><p>Primary Actors</p></td>
+<td><p>An end-user, or an application that is built on
+OpenStudio.</p></td>
 </tr>
-<tr class="row-even"><td>Secondary Actors</td>
-<td>A Modelica model that is loaded in OpenStudio.</td>
+<tr class="row-even"><td><p>Secondary Actors</p></td>
+<td><p>A Modelica model that is loaded in OpenStudio.</p></td>
 </tr>
-<tr class="row-odd"><td>Trigger</td>
-<td>A ruby script is executed.</td>
+<tr class="row-odd"><td><p>Trigger</p></td>
+<td><p>A ruby script is executed.</p></td>
 </tr>
-<tr class="row-even"><td><strong>Main Flow</strong></td>
-<td><strong>Action</strong></td>
+<tr class="row-even"><td><p><strong>Main Flow</strong></p></td>
+<td><p><strong>Action</strong></p></td>
 </tr>
-<tr class="row-odd"><td>1</td>
-<td>The ruby script is invoked.</td>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>The ruby script is invoked.</p></td>
 </tr>
-<tr class="row-even"><td>2</td>
-<td>The script searches for the parameter value
+<tr class="row-even"><td><p>2</p></td>
+<td><p>The script searches for the parameter value
 and returns a flag to show whether it
 has been found (return value <code class="docutils literal notranslate"><span class="pre">0</span></code>),
 it has been found but is final (return value
 <code class="docutils literal notranslate"><span class="pre">1</span></code>),
-or it has not been found (return value <code class="docutils literal notranslate"><span class="pre">2</span></code>).</td>
+or it has not been found (return value <code class="docutils literal notranslate"><span class="pre">2</span></code>).</p></td>
 </tr>
-<tr class="row-odd"><td>3</td>
-<td>If the return value is non-zero, the script
-terminates with an error.</td>
+<tr class="row-odd"><td><p>3</p></td>
+<td><p>If the return value is non-zero, the script
+terminates with an error.</p></td>
 </tr>
-<tr class="row-even"><td>4</td>
-<td>If the return value is zero, the ruby script
+<tr class="row-even"><td><p>4</p></td>
+<td><p>If the return value is zero, the ruby script
 makes a new model of the form
 <code class="docutils literal notranslate"><span class="pre">model</span> <span class="pre">modifiedModel</span> <span class="pre">extends</span>
 <span class="pre">buiding(eta=0.9);</span>
 <span class="pre">end</span> <span class="pre">modifiedModel;</span></code>
 (or similar if the efficiency is part of a
-Modelica <code class="docutils literal notranslate"><span class="pre">record</span></code>).</td>
+Modelica <code class="docutils literal notranslate"><span class="pre">record</span></code>).</p></td>
 </tr>
-<tr class="row-odd"><td><strong>Extensions</strong></td>
-<td>&#160;</td>
+<tr class="row-odd"><td><p><strong>Extensions</strong></p></td>
+<td></td>
 </tr>
-<tr class="row-even"><td>4.1</td>
-<td>The parameter assignment could be done directly
+<tr class="row-even"><td><p>4.1</p></td>
+<td><p>The parameter assignment could be done directly
 in the model <cite>building</cite>, as long as it is not
 part of a write-protected library. Then, the
 assignment looks like
-<code class="docutils literal notranslate"><span class="pre">parameter</span> <span class="pre">Real</span> <span class="pre">eta(min=0)</span> <span class="pre">=</span> <span class="pre">0.9</span> <span class="pre">&quot;Efficiency&quot;;</span></code></td>
+<code class="docutils literal notranslate"><span class="pre">parameter</span> <span class="pre">Real</span> <span class="pre">eta(min=0)</span> <span class="pre">=</span> <span class="pre">0.9</span> <span class="pre">&quot;Efficiency&quot;;</span></code></p></td>
 </tr>
 </tbody>
 </table>
 <p>The sequence diagram for this as shown in <a class="reference internal" href="#fig-use-case-os-single-par"><span class="std std-numref">Fig. 3.3</span></a>.</p>
-<div class="figure" id="id3">
+<div class="figure align-default" id="id3">
 <span id="fig-use-case-os-single-par"></span><p class="plantuml">
 <object data="_images/plantuml-02f22226618f80a29bf1c769b07c552da92eba3d.svg" type="image/svg+xml" style="width:409px;height:426px;">
 <img src="_images/plantuml-02f22226618f80a29bf1c769b07c552da92eba3d.png" alt="title Apply OpenStudio measure to a single parameter
@@ -604,7 +604,7 @@ else
 end"/>
 
 </object></p>
-<p class="caption"><span class="caption-number">Fig. 3.3 </span>: Applying an OpenStudio measure to a single parameter.<a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 3.3 </span>: Applying an OpenStudio measure to a single parameter.</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
 </div>
 </div>
 <div class="section" id="changes-to-multiple-parts-of-the-modelica-model">
@@ -627,91 +627,91 @@ measure.</p>
 </pre></div>
 </div>
 <p>The use case description is as follows:</p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="35%" />
-<col width="65%" />
+<col style="width: 35%" />
+<col style="width: 65%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head"><strong>Use case name</strong></th>
-<th class="head"><strong>Apply OpenStudio measure to set of models</strong></th>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Use case name</strong></p></th>
+<th class="head"><p><strong>Apply OpenStudio measure to set of models</strong></p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>Related Requirements</td>
-<td>n/a</td>
+<tbody>
+<tr class="row-even"><td><p>Related Requirements</p></td>
+<td><p>n/a</p></td>
 </tr>
-<tr class="row-odd"><td>Goal in Context</td>
-<td>A user wants to modify a model.</td>
+<tr class="row-odd"><td><p>Goal in Context</p></td>
+<td><p>A user wants to modify a model.</p></td>
 </tr>
-<tr class="row-even"><td>Preconditions</td>
-<td>A Modelica model that has been edited in the
-SOEP <cite>Schematic Editor</cite>.</td>
+<tr class="row-even"><td><p>Preconditions</p></td>
+<td><p>A Modelica model that has been edited in the
+SOEP <cite>Schematic Editor</cite>.</p></td>
 </tr>
-<tr class="row-odd"><td>Successful End Condition</td>
-<td>All thermal zones are updated.</td>
+<tr class="row-odd"><td><p>Successful End Condition</p></td>
+<td><p>All thermal zones are updated.</p></td>
 </tr>
-<tr class="row-even"><td>Failed End Condition</td>
-<td>The script returns with an error if no thermal
-zone has been found.</td>
+<tr class="row-even"><td><p>Failed End Condition</p></td>
+<td><p>The script returns with an error if no thermal
+zone has been found.</p></td>
 </tr>
-<tr class="row-odd"><td>Primary Actors</td>
-<td>An end-user, or an application that is built on
-OpenStudio.</td>
+<tr class="row-odd"><td><p>Primary Actors</p></td>
+<td><p>An end-user, or an application that is built on
+OpenStudio.</p></td>
 </tr>
-<tr class="row-even"><td>Secondary Actors</td>
-<td>A Modelica model that is loaded in OpenStudio.</td>
+<tr class="row-even"><td><p>Secondary Actors</p></td>
+<td><p>A Modelica model that is loaded in OpenStudio.</p></td>
 </tr>
-<tr class="row-odd"><td>Trigger</td>
-<td>A ruby script is executed.</td>
+<tr class="row-odd"><td><p>Trigger</p></td>
+<td><p>A ruby script is executed.</p></td>
 </tr>
-<tr class="row-even"><td><strong>Main Flow</strong></td>
-<td><strong>Action</strong></td>
+<tr class="row-even"><td><p><strong>Main Flow</strong></p></td>
+<td><p><strong>Action</strong></p></td>
 </tr>
-<tr class="row-odd"><td>1</td>
-<td>The ruby script is invoked.</td>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>The ruby script is invoked.</p></td>
 </tr>
-<tr class="row-even"><td>2</td>
-<td>The instance AST is obtained.</td>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>The instance AST is obtained.</p></td>
 </tr>
-<tr class="row-odd"><td>3</td>
-<td>The script searches for all model instances that
+<tr class="row-odd"><td><p>3</p></td>
+<td><p>The script searches for all model instances that
 are thermal zones, and within them, it searches for
 all lighting power densities.
 It returns two lists
 of model names, one list (<code class="docutils literal notranslate"><span class="pre">l1</span></code>) containing only
 the parameters (or records) that are not final, and
 one list (<code class="docutils literal notranslate"><span class="pre">l2</span></code>) that contains the parameters
-(or records) that are final.</td>
+(or records) that are final.</p></td>
 </tr>
-<tr class="row-even"><td>4</td>
-<td>If <code class="docutils literal notranslate"><span class="pre">l1</span></code> is empty, the script triggers an error
-and stops.</td>
+<tr class="row-even"><td><p>4</p></td>
+<td><p>If <code class="docutils literal notranslate"><span class="pre">l1</span></code> is empty, the script triggers an error
+and stops.</p></td>
 </tr>
-<tr class="row-odd"><td>5</td>
-<td>If <code class="docutils literal notranslate"><span class="pre">l2</span></code> is non-empty, the script triggers a
-warning and continues.</td>
+<tr class="row-odd"><td><p>5</p></td>
+<td><p>If <code class="docutils literal notranslate"><span class="pre">l2</span></code> is non-empty, the script triggers a
+warning and continues.</p></td>
 </tr>
-<tr class="row-even"><td>6</td>
-<td>A JSON file that lists all components
+<tr class="row-even"><td><p>6</p></td>
+<td><p>A JSON file that lists all components
 that are lighting power densities is being red,
 and a code snippet that
 shows how to change the lighting power density
 parameter or the data record that contains the
-lighting power density is returned.</td>
+lighting power density is returned.</p></td>
 </tr>
-<tr class="row-odd"><td>7</td>
-<td>The ruby script makes a new model of the form
+<tr class="row-odd"><td><p>7</p></td>
+<td><p>The ruby script makes a new model of the form
 <code class="docutils literal notranslate"><span class="pre">model</span> <span class="pre">modifiedModel</span> <span class="pre">extends</span>
 <span class="pre">buiding(zone1(pLig=0.8),</span> <span class="pre">zone2(pLig=0.8));</span>
 <span class="pre">end</span> <span class="pre">modifiedModel;</span></code>
 (or similar if the efficiency is part of a
-Modelica <code class="docutils literal notranslate"><span class="pre">record</span></code>).</td>
+Modelica <code class="docutils literal notranslate"><span class="pre">record</span></code>).</p></td>
 </tr>
 </tbody>
 </table>
 <p>The sequence diagram for this as shown in <a class="reference internal" href="#fig-use-case-os-zones"><span class="std std-numref">Fig. 3.4</span></a>.</p>
-<div class="figure" id="id4">
+<div class="figure align-default" id="id4">
 <span id="fig-use-case-os-zones"></span><p class="plantuml">
 <object data="_images/plantuml-e8d39531bc5d098b2f65a8ea507b08db5dbe89e3.svg" type="image/svg+xml" style="width:605px;height:584px;">
 <img src="_images/plantuml-e8d39531bc5d098b2f65a8ea507b08db5dbe89e3.png" alt="title Apply OpenStudio measure to set of models.
@@ -744,7 +744,7 @@ else
 end"/>
 
 </object></p>
-<p class="caption"><span class="caption-number">Fig. 3.4 </span>: Applying an OpenStudio measure to a set of models.<a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 3.4 </span>: Applying an OpenStudio measure to a set of models.</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
 </div>
 </div>
 </div>
@@ -767,7 +767,7 @@ end"/>
     </p>
     <p>
         &copy; Copyright (c) All rights reserved.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.<br/>
     </p>
   </div>
 </footer>
