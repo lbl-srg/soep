@@ -1118,8 +1118,8 @@ that are needed for an efficient implementation of QSS.
 FMI Changes for QSS
 -------------------
 
-Accessing individual elements of the state vector
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Setting individual elements of the state vector
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 QSS generally requires to only update a subset of the continuous-time state vector. We therefore
 propose to use the function
@@ -1146,8 +1146,9 @@ QSS performance considerations:
 - QSS generally advances single variables at a time so atomic (single variable) get/set calls for all
   variable quantity types (real, integer, boolean, ...) would eliminate the loop overhead. The benefit
   of atomic calls will vary by model type and size but without such calls we cannot assess the benefit and,
-  possibly, recommend this as an API extension for future FMI versions. The atomic set-real API might
-  look like this:
+  possibly, recommend this as an API extension for future FMI versions.
+  We therefore propose to add the following API to set continuous-time state variables,
+  discrete-time state variables and input variables:
 
 .. code-block:: c
 
@@ -1155,11 +1156,10 @@ QSS performance considerations:
                           const fmi2ValueReference vr,
                           const fmi2Real x);
 
-- Avoiding global algebraic solutions when doing atomic/subset lookups when the algebraic dependencies
-  can be partitioned is probably difficult but worth investigating.
+- Furthermore, if algebraic loops can be partitioned in such a way that a minimum
+  set of equations need to be updated during iterative solutions, this may further
+  reduce computing time for QSS.
 
-- FMU generation should assure that calling ``fmi2GetReal`` on a derivative will not perform a
-  compute-all-derivatives operation internally.
 
 Getting derivatives of state variables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1177,8 +1177,6 @@ derivatives as
    \ddot x_c(t) = \frac{d^2 x_c(t)}{dt^2} = \frac{\partial \dot x_c(t)}{\partial x_c} \, \dot x_c(t).
 
 
-How to obtain third order derivatives of state variables :math:`\dddot x_c(t)` is not yet specified.
-
 QSS performance considerations:
 
 - Using directional derivative calls that evaluate the whole derivative vector
@@ -1188,8 +1186,13 @@ QSS performance considerations:
   derivatives (computing the necessary subset of the Jacobian) can be supported in the near term
   that would make their use with QSS more practical.
 
-- Longer term, automatic differentiation with atomic 2\ :sup:`nd` and 3\ :sup:`rd` derivative calls
-  will be valuable for efficient QSS solutions.
+- Longer term, automatic differentiation with atomic 3rd derivatives of
+  state variables :math:`\dddot x_c(t)` and zero-crossing variables
+  :math:`\dddot z(x_c(t), x_d(t), t)` will be valuable for efficient QSS computations.
+
+- FMU generation should assure that calling ``fmi2GetReal`` on a time-derivative will not perform a
+  compute-all-derivatives operation internally.
+
 
 Proposed Future Requirements:
 
@@ -1281,10 +1284,11 @@ with an associated entry in the ``modelDescription.xml`` file that looks like
 
 
 QSS works with the FMU to process events. When a QSS zero-crossing event is at the top
-of the QSS event queue QSS sets the state of all dependencies of the corresponding
-event indicator to their QSS trajectory values as a time slightly past the QSS-predicted
-event time, then runs the FMU event indicator process. The FMU should then detect the event
-and run the event handler process that will modify the "reverse dependencies" of the event
+of the QSS event queue, QSS sets the state of all dependencies of the corresponding
+event indicator to their QSS trajectory values at a time slightly past the QSS-predicted
+event time, and then runs the FMU event indicator process. The FMU should then detect the event
+and run the event handler process that will update the value of the variables indicated
+with the ``reverseDependencies`` attribute of the event
 indicator. QSS then performs the necessary QSS-side updates to those reverse dependency
 variables and their dependent variables. This is an indirect and potentially inefficient
 process, but without an "imperative" API for telling the FMU that a crossing event occurred
@@ -1347,13 +1351,15 @@ How to obtain second order derivatives of the event indicator functions :math:`\
 
 QSS performance considerations:
 
-- Without explicit derivative variables for continuous event indicator (zero-crossing) variables, the QSS zero-crossing variable
+- Without explicit derivative variables for continuous event indicator functions, the QSS zero-crossing variable
   cannot accurately track the function of its dependent variables (for which we will have 1\ :sup:`st` and 2\ :sup:`nd` derivatives)
   and thus will have lower accuracy for zero crossings.
   The accuracy of zero crossings is vital not just for solution accuracy but because QSS must accurately predict crossings to
   get robust FMU crossing event detection due to the indirect method QSS must use to try to get the FMU to detect crossings.
-  The need to compute numeric 2\ :sup:`nd` derivatives is also a performance hit.
+  The need to numerically approximate derivatives is also a performance hit.
   For these reasons it is strongly encouraged that explicit derivative variables be set up in the FMU for event indicators.
+  For 3\ :sup:`rd` order QSS, we would require atomic evaluation of
+  :math:`\dot z(x_c(t), x_d(t), t)`, :math:`\ddot z(x_c(t), x_d(t), t)` and :math:`\dddot z(x_c(t), x_d(t), t)`.
 
 
 Test models
