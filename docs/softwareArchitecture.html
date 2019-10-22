@@ -159,7 +159,7 @@
 </li>
 <li><a class="reference internal" href="#integration-of-qss-solver-with-jmodelica">5.3. Integration of QSS solver with JModelica</a><ul>
 <li><a class="reference internal" href="#fmi-changes-for-qss">5.3.1. FMI Changes for QSS</a><ul>
-<li><a class="reference internal" href="#accessing-individual-elements-of-the-state-vector">5.3.1.1. Accessing individual elements of the state vector</a></li>
+<li><a class="reference internal" href="#setting-individual-elements-of-the-state-vector">5.3.1.1. Setting individual elements of the state vector</a></li>
 <li><a class="reference internal" href="#getting-derivatives-of-state-variables">5.3.1.2. Getting derivatives of state variables</a></li>
 <li><a class="reference internal" href="#event-handling">5.3.1.3. Event Handling</a><ul>
 <li><a class="reference internal" href="#state-events">5.3.1.3.1. State Events</a></li>
@@ -431,20 +431,8 @@ The table also shows unit strings that are allowed to use by EnergyPlus
 to tell Modelica the unit of the exchanged inputs and outputs.
 The C functions will then convert the quantity as needed to represent
 it in the units shown in the column <cite>Modelica Unit</cite>.</p>
-<p>For composed units, EnergyPlus uses in the output dictonary unit strings
-such as <code class="docutils literal notranslate"><span class="pre">W/m2-K</span></code>. Therefore, we make the following conventions for the
-EnergyPlus unit string that is sent to Modelica:</p>
-<ol class="arabic simple">
-<li><p>In the EnergyPlus unit string, multiplications of units are denoted by a dash, such as in <code class="docutils literal notranslate"><span class="pre">m-K</span></code>
-for <span class="math notranslate nohighlight">\(\mathrm{m \, K}\)</span>.</p></li>
-<li><p>For units that are fractions, first all units in the numerator are listed, and then all
-units in the denominator are listed, separated by a forward slash, such as in <code class="docutils literal notranslate"><span class="pre">W/m-K</span></code>
-for <span class="math notranslate nohighlight">\(\mathrm{W/(m \, K)}\)</span>. Note that EnergyPlus does not use brackets.</p></li>
-<li><p>No brackets are allowed, e.g., use <code class="docutils literal notranslate"><span class="pre">W/m-K</span></code> to denote <span class="math notranslate nohighlight">\(\mathrm{W/(m \, K)}\)</span>.</p></li>
-<li><p>Exponents are denoted by an integer that follows the quantity, such as <code class="docutils literal notranslate"><span class="pre">m2</span></code>.</p></li>
-<li><p>No prefixes are allowed such as <code class="docutils literal notranslate"><span class="pre">m</span></code> for milli, other than for mass, which is reported as
-<code class="docutils literal notranslate"><span class="pre">kg</span></code>.</p></li>
-</ol>
+<p>If a unit is sent that is not in this list,
+then the simulation will stop with an error.</p>
 <span id="tab-uni-spe"></span><table class="docutils align-default" id="id20">
 <caption><span class="caption-number">Table 5.1 </span><span class="caption-text">Unit specification of EnergyPlus I/O.</span><a class="headerlink" href="#id20" title="Permalink to this table">¶</a></caption>
 <colgroup>
@@ -540,11 +528,6 @@ and 1)</p></td>
 </tr>
 </tbody>
 </table>
-<p>If a unit is sent that is neither in this list nor can be composed by using
-multiplications and divisions of units in this list,
-then the simulation will stop with an error.
-For example, if EnergyPlus were to specify <code class="docutils literal notranslate"><span class="pre">N</span></code> for Newton, the simulation
-will stop. Rather, EnergyPlus should specify the quantity in its base unit <code class="docutils literal notranslate"><span class="pre">kg-m/s2</span></code>.</p>
 </div>
 <div class="section" id="partitioning-of-the-models">
 <h3>5.2.3. Partitioning of the models<a class="headerlink" href="#partitioning-of-the-models" title="Permalink to this headline">¶</a></h3>
@@ -717,42 +700,8 @@ at the FMI API of EnergyPlus. The idf snippet is as follows:</p>
 </pre></div>
 </div>
 <p>For the Modelica coupling, this entry need not be specified in the idf file,
-and the last argument is not needed.
-The following parameters are sent from Modelica to EnergyPlus. These are sent only once during the instantiation of EnergyPlus.
-No entry in the idf file is required.</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 22%" />
-<col style="width: 78%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Variable</p></th>
-<th class="head"><p>Quantity</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td colspan="2"><p><em>From Modelica to EnergyPlus</em></p></td>
-</tr>
-<tr class="row-odd"><td><p>Type</p></td>
-<td><p>String with value <code class="docutils literal notranslate"><span class="pre">From:Output</span></code>.</p></td>
-</tr>
-<tr class="row-even"><td><p>Key value</p></td>
-<td><p>String, if it is an <code class="docutils literal notranslate"><span class="pre">Output:Variable</span></code>, its values will be as in the <code class="docutils literal notranslate"><span class="pre">.rdd</span></code> or <code class="docutils literal notranslate"><span class="pre">.mdd</span></code> file.
-If it is an <code class="docutils literal notranslate"><span class="pre">EnergyManagementSystem:OutputVariable</span></code>, its value will be <code class="docutils literal notranslate"><span class="pre">EMS</span></code>.</p></td>
-</tr>
-<tr class="row-odd"><td><p>Variable name</p></td>
-<td><p>String, if it is an <code class="docutils literal notranslate"><span class="pre">Output:Variable</span></code>, its values will be as in the Input Output Reference.
-If it is an <code class="docutils literal notranslate"><span class="pre">EnergyManagementSystem:OutputVariable</span></code> its value will be
-the name of the <code class="docutils literal notranslate"><span class="pre">EnergyManagementSystem:OutputVariable</span></code>.</p></td>
-</tr>
-<tr class="row-even"><td colspan="2"><p><em>From EnergyPlus to Modelica</em></p></td>
-</tr>
-<tr class="row-odd"><td><p>EnergyPlus unit string</p></td>
-<td><p>String with the unit of this quantity (see <a class="reference internal" href="#sec-uni-sys"><span class="std std-numref">Section 5.2.2</span></a>).</p></td>
-</tr>
-</tbody>
-</table>
-<p>There will be a Modelica block called <code class="docutils literal notranslate"><span class="pre">From.OutputVariable</span></code> with parameters</p>
+and the last argument is not needed.</p>
+<p>There will be a Modelica block called <code class="docutils literal notranslate"><span class="pre">EnergyPlus.OutputVariable</span></code> with parameters</p>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 22%" />
@@ -764,21 +713,31 @@ the name of the <code class="docutils literal notranslate"><span class="pre">Ene
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>idfName</p></td>
-<td><p>Name of the idf file that contains this variable.</p></td>
+<tr class="row-even"><td><p>key</p></td>
+<td><p>EnergyPlus key of the output variable</p></td>
 </tr>
-<tr class="row-odd"><td><p>key</p></td>
-<td><p>EnergyPlus key value, as defined by the EnergyPlus .rdd or .mdd file</p></td>
-</tr>
-<tr class="row-even"><td><p>name</p></td>
-<td><p>EnergyPlus variable name, as defined in the EnergyPlus Input Output Reference</p></td>
+<tr class="row-odd"><td><p>name</p></td>
+<td><p>EnergyPlus name of the output variable as in the EnergyPlus .rdd or .mdd file</p></td>
 </tr>
 </tbody>
 </table>
 <p>The name of the idf file is specified to allow simulation of multiple EnergyPlus files.
 The Modelica implementation will use an inner/outer declaration to allow users to easily set and propagate to
-other models the name of the idf file.
-There will also be a block called <code class="docutils literal notranslate"><span class="pre">From.EnergyManagementOutputVariable</span></code> with parameters</p>
+other models the name of the idf file.</p>
+<p>The corresponsding section in the <cite>ModelicaBuildingsEnergyPlus.json</cite> configuration file is</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;model&quot;</span><span class="o">:</span> <span class="p">{</span>
+   <span class="s2">&quot;outputVariables&quot;</span><span class="o">:</span> <span class="p">[</span>
+     <span class="p">{</span>
+       <span class="s2">&quot;name&quot;</span><span class="o">:</span>    <span class="s2">&quot;Zone Mean Air Temperature&quot;</span><span class="p">,</span>
+       <span class="s2">&quot;key&quot;</span><span class="o">:</span>     <span class="s2">&quot;Core_ZN&quot;</span><span class="p">,</span>
+       <span class="s2">&quot;fmiName&quot;</span><span class="o">:</span> <span class="s2">&quot;Core_ZN_Zone Mean Air Temperature&quot;</span>
+     <span class="p">}</span>
+   <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><em>Should we use ``EnergyPlus.EnergyManagementOutputVariable``?</em>
+There will also be a block called <code class="docutils literal notranslate"><span class="pre">EnergyPlus.EnergyManagementOutputVariable</span></code> with parameters</p>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 22%" />
@@ -790,10 +749,7 @@ There will also be a block called <code class="docutils literal notranslate"><sp
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>idfName</p></td>
-<td><p>Name of the idf file that contains this variable.</p></td>
-</tr>
-<tr class="row-odd"><td><p>name</p></td>
+<tr class="row-even"><td><p>name</p></td>
 <td><p>Name of the <code class="docutils literal notranslate"><span class="pre">EnergyManagementSystem:OutputVariable</span></code></p></td>
 </tr>
 </tbody>
@@ -917,7 +873,7 @@ No entry in the idf file is required.</p>
 <p>As EnergyPlus has no notion of real versus integer (or boolean) variables,
 values will be sent as doubles.</p>
 </div>
-<p>There will be a Modelica block called <code class="docutils literal notranslate"><span class="pre">To.Schedule</span></code> with parameters</p>
+<p>There will be a Modelica block called <code class="docutils literal notranslate"><span class="pre">EnergyPlus.Schedule</span></code> with parameters</p>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 22%" />
@@ -929,16 +885,13 @@ values will be sent as doubles.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>idfName</p></td>
-<td><p>Name of the idf file that contains this schedule.</p></td>
-</tr>
-<tr class="row-odd"><td><p>name</p></td>
+<tr class="row-even"><td><p>name</p></td>
 <td><p>Name of an EnergyPlus schedule that is present in the idf file.</p></td>
 </tr>
-<tr class="row-even"><td><p>sampleAtZoneTimeStep</p></td>
+<tr class="row-odd"><td><p>sampleAtZoneTimeStep</p></td>
 <td><p>Set to true to sample at the EnergyPlus zone time step, or to false to use samplePeriod.</p></td>
 </tr>
-<tr class="row-odd"><td><p>samplePeriod</p></td>
+<tr class="row-even"><td><p>samplePeriod</p></td>
 <td><p>Sample period of component.</p></td>
 </tr>
 </tbody>
@@ -1008,8 +961,8 @@ No entry in the idf file is required.</p>
 <p>As ERL has no notion of real versus integer (or boolean) variables,
 values will be sent as doubles.</p>
 </div>
-<p>Modelica will send the initial value as for <code class="docutils literal notranslate"><span class="pre">To:Schedule</span></code>.</p>
-<p>There will be a Modelica block called <code class="docutils literal notranslate"><span class="pre">To.Actuator</span></code> with parameters</p>
+<p>Modelica will send the initial value as for <code class="docutils literal notranslate"><span class="pre">EnergyPlus.Schedule</span></code>.</p>
+<p>There will be a Modelica block called <code class="docutils literal notranslate"><span class="pre">EnergyPlus.Actuator</span></code> with parameters</p>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 22%" />
@@ -1021,25 +974,22 @@ values will be sent as doubles.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>idfName</p></td>
-<td><p>Name of the idf file that contains this actuator.</p></td>
-</tr>
-<tr class="row-odd"><td><p>variableName</p></td>
+<tr class="row-even"><td><p>variableName</p></td>
 <td><p>Name of the EnergyPlus variable.</p></td>
 </tr>
-<tr class="row-even"><td><p>componentName</p></td>
+<tr class="row-odd"><td><p>componentName</p></td>
 <td><p>Name of the actuated component unique name.</p></td>
 </tr>
-<tr class="row-odd"><td><p>componentType</p></td>
+<tr class="row-even"><td><p>componentType</p></td>
 <td><p>Actuated comonent type.</p></td>
 </tr>
-<tr class="row-even"><td><p>controlType</p></td>
+<tr class="row-odd"><td><p>controlType</p></td>
 <td><p>Actuated component control type.</p></td>
 </tr>
-<tr class="row-odd"><td><p>sampleAtZoneTimeStep</p></td>
+<tr class="row-even"><td><p>sampleAtZoneTimeStep</p></td>
 <td><p>Set to true to sample at the EnergyPlus zone time step, or to false to use samplePeriod.</p></td>
 </tr>
-<tr class="row-even"><td><p>samplePeriod</p></td>
+<tr class="row-odd"><td><p>samplePeriod</p></td>
 <td><p>Sample period of component.</p></td>
 </tr>
 </tbody>
@@ -1089,7 +1039,7 @@ No entry in the idf file is required.</p>
 values will be sent as doubles.</p>
 </div>
 <p>Modelica will send the initial value as for <code class="docutils literal notranslate"><span class="pre">To:Schedule</span></code>.</p>
-<p>There will be a Modelica block called <code class="docutils literal notranslate"><span class="pre">To.Variable</span></code> with parameters</p>
+<p>There will be a Modelica block called <code class="docutils literal notranslate"><span class="pre">EnergyPlus.EMSVariable</span></code> with parameters</p>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 22%" />
@@ -1101,20 +1051,28 @@ values will be sent as doubles.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>idfName</p></td>
-<td><p>Name of the idf file that contains this variable.</p></td>
-</tr>
-<tr class="row-odd"><td><p>variableName</p></td>
+<tr class="row-even"><td><p>name</p></td>
 <td><p>Name of the EnergyPlus variable</p></td>
 </tr>
-<tr class="row-even"><td><p>sampleAtZoneTimeStep</p></td>
+<tr class="row-odd"><td><p>sampleAtZoneTimeStep</p></td>
 <td><p>Set to true to sample at the EnergyPlus zone time step, or to false to use samplePeriod.</p></td>
 </tr>
-<tr class="row-odd"><td><p>samplePeriod</p></td>
+<tr class="row-even"><td><p>samplePeriod</p></td>
 <td><p>Sample period of component.</p></td>
 </tr>
 </tbody>
 </table>
+<p>The corresponsding section in the <cite>ModelicaBuildingsEnergyPlus.json</cite> configuration file is</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;model&quot;</span><span class="o">:</span> <span class="p">{</span>
+   <span class="s2">&quot;emsVariables&quot;</span><span class="o">:</span> <span class="p">[</span>
+     <span class="p">{</span>
+       <span class="s2">&quot;name&quot;</span><span class="o">:</span>    <span class="s2">&quot;yShade&quot;</span><span class="p">,</span>
+     <span class="p">}</span>
+   <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Because each entry of <cite>emsVariables.name</cite> is unique, EnergyPlus will also use this name in the <cite>modelDescription.xml</cite> file.</p>
 <p>The Modelica pseudo-code is</p>
 <div class="highlight-modelica notranslate"><div class="highlight"><pre><span></span><span class="kr">when</span> <span class="nb">sample</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="n">samplePeriod</span><span class="p">)</span> <span class="kr">then</span>
    <span class="n">sendVariableToEnergyPlus</span><span class="p">(</span><span class="nb">pre</span><span class="p">(</span><span class="n">u</span><span class="p">),</span> <span class="n">adapter</span><span class="p">);</span>
@@ -1830,8 +1788,8 @@ and FMI has limited support for QSS, we discuss extensions
 that are needed for an efficient implementation of QSS.</p>
 <div class="section" id="fmi-changes-for-qss">
 <h3>5.3.1. FMI Changes for QSS<a class="headerlink" href="#fmi-changes-for-qss" title="Permalink to this headline">¶</a></h3>
-<div class="section" id="accessing-individual-elements-of-the-state-vector">
-<h4>5.3.1.1. Accessing individual elements of the state vector<a class="headerlink" href="#accessing-individual-elements-of-the-state-vector" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="setting-individual-elements-of-the-state-vector">
+<h4>5.3.1.1. Setting individual elements of the state vector<a class="headerlink" href="#setting-individual-elements-of-the-state-vector" title="Permalink to this headline">¶</a></h4>
 <p>QSS generally requires to only update a subset of the continuous-time state vector. We therefore
 propose to use the function</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">fmi2Status</span> <span class="nf">fmi2SetReal</span><span class="p">(</span><span class="n">fmi2Component</span> <span class="n">c</span><span class="p">,</span>
@@ -1854,8 +1812,9 @@ as is allowed in FMI-ME 2.0, but also for continuous-time states.</p>
 <li><p>QSS generally advances single variables at a time so atomic (single variable) get/set calls for all
 variable quantity types (real, integer, boolean, …) would eliminate the loop overhead. The benefit
 of atomic calls will vary by model type and size but without such calls we cannot assess the benefit and,
-possibly, recommend this as an API extension for future FMI versions. The atomic set-real API might
-look like this:</p></li>
+possibly, recommend this as an API extension for future FMI versions.
+We therefore propose to add the following API to set continuous-time state variables,
+discrete-time state variables and input variables:</p></li>
 </ul>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">fmi2Status</span> <span class="nf">fmi2Set1Real</span><span class="p">(</span><span class="n">fmi2Component</span> <span class="n">c</span><span class="p">,</span>
                         <span class="k">const</span> <span class="n">fmi2ValueReference</span> <span class="n">vr</span><span class="p">,</span>
@@ -1863,10 +1822,9 @@ look like this:</p></li>
 </pre></div>
 </div>
 <ul class="simple">
-<li><p>Avoiding global algebraic solutions when doing atomic/subset lookups when the algebraic dependencies
-can be partitioned is probably difficult but worth investigating.</p></li>
-<li><p>FMU generation should assure that calling <code class="docutils literal notranslate"><span class="pre">fmi2GetReal</span></code> on a derivative will not perform a
-compute-all-derivatives operation internally.</p></li>
+<li><p>Furthermore, if algebraic loops can be partitioned in such a way that a minimum
+set of equations need to be updated during iterative solutions, this may further
+reduce computing time for QSS.</p></li>
 </ul>
 </div>
 <div class="section" id="getting-derivatives-of-state-variables">
@@ -1878,7 +1836,6 @@ can be obtained with the existing
 derivatives as</p>
 <div class="math notranslate nohighlight">
 \[\ddot x_c(t) = \frac{d^2 x_c(t)}{dt^2} = \frac{\partial \dot x_c(t)}{\partial x_c} \, \dot x_c(t).\]</div>
-<p>How to obtain third order derivatives of state variables <span class="math notranslate nohighlight">\(\dddot x_c(t)\)</span> is not yet specified.</p>
 <p>QSS performance considerations:</p>
 <ul class="simple">
 <li><p>Using directional derivative calls that evaluate the whole derivative vector
@@ -1887,8 +1844,11 @@ potentially large performance hit that may make the use of the directional deriv
 efficient than the (atomic) numerical differentiation that QSS has used. If atomic directional
 derivatives (computing the necessary subset of the Jacobian) can be supported in the near term
 that would make their use with QSS more practical.</p></li>
-<li><p>Longer term, automatic differentiation with atomic 2<sup>nd</sup> and 3<sup>rd</sup> derivative calls
-will be valuable for efficient QSS solutions.</p></li>
+<li><p>Longer term, automatic differentiation with atomic 3rd derivatives of
+state variables <span class="math notranslate nohighlight">\(\dddot x_c(t)\)</span> and zero-crossing variables
+<span class="math notranslate nohighlight">\(\dddot z(x_c(t), x_d(t), t)\)</span> will be valuable for efficient QSS computations.</p></li>
+<li><p>FMU generation should assure that calling <code class="docutils literal notranslate"><span class="pre">fmi2GetReal</span></code> on a time-derivative will not perform a
+compute-all-derivatives operation internally.</p></li>
 </ul>
 <p>Proposed Future Requirements:</p>
 <ul class="simple">
@@ -1975,10 +1935,11 @@ If <code class="docutils literal notranslate"><span class="pre">y</span></code> 
 As a consequence, a master algorithm is only allowed to connect variables that declare <code class="docutils literal notranslate"><span class="pre">causality</span> <span class="pre">=</span> <span class="pre">output</span></code>.</p>
 </div>
 <p>QSS works with the FMU to process events. When a QSS zero-crossing event is at the top
-of the QSS event queue QSS sets the state of all dependencies of the corresponding
-event indicator to their QSS trajectory values as a time slightly past the QSS-predicted
-event time, then runs the FMU event indicator process. The FMU should then detect the event
-and run the event handler process that will modify the “reverse dependencies” of the event
+of the QSS event queue, QSS sets the state of all dependencies of the corresponding
+event indicator to their QSS trajectory values at a time slightly past the QSS-predicted
+event time, and then runs the FMU event indicator process. The FMU should then detect the event
+and run the event handler process that will update the value of the variables indicated
+with the <code class="docutils literal notranslate"><span class="pre">reverseDependencies</span></code> attribute of the event
 indicator. QSS then performs the necessary QSS-side updates to those reverse dependency
 variables and their dependent variables. This is an indirect and potentially inefficient
 process, but without an “imperative” API for telling the FMU that a crossing event occurred
@@ -2036,13 +1997,15 @@ the event indicator derivatives.</p>
 <p>How to obtain second order derivatives of the event indicator functions <span class="math notranslate nohighlight">\(\ddot z(x_c(t), x_d(t), t)\)</span> is not yet specified.</p>
 <p>QSS performance considerations:</p>
 <ul class="simple">
-<li><p>Without explicit derivative variables for continuous event indicator (zero-crossing) variables, the QSS zero-crossing variable
+<li><p>Without explicit derivative variables for continuous event indicator functions, the QSS zero-crossing variable
 cannot accurately track the function of its dependent variables (for which we will have 1<sup>st</sup> and 2<sup>nd</sup> derivatives)
 and thus will have lower accuracy for zero crossings.
 The accuracy of zero crossings is vital not just for solution accuracy but because QSS must accurately predict crossings to
 get robust FMU crossing event detection due to the indirect method QSS must use to try to get the FMU to detect crossings.
-The need to compute numeric 2<sup>nd</sup> derivatives is also a performance hit.
-For these reasons it is strongly encouraged that explicit derivative variables be set up in the FMU for event indicators.</p></li>
+The need to numerically approximate derivatives is also a performance hit.
+For these reasons it is strongly encouraged that explicit derivative variables be set up in the FMU for event indicators.
+For 3<sup>rd</sup> order QSS, we would require atomic evaluation of
+<span class="math notranslate nohighlight">\(\dot z(x_c(t), x_d(t), t)\)</span>, <span class="math notranslate nohighlight">\(\ddot z(x_c(t), x_d(t), t)\)</span> and <span class="math notranslate nohighlight">\(\dddot z(x_c(t), x_d(t), t)\)</span>.</p></li>
 </ul>
 </div>
 <div class="section" id="test-models">

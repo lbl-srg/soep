@@ -207,19 +207,8 @@ to tell Modelica the unit of the exchanged inputs and outputs.
 The C functions will then convert the quantity as needed to represent
 it in the units shown in the column `Modelica Unit`.
 
-For composed units, EnergyPlus uses in the output dictonary unit strings
-such as ``W/m2-K``. Therefore, we make the following conventions for the
-EnergyPlus unit string that is sent to Modelica:
-
-1. In the EnergyPlus unit string, multiplications of units are denoted by a dash, such as in ``m-K``
-   for :math:`\mathrm{m \, K}`.
-2. For units that are fractions, first all units in the numerator are listed, and then all
-   units in the denominator are listed, separated by a forward slash, such as in ``W/m-K``
-   for :math:`\mathrm{W/(m \, K)}`. Note that EnergyPlus does not use brackets.
-3. No brackets are allowed, e.g., use ``W/m-K`` to denote :math:`\mathrm{W/(m \, K)}`.
-4. Exponents are denoted by an integer that follows the quantity, such as ``m2``.
-5. No prefixes are allowed such as ``m`` for milli, other than for mass, which is reported as
-   ``kg``.
+If a unit is sent that is not in this list,
+then the simulation will stop with an error.
 
 .. _tab_uni_spe:
 
@@ -270,11 +259,7 @@ EnergyPlus unit string that is sent to Modelica:
    | Volume flow rate       | m3/s             | m3/s                            |
    +------------------------+------------------+---------------------------------+
 
-If a unit is sent that is neither in this list nor can be composed by using
-multiplications and divisions of units in this list,
-then the simulation will stop with an error.
-For example, if EnergyPlus were to specify ``N`` for Newton, the simulation
-will stop. Rather, EnergyPlus should specify the quantity in its base unit ``kg-m/s2``.
+
 
 Partitioning of the models
 --------------------------
@@ -410,50 +395,44 @@ at the FMI API of EnergyPlus. The idf snippet is as follows:
 
 For the Modelica coupling, this entry need not be specified in the idf file,
 and the last argument is not needed.
-The following parameters are sent from Modelica to EnergyPlus. These are sent only once during the instantiation of EnergyPlus.
-No entry in the idf file is required.
 
-+---------------------------+--------------------------------------------------------------------------------------------------+
-| Variable                  | Quantity                                                                                         |
-+===========================+==================================================================================================+
-| *From Modelica to EnergyPlus*                                                                                                |
-+---------------------------+--------------------------------------------------------------------------------------------------+
-| Type                      | String with value ``From:Output``.                                                               |
-+---------------------------+--------------------------------------------------------------------------------------------------+
-| Key value                 | String, if it is an ``Output:Variable``, its values will be as in the ``.rdd`` or ``.mdd`` file. |
-|                           | If it is an ``EnergyManagementSystem:OutputVariable``, its value will be ``EMS``.                |
-+---------------------------+--------------------------------------------------------------------------------------------------+
-| Variable name             | String, if it is an ``Output:Variable``, its values will be as in the Input Output Reference.    |
-|                           | If it is an ``EnergyManagementSystem:OutputVariable`` its value will be                          |
-|                           | the name of the ``EnergyManagementSystem:OutputVariable``.                                       |
-+---------------------------+--------------------------------------------------------------------------------------------------+
-| *From EnergyPlus to Modelica*                                                                                                |
-+---------------------------+--------------------------------------------------------------------------------------------------+
-| EnergyPlus unit string    | String with the unit of this quantity (see :numref:`sec_uni_sys`).                               |
-+---------------------------+--------------------------------------------------------------------------------------------------+
 
-There will be a Modelica block called ``From.OutputVariable`` with parameters
+There will be a Modelica block called ``EnergyPlus.OutputVariable`` with parameters
 
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | Name                      | Comment                                                                                          |
 +===========================+==================================================================================================+
-| idfName                   | Name of the idf file that contains this variable.                                                |
+| key                       | EnergyPlus key of the output variable                                                            |
 +---------------------------+--------------------------------------------------------------------------------------------------+
-| key                       | EnergyPlus key value, as defined by the EnergyPlus .rdd or .mdd file                             |
-+---------------------------+--------------------------------------------------------------------------------------------------+
-| name                      | EnergyPlus variable name, as defined in the EnergyPlus Input Output Reference                    |
+| name                      | EnergyPlus name of the output variable as in the EnergyPlus .rdd or .mdd file                    |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 
 The name of the idf file is specified to allow simulation of multiple EnergyPlus files.
 The Modelica implementation will use an inner/outer declaration to allow users to easily set and propagate to
 other models the name of the idf file.
-There will also be a block called ``From.EnergyManagementOutputVariable`` with parameters
+
+The corresponsding section in the `ModelicaBuildingsEnergyPlus.json` configuration file is
+
+.. code-block:: javascript
+
+   "model": {
+      "outputVariables": [
+        {
+          "name":    "Zone Mean Air Temperature",
+          "key":     "Core_ZN",
+          "fmiName": "Core_ZN_Zone Mean Air Temperature"
+        }
+      ]
+   }
+
+
+
+*Should we use ``EnergyPlus.EnergyManagementOutputVariable``?*
+There will also be a block called ``EnergyPlus.EnergyManagementOutputVariable`` with parameters
 
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | Name                      | Comment                                                                                          |
 +===========================+==================================================================================================+
-| idfName                   | Name of the idf file that contains this variable.                                                |
-+---------------------------+--------------------------------------------------------------------------------------------------+
 | name                      | Name of the ``EnergyManagementSystem:OutputVariable``                                            |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 
@@ -582,13 +561,11 @@ No entry in the idf file is required.
           values will be sent as doubles.
 
 
-There will be a Modelica block called ``To.Schedule`` with parameters
+There will be a Modelica block called ``EnergyPlus.Schedule`` with parameters
 
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | Name                      | Comment                                                                                          |
 +===========================+==================================================================================================+
-| idfName                   | Name of the idf file that contains this schedule.                                                |
-+---------------------------+--------------------------------------------------------------------------------------------------+
 | name                      | Name of an EnergyPlus schedule that is present in the idf file.                                  |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | sampleAtZoneTimeStep      | Set to true to sample at the EnergyPlus zone time step, or to false to use samplePeriod.         |
@@ -647,16 +624,14 @@ No entry in the idf file is required.
 .. note:: As ERL has no notion of real versus integer (or boolean) variables,
           values will be sent as doubles.
 
-Modelica will send the initial value as for ``To:Schedule``.
+Modelica will send the initial value as for ``EnergyPlus.Schedule``.
 
 
-There will be a Modelica block called ``To.Actuator`` with parameters
+There will be a Modelica block called ``EnergyPlus.Actuator`` with parameters
 
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | Name                      | Comment                                                                                          |
 +===========================+==================================================================================================+
-| idfName                   | Name of the idf file that contains this actuator.                                                |
-+---------------------------+--------------------------------------------------------------------------------------------------+
 | variableName              | Name of the EnergyPlus variable.                                                                 |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | componentName             | Name of the actuated component unique name.                                                      |
@@ -710,19 +685,33 @@ No entry in the idf file is required.
 Modelica will send the initial value as for ``To:Schedule``.
 
 
-There will be a Modelica block called ``To.Variable`` with parameters
+There will be a Modelica block called ``EnergyPlus.EMSVariable`` with parameters
 
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | Name                      | Comment                                                                                          |
 +===========================+==================================================================================================+
-| idfName                   | Name of the idf file that contains this variable.                                                |
-+---------------------------+--------------------------------------------------------------------------------------------------+
-| variableName              | Name of the EnergyPlus variable                                                                  |
+| name                      | Name of the EnergyPlus variable                                                                  |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | sampleAtZoneTimeStep      | Set to true to sample at the EnergyPlus zone time step, or to false to use samplePeriod.         |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | samplePeriod              | Sample period of component.                                                                      |
 +---------------------------+--------------------------------------------------------------------------------------------------+
+
+
+The corresponsding section in the `ModelicaBuildingsEnergyPlus.json` configuration file is
+
+.. code-block:: javascript
+
+   "model": {
+      "emsVariables": [
+        {
+          "name":    "yShade",
+        }
+      ]
+   }
+
+Because each entry of `emsVariables.name` is unique, EnergyPlus will also use this name in the `modelDescription.xml` file.
+
 
 The Modelica pseudo-code is
 
