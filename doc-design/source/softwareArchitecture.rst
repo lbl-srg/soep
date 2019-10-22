@@ -411,21 +411,6 @@ The name of the idf file is specified to allow simulation of multiple EnergyPlus
 The Modelica implementation will use an inner/outer declaration to allow users to easily set and propagate to
 other models the name of the idf file.
 
-The corresponsding section in the `ModelicaBuildingsEnergyPlus.json` configuration file is
-
-.. code-block:: javascript
-
-   "model": {
-      "outputVariables": [
-        {
-          "name":    "Zone Mean Air Temperature",
-          "key":     "Core_ZN",
-          "fmiName": "Core_ZN_Zone Mean Air Temperature"
-        }
-      ]
-   }
-
-
 
 *Should we use ``EnergyPlus.EnergyManagementOutputVariable``?*
 There will also be a block called ``EnergyPlus.EnergyManagementOutputVariable`` with parameters
@@ -538,29 +523,6 @@ in order to get satisfactory closed loop control performance.
 Schedules
 """""""""
 
-For writing to schedules,
-the following parameters are sent from Modelica to EnergyPlus. These are sent only once during the instantiation of EnergyPlus.
-No entry in the idf file is required.
-
-+---------------------------+--------------------------------------------------------------------------------------------------+
-| Variable                  | Quantity                                                                                         |
-+===========================+==================================================================================================+
-| *From Modelica to EnergyPlus*                                                                                                |
-+---------------------------+--------------------------------------------------------------------------------------------------+
-| Type                      | String with value ``To:Schedule``.                                                               |
-+---------------------------+--------------------------------------------------------------------------------------------------+
-| Schedule name             | String with the value of an EnergyPlus schedule.                                                 |
-+---------------------------+--------------------------------------------------------------------------------------------------+
-| *From EnergyPlus to Modelica*                                                                                                |
-+---------------------------+--------------------------------------------------------------------------------------------------+
-| EnergyPlus unit string    | String with the unit of this quantity (see :numref:`sec_uni_sys`).                               |
-+---------------------------+--------------------------------------------------------------------------------------------------+
-
-
-.. note:: As EnergyPlus has no notion of real versus integer (or boolean) variables,
-          values will be sent as doubles.
-
-
 There will be a Modelica block called ``EnergyPlus.Schedule`` with parameters
 
 +---------------------------+--------------------------------------------------------------------------------------------------+
@@ -575,6 +537,10 @@ There will be a Modelica block called ``EnergyPlus.Schedule`` with parameters
 
 .. todo:: Do we really need an instance of a schedule in the idf file in order to write to EnergyPlus?
           Would a user really set up a schedule, just to overwrite it?
+
+.. note:: As EnergyPlus has no notion of real versus integer (or boolean) variables,
+          values will be sent as doubles.
+
 
 The Modelica pseudo-code is
 
@@ -592,40 +558,6 @@ where
 
 Actuators
 """""""""
-
-For writing to EMS actuators,
-the following parameters are sent from Modelica to EnergyPlus. These are sent only once during the instantiation of EnergyPlus.
-No entry in the idf file is required.
-
-
-+---------------------------------+--------------------------------------------------------------------------------------------+
-| Variable                        | Quantity                                                                                   |
-+=================================+============================================================================================+
-| *From Modelica to EnergyPlus*                                                                                                |
-+---------------------------------+--------------------------------------------------------------------------------------------+
-| Type                            | String with value ``To:Actuator``.                                                         |
-+---------------------------------+--------------------------------------------------------------------------------------------+
-| Variable name                   | String with the value of the EnergyPlus variable name.                                     |
-+---------------------------------+--------------------------------------------------------------------------------------------+
-| Component name                  | String with the actuated component unique name.                                            |
-+---------------------------------+--------------------------------------------------------------------------------------------+
-| Actuated component type         | String with the actuated component type.                                                   |
-+---------------------------------+--------------------------------------------------------------------------------------------+
-| Actuated component control type | String with the actuated component control type.                                           |
-+---------------------------------+--------------------------------------------------------------------------------------------+
-| *From EnergyPlus to Modelica*                                                                                                |
-+---------------------------------+--------------------------------------------------------------------------------------------+
-| EnergyPlus unit string          | String with the unit of this quantity (see :numref:`sec_uni_sys`).                         |
-+---------------------------------+--------------------------------------------------------------------------------------------+
-
-
-.. todo:: Why is the *Variable name* needed? Should this be left out?
-
-.. note:: As ERL has no notion of real versus integer (or boolean) variables,
-          values will be sent as doubles.
-
-Modelica will send the initial value as for ``EnergyPlus.Schedule``.
-
 
 There will be a Modelica block called ``EnergyPlus.Actuator`` with parameters
 
@@ -645,6 +577,15 @@ There will be a Modelica block called ``EnergyPlus.Actuator`` with parameters
 | samplePeriod              | Sample period of component.                                                                      |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 
+.. todo:: Why is the *Variable name* needed? Should this be left out?
+
+No entry in the idf file is required to write to an EMS actuator.
+
+
+.. note:: As ERL has no notion of real versus integer (or boolean) variables,
+          values will be sent as doubles.
+
+
 The Modelica pseudo-code is
 
 .. code-block:: modelica
@@ -655,35 +596,10 @@ The Modelica pseudo-code is
 
 where ``pre(u)`` is the value of the input before ``sample(t0, samplePeriod)`` becomes ``true``.
 
+.. _sec_inp_ems_var:
 
 Variables
 """""""""
-
-For writing to EMS variables,
-the following parameters are sent from Modelica to EnergyPlus. These are sent only once during the instantiation of EnergyPlus.
-No entry in the idf file is required.
-
-
-+---------------------------------+--------------------------------------------------------------------------------------------+
-| Variable                        | Quantity                                                                                   |
-+=================================+============================================================================================+
-| *From Modelica to EnergyPlus*                                                                                                |
-+---------------------------------+--------------------------------------------------------------------------------------------+
-| Type                            | String with value ``To:Variable``                                                          |
-+---------------------------------+--------------------------------------------------------------------------------------------+
-| Variable name                   | String with the value of the EnergyPlus variable name                                      |
-+---------------------------------+--------------------------------------------------------------------------------------------+
-| *From EnergyPlus to Modelica*                                                                                                |
-+---------------------------------+--------------------------------------------------------------------------------------------+
-| EnergyPlus unit string          | String with the unit of this quantity (see :numref:`sec_uni_sys`).                         |
-+---------------------------------+--------------------------------------------------------------------------------------------+
-
-
-.. note:: As EnergyPlus has no notion of real versus integer (or boolean) variables,
-          values will be sent as doubles.
-
-Modelica will send the initial value as for ``To:Schedule``.
-
 
 There will be a Modelica block called ``EnergyPlus.EMSVariable`` with parameters
 
@@ -697,20 +613,10 @@ There will be a Modelica block called ``EnergyPlus.EMSVariable`` with parameters
 | samplePeriod              | Sample period of component.                                                                      |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 
+No entry in the idf file is required.
 
-The corresponsding section in the `ModelicaBuildingsEnergyPlus.json` configuration file is
-
-.. code-block:: javascript
-
-   "model": {
-      "emsVariables": [
-        {
-          "name":    "yShade",
-        }
-      ]
-   }
-
-Because each entry of `emsVariables.name` is unique, EnergyPlus will also use this name in the `modelDescription.xml` file.
+.. note:: As EnergyPlus has no notion of real versus integer (or boolean) variables,
+          values will be sent as doubles.
 
 
 The Modelica pseudo-code is
@@ -869,42 +775,52 @@ inputs called ``basement_T`` and ``office_T`` and outputs called
 Output variables
 """"""""""""""""
 
-.. todo:: Revise once we support output variables.
-
 To configure the data exchange for output variables, as described in :numref:`sec_out_var`,
 consider an example where one wants to retrieve the outdoor drybulb temperature from EnergyPlus.
-Then, the following functions will be called during the instantiation, where we added the suffix
-``Unit`` or ``Value`` to indicate what quantity to return.
 
-.. code-block:: c
 
-   const char ** parameterNames =
-     {"From:Output,Environment,Site Outdoor Air Drybulb Temperature,Unit"};
-   const unsigned int parameterValueReferences[] = {0};
+The corresponsding section in the ``ModelicaBuildingsEnergyPlus.json`` configuration file is
 
-   const char ** outputNames =
-     {"From:Output,Environment,Site Outdoor Air Drybulb Temperature,Value"};
-   const unsigned int outputValueReferences[] = {1};
+.. code-block:: javascript
+
+   "model": {
+      "outputVariables": [
+        {
+          "name":    "Site Outdoor Air Drybulb Temperature",
+          "key":     "Environment",
+          "fmiName": "Environment Site Outdoor Air Drybulb Temperature"
+        }
+      ]
+   }
+
+EnergyPlus will then declare in the ``modelDescription.xml`` file an output variable with name as shown in
+`outputVariables.fmiName` and units consistent with :numref:`tab_uni_spe`.
+
 
 Schedules, EMS actuators and EMS variables
 """"""""""""""""""""""""""""""""""""""""""
 
 .. todo:: Revise to support schedules, EMS actuators and EMS variables
 
-To configure the data exchange with a schedule, as described in :numref:`sec_inp_sch`,
-consider the example where we want to write to a schedule called ``OfficeSensibleGain``.
-Then, the following functions will be called during the instantiation, where we added the suffix
-``Unit`` or ``Value`` to indicate what quantity to return.
+To configure the data exchange with a EMS variable, as described in :numref:`sec_inp_ems_var`,
+consider the example where we want to write to a schedule called ``yShade``.
 
-.. code-block:: c
 
-   const char ** parameterNames = {"To:Schedule,OfficeSensibleGain,Unit"};
-   const unsigned int parameterValueReferences[] = {0};
+Then, the corresponsding section in the ``ModelicaBuildingsEnergyPlus.json`` configuration file is
 
-   const char ** inputNames = {"To:Schedule,OfficeSensibleGain,Value"};
-   const unsigned int inputValueReferences[] = {1};
+.. code-block:: javascript
 
-EMS actuators and EMS variables have a similar configuration.
+   "model": {
+      "emsVariables": [
+        {
+          "name":    "yShade",
+        }
+      ]
+   }
+
+Because each entry of ``emsVariables.name`` is unique, EnergyPlus will use this name as the variable name in the ``modelDescription.xml`` file.
+EnergyPlus will also declare the units of this variable in the ``modelDescription.xml`` file, using units from
+:numref:`tab_uni_spe`.
 
 
 Pseudo Code Example for Data Exchange with EnergyPlus
