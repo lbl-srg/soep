@@ -129,32 +129,26 @@
 <li><a class="reference internal" href="#assumptions-and-limitations">5.2.1. Assumptions and limitations</a></li>
 <li><a class="reference internal" href="#unit-system">5.2.2. Unit system</a></li>
 <li><a class="reference internal" href="#partitioning-of-the-models">5.2.3. Partitioning of the models</a><ul>
-<li><a class="reference internal" href="#coupling-of-envelope-model">5.2.3.1. Coupling of envelope model</a></li>
+<li><a class="reference internal" href="#coupling-of-the-envelope-model">5.2.3.1. Coupling of the envelope model</a></li>
 <li><a class="reference internal" href="#retrieving-output-variables-from-energyplus">5.2.3.2. Retrieving output variables from EnergyPlus</a></li>
 <li><a class="reference internal" href="#sending-input-to-energyplus">5.2.3.3. Sending input to EnergyPlus</a><ul>
 <li><a class="reference internal" href="#schedules">5.2.3.3.1. Schedules</a></li>
 <li><a class="reference internal" href="#actuators">5.2.3.3.2. Actuators</a></li>
-<li><a class="reference internal" href="#variables">5.2.3.3.3. Variables</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#time-synchronization">5.2.4. Time synchronization</a></li>
-<li><a class="reference internal" href="#requirements-for-exporting-energyplus-as-an-fmu-for-model-exchange">5.2.5. Requirements for Exporting EnergyPlus as an FMU for model exchange</a><ul>
-<li><a class="reference internal" href="#instantiation">5.2.5.1. Instantiation</a><ul>
-<li><a class="reference internal" href="#envelope-model">5.2.5.1.1. Envelope model</a></li>
-<li><a class="reference internal" href="#output-variables">5.2.5.1.2. Output variables</a></li>
-<li><a class="reference internal" href="#schedules-ems-actuators-and-ems-variables">5.2.5.1.3. Schedules, EMS actuators and EMS variables</a></li>
+<li><a class="reference internal" href="#api-used-to-export-energyplus-as-an-fmu">5.2.4. API used to Export EnergyPlus as an FMU</a><ul>
+<li><a class="reference internal" href="#instantiation">5.2.4.1. Instantiation</a><ul>
+<li><a class="reference internal" href="#envelope-model">5.2.4.1.1. Envelope model</a></li>
+<li><a class="reference internal" href="#output-variables">5.2.4.1.2. Output variables</a></li>
+<li><a class="reference internal" href="#id2">5.2.4.1.3. Schedules</a></li>
+<li><a class="reference internal" href="#ems-actuators">5.2.4.1.4. EMS actuators</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#pseudo-code-example-for-data-exchange-with-energyplus">5.2.6. Pseudo Code Example for Data Exchange with EnergyPlus</a><ul>
-<li><a class="reference internal" href="#initialization">5.2.6.1. Initialization</a></li>
-<li><a class="reference internal" href="#time-stepping">5.2.6.2. Time stepping</a></li>
-<li><a class="reference internal" href="#termination">5.2.6.3. Termination</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#time-synchronization">5.2.5. Time synchronization</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#integration-of-qss-solver-with-jmodelica">5.3. Integration of QSS solver with JModelica</a><ul>
@@ -276,7 +270,7 @@ needed for the OpenBuildingControl project.</p>
 Our integration will generate a representation of the
 Modelica library that allows OpenStudio to
 dynamic load models for the SOEP mode.</p>
-<div class="figure align-default" id="id18">
+<div class="figure align-default" id="id15">
 <span id="fig-overall-software-architecture"></span><p class="plantuml">
 <object data="_images/plantuml-42b14e268a4f127550932a42892ae7433788991a.svg" type="image/svg+xml" style="width:1011px;height:778px;">
 <img src="_images/plantuml-42b14e268a4f127550932a42892ae7433788991a.png" alt="title Overall software architecture
@@ -367,7 +361,7 @@ note right of Application
 end note"/>
 
 </object></p>
-<p class="caption"><span class="caption-number">Fig. 5.1 </span>: Overall software architecture.</span><a class="headerlink" href="#id18" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 5.1 </span>: Overall software architecture.</span><a class="headerlink" href="#id15" title="Permalink to this image">¶</a></p>
 </div>
 </div>
 <div class="section" id="coupling-of-energyplus-with-modelica">
@@ -378,27 +372,20 @@ The coupling allows two types of interactions between the two tools:</p>
 <li><p>The EnergyPlus envelope model can be coupled with the Modelica room model,
 which in turn is coupled to Modelica HVAC and interzone air exchange.
 This is described in <a class="reference internal" href="#sec-cou-env"><span class="std std-numref">Section 5.2.3.1</span></a>.</p></li>
-<li><p>EnergyPlus output variables and Energy Management System (EMS) output variables
-can be sent from EnergyPlus to Modelica.
+<li><p>Modelica can instantiate and then read EnergyPlus output variables.
 This is described in <a class="reference internal" href="#sec-out-var"><span class="std std-numref">Section 5.2.3.2</span></a>.</p></li>
-<li><p>The values of EnergyPlus schedules, EMS variables and EMS actuators can be set
-from Modelica.
+<li><p>Modelica can instantiate and then set the values of EnergyPlus schedules and EMS actuators.
 This is described in <a class="reference internal" href="#sec-sen-var"><span class="std std-numref">Section 5.2.3.3</span></a>.</p></li>
 </ol>
 <p>Users will set up this data exchange by instantiating corresponding
 Modelica models or blocks. These Modelica instances will then
-communicate with EnergyPlus, using Modelica C function calls.
-EnergyPlus will be called using a dynamically linked library, with
-C functions that conform to the FMI 2.0 for Model Exchange standard
-as far as possible. The main difference between our implementation
-and FMI 2.0 for Model Exchange is that EnergyPlus is not writing
-a <code class="docutils literal notranslate"><span class="pre">modelDescription.xml</span></code> file and is not packaged as a zip file.
-Rather, we load directly the EnergyPlus library and set up the
-data I/O by sending from Modelica to EnergyPlus a specification of the objects
-that EnergyPlus needs to instantiate.</p>
+communicate with EnergyPlus, using Modelica C functions,
+to package EnergyPlus as an FMU for Model Exchange 2.0.
+Modelica will then automatically instantiate this FMU and use it
+for the simulation using the FMI Library from Modelon.</p>
 <div class="section" id="assumptions-and-limitations">
 <h3>5.2.1. Assumptions and limitations<a class="headerlink" href="#assumptions-and-limitations" title="Permalink to this headline">¶</a></h3>
-<p>To implement the coupling, will make the following assumption:</p>
+<p>To implement the coupling, will make the following assumptions:</p>
 <ol class="arabic">
 <li><p>Only the lumped room air model will be refactored, not the
 room model with stratified room air.
@@ -409,9 +396,9 @@ The two methods cannot be combined.
 The reason is that the legacy EnergyPlus computes in its “predictor/corrector”
 the room temperature as follows:</p>
 <ol class="loweralpha simple">
-<li><p>It computes the HVAC power required to meet the temperature set point.</p></li>
-<li><p>It simulates the HVAC system to see whether it can meet this load.</p></li>
-<li><p>It updates the room temperature using the HVAC power from step (b).</p></li>
+<li><p>First it computes the HVAC power required to meet the temperature set point,</p></li>
+<li><p>next it simulates the HVAC system to see whether it can meet this load, and</p></li>
+<li><p>finally it updates the room temperature using the HVAC power from step (b).</p></li>
 </ol>
 <p>This is fundamentally different from the ODE solver used by SOEP who sets the new
 room temperature and time, computes the time derivative, and then recomputes
@@ -424,17 +411,17 @@ the room temperature changes. Hence, it decouples the thermal and the mass balan
 </div>
 <div class="section" id="unit-system">
 <span id="sec-uni-sys"></span><h3>5.2.2. Unit system<a class="headerlink" href="#unit-system" title="Permalink to this headline">¶</a></h3>
-<p>Modelica and EnergyPlus each have their own unit system. The unit conversion
-will be done in the C library that is used to call the EnergyPlus library. These
-C functions will convert between the units shown in <a class="reference internal" href="#tab-uni-spe"><span class="std std-numref">Table 5.1</span></a>.
+<p>Modelica and EnergyPlus each have their own unit system. Spawn of EnergyPlus will
+automatically convert between these units, using information from the <code class="docutils literal notranslate"><span class="pre">modelDescription.xml</span></code> file,
+or stop the simulation if an unknown unit is encountered.
+The Modelica Buildings Library will do the unit conversion using C functions.
+These C functions will convert between the units shown in <a class="reference internal" href="#tab-uni-spe"><span class="std std-numref">Table 5.1</span></a>.
 The table also shows unit strings that are allowed to use by EnergyPlus
 to tell Modelica the unit of the exchanged inputs and outputs.
 The C functions will then convert the quantity as needed to represent
 it in the units shown in the column <cite>Modelica Unit</cite>.</p>
-<p>If a unit is sent that is not in this list,
-then the simulation will stop with an error.</p>
-<span id="tab-uni-spe"></span><table class="docutils align-default" id="id19">
-<caption><span class="caption-number">Table 5.1 </span><span class="caption-text">Unit specification of EnergyPlus I/O.</span><a class="headerlink" href="#id19" title="Permalink to this table">¶</a></caption>
+<span id="tab-uni-spe"></span><table class="docutils align-default" id="id16">
+<caption><span class="caption-number">Table 5.1 </span><span class="caption-text">Unit specification of EnergyPlus I/O.</span><a class="headerlink" href="#id16" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 32%" />
 <col style="width: 24%" />
@@ -498,8 +485,8 @@ per total mass of moist air)</p></td>
 <td><p>1</p></td>
 </tr>
 <tr class="row-even"><td><p>Temperature</p></td>
+<td><p>degC</p></td>
 <td><p>K</p></td>
-<td><p>C</p></td>
 </tr>
 <tr class="row-odd"><td><p>Temperature (absolute)</p></td>
 <td><p>K</p></td>
@@ -531,25 +518,24 @@ and 1)</p></td>
 </div>
 <div class="section" id="partitioning-of-the-models">
 <h3>5.2.3. Partitioning of the models<a class="headerlink" href="#partitioning-of-the-models" title="Permalink to this headline">¶</a></h3>
-<p>To link EnergyPlus and Modelica, we partition the models
-as shown in <a class="pageref" href="#fig-partition-envelop-room-hvac">Figure  2</a>.</p>
-<div class="figure align-default" id="id20">
+<p>To link EnergyPlus and Modelica, the models are partitioned as shown in
+as shown in <a class="pageref" href="#fig-partition-envelop-room-hvac">Figure  2</a>.
+Loosely speaking, everything that is air and controls is simulated in Modelica,
+while EnergyPlus simulates heat conduction in solid and through windows.
+Both simulators can declare and use schedules, and they can interact through
+the thermal zone model, through EnergyPlus outputs and through EnergyPlus
+schedules and EMS actuators.</p>
+<div class="figure align-default" id="id17">
 <span id="fig-partition-envelop-room-hvac"></span><a class="reference internal image-reference" href="_images/envelop-room-hvac.svg"><img alt="_images/envelop-room-hvac.svg" src="_images/envelop-room-hvac.svg" /></a>
-<p class="caption"><span class="caption-number">Fig. 5.2 </span>: Partitioning of the envelope, room and HVAC model.</span><a class="headerlink" href="#id20" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 5.2 </span>: Partitioning of the envelope, room and HVAC model.</span><a class="headerlink" href="#id17" title="Permalink to this image">¶</a></p>
 </div>
-<p>The EnergyPlus API conforms to the FMI for Model Exchange 2.0 specification.
-However, additional function calls are needed during the instantiation
-to allow us to declare in Modelica the types of objects that are needed
-to be instantiated by EnergyPlus. Without these additional function calls,
-one would have to declare these objects in the idf file,
-which would be an additional burden on the user and increase
-the complexity of the tool coupling.</p>
-<p>We will now describe how to couple the room model and the controls inputs and
-outputs.</p>
-<div class="section" id="coupling-of-envelope-model">
-<span id="sec-cou-env"></span><h4>5.2.3.1. Coupling of envelope model<a class="headerlink" href="#coupling-of-envelope-model" title="Permalink to this headline">¶</a></h4>
-<p>To couple the Modelica room model to the EnergyPlus envelope model,
-the following parameters are sent from EnergyPlus to Modelica. These are sent only once during the initialization for each thermal zone.</p>
+<p>The following <a class="reference internal" href="#sec-cou-env"><span class="std std-numref">Section 5.2.3.1</span></a> specifies the coupling of these models,
+<a class="reference internal" href="#sec-req-ene-exp-fmu"><span class="std std-numref">Section 5.2.4</span></a> describes the API used to generate the FMU, and
+<a class="reference internal" href="#sec-time-sync"><span class="std std-numref">Section 5.2.5</span></a> describes the synchronization of the tools.</p>
+<div class="section" id="coupling-of-the-envelope-model">
+<span id="sec-cou-env"></span><h4>5.2.3.1. Coupling of the envelope model<a class="headerlink" href="#coupling-of-the-envelope-model" title="Permalink to this headline">¶</a></h4>
+<p>To couple the Modelica room model to the EnergyPlus envelope model, EnergyPlus exposes the following parameters.
+Modelica will obtain their values during the initialization of the Modelica model.</p>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 18%" />
@@ -563,46 +549,20 @@ the following parameters are sent from EnergyPlus to Modelica. These are sent on
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td colspan="3"><p><em>From Modelica to EnergyPlus</em></p></td>
-</tr>
-<tr class="row-odd"><td><p>Type</p></td>
-<td><p>String with value <code class="docutils literal notranslate"><span class="pre">Zone</span></code>.</p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p>Zone name</p></td>
-<td><p>String with the name of an EnergyPlus zone. This name must be present in the idf file.</p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p>String for volume</p></td>
-<td><p>String with value <code class="docutils literal notranslate"><span class="pre">V</span></code>, specifying that EnergyPlus needs to return the volume of the zone.</p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p>String for floor area</p></td>
-<td><p>String with value <code class="docutils literal notranslate"><span class="pre">AFlo</span></code>, specifying that EnergyPlus needs to return the floor area of the zone.</p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p>String for mSenFac</p></td>
-<td><p>String with value <code class="docutils literal notranslate"><span class="pre">mSenFac</span></code>, specifying that EnergyPlus needs to return the scaling factor for the
-sensible thermal mas of the zone air volume.</p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td colspan="3"><p><em>From EnergyPlus to Modelica</em></p></td>
-</tr>
-<tr class="row-odd"><td><p>V</p></td>
+<tr class="row-even"><td><p>V</p></td>
 <td><p>Volume of the zone air.</p></td>
 <td><p>m3</p></td>
 </tr>
-<tr class="row-even"><td><p>AFlo</p></td>
+<tr class="row-odd"><td><p>AFlo</p></td>
 <td><p>Floor area of the zone.</p></td>
 <td><p>m2</p></td>
 </tr>
-<tr class="row-odd"><td><p>mSenFac</p></td>
+<tr class="row-even"><td><p>mSenFac</p></td>
 <td><p>Factor for scaling the sensible thermal mass of the zone air volume.</p></td>
 <td><p>1</p></td>
 </tr>
 </tbody>
 </table>
-<p>The above string arguments will be used as described in <a class="reference internal" href="#sec-int-c-api"><span class="std std-numref">Section 5.2.5.1</span></a>.</p>
 <p>The following time-dependent variables are exchanged between EnergyPlus and Modelica during the time integration
 for each thermal zone.</p>
 <table class="docutils align-default">
@@ -688,19 +648,8 @@ the derivative of <code class="docutils literal notranslate"><span class="pre">Q
 </div>
 <div class="section" id="retrieving-output-variables-from-energyplus">
 <span id="sec-out-var"></span><h4>5.2.3.2. Retrieving output variables from EnergyPlus<a class="headerlink" href="#retrieving-output-variables-from-energyplus" title="Permalink to this headline">¶</a></h4>
-<p>This section describes how to retrieve in Modelica values from the EnergyPlus objects
-<code class="docutils literal notranslate"><span class="pre">Output:Variable</span></code> and <code class="docutils literal notranslate"><span class="pre">EnergyManagementSystem:OutputVariable</span></code>.</p>
-<p>For reference, although not required to be specified for this coupling,
-we state how to instantiate the EnergyPlus object that exposes a variable
-at the FMI API of EnergyPlus. The idf snippet is as follows:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>ExternalInterface:FunctionalMockupUnitExport:From:Variable,
-  Environment,                           !- EnergyPlus Key Value
-  Site Outdoor Air Drybulb Temperature,  !- EnergyPlus Variable Name
-  TDryBul;                               !- FMU Variable Name
-</pre></div>
-</div>
-<p>For the Modelica coupling, this entry need not be specified in the idf file,
-and the last argument is not needed.</p>
+<p>This section describes how to retrieve in Modelica values from the EnergyPlus object
+<code class="docutils literal notranslate"><span class="pre">Output:Variable</span></code>.</p>
 <p>There will be a Modelica block called <code class="docutils literal notranslate"><span class="pre">EnergyPlus.OutputVariable</span></code> with parameters</p>
 <table class="docutils align-default">
 <colgroup>
@@ -721,37 +670,9 @@ and the last argument is not needed.</p>
 </tr>
 </tbody>
 </table>
-<p>The name of the idf file is specified to allow simulation of multiple EnergyPlus files.
-The Modelica implementation will use an inner/outer declaration to allow users to easily set and propagate to
-other models the name of the idf file.</p>
-<p><em>Should we use ``EnergyPlus.EnergyManagementOutputVariable``?</em>
-There will also be a block called <code class="docutils literal notranslate"><span class="pre">EnergyPlus.EnergyManagementOutputVariable</span></code> with parameters</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 22%" />
-<col style="width: 78%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Name</p></th>
-<th class="head"><p>Comment</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>name</p></td>
-<td><p>Name of the <code class="docutils literal notranslate"><span class="pre">EnergyManagementSystem:OutputVariable</span></code></p></td>
-</tr>
-</tbody>
-</table>
-<p>At each invocation of the function <code class="docutils literal notranslate"><span class="pre">fmi2GetReal</span></code>, EnergyPlus will send the output variable that is computed for
+<p>At each invocation of the function <code class="docutils literal notranslate"><span class="pre">fmi2GetReal</span></code>, EnergyPlus will return the output variable that is computed for
 the current time and all the values set with <code class="docutils literal notranslate"><span class="pre">fmi2SetReal</span></code>.
-During the initialization, EnergyPlus will send an initial value to Modelica.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The EnergyPlus Runtime Language (ERL) has no notion of real versus integer (or boolean) variables. Therefore,
-we retrieve only real values.
-While ERL has built-in variables <code class="docutils literal notranslate"><span class="pre">True</span></code> and <code class="docutils literal notranslate"><span class="pre">False</span></code> and <code class="docutils literal notranslate"><span class="pre">On</span></code> and <code class="docutils literal notranslate"><span class="pre">Off</span></code>, ERL represents them
-as a real value.</p>
-</div>
+During the initialization, EnergyPlus will return an initial value.</p>
 <p>For Modelica, reading variables will be done using a block with no input and one output.</p>
 <p>We assume that these variables are <a class="reference internal" href="glossary.html#term-discrete-time-variable"><span class="xref std std-term">discrete-time variables</span></a>
 and hence change their values only at events. Specifically, if
@@ -772,9 +693,8 @@ then Modelica will retrieve <span class="math notranslate nohighlight">\(y(t^+)\
 <span id="sec-sen-var"></span><h4>5.2.3.3. Sending input to EnergyPlus<a class="headerlink" href="#sending-input-to-energyplus" title="Permalink to this headline">¶</a></h4>
 <p>This section describes how to send Modelica values to the EnergyPlus objects</p>
 <ol class="arabic simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">ExternalInterface:FunctionalMockupUnitExport:To:Schedule</span></code>,</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">ExternalInterface:FunctionalMockupUnitExport:To:Actuator</span></code>, and</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">ExternalInterface:FunctionalMockupUnitExport:To:Variable</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ExternalInterface:FunctionalMockupUnitExport:To:Schedule</span></code>, and</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ExternalInterface:FunctionalMockupUnitExport:To:Actuator</span></code>.</p></li>
 </ol>
 <p>For reference, examples of instances in EnergyPlus for these objects are
 as follows.</p>
@@ -791,11 +711,6 @@ ExternalInterface:FunctionalMockupUnitExport:To:Actuator,
   Control Status,                               !- Actuated Component Control Type
   yShade,                                       !- FMU Variable Name
   6;                                            !- Initial Value
-
-ExternalInterface:FunctionalMockupUnitExport:To:Variable,
-  Shade_Signal,                                 !- EnergyPlus Variable Name
-  yShade,                                       !- FMU Variable Name
-  1;                                            !- Initial Value
 </pre></div>
 </div>
 <p>For the Modelica coupling, these objects need not be declared in the idf file.</p>
@@ -842,19 +757,18 @@ in order to get satisfactory closed loop control performance.</p>
 <tr class="row-even"><td><p>name</p></td>
 <td><p>Name of an EnergyPlus schedule that is present in the idf file.</p></td>
 </tr>
-<tr class="row-odd"><td><p>sampleAtZoneTimeStep</p></td>
+<tr class="row-odd"><td><p>unit</p></td>
+<td><p>Unit of the variable used as input to this block
+(consistent with column <em>Modelica unit</em> in <a class="reference internal" href="#tab-uni-spe"><span class="std std-numref">Table 5.1</span></a> )</p></td>
+</tr>
+<tr class="row-even"><td><p>sampleAtZoneTimeStep</p></td>
 <td><p>Set to true to sample at the EnergyPlus zone time step, or to false to use samplePeriod.</p></td>
 </tr>
-<tr class="row-even"><td><p>samplePeriod</p></td>
+<tr class="row-odd"><td><p>samplePeriod</p></td>
 <td><p>Sample period of component.</p></td>
 </tr>
 </tbody>
 </table>
-<div class="admonition-todo admonition" id="id1">
-<p class="admonition-title">Todo</p>
-<p>Do we really need an instance of a schedule in the idf file in order to write to EnergyPlus?
-Would a user really set up a schedule, just to overwrite it?</p>
-</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>As EnergyPlus has no notion of real versus integer (or boolean) variables,
@@ -872,7 +786,7 @@ values will be sent as doubles.</p>
 <code class="docutils literal notranslate"><span class="pre">pre(u)</span></code> is the value of the input before <code class="docutils literal notranslate"><span class="pre">sample(t0,</span> <span class="pre">samplePeriod)</span></code> becomes <code class="docutils literal notranslate"><span class="pre">true</span></code>.</p>
 </div>
 <div class="section" id="actuators">
-<h5>5.2.3.3.2. Actuators<a class="headerlink" href="#actuators" title="Permalink to this headline">¶</a></h5>
+<span id="sec-inp-act"></span><h5>5.2.3.3.2. Actuators<a class="headerlink" href="#actuators" title="Permalink to this headline">¶</a></h5>
 <p>There will be a Modelica block called <code class="docutils literal notranslate"><span class="pre">EnergyPlus.Actuator</span></code> with parameters</p>
 <table class="docutils align-default">
 <colgroup>
@@ -888,57 +802,18 @@ values will be sent as doubles.</p>
 <tr class="row-even"><td><p>variableName</p></td>
 <td><p>Name of the EnergyPlus variable.</p></td>
 </tr>
-<tr class="row-odd"><td><p>componentName</p></td>
+<tr class="row-odd"><td><p>unit</p></td>
+<td><p>Unit of the variable used as input to this block
+(consistent with column <em>Modelica unit</em> in <a class="reference internal" href="#tab-uni-spe"><span class="std std-numref">Table 5.1</span></a> )</p></td>
+</tr>
+<tr class="row-even"><td><p>componentName</p></td>
 <td><p>Name of the actuated component unique name.</p></td>
 </tr>
-<tr class="row-even"><td><p>componentType</p></td>
+<tr class="row-odd"><td><p>componentType</p></td>
 <td><p>Actuated comonent type.</p></td>
 </tr>
-<tr class="row-odd"><td><p>controlType</p></td>
+<tr class="row-even"><td><p>controlType</p></td>
 <td><p>Actuated component control type.</p></td>
-</tr>
-<tr class="row-even"><td><p>sampleAtZoneTimeStep</p></td>
-<td><p>Set to true to sample at the EnergyPlus zone time step, or to false to use samplePeriod.</p></td>
-</tr>
-<tr class="row-odd"><td><p>samplePeriod</p></td>
-<td><p>Sample period of component.</p></td>
-</tr>
-</tbody>
-</table>
-<div class="admonition-todo admonition" id="id2">
-<p class="admonition-title">Todo</p>
-<p>Why is the <em>Variable name</em> needed? Should this be left out?</p>
-</div>
-<p>No entry in the idf file is required to write to an EMS actuator.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>As ERL has no notion of real versus integer (or boolean) variables,
-values will be sent as doubles.</p>
-</div>
-<p>The Modelica pseudo-code is</p>
-<div class="highlight-modelica notranslate"><div class="highlight"><pre><span></span><span class="kr">when</span> <span class="nb">sample</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="n">samplePeriod</span><span class="p">)</span> <span class="kr">then</span>
-   <span class="n">sendActuatorToEnergyPlus</span><span class="p">(</span><span class="nb">pre</span><span class="p">(</span><span class="n">u</span><span class="p">),</span> <span class="n">adapter</span><span class="p">);</span>
-<span class="kr">end</span> <span class="kr">when</span><span class="p">;</span>
-</pre></div>
-</div>
-<p>where <code class="docutils literal notranslate"><span class="pre">pre(u)</span></code> is the value of the input before <code class="docutils literal notranslate"><span class="pre">sample(t0,</span> <span class="pre">samplePeriod)</span></code> becomes <code class="docutils literal notranslate"><span class="pre">true</span></code>.</p>
-</div>
-<div class="section" id="variables">
-<span id="sec-inp-ems-var"></span><h5>5.2.3.3.3. Variables<a class="headerlink" href="#variables" title="Permalink to this headline">¶</a></h5>
-<p>There will be a Modelica block called <code class="docutils literal notranslate"><span class="pre">EnergyPlus.EMSVariable</span></code> with parameters</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 22%" />
-<col style="width: 78%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Name</p></th>
-<th class="head"><p>Comment</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>name</p></td>
-<td><p>Name of the EnergyPlus variable</p></td>
 </tr>
 <tr class="row-odd"><td><p>sampleAtZoneTimeStep</p></td>
 <td><p>Set to true to sample at the EnergyPlus zone time step, or to false to use samplePeriod.</p></td>
@@ -948,35 +823,157 @@ values will be sent as doubles.</p>
 </tr>
 </tbody>
 </table>
-<p>No entry in the idf file is required.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>As EnergyPlus has no notion of real versus integer (or boolean) variables,
-values will be sent as doubles.</p>
+<div class="admonition-todo admonition" id="id1">
+<p class="admonition-title">Todo</p>
+<p>Why is the <em>Variable name</em> needed? Should this be left out?</p>
 </div>
+<p>No entry in the idf file is required to write to an EMS actuator.</p>
 <p>The Modelica pseudo-code is</p>
 <div class="highlight-modelica notranslate"><div class="highlight"><pre><span></span><span class="kr">when</span> <span class="nb">sample</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="n">samplePeriod</span><span class="p">)</span> <span class="kr">then</span>
-   <span class="n">sendVariableToEnergyPlus</span><span class="p">(</span><span class="nb">pre</span><span class="p">(</span><span class="n">u</span><span class="p">),</span> <span class="n">adapter</span><span class="p">);</span>
+   <span class="n">sendActuatorToEnergyPlus</span><span class="p">(</span><span class="nb">pre</span><span class="p">(</span><span class="n">u</span><span class="p">),</span> <span class="n">adapter</span><span class="p">);</span>
 <span class="kr">end</span> <span class="kr">when</span><span class="p">;</span>
 </pre></div>
 </div>
 <p>where <code class="docutils literal notranslate"><span class="pre">pre(u)</span></code> is the value of the input before <code class="docutils literal notranslate"><span class="pre">sample(t0,</span> <span class="pre">samplePeriod)</span></code> becomes <code class="docutils literal notranslate"><span class="pre">true</span></code>.</p>
-<div class="admonition-todo admonition" id="id3">
-<p class="admonition-title">Todo</p>
-<p>General question: Is reusing these EnergyPlus objects the right approach?
-E.g., why instantiating a schedule, just to overwrite it? While this was fine
-when we had an external interface to overwrite values, now we want a tighter
-coupling.</p>
 </div>
+</div>
+</div>
+<div class="section" id="api-used-to-export-energyplus-as-an-fmu">
+<span id="sec-req-ene-exp-fmu"></span><h3>5.2.4. API used to Export EnergyPlus as an FMU<a class="headerlink" href="#api-used-to-export-energyplus-as-an-fmu" title="Permalink to this headline">¶</a></h3>
+<p>To export EnergyPlus as an FMU for model exchange, EnergyPlus provides an executable that
+reads a json configuration file and packages EnergyPlus as an FMU for Model Exchange 2.0.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the current implementation, we assume that EnergyPlus does not support roll back in time.
+This will otherwise require EnergyPlus to be able to save and restore its complete internal state.
+This internal state consists especially of the values of the continuous-time states,
+iteration variables, parameter values, input values, delay buffers, file identifiers and internal status information.
+This limitation is indicated in the model description file with the capability flag <code class="docutils literal notranslate"><span class="pre">canGetAndSetFMUstate</span></code>
+being set to <code class="docutils literal notranslate"><span class="pre">false</span></code>. If this capability were supported, then EnergyPlus could be used
+with ODE solvers which can reject and repeat steps. Rejecting steps is needed by ODE solvers
+such as DASSL or even Euler with step size control (but not for QSS)
+as they may reject a step size if the error is too large.
+Also, rejecting steps is needed to identify state events (but not for QSS solvers).</p>
+</div>
+<div class="section" id="instantiation">
+<span id="sec-int-c-api"></span><h4>5.2.4.1. Instantiation<a class="headerlink" href="#instantiation" title="Permalink to this headline">¶</a></h4>
+<p>To instantiate EnergyPlus, EnergyPlus generates an FMU 2.0 for model exchange.
+This is initiated by Modelica, which invokes a system command of the form</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>spawn path_to_json
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">spawn</span></code> is a program provided by EnergyPlus, and <code class="docutils literal notranslate"><span class="pre">path_to_json</span></code>
+is the absolute path of the json file <code class="docutils literal notranslate"><span class="pre">ModelicaBuildingsEnergyPlus.json</span></code> that configures EnergyPlus.
+For the case of a model with one thermal zone, the content of this file looks as follows:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+ <span class="nt">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;0.1&quot;</span><span class="p">,</span>
+ <span class="nt">&quot;EnergyPlus&quot;</span><span class="p">:</span> <span class="p">{</span>
+   <span class="nt">&quot;idf&quot;</span><span class="p">:</span> <span class="s2">&quot;/tmp/JModelica.org/jm_tmpPVJfHP/resources/0/RefBldgSmallOfficeNew2004_Chicago.idf&quot;</span><span class="p">,</span>
+   <span class="nt">&quot;idd&quot;</span><span class="p">:</span> <span class="s2">&quot;/tmp/JModelica.org/jm_tmpPVJfHP/resources/2/Energy+.idd&quot;</span><span class="p">,</span>
+   <span class="nt">&quot;weather&quot;</span><span class="p">:</span> <span class="s2">&quot;/tmp/JModelica.org/jm_tmpPVJfHP/resources/1/USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.epw&quot;</span>
+ <span class="p">},</span>
+ <span class="nt">&quot;fmu&quot;</span><span class="p">:</span> <span class="p">{</span>
+     <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;/mnt/shared/modelica-buildings/tmp-eplus-fmuName/fmuName.fmu&quot;</span><span class="p">,</span>
+     <span class="nt">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;2.0&quot;</span><span class="p">,</span>
+     <span class="nt">&quot;kind&quot;</span>   <span class="p">:</span> <span class="s2">&quot;ME&quot;</span>
+ <span class="p">},</span>
+ <span class="nt">&quot;model&quot;</span><span class="p">:</span> <span class="p">{</span>
+     <span class="nt">&quot;zones&quot;</span><span class="p">:</span> <span class="p">[</span>
+         <span class="p">{</span> <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;office&quot;</span> <span class="p">}</span>
+     <span class="p">]</span>
+   <span class="p">}</span>
+ <span class="p">}</span>
+</pre></div>
+</div>
+<p>Using this information, EnergyPlus creates the FMU with name
+<code class="docutils literal notranslate"><span class="pre">/mnt/shared/modelica-buildings/tmp-eplus-fmuName/fmuName.fmu</span></code></p>
+<p>We will now describe how to the exchanged variables are configured.</p>
+<div class="section" id="envelope-model">
+<h5>5.2.4.1.1. Envelope model<a class="headerlink" href="#envelope-model" title="Permalink to this headline">¶</a></h5>
+<p>To configure the variables to be exchanged for the envelope model described in <a class="reference internal" href="#sec-cou-env"><span class="std std-numref">Section 5.2.3.1</span></a>,
+the following data structures will be used for a building with a zone called <code class="docutils literal notranslate"><span class="pre">basement</span></code> and a zone called <code class="docutils literal notranslate"><span class="pre">office</span></code>.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="s">&quot;zones&quot;</span><span class="o">:</span> <span class="p">[</span>
+   <span class="p">{</span> <span class="s">&quot;name&quot;</span><span class="o">:</span> <span class="s">&quot;basement&quot;</span> <span class="p">},</span>
+   <span class="p">{</span> <span class="s">&quot;name&quot;</span><span class="o">:</span> <span class="s">&quot;office&quot;</span> <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>In this case, the FMU must have parameters called <code class="docutils literal notranslate"><span class="pre">basement_V</span></code>, <code class="docutils literal notranslate"><span class="pre">office_V</span></code>, <code class="docutils literal notranslate"><span class="pre">basement_AFlo</span></code> etc.
+inputs called <code class="docutils literal notranslate"><span class="pre">basement_T</span></code> and <code class="docutils literal notranslate"><span class="pre">office_T</span></code> and outputs called
+<code class="docutils literal notranslate"><span class="pre">basement_QConSen_flow</span></code> and <code class="docutils literal notranslate"><span class="pre">office_QConSen_flow</span></code>.</p>
+</div>
+<div class="section" id="output-variables">
+<h5>5.2.4.1.2. Output variables<a class="headerlink" href="#output-variables" title="Permalink to this headline">¶</a></h5>
+<p>To configure the data exchange for output variables, as described in <a class="reference internal" href="#sec-out-var"><span class="std std-numref">Section 5.2.3.2</span></a>,
+consider an example where one wants to retrieve the outdoor drybulb temperature from EnergyPlus.</p>
+<p>The corresponsding section in the <code class="docutils literal notranslate"><span class="pre">ModelicaBuildingsEnergyPlus.json</span></code> configuration file is</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;model&quot;</span><span class="o">:</span> <span class="p">{</span>
+   <span class="s2">&quot;outputVariables&quot;</span><span class="o">:</span> <span class="p">[</span>
+     <span class="p">{</span>
+       <span class="s2">&quot;name&quot;</span><span class="o">:</span>    <span class="s2">&quot;Site Outdoor Air Drybulb Temperature&quot;</span><span class="p">,</span>
+       <span class="s2">&quot;key&quot;</span><span class="o">:</span>     <span class="s2">&quot;Environment&quot;</span><span class="p">,</span>
+       <span class="s2">&quot;fmiName&quot;</span><span class="o">:</span> <span class="s2">&quot;Environment Site Outdoor Air Drybulb Temperature&quot;</span>
+     <span class="p">}</span>
+   <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>EnergyPlus will then declare in the <code class="docutils literal notranslate"><span class="pre">modelDescription.xml</span></code> file an output variable with name as shown in
+<code class="docutils literal notranslate"><span class="pre">outputVariables.fmiName</span></code> and units consistent with <a class="reference internal" href="#tab-uni-spe"><span class="std std-numref">Table 5.1</span></a>.</p>
+</div>
+<div class="section" id="id2">
+<h5>5.2.4.1.3. Schedules<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h5>
+<p>To configure the data exchange for schedules, as described in <a class="reference internal" href="#sec-inp-sch"><span class="std std-numref">Section 5.2.3.3.1</span></a>,
+consider an example where one wants to write to an EnergyPlus schedule called <code class="docutils literal notranslate"><span class="pre">Lights</span></code>.</p>
+<p>The corresponsding section in the <code class="docutils literal notranslate"><span class="pre">ModelicaBuildingsEnergyPlus.json</span></code> configuration file is</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;model&quot;</span><span class="o">:</span> <span class="p">{</span>
+   <span class="s2">&quot;schedules&quot;</span><span class="o">:</span> <span class="p">[</span>
+     <span class="p">{</span>
+       <span class="s2">&quot;name&quot;</span>    <span class="o">:</span> <span class="s2">&quot;Lights&quot;</span><span class="p">,</span>
+       <span class="s2">&quot;unit&quot;</span>    <span class="o">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="c1">// Unit string as shown in column &quot;EnergyPlus Unit String&quot; in the above table</span>
+       <span class="s2">&quot;fmiName&quot;</span> <span class="o">:</span> <span class="s2">&quot;schedule Lights&quot;</span>
+     <span class="p">}</span>
+   <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>EnergyPlus will then declare in the <code class="docutils literal notranslate"><span class="pre">modelDescription.xml</span></code> file an input variable with name as shown in
+<code class="docutils literal notranslate"><span class="pre">schedules.fmiName</span></code> and unit listed in <code class="docutils literal notranslate"><span class="pre">schedules.unit</span></code>.
+Modelica will write to this schedule with units shown in the column <em>EnergyPlus Unit String</em>
+in <a class="reference internal" href="#tab-uni-spe"><span class="std std-numref">Table 5.1</span></a>.</p>
+</div>
+<div class="section" id="ems-actuators">
+<h5>5.2.4.1.4. EMS actuators<a class="headerlink" href="#ems-actuators" title="Permalink to this headline">¶</a></h5>
+<p>To configure the data exchange for schedules, as described in <a class="reference internal" href="#sec-inp-act"><span class="std std-numref">Section 5.2.3.3.2</span></a>,
+consider an example where one wants to write to an EnergyPlus schedule called <code class="docutils literal notranslate"><span class="pre">Lights</span></code>.</p>
+<p>The corresponsding section in the <code class="docutils literal notranslate"><span class="pre">ModelicaBuildingsEnergyPlus.json</span></code> configuration file is</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;model&quot;</span><span class="o">:</span> <span class="p">{</span>
+   <span class="s2">&quot;emsActuators&quot;</span><span class="o">:</span> <span class="p">[</span>
+     <span class="p">{</span>
+       <span class="s2">&quot;name&quot;</span>          <span class="o">:</span> <span class="s2">&quot;Zn001_Wall001_Win001_Shading_Deploy_Status&quot;</span><span class="p">,</span>
+       <span class="s2">&quot;variableName&quot;</span>  <span class="o">:</span> <span class="s2">&quot;Zn001:Wall001:Win001&quot;</span><span class="p">,</span>
+       <span class="s2">&quot;componentType&quot;</span> <span class="o">:</span> <span class="s2">&quot;Window Shading Control&quot;</span><span class="p">,</span>
+       <span class="s2">&quot;controlType&quot;</span>   <span class="o">:</span> <span class="s2">&quot;Control Status&quot;</span><span class="p">,</span>
+       <span class="s2">&quot;unit&quot;</span>          <span class="o">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="c1">// Unit string as shown in column &quot;EnergyPlus Unit String&quot; in the above table</span>
+       <span class="s2">&quot;fmiName&quot;</span>       <span class="o">:</span> <span class="s2">&quot;yShade&quot;</span>
+     <span class="p">}</span>
+   <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>EnergyPlus will then declare in the <code class="docutils literal notranslate"><span class="pre">modelDescription.xml</span></code> file an input variable with name as shown in
+<code class="docutils literal notranslate"><span class="pre">emsActuators.fmiName</span></code> and unit listed in <code class="docutils literal notranslate"><span class="pre">emsActuators.unit</span></code>.
+Modelica will write to this EMS actuator with units shown in the column <em>EnergyPlus Unit String</em>
+in <a class="reference internal" href="#tab-uni-spe"><span class="std std-numref">Table 5.1</span></a>.</p>
 </div>
 </div>
 </div>
 <div class="section" id="time-synchronization">
-<span id="sec-time-sync"></span><h3>5.2.4. Time synchronization<a class="headerlink" href="#time-synchronization" title="Permalink to this headline">¶</a></h3>
-<div class="figure align-default" id="id21">
+<span id="sec-time-sync"></span><h3>5.2.5. Time synchronization<a class="headerlink" href="#time-synchronization" title="Permalink to this headline">¶</a></h3>
+<div class="figure align-default" id="id18">
 <span id="fig-fmi-me-20-state-machine"></span><a class="reference internal image-reference" href="_images/StateMachineModelExchange.png"><img alt="_images/StateMachineModelExchange.png" src="_images/StateMachineModelExchange.png" style="width: 736.0px; height: 583.0px;" /></a>
 <p class="caption"><span class="caption-number">Fig. 5.3 </span>: Calling sequence of Model Exchange C functions in form of an UML 2.0 state machine (Figure
-reproduced from <a class="reference internal" href="zreferences.html#modelisar2014" id="id4">[MODELISARConsortium14]</a>.</span><a class="headerlink" href="#id21" title="Permalink to this image">¶</a></p>
+reproduced from <a class="reference internal" href="zreferences.html#modelisar2014" id="id3">[MODELISARConsortium14]</a>.</span><a class="headerlink" href="#id18" title="Permalink to this image">¶</a></p>
 </div>
 <p><a class="reference internal" href="#fig-fmi-me-20-state-machine"><span class="std std-numref">Fig. 5.3</span></a> shows the state machine for calling an FMU 2.0 for Model Exchange.
 To communicate with EnergyPlus, we are using the same API and calling sequence.
@@ -1005,557 +1002,10 @@ that are sent from the EnergyPlus FMU to the master algorithm.
 Such a schedule could for example be a time schedule for internal heat gains,
 which may change at times that do not coincide with the zone time step <span class="math notranslate nohighlight">\(\Delta t_z\)</span>.</p>
 <p>Reading outputs and sending inputs to schedule,
-EMS variables and EMS actuators
+and EMS actuators
 happens in the mode labelled <em>EventMode</em>.
 This allows to avoid algebraic loops that may be formed by adding a controller
 between an EnergyPlus output and an EnergyPlus input, as described in <a class="reference internal" href="#sec-sen-var"><span class="std std-numref">Section 5.2.3.3</span></a>.</p>
-</div>
-<div class="section" id="requirements-for-exporting-energyplus-as-an-fmu-for-model-exchange">
-<h3>5.2.5. Requirements for Exporting EnergyPlus as an FMU for model exchange<a class="headerlink" href="#requirements-for-exporting-energyplus-as-an-fmu-for-model-exchange" title="Permalink to this headline">¶</a></h3>
-<p>To export EnergyPlus as an FMU for model exchange, EnergyPlus must be compiled as a shared library.
-The shared library must export the functions which are described in the next section.
-These functions are then used by the FMI for model exchange wrapper that LBL is developing.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>In the current implementation, we assume that EnergyPlus does not support roll back in time.
-This will otherwise require EnergyPlus to be able to save and restore its complete internal state.
-This internal state consists especially of the values of the continuous-time states,
-iteration variables, parameter values, input values, delay buffers, file identifiers and internal status information.
-This limitation is indicated in the model description file with the capability flag <code class="docutils literal notranslate"><span class="pre">canGetAndSetFMUstate</span></code>
-being set to <code class="docutils literal notranslate"><span class="pre">false</span></code>. If this capability were supported, then EnergyPlus could be used
-with ODE solvers which can reject and repeat steps. Rejecting steps is needed by ODE solvers
-such as DASSL or even Euler with step size control (but not for QSS)
-as they may reject a step size if the error is too large.
-Also, rejecting steps is needed to identify state events (but not for QSS solvers).</p>
-</div>
-<p>In the remainder of this section, we note that <code class="docutils literal notranslate"><span class="pre">time</span></code> is</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>the variable described as <code class="docutils literal notranslate"><span class="pre">t</span></code> in the table of section <a class="reference internal" href="#sec-cou-env"><span class="std std-numref">Section 5.2.3.1</span></a>,</p></li>
-<li><p>a monotonically increasing variable.</p></li>
-</ul>
-</div></blockquote>
-<div class="section" id="instantiation">
-<span id="sec-int-c-api"></span><h4>5.2.5.1. Instantiation<a class="headerlink" href="#instantiation" title="Permalink to this headline">¶</a></h4>
-<p>To instantiate EnergyPlus, EnergyPlus generates an FMU 2.0 for model exchange.
-This is initiated by Modelica, which invokes a system command of the form</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>xyz path_to_json
-</pre></div>
-</div>
-<p>where <code class="docutils literal notranslate"><span class="pre">xyz</span></code> (name TBD) is a utility provided by EnergyPlus, and <code class="docutils literal notranslate"><span class="pre">path_to_json</span></code>
-is the absolute path of a JSON file that configures EnergyPlus.</p>
-<p>For the case of a model with one thermal zone, the content of the <code class="docutils literal notranslate"><span class="pre">path_to_json</span></code>
-file looks as follows:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
- <span class="nt">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;0.1&quot;</span><span class="p">,</span>
- <span class="nt">&quot;EnergyPlus&quot;</span><span class="p">:</span> <span class="p">{</span>
-   <span class="nt">&quot;idf&quot;</span><span class="p">:</span> <span class="s2">&quot;/tmp/JModelica.org/jm_tmpPVJfHP/resources/0/RefBldgSmallOfficeNew2004_Chicago.idf&quot;</span><span class="p">,</span>
-   <span class="nt">&quot;idd&quot;</span><span class="p">:</span> <span class="s2">&quot;/tmp/JModelica.org/jm_tmpPVJfHP/resources/2/Energy+.idd&quot;</span><span class="p">,</span>
-   <span class="nt">&quot;weather&quot;</span><span class="p">:</span> <span class="s2">&quot;/tmp/JModelica.org/jm_tmpPVJfHP/resources/1/USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.epw&quot;</span>
- <span class="p">},</span>
- <span class="nt">&quot;fmu&quot;</span><span class="p">:</span> <span class="p">{</span>
-     <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;/mnt/shared/modelica-buildings/tmp-eplus-fmuName/fmuName.fmu&quot;</span><span class="p">,</span>
-     <span class="nt">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;2.0&quot;</span><span class="p">,</span>
-     <span class="nt">&quot;kind&quot;</span>   <span class="p">:</span> <span class="s2">&quot;ME&quot;</span>
- <span class="p">},</span>
- <span class="nt">&quot;model&quot;</span><span class="p">:</span> <span class="p">{</span>
-     <span class="nt">&quot;zones&quot;</span><span class="p">:</span> <span class="p">[</span>
-         <span class="p">{</span> <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;office&quot;</span> <span class="p">}</span>
-     <span class="p">]</span>
-   <span class="p">}</span>
- <span class="p">}</span>
-</pre></div>
-</div>
-<p>Using this information, EnergyPlus creates the FMU with name
-<code class="docutils literal notranslate"><span class="pre">/mnt/shared/modelica-buildings/tmp-eplus-fmuName/fmuName.fmu</span></code></p>
-<p>We will now describe how to the exchanged variables are configured.</p>
-<div class="section" id="envelope-model">
-<h5>5.2.5.1.1. Envelope model<a class="headerlink" href="#envelope-model" title="Permalink to this headline">¶</a></h5>
-<p>To configure the variables to be exchanged for the envelope model described in <a class="reference internal" href="#sec-cou-env"><span class="std std-numref">Section 5.2.3.1</span></a>,
-the following data structures will be used for a building with a zone called <code class="docutils literal notranslate"><span class="pre">basement</span></code> and a zone called <code class="docutils literal notranslate"><span class="pre">office</span></code>.</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="s">&quot;zones&quot;</span><span class="o">:</span> <span class="p">[</span>
-   <span class="p">{</span> <span class="s">&quot;name&quot;</span><span class="o">:</span> <span class="s">&quot;basement&quot;</span> <span class="p">},</span>
-   <span class="p">{</span> <span class="s">&quot;name&quot;</span><span class="o">:</span> <span class="s">&quot;office&quot;</span> <span class="p">}</span>
-<span class="p">]</span>
-</pre></div>
-</div>
-<p>In this case, the FMU must have parameters called <code class="docutils literal notranslate"><span class="pre">basement_V</span></code>, <code class="docutils literal notranslate"><span class="pre">office_V</span></code>, <code class="docutils literal notranslate"><span class="pre">basement_AFlo</span></code> etc.
-inputs called <code class="docutils literal notranslate"><span class="pre">basement_T</span></code> and <code class="docutils literal notranslate"><span class="pre">office_T</span></code> and outputs called
-<code class="docutils literal notranslate"><span class="pre">basement_QConSen_flow</span></code> and <code class="docutils literal notranslate"><span class="pre">office_QConSen_flow</span></code>.</p>
-</div>
-<div class="section" id="output-variables">
-<h5>5.2.5.1.2. Output variables<a class="headerlink" href="#output-variables" title="Permalink to this headline">¶</a></h5>
-<p>To configure the data exchange for output variables, as described in <a class="reference internal" href="#sec-out-var"><span class="std std-numref">Section 5.2.3.2</span></a>,
-consider an example where one wants to retrieve the outdoor drybulb temperature from EnergyPlus.</p>
-<p>The corresponsding section in the <code class="docutils literal notranslate"><span class="pre">ModelicaBuildingsEnergyPlus.json</span></code> configuration file is</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;model&quot;</span><span class="o">:</span> <span class="p">{</span>
-   <span class="s2">&quot;outputVariables&quot;</span><span class="o">:</span> <span class="p">[</span>
-     <span class="p">{</span>
-       <span class="s2">&quot;name&quot;</span><span class="o">:</span>    <span class="s2">&quot;Site Outdoor Air Drybulb Temperature&quot;</span><span class="p">,</span>
-       <span class="s2">&quot;key&quot;</span><span class="o">:</span>     <span class="s2">&quot;Environment&quot;</span><span class="p">,</span>
-       <span class="s2">&quot;fmiName&quot;</span><span class="o">:</span> <span class="s2">&quot;Environment Site Outdoor Air Drybulb Temperature&quot;</span>
-     <span class="p">}</span>
-   <span class="p">]</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>EnergyPlus will then declare in the <code class="docutils literal notranslate"><span class="pre">modelDescription.xml</span></code> file an output variable with name as shown in
-<cite>outputVariables.fmiName</cite> and units consistent with <a class="reference internal" href="#tab-uni-spe"><span class="std std-numref">Table 5.1</span></a>.</p>
-</div>
-<div class="section" id="schedules-ems-actuators-and-ems-variables">
-<h5>5.2.5.1.3. Schedules, EMS actuators and EMS variables<a class="headerlink" href="#schedules-ems-actuators-and-ems-variables" title="Permalink to this headline">¶</a></h5>
-<div class="admonition-todo admonition" id="id5">
-<p class="admonition-title">Todo</p>
-<p>Revise to support schedules, EMS actuators and EMS variables</p>
-</div>
-<p>To configure the data exchange with a EMS variable, as described in <a class="reference internal" href="#sec-inp-ems-var"><span class="std std-numref">Section 5.2.3.3.3</span></a>,
-consider the example where we want to write to a schedule called <code class="docutils literal notranslate"><span class="pre">yShade</span></code>.</p>
-<p>Then, the corresponsding section in the <code class="docutils literal notranslate"><span class="pre">ModelicaBuildingsEnergyPlus.json</span></code> configuration file is</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;model&quot;</span><span class="o">:</span> <span class="p">{</span>
-   <span class="s2">&quot;emsVariables&quot;</span><span class="o">:</span> <span class="p">[</span>
-     <span class="p">{</span>
-       <span class="s2">&quot;name&quot;</span><span class="o">:</span>    <span class="s2">&quot;yShade&quot;</span><span class="p">,</span>
-     <span class="p">}</span>
-   <span class="p">]</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>Because each entry of <code class="docutils literal notranslate"><span class="pre">emsVariables.name</span></code> is unique, EnergyPlus will use this name as the variable name in the <code class="docutils literal notranslate"><span class="pre">modelDescription.xml</span></code> file.
-EnergyPlus will also declare the units of this variable in the <code class="docutils literal notranslate"><span class="pre">modelDescription.xml</span></code> file, using units from
-<a class="reference internal" href="#tab-uni-spe"><span class="std std-numref">Table 5.1</span></a>.</p>
-</div>
-</div>
-</div>
-<div class="section" id="pseudo-code-example-for-data-exchange-with-energyplus">
-<h3>5.2.6. Pseudo Code Example for Data Exchange with EnergyPlus<a class="headerlink" href="#pseudo-code-example-for-data-exchange-with-energyplus" title="Permalink to this headline">¶</a></h3>
-<div class="admonition-todo admonition" id="id6">
-<p class="admonition-title">Todo</p>
-<p>Revise once we support output variables.</p>
-</div>
-<p>In the this section, the calling sequence of the FMI functions along with the EnergyPlus functions is shown.
-This should clarify how EnergyPlus is invoked.
-For the initialization and time stepping, different pseudo code
-is presented for the room heat balance, for blocks that only read from EnergyPlus (e.g., to get
-output variables) and for blocks that only write to EnergyPlus (e.g.,
-for schedules, actuators and EMS variables).</p>
-<p>The order in which the blocks for initialization, or the blocks for the time stepping,
-are executed, can be arbitrary (as this depends on the equation sorting of the Modelica tool).</p>
-<div class="section" id="initialization">
-<h4>5.2.6.1. Initialization<a class="headerlink" href="#initialization" title="Permalink to this headline">¶</a></h4>
-<p>For each instance of a room, code as shown below is executed:</p>
-<div class="highlight-C notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-25
-26
-27
-28
-29
-30
-31
-32
-33
-34
-35
-36
-37
-38
-39
-40
-41</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">not</span> <span class="n">instantiatedEnergyPlus</span> <span class="n">then</span>
-  <span class="c1">// Call instantiate exactly once per building.</span>
-
-  <span class="c1">// Call instantiate exactly once per building.</span>
-  <span class="n">m</span> <span class="o">=</span> <span class="n">fmi2Instantiate</span><span class="p">(</span><span class="n">idf_name</span><span class="p">,</span> <span class="p">...)</span>
-  <span class="n">fmi2SetDebugLogging</span><span class="p">(...)</span>
-  <span class="n">TStart</span> <span class="o">=</span> <span class="n">time</span>     <span class="c1">// Start time from the Modelica simulation</span>
-  <span class="n">fmi2SetupExperiment</span><span class="p">(</span>
-    <span class="n">bld</span><span class="p">,</span>
-    <span class="n">toleranceDefined</span><span class="o">=</span><span class="n">fmi2False</span><span class="p">,</span>
-    <span class="n">tolerance</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
-    <span class="n">startTime</span> <span class="o">=</span> <span class="n">Tstart</span><span class="p">,</span>
-    <span class="n">stopTimeDefined</span> <span class="o">=</span> <span class="n">fmi2False</span><span class="p">,</span>
-    <span class="n">stopTime</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">instantiatedEnergyPlus</span> <span class="o">=</span> <span class="nb">true</span>
-<span class="n">end</span> <span class="k">if</span>
-
-<span class="c1">// Get the parameters from EnergyPlus</span>
-<span class="c1">// For each room, call</span>
-<span class="n">fmi2GetReal</span><span class="p">(...)</span>
-
-
-<span class="c1">// Enter initialization mode</span>
-<span class="k">if</span> <span class="n">not</span> <span class="n">fmuEnteredInitializationMode</span> <span class="n">then</span>
-  <span class="n">fmi2EnterInitializationMode</span><span class="p">(...)</span>
-  <span class="n">fmuEnteredInitializationMode</span> <span class="o">=</span> <span class="nb">true</span>
-<span class="n">end</span> <span class="k">if</span>
-
-<span class="c1">// Set the inputs and get the outputs for the room</span>
-<span class="n">fmi2SetReal</span><span class="p">(...)</span>
-<span class="n">fmi2GetReal</span><span class="p">(...)</span>
-
-<span class="c1">// Update data that tracks that all outputs and inputs have been</span>
-<span class="c1">// retrieved or set during the initialization.</span>
-<span class="c1">// This tracker is used so that calledAllGetGet() returns true</span>
-<span class="c1">// if all get and set is called on all data that is exchanged.</span>
-<span class="n">updateGetSetTracker</span><span class="p">(...)</span>
-
-<span class="k">if</span> <span class="n">calledAllGetSet</span><span class="p">()</span> <span class="n">then</span>
-<span class="n">fmi2ExitInitializationMode</span><span class="p">(...)</span> <span class="c1">// FMU enters implicitely Event Mode</span>
-<span class="n">end</span> <span class="k">if</span>
-</pre></div>
-</td></tr></table></div>
-<p>For each instance of an output variable, code as shown below is executed:</p>
-<div class="highlight-C notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-25
-26
-27
-28
-29
-30
-31
-32
-33
-34
-35
-36
-37
-38</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">not</span> <span class="n">instantiatedEnergyPlus</span> <span class="n">then</span>
-  <span class="c1">// Call instantiate exactly once per building.</span>
-  <span class="n">instantiate</span><span class="p">(</span><span class="n">bld</span><span class="p">)</span> <span class="c1">// This differs from FMI2</span>
-
-  <span class="c1">// Call instantiate exactly once per building.</span>
-  <span class="n">m</span> <span class="o">=</span> <span class="n">fmi2Instantiate</span><span class="p">(</span><span class="n">idf_name</span><span class="p">,</span> <span class="p">...)</span>
-  <span class="n">fmi2SetDebugLogging</span><span class="p">(...)</span>
-  <span class="n">TStart</span> <span class="o">=</span> <span class="n">time</span>     <span class="c1">// Start time from the Modelica simulation</span>
-  <span class="n">fmi2SetupExperiment</span><span class="p">(</span>
-    <span class="n">bld</span><span class="p">,</span>
-    <span class="n">toleranceDefined</span><span class="o">=</span><span class="n">fmi2False</span><span class="p">,</span>
-    <span class="n">tolerance</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
-    <span class="n">startTime</span> <span class="o">=</span> <span class="n">Tstart</span><span class="p">,</span>
-    <span class="n">stopTimeDefined</span> <span class="o">=</span> <span class="n">fmi2False</span><span class="p">,</span>
-    <span class="n">stopTime</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">instantiatedEnergyPlus</span> <span class="o">=</span> <span class="nb">true</span>
-<span class="n">end</span> <span class="k">if</span>
-
-<span class="c1">// Enter initialization mode</span>
-<span class="k">if</span> <span class="n">not</span> <span class="n">fmuEnteredInitializationMode</span> <span class="n">then</span>
-  <span class="n">fmi2EnterInitializationMode</span><span class="p">(...)</span>
-  <span class="n">fmuEnteredInitializationMode</span> <span class="o">=</span> <span class="nb">true</span>
-<span class="n">end</span> <span class="k">if</span>
-
-<span class="c1">// Get the output for the schedule</span>
-<span class="n">fmi2GetReal</span><span class="p">(</span><span class="n">bld</span><span class="p">,</span> <span class="p">...)</span>
-
-<span class="c1">// Update data that tracks that all outputs and inputs have been</span>
-<span class="c1">// retrieved or set during the initialization.</span>
-<span class="c1">// This tracker is used so that calledAllGetGet() returns true</span>
-<span class="c1">// if all get and set is called on all data that is exchanged.</span>
-<span class="n">updateGetSetTracker</span><span class="p">(</span><span class="n">bld</span><span class="p">,</span> <span class="p">...)</span>
-
-<span class="k">if</span> <span class="n">calledAllGetSet</span><span class="p">()</span> <span class="n">then</span>
-  <span class="n">M_fmi2ExitInitializationMode</span><span class="p">(...)</span>
-  <span class="c1">// Enter event mode</span>
-  <span class="n">fmi2EnterEventMode</span><span class="p">(</span><span class="n">bld</span><span class="p">)</span>
-<span class="n">end</span> <span class="k">if</span>
-</pre></div>
-</td></tr></table></div>
-<p>For each instance of a schedule, EMS actuator and EMS variable, code as shown below is executed:</p>
-<div class="highlight-C notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-25
-26
-27
-28
-29
-30
-31
-32
-33
-34
-35
-36
-37
-38</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">not</span> <span class="n">instantiatedEnergyPlus</span> <span class="n">then</span>
-  <span class="c1">// Call instantiate exactly once per building.</span>
-  <span class="n">instantiate</span><span class="p">(</span><span class="n">bld</span><span class="p">)</span> <span class="c1">// This differs from FMI2</span>
-
-  <span class="c1">// Call instantiate exactly once per building.</span>
-  <span class="n">m</span> <span class="o">=</span> <span class="n">fmi2Instantiate</span><span class="p">(</span><span class="n">idf_name</span><span class="p">,</span> <span class="p">...)</span>
-  <span class="n">fmi2SetDebugLogging</span><span class="p">(...)</span>
-  <span class="n">TStart</span> <span class="o">=</span> <span class="n">time</span>     <span class="c1">// Start time from the Modelica simulation</span>
-  <span class="n">fmi2SetupExperiment</span><span class="p">(</span>
-    <span class="n">bld</span><span class="p">,</span>
-    <span class="n">toleranceDefined</span><span class="o">=</span><span class="n">fmi2False</span><span class="p">,</span>
-    <span class="n">tolerance</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
-    <span class="n">startTime</span> <span class="o">=</span> <span class="n">Tstart</span><span class="p">,</span>
-    <span class="n">stopTimeDefined</span> <span class="o">=</span> <span class="n">fmi2False</span><span class="p">,</span>
-    <span class="n">stopTime</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">instantiatedEnergyPlus</span> <span class="o">=</span> <span class="nb">true</span>
-<span class="n">end</span> <span class="k">if</span>
-
-<span class="c1">// Set the input for the schedule, or the actuator, or the EMS variable</span>
-<span class="n">fmi2SetReal</span><span class="p">(</span><span class="n">bld</span><span class="p">,</span> <span class="n">scheduleValue</span><span class="o">/</span><span class="n">actuatorValue</span><span class="o">/</span><span class="n">variableValue</span><span class="p">)</span>
-
-<span class="c1">// Enter initialization mode</span>
-<span class="k">if</span> <span class="n">not</span> <span class="n">fmuEnteredInitializationMode</span> <span class="n">then</span>
-  <span class="n">fmi2EnterInitializationMode</span><span class="p">(...)</span>
-  <span class="n">fmuEnteredInitializationMode</span> <span class="o">=</span> <span class="nb">true</span>
-<span class="n">end</span> <span class="k">if</span>
-
-<span class="c1">// Update data that tracks that all outputs and inputs have been</span>
-<span class="c1">// retrieved or set during the initialization.</span>
-<span class="c1">// This tracker is used so that calledAllGetGet() returns true</span>
-<span class="c1">// if all get and set is called on all data that is exchanged.</span>
-<span class="n">updateGetSetTracker</span><span class="p">(</span><span class="n">bld</span><span class="p">,</span> <span class="p">...)</span>
-
-<span class="k">if</span> <span class="n">calledAllGetSet</span><span class="p">()</span> <span class="n">then</span>
-  <span class="n">M_fmi2ExitInitializationMode</span><span class="p">(...)</span>
-  <span class="c1">// Enter event mode</span>
-  <span class="n">fmi2EnterEventMode</span><span class="p">(</span><span class="n">bld</span><span class="p">)</span>
-<span class="n">end</span> <span class="k">if</span>
-</pre></div>
-</td></tr></table></div>
-</div>
-<div class="section" id="time-stepping">
-<h4>5.2.6.2. Time stepping<a class="headerlink" href="#time-stepping" title="Permalink to this headline">¶</a></h4>
-<p>For each instance of a room, code as shown below is executed:</p>
-<div class="highlight-C notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="c1">// advance time for whole EnergyPlus model if not yet done</span>
-<span class="k">if</span> <span class="n">EnergyPlus</span><span class="p">.</span><span class="n">bld</span><span class="p">.</span><span class="n">time</span> <span class="o">&lt;&gt;</span> <span class="n">Modelica</span><span class="p">.</span><span class="n">time</span> <span class="o">&amp;&amp;</span> <span class="n">fmuIsNotInEventMode</span> <span class="n">then</span>
-  <span class="n">fmi2EnterContinuousTimeMode</span><span class="p">(...)</span>
-  <span class="n">fmi2SetTime</span><span class="p">(</span><span class="n">Modelica</span><span class="p">.</span><span class="n">time</span><span class="p">,</span> <span class="p">...)</span>
-  <span class="n">fmi2EnterEventMode</span><span class="p">(...)</span>
-<span class="n">end</span> <span class="k">if</span>
-<span class="c1">// set inputs at t = time</span>
-<span class="c1">// Compute output and its derivatives</span>
-<span class="n">fmi2SetReal</span><span class="p">(</span><span class="n">bld</span><span class="p">,</span> <span class="n">room</span><span class="p">.</span><span class="n">TAir</span><span class="o">+</span><span class="n">dT</span><span class="p">,</span> <span class="p">...)</span> <span class="c1">// Set air temperature, humidity, etc.</span>
-<span class="n">fmi2GetReal</span><span class="p">(</span><span class="n">bld</span><span class="p">,</span> <span class="n">room</span><span class="p">.</span><span class="n">Q</span><span class="p">(</span><span class="n">TAir</span><span class="o">+</span><span class="n">dT</span><span class="p">),</span> <span class="p">...);</span> <span class="c1">// Get heat flow rates and radiative temperature</span>
-<span class="n">fmi2SetReal</span><span class="p">(</span><span class="n">bld</span><span class="p">,</span> <span class="n">room</span><span class="p">.</span><span class="n">TAir</span><span class="p">,</span> <span class="p">...)</span> <span class="c1">// Set air temperature, humidity, etc.</span>
-<span class="n">fmi2GetReal</span><span class="p">(</span><span class="n">bld</span><span class="p">,</span> <span class="n">room</span><span class="p">.</span><span class="n">Q</span><span class="p">(</span><span class="n">TAir</span><span class="p">),</span> <span class="p">...);</span> <span class="c1">// Get heat flow rates and radiative temperature</span>
-
-<span class="c1">// EnergyPlus to return with newDiscreteStateNeeded=false if and only if</span>
-<span class="c1">// all input for schedules, actuators and variables have been obtained,</span>
-<span class="c1">// and all rooms have been called</span>
-<span class="n">eventInfo</span> <span class="o">=</span> <span class="n">fmi2NewDiscreteStates</span><span class="p">(</span><span class="n">bld</span><span class="p">,</span> <span class="n">fmi2EventInfo</span><span class="p">)</span>
-
-<span class="k">if</span> <span class="n">eventInfo</span><span class="p">.</span><span class="n">nextEventTimeDefined</span> <span class="n">then</span>
-  <span class="n">Tnext</span> <span class="o">=</span> <span class="n">eventInfo</span><span class="p">.</span><span class="n">nextEventTime</span>
-<span class="k">else</span>
-  <span class="k">goto</span> <span class="n">TERMINATE_MODEL</span>
-<span class="n">end</span> <span class="k">if</span>
-</pre></div>
-</td></tr></table></div>
-<p>For each instance of an output variable, code as shown below is executed:</p>
-<div class="highlight-C notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="c1">// advance time for whole EnergyPlus model if not yet done</span>
-<span class="k">if</span> <span class="n">EnergyPlus</span><span class="p">.</span><span class="n">bld</span><span class="p">.</span><span class="n">time</span> <span class="o">&lt;&gt;</span> <span class="n">Modelica</span><span class="p">.</span><span class="n">time</span> <span class="n">then</span>
-  <span class="n">fmi2EnterContinuousTimeMode</span><span class="p">(</span><span class="n">bld</span><span class="p">)</span>
-  <span class="n">M_fmi2SetTime</span><span class="p">(</span><span class="n">bld</span><span class="p">,</span> <span class="n">Modelica</span><span class="p">.</span><span class="n">time</span><span class="p">)</span>
-  <span class="n">fmi2EnterEventMode</span><span class="p">(</span><span class="n">bld</span><span class="p">)</span>
-<span class="n">end</span> <span class="k">if</span>
-<span class="c1">// Get the value of the output variable</span>
-<span class="n">fmi2GetReal</span><span class="p">(</span><span class="n">bld</span><span class="p">,</span> <span class="n">outputVariable</span><span class="p">);</span>
-
-<span class="c1">// EnergyPlus to return with newDiscreteStateNeeded=false if and only if</span>
-<span class="c1">// all input for schedules, actuators and variables have been obtained,</span>
-<span class="c1">// and all rooms have been called</span>
-<span class="n">eventInfo</span> <span class="o">=</span> <span class="n">fmi2NewDiscreteStates</span><span class="p">(</span><span class="n">bld</span><span class="p">,</span> <span class="n">fmi2EventInfo</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">eventInfo</span><span class="p">.</span><span class="n">terminateSimulation</span> <span class="n">then</span> <span class="k">goto</span> <span class="n">TERMINATE_MODEL</span>
-
-<span class="c1">// If EnergyPlus knows that the output will never change, it</span>
-<span class="c1">// can set nextEventTimeDefined = false.</span>
-<span class="c1">// Otherwise, it needs to set nextEventTime to the time when</span>
-<span class="c1">// it will report the output again</span>
-<span class="k">if</span> <span class="n">eventInfo</span><span class="p">.</span><span class="n">nextEventTimeDefined</span> <span class="n">then</span>
-  <span class="n">Tnext</span> <span class="o">=</span> <span class="n">eventInfo</span><span class="p">.</span><span class="n">nextEventTime</span>
-<span class="k">else</span>
-  <span class="n">Tnext</span> <span class="o">=</span> <span class="n">infinity</span>
-<span class="n">end</span> <span class="k">if</span>
-</pre></div>
-</td></tr></table></div>
-<p>For each instance of a schedule, EMS actuator and EMS variable, code as shown below is executed:</p>
-<div class="highlight-C notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="c1">// advance time for whole EnergyPlus model if not yet done</span>
-<span class="k">if</span> <span class="n">EnergyPlus</span><span class="p">.</span><span class="n">time</span> <span class="o">&lt;&gt;</span> <span class="n">Modelica</span><span class="p">.</span><span class="n">time</span> <span class="n">then</span>
-  <span class="n">fmi2EnterContinuousTimeMode</span><span class="p">(</span><span class="n">bld</span><span class="p">)</span>
-  <span class="n">M_fmi2SetTime</span><span class="p">(</span><span class="n">bld</span><span class="p">,</span> <span class="n">Modelica</span><span class="p">.</span><span class="n">time</span><span class="p">)</span>
-  <span class="n">fmi2EnterEventMode</span><span class="p">(</span><span class="n">bld</span><span class="p">)</span>
-<span class="n">end</span> <span class="k">if</span>
-<span class="c1">// Since Modelica.time is the time that EnergyPlus requested to be invoked next</span>
-<span class="c1">// there won&#39;t be any time events between the last and the current EnergyPlus invocation</span>
-<span class="c1">// Hence, we don&#39;t call M_fmi2GetEventIndicators(m, z, nz)</span>
-<span class="c1">// We don&#39;t call</span>
-<span class="c1">// M_fmi2CompletedIntegratorStep(m, fmi2True, &amp;enterEventMode, &amp;terminateSimulation)</span>
-<span class="c1">// because all states in EnergyPlus are discrete states</span>
-
-<span class="n">fmi2SetReal</span><span class="p">(</span><span class="n">bld</span><span class="p">,</span> <span class="n">scheduleValue</span><span class="o">/</span><span class="n">actuatorValue</span><span class="o">/</span><span class="n">variableValue</span><span class="p">)</span>
-
-<span class="c1">// EnergyPlus to return with newDiscreteStateNeeded=false if and only if</span>
-<span class="c1">// all input for schedules, actuators and variables have been obtained,</span>
-<span class="c1">// and all rooms have been called</span>
-<span class="n">eventInfo</span> <span class="o">=</span> <span class="n">fmi2NewDiscreteStates</span><span class="p">(</span><span class="n">bld</span><span class="p">,</span> <span class="n">fmi2EventInfo</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">eventInfo</span><span class="p">.</span><span class="n">terminateSimulation</span> <span class="n">then</span> <span class="k">goto</span> <span class="n">TERMINATE_MODEL</span>
-</pre></div>
-</td></tr></table></div>
-</div>
-<div class="section" id="termination">
-<h4>5.2.6.3. Termination<a class="headerlink" href="#termination" title="Permalink to this headline">¶</a></h4>
-<p>At the end of the simulation, or when an error occurred, the last output is retrieved
-with the following code:</p>
-<div class="highlight-C notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10
-11
-12</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="c1">// terminate simulation and retrieve final values</span>
-<span class="nl">TERMINATE_MODEL</span><span class="p">:</span>
-<span class="k">if</span> <span class="n">not</span> <span class="n">fmi2Fatal</span> <span class="n">then</span>
-  <span class="k">if</span> <span class="n">not</span> <span class="n">fmi2Error</span> <span class="n">then</span>
-    <span class="n">fmi2Terminate</span><span class="p">(</span><span class="n">bld</span><span class="p">)</span>
-  <span class="n">end</span> <span class="k">if</span>
-
-  <span class="n">fmi2GetReal</span><span class="p">(</span><span class="n">bld</span><span class="p">,</span> <span class="p">...)</span>
-  <span class="k">if</span> <span class="n">receivedAllFinalOutputAndRoomHeatFlows</span> <span class="n">then</span>
-    <span class="n">fmi2FreeInstance</span><span class="p">(</span><span class="n">bld</span><span class="p">)</span>
-  <span class="n">end</span> <span class="k">if</span>
-<span class="n">end</span> <span class="k">if</span>
-</pre></div>
-</td></tr></table></div>
-</div>
 </div>
 </div>
 <div class="section" id="integration-of-qss-solver-with-jmodelica">
@@ -1591,7 +1041,7 @@ standard does not allow a zero time step size as needed for direct feed-through.
 with the extended FMI API.
 For simplicity the figure only
 shows single FMUs, but we anticipated having multiple interconnected FMUs.</p>
-<div class="figure align-default" id="id22">
+<div class="figure align-default" id="id19">
 <span id="fig-sof-arc-qss-jmod2"></span><p class="plantuml">
 <object data="_images/plantuml-24c6e5725ea55a6b194775fd3c024e2e3075f32d.svg" type="image/svg+xml" style="width:874px;height:981px;">
 <img src="_images/plantuml-24c6e5725ea55a6b194775fd3c024e2e3075f32d.png" alt="title Software architecture for QSS integration with JModelica with extended FMI API
@@ -1625,7 +1075,7 @@ qss_sol -down-&gt; FMU_QSS : &quot;inputs, time, states&quot;"/>
 
 </object></p>
 <p class="caption"><span class="caption-number">Fig. 5.4 </span>: Software architecture for QSS integration with JModelica
-with extended FMI API.</span><a class="headerlink" href="#id22" title="Permalink to this image">¶</a></p>
+with extended FMI API.</span><a class="headerlink" href="#id19" title="Permalink to this image">¶</a></p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1634,12 +1084,12 @@ with extended FMI API.</span><a class="headerlink" href="#id22" title="Permalink
 cross multiple FMUs.</p>
 </div>
 <p>The QSS solvers require the derivatives shown in <a class="reference internal" href="#tab-qss-der"><span class="std std-numref">Table 5.2</span></a>.</p>
-<span id="tab-qss-der"></span><table class="docutils align-default" id="id23">
+<span id="tab-qss-der"></span><table class="docutils align-default" id="id20">
 <caption><span class="caption-number">Table 5.2 </span><span class="caption-text">Derivatives required by QSS algorithms. One asteriks indicates
         that they are provided by FMI-ME 2.0, and two asteriks indicate
         that they can optionally be computed exactly if directional
         derivatives are provided by the FMU.
-        The others cannot be provided through the FMI API.</span><a class="headerlink" href="#id23" title="Permalink to this table">¶</a></caption>
+        The others cannot be provided through the FMI API.</span><a class="headerlink" href="#id20" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 50%" />
@@ -2064,9 +1514,9 @@ using the Taylor expansion</p>
 \[y_s(t) = \frac{u^{(n)}(t_u)}{n!} \, (t-t_u)^n,\]</div>
 <p>where <span class="math notranslate nohighlight">\(u^{(n)}\)</span> denotes the <span class="math notranslate nohighlight">\(n\)</span>-th derivative. As shown in <a class="reference internal" href="#fig-fmu-qss"><span class="std std-numref">Fig. 5.5</span></a>, the FMU-ME will receive
 the value <span class="math notranslate nohighlight">\(y_s(t)\)</span>.</p>
-<div class="figure align-default" id="id24">
+<div class="figure align-default" id="id21">
 <span id="fig-fmu-qss"></span><a class="reference internal image-reference" href="_images/fmu-qss.png"><img alt="_images/fmu-qss.png" src="_images/fmu-qss.png" style="width: 1069.2px; height: 392.15000000000003px;" /></a>
-<p class="caption"><span class="caption-number">Fig. 5.5 </span>: Conversion of input signal between FMU-QSS and FMU-ME.</span><a class="headerlink" href="#id24" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 5.5 </span>: Conversion of input signal between FMU-QSS and FMU-ME.</span><a class="headerlink" href="#id21" title="Permalink to this image">¶</a></p>
 </div>
 <p>To avoid frequent changes in the input signal, each input signal will have a quantum defined.
 The quantum <span class="math notranslate nohighlight">\(\delta q\)</span> will be computed at runtime as</p>
@@ -2302,7 +1752,7 @@ package structure of the library</p></li>
 <li><p>what models are available</p></li>
 <li><p>what connection “ports” are available</p></li>
 <li><p>for fluid ports, which ports carry the same fluid
-(so that media assignments can be propagated through a circuit) <a class="footnote-reference brackets" href="#fn-flu" id="id7">1</a></p></li>
+(so that media assignments can be propagated through a circuit) <a class="footnote-reference brackets" href="#fn-flu" id="id4">1</a></p></li>
 <li><p>what control inputs/outputs are available</p></li>
 <li><p>what parameters are available</p></li>
 <li><p>what configuration management options exist (i.e., replaceable components
@@ -2367,9 +1817,9 @@ the interface (but may affect the actual numeric output quantities).</p>
 <div class="section" id="literature-review">
 <h4>5.4.1.3. Literature review<a class="headerlink" href="#literature-review" title="Permalink to this headline">¶</a></h4>
 <p>There have been several attempts to represent or use XML in relation to
-Modelica in the past (<a class="reference internal" href="zreferences.html#landin2014" id="id8">[Lan14]</a>, <a class="reference internal" href="zreferences.html#fritzson2003g" id="id9">[Fri03]</a>,
-<a class="reference internal" href="zreferences.html#pop2003" id="id10">[PF03]</a>, <a class="reference internal" href="zreferences.html#pop2005" id="id11">[PSAssmannF05]</a>, and <a class="reference internal" href="zreferences.html#reisenbichler2006" id="id12">[RKH+06]</a>).</p>
-<p>In particular, Landin <a class="reference internal" href="zreferences.html#landin2014" id="id13">[Lan14]</a> did work with Modelon using JModelica to export XML for
+Modelica in the past (<a class="reference internal" href="zreferences.html#landin2014" id="id5">[Lan14]</a>, <a class="reference internal" href="zreferences.html#fritzson2003g" id="id6">[Fri03]</a>,
+<a class="reference internal" href="zreferences.html#pop2003" id="id7">[PF03]</a>, <a class="reference internal" href="zreferences.html#pop2005" id="id8">[PSAssmannF05]</a>, and <a class="reference internal" href="zreferences.html#reisenbichler2006" id="id9">[RKH+06]</a>).</p>
+<p>In particular, Landin <a class="reference internal" href="zreferences.html#landin2014" id="id10">[Lan14]</a> did work with Modelon using JModelica to export XML for
 the purpose of model exchange, which is similar to our use case.
 Unfortunately, this work deals only with “flattened” models – Modelica models
 that have been instantiated with all of the hierarchy removed. For our use
@@ -2377,12 +1827,12 @@ case, the hierarchy must be preserved so that the OpenStudio team can
 build a new model through instantiation of models from the MBL.
 For this purpose, JModelica also provides access to the the source AST and instance AST
 (see the <a class="reference external" href="http://www.jmodelica.org/api-docs/usersguide/JModelicaUsersGuide-1.17.0.pdf">JModelica user guide</a>).</p>
-<p>Reisenbichler <a class="reference internal" href="zreferences.html#reisenbichler2006" id="id14">[RKH+06]</a> motivates the usage of XML in association with
+<p>Reisenbichler <a class="reference internal" href="zreferences.html#reisenbichler2006" id="id11">[RKH+06]</a> motivates the usage of XML in association with
 Modelica without getting into specifics.
 The remaining work by Pop and Fritzson
 is thus the only comprehensive work on an XML representation of Modelica
 <em>source</em> AST that appears in the literature
-(<a class="reference internal" href="zreferences.html#pop2003" id="id15">[PF03]</a>, <a class="reference internal" href="zreferences.html#pop2005" id="id16">[PSAssmannF05]</a>, and <a class="reference internal" href="zreferences.html#fritzson2003g" id="id17">[Fri03]</a>).
+(<a class="reference internal" href="zreferences.html#pop2003" id="id12">[PF03]</a>, <a class="reference internal" href="zreferences.html#pop2005" id="id13">[PSAssmannF05]</a>, and <a class="reference internal" href="zreferences.html#fritzson2003g" id="id14">[Fri03]</a>).
 The purpose of the XML work by Pop
 and Fritzson was to create a complete XML representation of the entire Modelica
 source.</p>
@@ -2440,7 +1890,7 @@ The development page is <a class="reference external" href="https://github.com/l
 </div>
 <p class="rubric">Footnotes</p>
 <dl class="footnote brackets">
-<dt class="label" id="fn-flu"><span class="brackets"><a class="fn-backref" href="#id7">1</a></span></dt>
+<dt class="label" id="fn-flu"><span class="brackets"><a class="fn-backref" href="#id4">1</a></span></dt>
 <dd><p>We anticipate that the MBL will be redesigned so that users no longer
 need to assign media.</p>
 </dd>
