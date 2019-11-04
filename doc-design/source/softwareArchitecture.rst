@@ -464,6 +464,9 @@ There will be a Modelica block called ``EnergyPlus.Schedule`` with parameters
 +===========================+==================================================================================================+
 | name                      | Name of an EnergyPlus schedule that is present in the idf file.                                  |
 +---------------------------+--------------------------------------------------------------------------------------------------+
+| unit                      | Unit of the variable used as input to this block                                                 |
+|                           | (consistent with column *Modelica unit* in :numref:`tab_uni_spe` )                               |
++---------------------------+--------------------------------------------------------------------------------------------------+
 | sampleAtZoneTimeStep      | Set to true to sample at the EnergyPlus zone time step, or to false to use samplePeriod.         |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | samplePeriod              | Sample period of component.                                                                      |
@@ -487,6 +490,8 @@ where
 ``pre(u)`` is the value of the input before ``sample(t0, samplePeriod)`` becomes ``true``.
 
 
+.. _sec_inp_act:
+
 Actuators
 """""""""
 
@@ -496,6 +501,9 @@ There will be a Modelica block called ``EnergyPlus.Actuator`` with parameters
 | Name                      | Comment                                                                                          |
 +===========================+==================================================================================================+
 | variableName              | Name of the EnergyPlus variable.                                                                 |
++---------------------------+--------------------------------------------------------------------------------------------------+
+| unit                      | Unit of the variable used as input to this block                                                 |
+|                           | (consistent with column *Modelica unit* in :numref:`tab_uni_spe` )                               |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | componentName             | Name of the actuated component unique name.                                                      |
 +---------------------------+--------------------------------------------------------------------------------------------------+
@@ -628,19 +636,61 @@ The corresponsding section in the ``ModelicaBuildingsEnergyPlus.json`` configura
    }
 
 EnergyPlus will then declare in the ``modelDescription.xml`` file an output variable with name as shown in
-`outputVariables.fmiName` and units consistent with :numref:`tab_uni_spe`.
+``outputVariables.fmiName`` and units consistent with :numref:`tab_uni_spe`.
 
 
 Schedules
 """""""""
 
-.. todo:: Revise to support schedules.
+To configure the data exchange for schedules, as described in :numref:`sec_inp_sch`,
+consider an example where one wants to write to an EnergyPlus schedule called ``Lights``.
+
+The corresponsding section in the ``ModelicaBuildingsEnergyPlus.json`` configuration file is
+
+.. code-block:: javascript
+
+   "model": {
+      "schedules": [
+        {
+          "name"    : "Lights",
+          "unit"    : "1", // Unit string as shown in column "EnergyPlus Unit String" in the above table
+          "fmiName" : "schedule Lights"
+        }
+      ]
+   }
+
+EnergyPlus will then declare in the ``modelDescription.xml`` file an input variable with name as shown in
+``schedules.fmiName`` and unit listed in ``schedules.unit``.
+Modelica will write to this schedule with units shown in the column *EnergyPlus Unit String*
+in :numref:`tab_uni_spe`.
 
 EMS actuators
 """""""""""""
 
-.. todo:: Revise to support EMS actuators.
+To configure the data exchange for schedules, as described in :numref:`sec_inp_act`,
+consider an example where one wants to write to an EnergyPlus schedule called ``Lights``.
 
+The corresponsding section in the ``ModelicaBuildingsEnergyPlus.json`` configuration file is
+
+.. code-block:: javascript
+
+   "model": {
+      "emsActuators": [
+        {
+          "name"          : "Zn001_Wall001_Win001_Shading_Deploy_Status",
+          "variableName"  : "Zn001:Wall001:Win001",
+          "componentType" : "Window Shading Control",
+          "controlType"   : "Control Status",
+          "unit"          : "1", // Unit string as shown in column "EnergyPlus Unit String" in the above table
+          "fmiName"       : "yShade"
+        }
+      ]
+   }
+
+EnergyPlus will then declare in the ``modelDescription.xml`` file an input variable with name as shown in
+``emsActuators.fmiName`` and unit listed in ``emsActuators.unit``.
+Modelica will write to this EMS actuator with units shown in the column *EnergyPlus Unit String*
+in :numref:`tab_uni_spe`.
 
 
 .. _sec_time_sync:
