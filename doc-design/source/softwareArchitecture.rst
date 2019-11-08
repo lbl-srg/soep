@@ -225,8 +225,6 @@ it in the units shown in the column `Modelica Unit`.
    +------------------------+------------------+---------------------------------+
    | Luminous flux          | lum              | cd.sr                           |
    +------------------------+------------------+---------------------------------+
-   | Mass                   | kg               | kg                              |
-   +------------------------+------------------+---------------------------------+
    | Mass flow rate         | kg/s             | kg/s                            |
    +------------------------+------------------+---------------------------------+
    | Power                  | W                | W                               |
@@ -237,16 +235,12 @@ it in the units shown in the column `Modelica Unit`.
    +------------------------+------------------+---------------------------------+
    | Temperature            | degC             | K                               |
    +------------------------+------------------+---------------------------------+
-   | Temperature (absolute) | K                | K                               |
-   +------------------------+------------------+---------------------------------+
    | Time                   | s                | s                               |
    +------------------------+------------------+---------------------------------+
    | Transmittance,         | (no character,   | 1                               |
    | reflectance, and       | specified as a   |                                 |
    | absorptance            | value between 0  |                                 |
    |                        | and 1)           |                                 |
-   +------------------------+------------------+---------------------------------+
-   | Volume                 | m3               | m3                              |
    +------------------------+------------------+---------------------------------+
    | Volume flow rate       | m3/s             | m3/s                            |
    +------------------------+------------------+---------------------------------+
@@ -467,9 +461,9 @@ There will be a Modelica block called ``EnergyPlus.Schedule`` with parameters
 | unit                      | Unit of the variable used as input to this block                                                 |
 |                           | (consistent with column *Modelica unit* in :numref:`tab_uni_spe` )                               |
 +---------------------------+--------------------------------------------------------------------------------------------------+
-| sampleAtZoneTimeStep      | Set to true to sample at the EnergyPlus zone time step, or to false to use samplePeriod.         |
+| useSamplePeriod           | If ``true``, sample at zone time step and at sample period                                       |
 +---------------------------+--------------------------------------------------------------------------------------------------+
-| samplePeriod              | Sample period of component.                                                                      |
+| samplePeriod              | Sample period of component (used if ``useSamplePeriod = true``.                                  |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 
 .. note:: As EnergyPlus has no notion of real versus integer (or boolean) variables,
@@ -511,9 +505,9 @@ There will be a Modelica block called ``EnergyPlus.Actuator`` with parameters
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | controlType               | Actuated component control type.                                                                 |
 +---------------------------+--------------------------------------------------------------------------------------------------+
-| sampleAtZoneTimeStep      | Set to true to sample at the EnergyPlus zone time step, or to false to use samplePeriod.         |
+| useSamplePeriod           | If ``true``, sample at zone time step and at sample period                                       |
 +---------------------------+--------------------------------------------------------------------------------------------------+
-| samplePeriod              | Sample period of component.                                                                      |
+| samplePeriod              | Sample period of component (used if ``useSamplePeriod = true``.                                  |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 
 .. todo:: Why is the *Variable name* needed? Should this be left out?

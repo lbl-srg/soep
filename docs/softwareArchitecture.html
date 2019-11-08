@@ -464,32 +464,24 @@ per total mass of moist air)</p></td>
 <td><p>lum</p></td>
 <td><p>cd.sr</p></td>
 </tr>
-<tr class="row-odd"><td><p>Mass</p></td>
-<td><p>kg</p></td>
-<td><p>kg</p></td>
-</tr>
-<tr class="row-even"><td><p>Mass flow rate</p></td>
+<tr class="row-odd"><td><p>Mass flow rate</p></td>
 <td><p>kg/s</p></td>
 <td><p>kg/s</p></td>
 </tr>
-<tr class="row-odd"><td><p>Power</p></td>
+<tr class="row-even"><td><p>Power</p></td>
 <td><p>W</p></td>
 <td><p>W</p></td>
 </tr>
-<tr class="row-even"><td><p>Pressure</p></td>
+<tr class="row-odd"><td><p>Pressure</p></td>
 <td><p>Pa</p></td>
 <td><p>Pa</p></td>
 </tr>
-<tr class="row-odd"><td><p>Status (e.g., rain)</p></td>
+<tr class="row-even"><td><p>Status (e.g., rain)</p></td>
 <td><p>(no character)</p></td>
 <td><p>1</p></td>
 </tr>
-<tr class="row-even"><td><p>Temperature</p></td>
+<tr class="row-odd"><td><p>Temperature</p></td>
 <td><p>degC</p></td>
-<td><p>K</p></td>
-</tr>
-<tr class="row-odd"><td><p>Temperature (absolute)</p></td>
-<td><p>K</p></td>
 <td><p>K</p></td>
 </tr>
 <tr class="row-even"><td><p>Time</p></td>
@@ -505,11 +497,7 @@ value between 0
 and 1)</p></td>
 <td><p>1</p></td>
 </tr>
-<tr class="row-even"><td><p>Volume</p></td>
-<td><p>m3</p></td>
-<td><p>m3</p></td>
-</tr>
-<tr class="row-odd"><td><p>Volume flow rate</p></td>
+<tr class="row-even"><td><p>Volume flow rate</p></td>
 <td><p>m3/s</p></td>
 <td><p>m3/s</p></td>
 </tr>
@@ -761,11 +749,11 @@ in order to get satisfactory closed loop control performance.</p>
 <td><p>Unit of the variable used as input to this block
 (consistent with column <em>Modelica unit</em> in <a class="reference internal" href="#tab-uni-spe"><span class="std std-numref">Table 5.1</span></a> )</p></td>
 </tr>
-<tr class="row-even"><td><p>sampleAtZoneTimeStep</p></td>
-<td><p>Set to true to sample at the EnergyPlus zone time step, or to false to use samplePeriod.</p></td>
+<tr class="row-even"><td><p>useSamplePeriod</p></td>
+<td><p>If <code class="docutils literal notranslate"><span class="pre">true</span></code>, sample at zone time step and at sample period</p></td>
 </tr>
 <tr class="row-odd"><td><p>samplePeriod</p></td>
-<td><p>Sample period of component.</p></td>
+<td><p>Sample period of component (used if <code class="docutils literal notranslate"><span class="pre">useSamplePeriod</span> <span class="pre">=</span> <span class="pre">true</span></code>.</p></td>
 </tr>
 </tbody>
 </table>
@@ -815,11 +803,11 @@ values will be sent as doubles.</p>
 <tr class="row-even"><td><p>controlType</p></td>
 <td><p>Actuated component control type.</p></td>
 </tr>
-<tr class="row-odd"><td><p>sampleAtZoneTimeStep</p></td>
-<td><p>Set to true to sample at the EnergyPlus zone time step, or to false to use samplePeriod.</p></td>
+<tr class="row-odd"><td><p>useSamplePeriod</p></td>
+<td><p>If <code class="docutils literal notranslate"><span class="pre">true</span></code>, sample at zone time step and at sample period</p></td>
 </tr>
 <tr class="row-even"><td><p>samplePeriod</p></td>
-<td><p>Sample period of component.</p></td>
+<td><p>Sample period of component (used if <code class="docutils literal notranslate"><span class="pre">useSamplePeriod</span> <span class="pre">=</span> <span class="pre">true</span></code>.</p></td>
 </tr>
 </tbody>
 </table>
