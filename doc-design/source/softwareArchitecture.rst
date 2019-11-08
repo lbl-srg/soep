@@ -462,7 +462,7 @@ There will be a Modelica block called ``EnergyPlus.Schedule`` with parameters
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | Name                      | Comment                                                                                          |
 +===========================+==================================================================================================+
-| name                      | Name of an EnergyPlus schedule that is present in the idf file.                                  |
+| name                      | Name of an EnergyPlus schedule.                                                                  |
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | unit                      | Unit of the variable used as input to this block                                                 |
 |                           | (consistent with column *Modelica unit* in :numref:`tab_uni_spe` )                               |
