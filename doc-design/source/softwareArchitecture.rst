@@ -1438,6 +1438,6 @@ Conditional Expressions and Event Indicators
 Integration with OpenStudio
 ===========================
 
-.. note:: This section needs to be revised in view of the move towards a json-driven architecture.
-
-.. include:: automatedDocAstTool.rst
+The integration with OpenStudio will be done through
+an html5 widget. The development of this link is documented at
+https://github.com/lbl-srg/linkage.js

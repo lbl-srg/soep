@@ -76,12 +76,8 @@
 <li class="toctree-l2"><a class="reference internal" href="preample.html#contributors">1.2. Contributors</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="conventions.html">2. Conventions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="useCases.html">3. Use Cases</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="useCases.html#openstudio-integration">3.1. OpenStudio Integration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="useCases.html#measures">3.2. Measures</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="download.html">2. Download</a></li>
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">3. Conventions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="requirements.html">4. Requirements</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="requirements.html#openstudio-integration">4.1. OpenStudio integration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="requirements.html#mathematics">4.2. Mathematics</a></li>
@@ -102,14 +98,10 @@
 <li class="toctree-l2"><a class="reference internal" href="numericalMethods.html#algebraic-loops">6.2. Algebraic Loops</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">7. Application Programming Interface</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api.html#generating-openstudio-models">7.1. Generating OpenStudio Models</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">8. Benchmarks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="acknowledgments.html">9. Acknowledgments</a></li>
-<li class="toctree-l1"><a class="reference internal" href="glossary.html">10. Glossary</a></li>
-<li class="toctree-l1"><a class="reference internal" href="zreferences.html">11. References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">7. Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgments.html">8. Acknowledgments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">9. Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zreferences.html">10. References</a></li>
 </ul>
 </ul>
 </li>
@@ -182,16 +174,7 @@
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#integration-with-openstudio">5.4. Integration with OpenStudio</a><ul>
-<li><a class="reference internal" href="#automated-documentation-ast-support-tool">5.4.1. Automated Documentation/AST Support Tool</a><ul>
-<li><a class="reference internal" href="#background">5.4.1.1. Background</a></li>
-<li><a class="reference internal" href="#requirements">5.4.1.2. Requirements</a></li>
-<li><a class="reference internal" href="#literature-review">5.4.1.3. Literature review</a></li>
-<li><a class="reference internal" href="#implementation">5.4.1.4. Implementation</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li><a class="reference internal" href="#integration-with-openstudio">5.4. Integration with OpenStudio</a></li>
 </ul>
 </li>
 </ul>
@@ -270,7 +253,7 @@ needed for the OpenBuildingControl project.</p>
 Our integration will generate a representation of the
 Modelica library that allows OpenStudio to
 dynamic load models for the SOEP mode.</p>
-<div class="figure align-default" id="id15">
+<div class="figure align-default" id="id4">
 <span id="fig-overall-software-architecture"></span><p class="plantuml">
 <object data="_images/plantuml-42b14e268a4f127550932a42892ae7433788991a.svg" type="image/svg+xml" style="width:1011px;height:778px;">
 <img src="_images/plantuml-42b14e268a4f127550932a42892ae7433788991a.png" alt="title Overall software architecture
@@ -361,7 +344,7 @@ note right of Application
 end note"/>
 
 </object></p>
-<p class="caption"><span class="caption-number">Fig. 5.1 </span>: Overall software architecture.</span><a class="headerlink" href="#id15" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 5.1 </span>: Overall software architecture.</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
 </div>
 </div>
 <div class="section" id="coupling-of-energyplus-with-modelica">
@@ -420,8 +403,8 @@ The table also shows unit strings that are allowed to use by EnergyPlus
 to tell Modelica the unit of the exchanged inputs and outputs.
 The C functions will then convert the quantity as needed to represent
 it in the units shown in the column <cite>Modelica Unit</cite>.</p>
-<span id="tab-uni-spe"></span><table class="docutils align-default" id="id16">
-<caption><span class="caption-number">Table 5.1 </span><span class="caption-text">Unit specification of EnergyPlus I/O.</span><a class="headerlink" href="#id16" title="Permalink to this table">¶</a></caption>
+<span id="tab-uni-spe"></span><table class="docutils align-default" id="id5">
+<caption><span class="caption-number">Table 5.1 </span><span class="caption-text">Unit specification of EnergyPlus I/O.</span><a class="headerlink" href="#id5" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 32%" />
 <col style="width: 24%" />
@@ -513,9 +496,9 @@ while EnergyPlus simulates heat conduction in solid and through windows.
 Both simulators can declare and use schedules, and they can interact through
 the thermal zone model, through EnergyPlus outputs and through EnergyPlus
 schedules and EMS actuators.</p>
-<div class="figure align-default" id="id17">
+<div class="figure align-default" id="id6">
 <span id="fig-partition-envelop-room-hvac"></span><a class="reference internal image-reference" href="_images/envelop-room-hvac.svg"><img alt="_images/envelop-room-hvac.svg" src="_images/envelop-room-hvac.svg" /></a>
-<p class="caption"><span class="caption-number">Fig. 5.2 </span>: Partitioning of the envelope, room and HVAC model.</span><a class="headerlink" href="#id17" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 5.2 </span>: Partitioning of the envelope, room and HVAC model.</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
 </div>
 <p>The following <a class="reference internal" href="#sec-cou-env"><span class="std std-numref">Section 5.2.3.1</span></a> specifies the coupling of these models,
 <a class="reference internal" href="#sec-req-ene-exp-fmu"><span class="std std-numref">Section 5.2.4</span></a> describes the API used to generate the FMU, and
@@ -958,10 +941,10 @@ in <a class="reference internal" href="#tab-uni-spe"><span class="std std-numref
 </div>
 <div class="section" id="time-synchronization">
 <span id="sec-time-sync"></span><h3>5.2.5. Time synchronization<a class="headerlink" href="#time-synchronization" title="Permalink to this headline">¶</a></h3>
-<div class="figure align-default" id="id18">
+<div class="figure align-default" id="id7">
 <span id="fig-fmi-me-20-state-machine"></span><a class="reference internal image-reference" href="_images/StateMachineModelExchange.png"><img alt="_images/StateMachineModelExchange.png" src="_images/StateMachineModelExchange.png" style="width: 736.0px; height: 583.0px;" /></a>
 <p class="caption"><span class="caption-number">Fig. 5.3 </span>: Calling sequence of Model Exchange C functions in form of an UML 2.0 state machine (Figure
-reproduced from <a class="reference internal" href="zreferences.html#modelisar2014" id="id3">[MODELISARConsortium14]</a>.</span><a class="headerlink" href="#id18" title="Permalink to this image">¶</a></p>
+reproduced from <a class="reference internal" href="zreferences.html#modelisar2014" id="id3">[MODELISARConsortium14]</a>.</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
 </div>
 <p><a class="reference internal" href="#fig-fmi-me-20-state-machine"><span class="std std-numref">Fig. 5.3</span></a> shows the state machine for calling an FMU 2.0 for Model Exchange.
 To communicate with EnergyPlus, we are using the same API and calling sequence.
@@ -1029,7 +1012,7 @@ standard does not allow a zero time step size as needed for direct feed-through.
 with the extended FMI API.
 For simplicity the figure only
 shows single FMUs, but we anticipated having multiple interconnected FMUs.</p>
-<div class="figure align-default" id="id19">
+<div class="figure align-default" id="id8">
 <span id="fig-sof-arc-qss-jmod2"></span><p class="plantuml">
 <object data="_images/plantuml-24c6e5725ea55a6b194775fd3c024e2e3075f32d.svg" type="image/svg+xml" style="width:874px;height:981px;">
 <img src="_images/plantuml-24c6e5725ea55a6b194775fd3c024e2e3075f32d.png" alt="title Software architecture for QSS integration with JModelica with extended FMI API
@@ -1063,7 +1046,7 @@ qss_sol -down-&gt; FMU_QSS : &quot;inputs, time, states&quot;"/>
 
 </object></p>
 <p class="caption"><span class="caption-number">Fig. 5.4 </span>: Software architecture for QSS integration with JModelica
-with extended FMI API.</span><a class="headerlink" href="#id19" title="Permalink to this image">¶</a></p>
+with extended FMI API.</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1072,12 +1055,12 @@ with extended FMI API.</span><a class="headerlink" href="#id19" title="Permalink
 cross multiple FMUs.</p>
 </div>
 <p>The QSS solvers require the derivatives shown in <a class="reference internal" href="#tab-qss-der"><span class="std std-numref">Table 5.2</span></a>.</p>
-<span id="tab-qss-der"></span><table class="docutils align-default" id="id20">
+<span id="tab-qss-der"></span><table class="docutils align-default" id="id9">
 <caption><span class="caption-number">Table 5.2 </span><span class="caption-text">Derivatives required by QSS algorithms. One asteriks indicates
         that they are provided by FMI-ME 2.0, and two asteriks indicate
         that they can optionally be computed exactly if directional
         derivatives are provided by the FMU.
-        The others cannot be provided through the FMI API.</span><a class="headerlink" href="#id20" title="Permalink to this table">¶</a></caption>
+        The others cannot be provided through the FMI API.</span><a class="headerlink" href="#id9" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 50%" />
@@ -1502,9 +1485,9 @@ using the Taylor expansion</p>
 \[y_s(t) = \frac{u^{(n)}(t_u)}{n!} \, (t-t_u)^n,\]</div>
 <p>where <span class="math notranslate nohighlight">\(u^{(n)}\)</span> denotes the <span class="math notranslate nohighlight">\(n\)</span>-th derivative. As shown in <a class="reference internal" href="#fig-fmu-qss"><span class="std std-numref">Fig. 5.5</span></a>, the FMU-ME will receive
 the value <span class="math notranslate nohighlight">\(y_s(t)\)</span>.</p>
-<div class="figure align-default" id="id21">
+<div class="figure align-default" id="id10">
 <span id="fig-fmu-qss"></span><a class="reference internal image-reference" href="_images/fmu-qss.png"><img alt="_images/fmu-qss.png" src="_images/fmu-qss.png" style="width: 1069.2px; height: 392.15000000000003px;" /></a>
-<p class="caption"><span class="caption-number">Fig. 5.5 </span>: Conversion of input signal between FMU-QSS and FMU-ME.</span><a class="headerlink" href="#id21" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 5.5 </span>: Conversion of input signal between FMU-QSS and FMU-ME.</span><a class="headerlink" href="#id10" title="Permalink to this image">¶</a></p>
 </div>
 <p>To avoid frequent changes in the input signal, each input signal will have a quantum defined.
 The quantum <span class="math notranslate nohighlight">\(\delta q\)</span> will be computed at runtime as</p>
@@ -1674,217 +1657,9 @@ FMU that a zero crossing occurred at a given time (and maybe with crossing direc
 </div>
 <div class="section" id="integration-with-openstudio">
 <span id="sec-int-ope-stu"></span><h2>5.4. Integration with OpenStudio<a class="headerlink" href="#integration-with-openstudio" title="Permalink to this headline">¶</a></h2>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This section needs to be revised in view of the move towards a json-driven architecture.</p>
-</div>
-<div class="section" id="automated-documentation-ast-support-tool">
-<h3>5.4.1. Automated Documentation/AST Support Tool<a class="headerlink" href="#automated-documentation-ast-support-tool" title="Permalink to this headline">¶</a></h3>
-<p>This section describes how to
-generate automated SOEP documentation and abstract syntax trees from
-the Modelica Buildings Library (MBL), or from other Modelica libraries that
-users may use with SOEP.
-The goal is to expose the <a class="reference external" href="https://en.wikipedia.org/wiki/Abstract_syntax_tree">abstract
-syntax tree (AST)</a> of the
-MBL, and make it available to other tools via one or several json files.
-These json files can then be used by OpenStudio to
-discover available models and their parameters and other metadata for use
-from the OpenStudio interface for SOEP.</p>
-<div class="section" id="background">
-<h4>5.4.1.1. Background<a class="headerlink" href="#background" title="Permalink to this headline">¶</a></h4>
-<p>Modelica source code contains a lot of meta-data in addition to the
-mathematical model itself. An annotation system exists within Modelica and
-custom annotations can be written to pass data to tools. Annotations were
-designed to be an extensible mechanism for capturing meta-data related to a
-model including html-documentation, vendor-specific data, and graphical
-annotations. Parameters, variables, equations, and models can contain
-documentation strings and annotations. Furthermore, packages can be documented
-and the display order of sub-packages, models, classes, functions, connectors
-and other objects can be specified. Modelica libraries have a hierarchical
-structure consisting mainly of packages which contain models and other objects
-as well as sub-packages. Models themselves can be composed of multiple, possibly
-replaceable, components. Much of this information will be required by the
-OpenStudio tool in order to understand which component models are available,
-where they reside in the library’s package structure which determines their fully
-qualified name, what parameters they have, how they can be configured, how to
-display them, and what other meta-data are available, such as documentation
-strings and type of connectors that can be connected with each other.</p>
-<p>This section is concerned about making the AST of Modelica source files,
-including the metadata mentioned above, available to OpenStudio. We
-will specifically focus on the Modelica Buildings Library (MBL), but other
-Modelica libraries can be used as well.</p>
-<p>The intent of the AST representation is <em>primarily</em> to be consumed by the
-OpenStudio application for identification of models, model documentation, model
-connecting points, inputs/outputs, and parameters and related meta-data.</p>
-<p>An OpenStudio application will consume some or all of the above
-information, use it to provide an interface to the user, and ultimately write
-out a Modelica file which connects the various library components, configures
-various components, and assigns values to parameters.</p>
-<p>To create models, information from other libraries, most notably, the Modelica
-Standard Library (MSL), may need to be made available. Typical
-applications and examples from the MBL use
-component models from both the MSL and MBL. There is also interest in being
-able to support additional third party libraries.</p>
-</div>
-<div class="section" id="requirements">
-<h4>5.4.1.2. Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h4>
-<p>This section will describe the requirements of a batch-process program
-that will transform any
-Modelica input file or library into a json file. The json file shall contain:</p>
-<ul class="simple">
-<li><p>identification of which models, classes, connectors, functions, etc. exist</p></li>
-<li><p>identification of the relative hierarchy of the above components within the
-package structure of the library</p></li>
-<li><p>for each package,</p>
-<ul>
-<li><p>what models are available</p></li>
-<li><p>what connection “ports” are available</p></li>
-<li><p>for fluid ports, which ports carry the same fluid
-(so that media assignments can be propagated through a circuit) <a class="footnote-reference brackets" href="#fn-flu" id="id4">1</a></p></li>
-<li><p>what control inputs/outputs are available</p></li>
-<li><p>what parameters are available</p></li>
-<li><p>what configuration management options exist (i.e., replaceable components
-and packages and which parameters belong to which component)</p></li>
-<li><p>meta-data and attributes for all the above such as graphics
-annotations, vendor annotations, html documentation, etc.</p></li>
-</ul>
-</li>
-</ul>
-<p>For integration with OpenStudio, the tool should reduce dependencies
-that complicate the distribution to users.</p>
-<p>The tool shall also have options to exclude certain packages. For example,
-OpenStudio may give access to the package <cite>Modelica.Blocks</cite>
-but not to <cite>Modelica.Magnetic</cite>.</p>
-<p>The tool shall also allow to perform a “diff” (i.e., logical
-differences) between two generated json files.
-The purpose of the diff tool would be to detect non-trivial
-differences between two generated json files that hold the AST of a Modelica
-library and report those changes. The content of the
-“difference” file would show the differences between the two
-input manifests.</p>
-<p>The diff tool would be of use in particular when new versions of the
-MBL are released and the OpenStudio team would like to check if there are
-non-trivial changes they need to integrate.</p>
-<p>The following two lists attempt to list examples of changes that
-cannot be ignored as well as changes that can be ignored.</p>
-<p><em>Significant Changes (backward-incompatible)</em></p>
-<ul class="simple">
-<li><p>changes to names of any public package, model, block, function, record, as well
-as public constants, parameters, variables, connectors, or subcomponents</p></li>
-<li><p>addition of any public parameters that has no default value,
-variables that have no equation (in a partial model), connectors (except for output connectors),
-or subcomponents that require changes to models that extend or instantiate these components</p></li>
-<li><p>addition/subtraction of packages/models/blocks/functions meant to be consumed
-by OpenStudio</p></li>
-<li><p>removing of any public constant, parameter, or class (model, block, function, type etc.)</p></li>
-<li><p>moving a class between packages (i.e., changing the path)</p></li>
-</ul>
-<p><em>Changes that may be ignored (backward-compatible)</em></p>
-<ul class="simple">
-<li><p>changes in style without changes in meaning (addition or removal of
-whitespace, reordering within a section)</p></li>
-<li><p>changes to documentation strings</p></li>
-<li><p>changes to text in embedded HTML documentation</p></li>
-<li><p>changes to revision notes</p></li>
-<li><p>changes to graphical annotations</p></li>
-<li><p>changes in ordering of models/blocks/functions within a package</p></li>
-<li><p>changes to <cite>protected</cite> sections of code</p></li>
-<li><p>changes to <cite>equation</cite> or <cite>algorithm</cite> sections of code</p></li>
-<li><p>changes to some models/blocks/functions may be completely ignored if, by
-convention, we deem certain paths as “not directly consumable” by OpenStudio.
-For example, we may wish to not consume classes in the packages <cite>BaseClasses</cite>,
-<cite>Examples</cite> and <cite>Validations</cite>.</p></li>
-</ul>
-<p>To summarize, the creation of or changes to the “public API” (public
-parameters, variables, subcomponents, connectors) of models, blocks, or
-functions must be compared for change detection. Documentation (html)/
-documentation strings/graphics annotations will not affect the model interface
-or semantics. Changes to protected properties or equations will not affect
-the interface (but may affect the actual numeric output quantities).</p>
-</div>
-<div class="section" id="literature-review">
-<h4>5.4.1.3. Literature review<a class="headerlink" href="#literature-review" title="Permalink to this headline">¶</a></h4>
-<p>There have been several attempts to represent or use XML in relation to
-Modelica in the past (<a class="reference internal" href="zreferences.html#landin2014" id="id5">[Lan14]</a>, <a class="reference internal" href="zreferences.html#fritzson2003g" id="id6">[Fri03]</a>,
-<a class="reference internal" href="zreferences.html#pop2003" id="id7">[PF03]</a>, <a class="reference internal" href="zreferences.html#pop2005" id="id8">[PSAssmannF05]</a>, and <a class="reference internal" href="zreferences.html#reisenbichler2006" id="id9">[RKH+06]</a>).</p>
-<p>In particular, Landin <a class="reference internal" href="zreferences.html#landin2014" id="id10">[Lan14]</a> did work with Modelon using JModelica to export XML for
-the purpose of model exchange, which is similar to our use case.
-Unfortunately, this work deals only with “flattened” models – Modelica models
-that have been instantiated with all of the hierarchy removed. For our use
-case, the hierarchy must be preserved so that the OpenStudio team can
-build a new model through instantiation of models from the MBL.
-For this purpose, JModelica also provides access to the the source AST and instance AST
-(see the <a class="reference external" href="http://www.jmodelica.org/api-docs/usersguide/JModelicaUsersGuide-1.17.0.pdf">JModelica user guide</a>).</p>
-<p>Reisenbichler <a class="reference internal" href="zreferences.html#reisenbichler2006" id="id11">[RKH+06]</a> motivates the usage of XML in association with
-Modelica without getting into specifics.
-The remaining work by Pop and Fritzson
-is thus the only comprehensive work on an XML representation of Modelica
-<em>source</em> AST that appears in the literature
-(<a class="reference internal" href="zreferences.html#pop2003" id="id12">[PF03]</a>, <a class="reference internal" href="zreferences.html#pop2005" id="id13">[PSAssmannF05]</a>, and <a class="reference internal" href="zreferences.html#fritzson2003g" id="id14">[Fri03]</a>).
-The purpose of the XML work by Pop
-and Fritzson was to create a complete XML representation of the entire Modelica
-source.</p>
-<p>ANTLR (ANother Tool for Language Recognition)
-is a parser generator for reading, processing, executing, or
-translating structured text or binary files.
-It is widely used to build languages, tools, and frameworks.
-From a grammar, ANTLR generates a parser that can build parse trees and
-also generates a listener interface (or visitor) that makes it easy
-to respond to the recognition of phrases of interest.
-For ANTLR, a Modelica grammar is available at
-<a class="reference external" href="https://github.com/antlr/grammars-v4/blob/master/modelica/modelica.g4">https://github.com/antlr/grammars-v4/blob/master/modelica/modelica.g4</a>.</p>
-</div>
-<div class="section" id="implementation">
-<h4>5.4.1.4. Implementation<a class="headerlink" href="#implementation" title="Permalink to this headline">¶</a></h4>
-<p>Work started on the implementation of a modelica-json translator.
-The development page is <a class="reference external" href="https://github.com/lbl-srg/modelica-json">https://github.com/lbl-srg/modelica-json</a></p>
-<p>To illustrate the translation, consider the following simple model:</p>
-<div class="highlight-modelica notranslate"><div class="highlight"><pre><span></span><span class="kr">within</span> <span class="nn">FromModelica</span><span class="p">;</span>
-<span class="kr">block</span> <span class="nc">BlockWithBlock1</span> <span class="s2">&quot;A block that instantiates another public and protected block&quot;</span>
-  <span class="n">Block1</span> <span class="n">bloPub</span> <span class="s2">&quot;A public block&quot;</span><span class="p">;</span>
-<span class="kr">protected</span>
-  <span class="n">Block1</span> <span class="n">bloPro</span> <span class="s2">&quot;A protected block&quot;</span><span class="p">;</span>
-<span class="kr">end</span> <span class="nc">BlockWithBlock1</span><span class="p">;</span>
-</pre></div>
-</div>
-<p>When parsed to json, the output is:</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
-  <span class="p">{</span>
-    <span class="s2">&quot;modelicaFile&quot;</span><span class="o">:</span> <span class="s2">&quot;./BlockWithBlock1.mo&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;within&quot;</span><span class="o">:</span> <span class="s2">&quot;FromModelica&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;topClassName&quot;</span><span class="o">:</span> <span class="s2">&quot;FromModelica.BlockWithBlock1&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;comment&quot;</span><span class="o">:</span> <span class="s2">&quot;A block that instantiates another public and protected block&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;public&quot;</span><span class="o">:</span> <span class="p">{</span>
-      <span class="s2">&quot;models&quot;</span><span class="o">:</span> <span class="p">[</span>
-        <span class="p">{</span>
-          <span class="s2">&quot;className&quot;</span><span class="o">:</span> <span class="s2">&quot;Block1&quot;</span><span class="p">,</span>
-          <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;bloPub&quot;</span><span class="p">,</span>
-          <span class="s2">&quot;comment&quot;</span><span class="o">:</span> <span class="s2">&quot;A public block&quot;</span>
-        <span class="p">}</span>
-      <span class="p">]</span>
-    <span class="p">},</span>
-    <span class="s2">&quot;protected&quot;</span><span class="o">:</span> <span class="p">{</span>
-      <span class="s2">&quot;models&quot;</span><span class="o">:</span> <span class="p">[</span>
-        <span class="p">{</span>
-          <span class="s2">&quot;className&quot;</span><span class="o">:</span> <span class="s2">&quot;Block1&quot;</span><span class="p">,</span>
-          <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;bloPro&quot;</span><span class="p">,</span>
-          <span class="s2">&quot;comment&quot;</span><span class="o">:</span> <span class="s2">&quot;A protected block&quot;</span>
-        <span class="p">}</span>
-      <span class="p">]</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-<span class="p">]</span>
-</pre></div>
-</div>
-<p class="rubric">Footnotes</p>
-<dl class="footnote brackets">
-<dt class="label" id="fn-flu"><span class="brackets"><a class="fn-backref" href="#id4">1</a></span></dt>
-<dd><p>We anticipate that the MBL will be redesigned so that users no longer
-need to assign media.</p>
-</dd>
-</dl>
-</div>
-</div>
+<p>The integration with OpenStudio will be done through
+an html5 widget. The development of this link is documented at
+<a class="reference external" href="https://github.com/lbl-srg/linkage.js">https://github.com/lbl-srg/linkage.js</a></p>
 </div>
 </div>
 
