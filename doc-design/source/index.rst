@@ -48,12 +48,11 @@
    :maxdepth: 4
 
    preample
+   download
    conventions
-   useCases
    requirements
    softwareArchitecture
    numericalMethods
-   api
    benchmarks
    acknowledgments
    glossary
