@@ -26,7 +26,7 @@ They also handle state events explicitly without requiring an iteration in time 
 The first order QSS method, QSS1, first appeared in the literature in 1998 :cite:`ZeiglerLee1998`. QSS1 methods have been extended to second and third order methods (QSS2, QSS3).
 On non-stiff problems, QSS3 has been shown to be significantly faster than QSS, and in some cases were faster than DASSL in Dymola :cite:`FlorosEtAl2011:1`.
 To address performance issues observed in QSS, the class of Linear Implicit QSS methods (LIQSS) have been developed for stiff systems :cite:`Kofman2006:1` :cite:`MigoniBortolottoKofmanCellier2013:1`.
-For stiff systems, the 3rd order implementation of LIQSS seems to perform best as shown in :num:`Figure #fig-liqss-migoni`, which is from :cite:`MigoniBortolottoKofmanCellier2013:1`.
+For stiff systems, the 3rd order implementation of LIQSS seems to perform best as shown in :numref:`fig-liqss-migoni`, which is from :cite:`MigoniBortolottoKofmanCellier2013:1`.
 
 .. _fig-liqss-migoni:
 
@@ -86,7 +86,7 @@ where the sequence :math:`\{t_{j}\}_{j=0}^{K-1}` is constructed as
 
 
 Thus, the component :math:`q_i(t)` changes its state when it differs from :math:`x_i(t)` by :math:`\pm\Delta q_i`.
-:num:`Figure #fig-qss1-example` shows an example of a quantization function for QSS1.
+:numref:`fig-qss1-example` shows an example of a quantization function for QSS1.
 
 .. _fig-qss1-example:
 
@@ -119,7 +119,7 @@ finer spacing with hysteresis is used for higher accuracy and to avoid chatterin
 	\chi(0) & = (10, 10, 10)
 	\end{aligned}
 
-:num:`Figure #fig-qss-ceil-example` shows the time series of the solution of the differential equation computed by QSS1.
+:numref:`fig-qss-ceil-example` shows the time series of the solution of the differential equation computed by QSS1.
 
 .. _fig-qss-ceil-example:
 

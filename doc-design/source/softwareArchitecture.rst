@@ -251,7 +251,7 @@ Partitioning of the models
 --------------------------
 
 To link EnergyPlus and Modelica, the models are partitioned as shown in
-as shown in :num:`Figure #fig-partition-envelop-room-hvac`.
+as shown in :numref:`fig-partition-envelop-room-hvac`.
 Loosely speaking, everything that is air and controls is simulated in Modelica,
 while EnergyPlus simulates heat conduction in solid and through windows.
 Both simulators can declare and use schedules, and they can interact through

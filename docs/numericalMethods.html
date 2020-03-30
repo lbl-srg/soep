@@ -196,7 +196,7 @@ They also handle state events explicitly without requiring an iteration in time 
 <p>The first order QSS method, QSS1, first appeared in the literature in 1998 <a class="reference internal" href="zreferences.html#zeiglerlee1998" id="id2">[ZL98]</a>. QSS1 methods have been extended to second and third order methods (QSS2, QSS3).
 On non-stiff problems, QSS3 has been shown to be significantly faster than QSS, and in some cases were faster than DASSL in Dymola <a class="reference internal" href="zreferences.html#florosetal2011-1" id="id3">[FBCK11]</a>.
 To address performance issues observed in QSS, the class of Linear Implicit QSS methods (LIQSS) have been developed for stiff systems <a class="reference internal" href="zreferences.html#kofman2006-1" id="id4">[Kof06]</a> <a class="reference internal" href="zreferences.html#migonibortolottokofmancellier2013-1" id="id5">[MBKC13]</a>.
-For stiff systems, the 3rd order implementation of LIQSS seems to perform best as shown in <a class="pageref" href="#fig-liqss-migoni">Figure  1</a>, which is from <a class="reference internal" href="zreferences.html#migonibortolottokofmancellier2013-1" id="id6">[MBKC13]</a>.</p>
+For stiff systems, the 3rd order implementation of LIQSS seems to perform best as shown in <a class="reference internal" href="#fig-liqss-migoni"><span class="std std-numref">Fig. 6.1</span></a>, which is from <a class="reference internal" href="zreferences.html#migonibortolottokofmancellier2013-1" id="id6">[MBKC13]</a>.</p>
 <div class="figure align-default" id="id14">
 <span id="fig-liqss-migoni"></span><a class="reference internal image-reference" href="_images/liqss.png"><img alt="_images/liqss.png" src="_images/liqss.png" style="width: 1396.8000000000002px; height: 728.8000000000001px;" /></a>
 <p class="caption"><span class="caption-number">Fig. 6.1 </span>: LIQSS method have linear growth of computing time, whereas ode15 (MATLAB) and esdirk23a (Dymola) have cubic growth.</span><a class="headerlink" href="#id14" title="Permalink to this image">¶</a></p>
@@ -233,7 +233,7 @@ where the sequence <span class="math notranslate nohighlight">\(\{t_{j}\}_{j=0}^
 <div class="math notranslate nohighlight">
 \[t_{j+1} = \min \{t \in \Re \, | \, t &gt; t_j, \,  |x_i(t_j) - x_i(t)| = \Delta q_i \}.\]</div>
 <p>Thus, the component <span class="math notranslate nohighlight">\(q_i(t)\)</span> changes its state when it differs from <span class="math notranslate nohighlight">\(x_i(t)\)</span> by <span class="math notranslate nohighlight">\(\pm\Delta q_i\)</span>.
-<a class="pageref" href="#fig-qss1-example">Figure  2</a> shows an example of a quantization function for QSS1.</p>
+<a class="reference internal" href="#fig-qss1-example"><span class="std std-numref">Fig. 6.2</span></a> shows an example of a quantization function for QSS1.</p>
 <div class="figure align-default" id="id15">
 <span id="fig-qss1-example"></span><a class="reference internal image-reference" href="_images/qss1.png"><img alt="_images/qss1.png" src="_images/qss1.png" style="width: 900.0px; height: 551.4px;" /></a>
 <p class="caption"><span class="caption-number">Fig. 6.2 </span>: Example of quantization function for QSS1.</span><a class="headerlink" href="#id15" title="Permalink to this image">¶</a></p>
@@ -257,7 +257,7 @@ x(0) &amp; = (10, 10, 10)
 \dot \chi_3(t) &amp; = - 2 \, \left(  2 \, \lceil{\chi_2(t)}\rceil + \lceil{\chi_3(t)}\rceil \right) \\
 \chi(0) &amp; = (10, 10, 10)
 \end{aligned}\end{split}\]</div>
-<p><a class="pageref" href="#fig-qss-ceil-example">Figure  3</a> shows the time series of the solution of the differential equation computed by QSS1.</p>
+<p><a class="reference internal" href="#fig-qss-ceil-example"><span class="std std-numref">Fig. 6.3</span></a> shows the time series of the solution of the differential equation computed by QSS1.</p>
 <div class="figure align-default" id="id16">
 <span id="fig-qss-ceil-example"></span><a class="reference internal image-reference" href="_images/qssCeil.png"><img alt="_images/qssCeil.png" src="_images/qssCeil.png" style="width: 1100.0px; height: 400.0px;" /></a>
 <p class="caption"><span class="caption-number">Fig. 6.3 </span>: Time series computed by QSS1 for <span class="math notranslate nohighlight">\(t \in [0, 0.1]\)</span>.</span><a class="headerlink" href="#id16" title="Permalink to this image">¶</a></p>
