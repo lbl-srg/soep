@@ -347,7 +347,7 @@ Coupling of a zone surface
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The following interface models the heat transfer of a surface with the EnergyPlus thermal zone.
-This allows for example coupling of a radiant heating or cooling system that is modelled in Modelica
+This allows for example coupling of a radiant heating or cooling system that is modeled in Modelica
 to the EnergyPlus thermal zone model. Examples of such radiant systems include a floor slab with embedded
 pipes and a radiant cooling panel that is suspended from a ceiling.
 The partitioning is such that Modelica models the heat transfer between the surface and the device
