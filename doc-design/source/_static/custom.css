@@ -125,13 +125,24 @@ color: #750000;
     background-color: #f8f8f8;
 }
 
-
+table {
+    background-color: #f8f8f8;
+}
+th{
+    background-color: #ddd;
+}
 td.label{
     color: #022e4d;
 }
+.table > tbody > tr > td{
+  padding-block: 0px;
+}
+
+
 table.citation > thead > tr > th, .table.citation > tbody > tr > th, .table.citation > tfoot > tr > th, .table.citation > thead > tr > td, .table.citation > tbody > tr > td, .table.citation > tfoot > tr > td{
     border: none;
 }
+
 #references.section{
     color: #022e4d;
 }
