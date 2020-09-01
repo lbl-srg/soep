@@ -50,8 +50,6 @@ dynamic load models for the SOEP mode.
 .. uml::
    :caption: Overall software architecture.
 
-   title Overall software architecture
-
    scale max 1024 width
 
    skinparam componentStyle uml2
@@ -68,7 +66,6 @@ dynamic load models for the SOEP mode.
    }
 
    package SOEP-Mode {
-
    [Core] -down-> [Model Library]: integrates
    [Core] -down-> [HVAC Systems Editor\n(SOEP Mode)]: integrates
    [Core] -down-> [SOEP\nSimulator Interface]: integrates
@@ -100,10 +97,6 @@ dynamic load models for the SOEP mode.
    actor Developer as budev
    [Modelica\nBuildings Library] <.. budev : adds annotations
 
-   actor User as mouse
-   [User-Provided\nModelica Library] <.. mouse : adds annotations
-
-
    [Application] ..> () API : uses
    [Measures] ..> () API : uses
 
@@ -115,6 +108,9 @@ dynamic load models for the SOEP mode.
    package EnergyPlus {
      [EnergyPlus.exe]
    }
+
+   actor User as mouse
+   [User-Provided\nModelica Library] <.. mouse : adds annotations
 
    note left of mod_AST
      Used as an intermediate format and
@@ -261,7 +257,7 @@ schedules and EMS actuators.
 .. _fig-partition-envelop-room-hvac:
 
 .. figure:: img/envelop-room-hvac.*
-   :scale: 100 %
+   :width: 1600px
 
    Partitioning of the envelope, room and HVAC model.
 
@@ -863,8 +859,6 @@ with the extended FMI API.
 .. uml::
    :caption: Software architecture for QSS integration with OPTIMICA
              with extended FMI API.
-
-   title Software architecture for QSS integration with OPTIMICA with extended FMI API
 
    skinparam componentStyle uml2
 
