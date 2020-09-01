@@ -62,16 +62,16 @@ dynamic load models for the SOEP mode.
 
    package Legacy-Mode {
    database "Legacy\nModel Library"
-   [Core] -> [Legacy\nModel Library]: integrates
-   [Core] -> [HVAC Systems Editor\n(Legacy Mode)]: integrates
-   [Core] -> [EnergyPlus\nSimulator Interface]: integrates
+   [Core] -down-> [Legacy\nModel Library]: integrates
+   [Core] -down-> [HVAC Systems Editor\n(Legacy Mode)]: integrates
+   [Core] -down-> [EnergyPlus\nSimulator Interface]: integrates
    }
 
    package SOEP-Mode {
 
-   [Core] --> [Model Library]: integrates
-   [Core] --> [HVAC Systems Editor\n(SOEP Mode)]: integrates
-   [Core] --> [SOEP\nSimulator Interface]: integrates
+   [Core] -down-> [Model Library]: integrates
+   [Core] -down-> [HVAC Systems Editor\n(SOEP Mode)]: integrates
+   [Core] -down-> [SOEP\nSimulator Interface]: integrates
    }
    }
 
@@ -92,7 +92,7 @@ dynamic load models for the SOEP mode.
 
 
    actor Developer as epdev
-   [Legacy\nModel Library] <.. epdev : updates
+   [Legacy\nModel Library] <.left. epdev : updates
 
    actor "Developer or User" as modev
    [Conversion Script] <.. modev : invokes
@@ -110,7 +110,7 @@ dynamic load models for the SOEP mode.
    database "User-Provided\nModelica Library"
    [OPTIMICA] --> [User-Provided\nModelica Library]: imports
 
-   EnergyPlus <.. [EnergyPlus\nSimulator Interface]: writes inputs,\nruns simulation,\nreads outputs
+   EnergyPlus <.left. [EnergyPlus\nSimulator Interface]: writes inputs,\nruns simulation,\nreads outputs
 
    package EnergyPlus {
      [EnergyPlus.exe]
@@ -857,8 +857,6 @@ standard does not allow a zero time step size as needed for direct feed-through.
 
 :numref:`fig_sof_arc_qss_jmod2` shows the software architecture
 with the extended FMI API.
-For simplicity the figure only
-shows single FMUs, but we anticipated having multiple interconnected FMUs.
 
 .. _fig_sof_arc_qss_jmod2:
 
@@ -870,37 +868,13 @@ shows single FMUs, but we anticipated having multiple interconnected FMUs.
 
    skinparam componentStyle uml2
 
-   package FMU-QSS {
-     [QSS solver] as qss_sol
-     [FMU-ME] as FMU_QSS
-   }
-
-   package PyFMI {
-   [Master algorithm] -> qss_sol : "inputs, time"
-   [Master algorithm] <- qss_sol : "next event time, discrete states"
-   [Master algorithm] - [Sundials]
-   }
-
-   [FMU-ME] as ode
-
-   [Sundials] -> ode : "(x, t)"
-   [Sundials] <- ode : "dx/dt"
-
-   package Optimica {
+   [QSS solver] as qss_sol
+   [FMU-ME] as FMU_QSS
    [OPTIMICA compiler] as oct
-   }
 
-   oct -l-> FMU_QSS
-
-   FMU_QSS -down-> qss_sol : "derivatives"
-   qss_sol -down-> FMU_QSS : "inputs, time, states"
-
-.. note::
-
-   We still need to design how to handle algebraic loops inside the FMU
-   (see also Cellier's and Kofman's book) and algebraic loops that
-   cross multiple FMUs.
-
+   qss_sol -left-> FMU_QSS : "inputs, time, states"
+   FMU_QSS -right-> qss_sol : "derivatives"
+   oct -right-> FMU_QSS : generate FMU with information for QSS
 
 The QSS solvers require the derivatives shown in :numref:`tab_qss_der`.
 
