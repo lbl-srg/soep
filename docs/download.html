@@ -89,7 +89,7 @@
 <li class="toctree-l1"><a class="reference internal" href="softwareArchitecture.html">5. Software Architecture</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#overall-software-architecture">5.1. Overall software architecture</a></li>
 <li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#coupling-of-energyplus-with-modelica">5.2. Coupling of EnergyPlus with Modelica</a></li>
-<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#integration-of-qss-solver-with-jmodelica">5.3. Integration of QSS solver with JModelica</a></li>
+<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#integration-of-qss-solver-with-optimica">5.3. Integration of QSS solver with OPTIMICA</a></li>
 <li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#integration-with-openstudio">5.4. Integration with OpenStudio</a></li>
 </ul>
 </li>
@@ -165,8 +165,8 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone -b issue1129_energyPlus_zone git@github.com:lbl-srg/modelica-buildings.git
 </pre></div>
 </div>
-<p>This will download the development version which has been tested with JModelica.</p>
-<p>You will also need to install JModelica. A docker image that is used to develop SOEP
+<p>This will download the development version which has been tested with OPTIMICA and with JModelica.</p>
+<p>You will also need to install OPTIMICA or JModelica. A JModelica docker image that is used to develop SOEP
 is available from <a class="reference external" href="https://github.com/lbl-srg/docker-ubuntu-jmodelica">https://github.com/lbl-srg/docker-ubuntu-jmodelica</a></p>
 <p>You can then simulate models by running, for example,</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> modelica-buildings

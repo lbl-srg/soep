@@ -89,7 +89,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">5. Software Architecture</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#overall-software-architecture">5.1. Overall software architecture</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#coupling-of-energyplus-with-modelica">5.2. Coupling of EnergyPlus with Modelica</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#integration-of-qss-solver-with-jmodelica">5.3. Integration of QSS solver with JModelica</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#integration-of-qss-solver-with-optimica">5.3. Integration of QSS solver with OPTIMICA</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#integration-with-openstudio">5.4. Integration with OpenStudio</a></li>
 </ul>
 </li>
@@ -145,7 +145,7 @@
 <li><a class="reference internal" href="#time-synchronization">5.2.5. Time synchronization</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#integration-of-qss-solver-with-jmodelica">5.3. Integration of QSS solver with JModelica</a><ul>
+<li><a class="reference internal" href="#integration-of-qss-solver-with-optimica">5.3. Integration of QSS solver with OPTIMICA</a><ul>
 <li><a class="reference internal" href="#fmi-changes-for-qss">5.3.1. FMI Changes for QSS</a><ul>
 <li><a class="reference internal" href="#setting-individual-elements-of-the-state-vector">5.3.1.1. Setting individual elements of the state vector</a></li>
 <li><a class="reference internal" href="#getting-derivatives-of-state-variables">5.3.1.2. Getting derivatives of state variables</a></li>
@@ -226,7 +226,7 @@
 <span id="sec-soft-arch"></span><h1>5. Software Architecture<a class="headerlink" href="#software-architecture" title="Permalink to this headline">¶</a></h1>
 <p>This section describes the overall software architecture (<a class="reference internal" href="#sec-ove-sof-arc"><span class="std std-numref">Section 5.1</span></a>),
 the coupling of Modelica with EnergyPlus (<a class="reference internal" href="#sec-cou-ene-mod"><span class="std std-numref">Section 5.2</span></a>),
-the integration of the QSS solver with JModelica (<a class="reference internal" href="#sec-qss-jmo-int"><span class="std std-numref">Section 5.3</span></a>), and
+the integration of the QSS solver with OPTIMICA (<a class="reference internal" href="#sec-qss-jmo-int"><span class="std std-numref">Section 5.3</span></a>), and
 the OpenStudio integration (<a class="reference internal" href="#sec-int-ope-stu"><span class="std std-numref">Section 5.4</span></a>).</p>
 <div class="section" id="overall-software-architecture">
 <span id="sec-ove-sof-arc"></span><h2>5.1. Overall software architecture<a class="headerlink" href="#overall-software-architecture" title="Permalink to this headline">¶</a></h2>
@@ -257,10 +257,8 @@ Modelica library that allows OpenStudio to
 dynamic load models for the SOEP mode.</p>
 <div class="figure align-default" id="id4">
 <span id="fig-overall-software-architecture"></span><p class="plantuml">
-<object data="_images/plantuml-42b14e268a4f127550932a42892ae7433788991a.svg" type="image/svg+xml" style="width:1011px;height:778px;">
-<img src="_images/plantuml-42b14e268a4f127550932a42892ae7433788991a.png" alt="title Overall software architecture
-
-scale max 1024 width
+<object data="_images/plantuml-9138fd5933710fb758be340477c667bfb577b0a0.svg" type="image/svg+xml" style="width:1035px;height:720px;">
+<img src="_images/plantuml-9138fd5933710fb758be340477c667bfb577b0a0.png" alt="scale max 1024 width
 
 skinparam componentStyle uml2
 
@@ -270,16 +268,15 @@ API - [Core]
 
 package Legacy-Mode {
 database &quot;Legacy\nModel Library&quot;
-[Core] -&gt; [Legacy\nModel Library]: integrates
-[Core] -&gt; [HVAC Systems Editor\n(Legacy Mode)]: integrates
-[Core] -&gt; [EnergyPlus\nSimulator Interface]: integrates
+[Core] -down-&gt; [Legacy\nModel Library]: integrates
+[Core] -down-&gt; [HVAC Systems Editor\n(Legacy Mode)]: integrates
+[Core] -down-&gt; [EnergyPlus\nSimulator Interface]: integrates
 }
 
 package SOEP-Mode {
-
-[Core] --&gt; [Model Library]: integrates
-[Core] --&gt; [HVAC Systems Editor\n(SOEP Mode)]: integrates
-[Core] --&gt; [SOEP\nSimulator Interface]: integrates
+[Core] -down-&gt; [Model Library]: integrates
+[Core] -down-&gt; [HVAC Systems Editor\n(SOEP Mode)]: integrates
+[Core] -down-&gt; [SOEP\nSimulator Interface]: integrates
 }
 }
 
@@ -291,16 +288,16 @@ database &quot;Modelica\nBuildings Library&quot;
 
 [HVAC Systems Editor\n(SOEP Mode)] ..&gt; mod_AST : parses json\nAST
 
-[Conversion Script] .&gt; [JModelica]: parses\nAST
-[SOEP\nSimulator Interface] .&gt; [JModelica] : writes inputs,\nruns simulation,\nreads outputs
+[Conversion Script] .&gt; [OPTIMICA]: parses\nAST
+[SOEP\nSimulator Interface] .&gt; [OPTIMICA] : writes inputs,\nruns simulation,\nreads outputs
 
 [Conversion Script] -&gt; mod_AST: generates
-[JModelica] -&gt; [Modelica\nBuildings Library]: imports
+[OPTIMICA] -&gt; [Modelica\nBuildings Library]: imports
 }
 
 
 actor Developer as epdev
-[Legacy\nModel Library] &lt;.. epdev : updates
+[Legacy\nModel Library] &lt;.left. epdev : updates
 
 actor &quot;Developer or User&quot; as modev
 [Conversion Script] &lt;.. modev : invokes
@@ -308,21 +305,20 @@ actor &quot;Developer or User&quot; as modev
 actor Developer as budev
 [Modelica\nBuildings Library] &lt;.. budev : adds annotations
 
-actor User as mouse
-[User-Provided\nModelica Library] &lt;.. mouse : adds annotations
-
-
 [Application] ..&gt; () API : uses
 [Measures] ..&gt; () API : uses
 
 database &quot;User-Provided\nModelica Library&quot;
-[JModelica] --&gt; [User-Provided\nModelica Library]: imports
+[OPTIMICA] --&gt; [User-Provided\nModelica Library]: imports
 
-EnergyPlus &lt;.. [EnergyPlus\nSimulator Interface]: writes inputs,\nruns simulation,\nreads outputs
+EnergyPlus &lt;.left. [EnergyPlus\nSimulator Interface]: writes inputs,\nruns simulation,\nreads outputs
 
 package EnergyPlus {
   [EnergyPlus.exe]
 }
+
+actor User as mouse
+[User-Provided\nModelica Library] &lt;.. mouse : adds annotations
 
 note left of mod_AST
   Used as an intermediate format and
@@ -499,7 +495,7 @@ Both simulators can declare and use schedules, and they can interact through
 the thermal zone model, through EnergyPlus outputs and through EnergyPlus
 schedules and EMS actuators.</p>
 <div class="figure align-default" id="id6">
-<span id="fig-partition-envelop-room-hvac"></span><a class="reference internal image-reference" href="_images/envelop-room-hvac.svg"><img alt="_images/envelop-room-hvac.svg" src="_images/envelop-room-hvac.svg" /></a>
+<span id="fig-partition-envelop-room-hvac"></span><a class="reference internal image-reference" href="_images/envelop-room-hvac.svg"><img alt="_images/envelop-room-hvac.svg" src="_images/envelop-room-hvac.svg" width="1600px" /></a>
 <p class="caption"><span class="caption-number">Fig. 5.2 </span>: Partitioning of the envelope, room and HVAC model.</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
 </div>
 <p>The following <a class="reference internal" href="#sec-cou-env"><span class="std std-numref">Section 5.2.3.1</span></a> specifies the coupling of these models,
@@ -918,9 +914,9 @@ For the case of a model with one thermal zone, the content of this file looks as
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
  <span class="nt">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;0.1&quot;</span><span class="p">,</span>
  <span class="nt">&quot;EnergyPlus&quot;</span><span class="p">:</span> <span class="p">{</span>
-   <span class="nt">&quot;idf&quot;</span><span class="p">:</span> <span class="s2">&quot;/tmp/JModelica.org/jm_tmpPVJfHP/resources/0/RefBldgSmallOfficeNew2004_Chicago.idf&quot;</span><span class="p">,</span>
-   <span class="nt">&quot;idd&quot;</span><span class="p">:</span> <span class="s2">&quot;/tmp/JModelica.org/jm_tmpPVJfHP/resources/2/Energy+.idd&quot;</span><span class="p">,</span>
-   <span class="nt">&quot;weather&quot;</span><span class="p">:</span> <span class="s2">&quot;/tmp/JModelica.org/jm_tmpPVJfHP/resources/1/USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.epw&quot;</span>
+   <span class="nt">&quot;idf&quot;</span><span class="p">:</span> <span class="s2">&quot;/tmp/tmp-spawn/jm_tmpPVJfHP/resources/0/RefBldgSmallOfficeNew2004_Chicago.idf&quot;</span><span class="p">,</span>
+   <span class="nt">&quot;idd&quot;</span><span class="p">:</span> <span class="s2">&quot;/tmp/tmp-spawn/jm_tmpPVJfHP/resources/2/Energy+.idd&quot;</span><span class="p">,</span>
+   <span class="nt">&quot;weather&quot;</span><span class="p">:</span> <span class="s2">&quot;/tmp/tmp-spawn/jm_tmpPVJfHP/resources/1/USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.epw&quot;</span>
  <span class="p">},</span>
  <span class="nt">&quot;fmu&quot;</span><span class="p">:</span> <span class="p">{</span>
      <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;/mnt/shared/modelica-buildings/tmp-eplus-fmuName/fmuName.fmu&quot;</span><span class="p">,</span>
@@ -1071,9 +1067,9 @@ This allows to avoid algebraic loops that may be formed by adding a controller
 between an EnergyPlus output and an EnergyPlus input, as described in <a class="reference internal" href="#sec-sen-var"><span class="std std-numref">Section 5.2.3.4</span></a>.</p>
 </div>
 </div>
-<div class="section" id="integration-of-qss-solver-with-jmodelica">
-<span id="sec-qss-jmo-int"></span><h2>5.3. Integration of QSS solver with JModelica<a class="headerlink" href="#integration-of-qss-solver-with-jmodelica" title="Permalink to this headline">¶</a></h2>
-<p>This section describes the integration of the QSS solver in JModelica.</p>
+<div class="section" id="integration-of-qss-solver-with-optimica">
+<span id="sec-qss-jmo-int"></span><h2>5.3. Integration of QSS solver with OPTIMICA<a class="headerlink" href="#integration-of-qss-solver-with-optimica" title="Permalink to this headline">¶</a></h2>
+<p>This section describes the integration of the QSS solver in OPTIMICA.</p>
 <p>We will first introduce terminology.
 Consider the code-snippet</p>
 <div class="highlight-modelica notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
@@ -1101,50 +1097,23 @@ direct feed-through from the input
 FMI for Model-Exchange (FMI-ME) version 2.0, because the Co-Simulation
 standard does not allow a zero time step size as needed for direct feed-through.</p>
 <p><a class="reference internal" href="#fig-sof-arc-qss-jmod2"><span class="std std-numref">Fig. 5.4</span></a> shows the software architecture
-with the extended FMI API.
-For simplicity the figure only
-shows single FMUs, but we anticipated having multiple interconnected FMUs.</p>
+with the extended FMI API.</p>
 <div class="figure align-default" id="id8">
 <span id="fig-sof-arc-qss-jmod2"></span><p class="plantuml">
-<object data="_images/plantuml-24c6e5725ea55a6b194775fd3c024e2e3075f32d.svg" type="image/svg+xml" style="width:874px;height:981px;">
-<img src="_images/plantuml-24c6e5725ea55a6b194775fd3c024e2e3075f32d.png" alt="title Software architecture for QSS integration with JModelica with extended FMI API
+<object data="_images/plantuml-2b0f431781c4d10ed5565baa232d436815fb4ae6.svg" type="image/svg+xml" style="width:851px;height:72px;">
+<img src="_images/plantuml-2b0f431781c4d10ed5565baa232d436815fb4ae6.png" alt="skinparam componentStyle uml2
 
-skinparam componentStyle uml2
+[QSS solver] as qss_sol
+[FMU-ME] as FMU_QSS
+[OPTIMICA compiler] as oct
 
-package FMU-QSS {
-  [QSS solver] as qss_sol
-  [FMU-ME] as FMU_QSS
-}
-
-package PyFMI {
-[Master algorithm] -&gt; qss_sol : &quot;inputs, time&quot;
-[Master algorithm] &lt;- qss_sol : &quot;next event time, discrete states&quot;
-[Master algorithm] - [Sundials]
-}
-
-[FMU-ME] as ode
-
-[Sundials] -&gt; ode : &quot;(x, t)&quot;
-[Sundials] &lt;- ode : &quot;dx/dt&quot;
-
-package Optimica {
-[JModelica compiler] as jmc
-}
-
-jmc -l-&gt; FMU_QSS
-
-FMU_QSS -down-&gt; qss_sol : &quot;derivatives&quot;
-qss_sol -down-&gt; FMU_QSS : &quot;inputs, time, states&quot;"/>
+qss_sol -left-&gt; FMU_QSS : &quot;inputs, time, states&quot;
+FMU_QSS -right-&gt; qss_sol : &quot;derivatives&quot;
+oct -right-&gt; FMU_QSS : generate FMU with information for QSS"/>
 
 </object></p>
-<p class="caption"><span class="caption-number">Fig. 5.4 </span>: Software architecture for QSS integration with JModelica
+<p class="caption"><span class="caption-number">Fig. 5.4 </span>: Software architecture for QSS integration with OPTIMICA
 with extended FMI API.</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>We still need to design how to handle algebraic loops inside the FMU
-(see also Cellier’s and Kofman’s book) and algebraic loops that
-cross multiple FMUs.</p>
 </div>
 <p>The QSS solvers require the derivatives shown in <a class="reference internal" href="#tab-qss-der"><span class="std std-numref">Table 5.2</span></a>.</p>
 <span id="tab-qss-der"></span><table class="docutils align-default" id="id9">
@@ -1345,7 +1314,7 @@ and what variables the FMU will modify when an event fires.
 Furthermore, QSS will need to
 have access to, or else approximate numerically, the time derivatives of the
 event indicator. FMI 2.0 outputs an array of real-valued event indicators,
-but no variable dependencies. Therefore, JModelica added the output</p>
+but no variable dependencies. Therefore, OPTIMICA added the output</p>
 <div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="c">&lt;!-- Variable with index #10 --&gt;</span>
 <span class="nt">&lt;ScalarVariable</span> <span class="na">name=</span><span class="s">&quot;_eventIndicator_1&quot;</span> <span class="na">valueReference=</span><span class="s">&quot;42&quot;</span> <span class="na">causality=</span><span class="s">&quot;output&quot;</span>
                 <span class="na">variability=</span><span class="s">&quot;continuous&quot;</span> <span class="na">initial=</span><span class="s">&quot;calculated&quot;</span><span class="nt">&gt;</span>
@@ -1355,14 +1324,14 @@ but no variable dependencies. Therefore, JModelica added the output</p>
 </div>
 <p>This causes event indicators to become output variables, and therefore their dependency can be reported
 using existing FMI 2.0 conventions.</p>
-<p>Furthermore, JModelica added in the <code class="docutils literal notranslate"><span class="pre">&lt;VendorAnnotations&gt;</span></code> the section <code class="docutils literal notranslate"><span class="pre">&lt;Tool</span> <span class="pre">name=&quot;OCT_StateEvents&quot;&gt;</span></code>.
+<p>Furthermore, OPTIMICA added in the <code class="docutils literal notranslate"><span class="pre">&lt;VendorAnnotations&gt;</span></code> the section <code class="docutils literal notranslate"><span class="pre">&lt;Tool</span> <span class="pre">name=&quot;OCT_StateEvents&quot;&gt;</span></code>.
 The meaning of the entries in this section is as follows:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>The section <code class="docutils literal notranslate"><span class="pre">EventIndicators</span></code> lists all event indicators in an <code class="docutils literal notranslate"><span class="pre">&lt;Element&gt;</span></code> section.
 Its entries are defined as follows:</p>
 <ul>
-<li><p>The attribute <code class="docutils literal notranslate"><span class="pre">index</span></code> points to the index of the event indicator, which JModelica will add as an output
+<li><p>The attribute <code class="docutils literal notranslate"><span class="pre">index</span></code> points to the index of the event indicator, which OPTIMICA will add as an output
 of the FMU.</p></li>
 <li><p>The attribute <code class="docutils literal notranslate"><span class="pre">reverseDependencies</span></code> lists the index of the variables and state derivatives that
 the FMU modifies <em>via</em> an event handler when it detects that this event has occurred.</p></li>
@@ -1371,7 +1340,7 @@ the FMU modifies <em>via</em> an event handler when it detects that this event h
 </ul>
 </div></blockquote>
 <p>Note that for the event indicator, the <code class="docutils literal notranslate"><span class="pre">dependencies</span></code> can be obtained from the section
-<code class="docutils literal notranslate"><span class="pre">&lt;ModelStructure&gt;&lt;Outputs&gt;...&lt;/ModelStructure&gt;&lt;/Outputs&gt;</span></code> because JModelica added the event indicator as
+<code class="docutils literal notranslate"><span class="pre">&lt;ModelStructure&gt;&lt;Outputs&gt;...&lt;/ModelStructure&gt;&lt;/Outputs&gt;</span></code> because OPTIMICA added the event indicator as
 an output variable.</p>
 </div>
 </div>
@@ -1547,7 +1516,7 @@ However, since <code class="docutils literal notranslate"><span class="pre">y</s
 but a time event is not described with event indicator,
 it is not possible to use the same approach as done for
 <code class="docutils literal notranslate"><span class="pre">StateEvent1</span></code> without further modificaton.</p>
-<p>We therefore propose that JModelica turns all time events into state events and
+<p>We therefore propose that OPTIMICA turns all time events into state events and
 adds new event indicators as output variables.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1637,11 +1606,11 @@ be extended to include higher order derivatives information.</p></li>
 <li><p>A new <code class="docutils literal notranslate"><span class="pre">&lt;EventIndicators&gt;</span></code> element wil be added to the model description file.
 This element will expose event indicators with their <code class="docutils literal notranslate"><span class="pre">dependencies</span></code> and time derivatives.</p></li>
 <li><p>If a model has an event indicator, and the event indicator has a direct
-feedthrough on an input variable, then JModelica will exclude the derivatives
+feedthrough on an input variable, then OPTIMICA will exclude the derivatives
 of that event indicator from the model description file.</p></li>
 <li><p>A new dependency attribute <code class="docutils literal notranslate"><span class="pre">eventIndicatorsDependencies</span></code> will be added to state derivatives listed
 in the <code class="docutils literal notranslate"><span class="pre">&lt;Derivatives&gt;</span></code> element to include event indicators on which the state derivatives depend on.</p></li>
-<li><p>JModelica will convert time event into state events, generate event indicators
+<li><p>OPTIMICA will convert time event into state events, generate event indicators
 for those state events, and add those event indicators to the <code class="docutils literal notranslate"><span class="pre">eventIndicatorsDependencies</span></code>
 of state derivatives which depend on them.</p></li>
 <li><p>A new function <code class="docutils literal notranslate"><span class="pre">fmi2SetRealInputDerivatives</span></code> will be included to parametrize smooth token.</p></li>

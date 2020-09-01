@@ -89,7 +89,7 @@
 <li class="toctree-l1"><a class="reference internal" href="softwareArchitecture.html">5. Software Architecture</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#overall-software-architecture">5.1. Overall software architecture</a></li>
 <li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#coupling-of-energyplus-with-modelica">5.2. Coupling of EnergyPlus with Modelica</a></li>
-<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#integration-of-qss-solver-with-jmodelica">5.3. Integration of QSS solver with JModelica</a></li>
+<li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#integration-of-qss-solver-with-optimica">5.3. Integration of QSS solver with OPTIMICA</a></li>
 <li class="toctree-l2"><a class="reference internal" href="softwareArchitecture.html#integration-with-openstudio">5.4. Integration with OpenStudio</a></li>
 </ul>
 </li>
@@ -124,7 +124,6 @@
 </li>
 <li><a class="reference internal" href="#fmu-requirements">4.3. FMU Requirements</a><ul>
 <li><a class="reference internal" href="#fmu-capabilities">4.3.1. FMU Capabilities</a></li>
-<li><a class="reference internal" href="#interface-variables-of-fmu">4.3.2. Interface Variables of FMU</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#qss-implementation">4.4. QSS Implementation</a></li>
@@ -444,36 +443,15 @@ to some <span class="math notranslate nohighlight">\(h''&gt;h'\)</span>, it will
 <span class="math notranslate nohighlight">\(h'\)</span>.
 This property is required for FMUs to make maximum progress
 in each time step. See <a class="reference internal" href="zreferences.html#broman2013" id="id7">[BBG+13]</a>.</p></li>
-<li><p>FMUs distributed with SOEP must run on Windows 32/64 bit, Linux 32/64 bit
+<li><p>FMUs distributed with SOEP must run on Windows 64 bit, Linux 64 bit
 and Mac OS X 64 bit.</p></li>
 </ol>
-</div>
-<div class="section" id="interface-variables-of-fmu">
-<h3>4.3.2. Interface Variables of FMU<a class="headerlink" href="#interface-variables-of-fmu" title="Permalink to this headline">¶</a></h3>
-<p>The parameters, inputs, outputs and state variables of FMUs
-shall provide the following information:</p>
-<ol class="arabic simple">
-<li><p>A descriptive text that can be used in a user interface.</p></li>
-<li><p>Units of the variable.</p></li>
-<li><p>Optionally, a start value that may be used as a guess
-for a numerical solvers. If not specified, the default is <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p></li>
-<li><p>Optionally, nominal values that indicate the magnitude of
-the variable.
-This is used to scale variables in convergence tests of
-numerical solvers. If not specified, the default is <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p></li>
-<li><p>Optionally, minimum and maximum values that the variable
-is allowed to attain.</p></li>
-</ol>
-<p>Note that a container for exporting HVAC components as an FMU is described
-in <a class="reference internal" href="zreferences.html#wetterfuchsnouidui-2015" id="id8">[WFN15]</a>, and the Modelica Buildings library
-development version contains a revised package <cite>Buildings.Fluid.FMI</cite> that
-allows exporting HVAC systems and thermal zones.</p>
 </div>
 </div>
 <div class="section" id="qss-implementation">
 <h2>4.4. QSS Implementation<a class="headerlink" href="#qss-implementation" title="Permalink to this headline">¶</a></h2>
 <p>This section describes the requirements for the QSS solver implementation.
-The development code for QSS is at <a class="reference external" href="https://gitlab.com/ObjexxEP/QSS/tree/master">https://gitlab.com/ObjexxEP/QSS/tree/master</a>.</p>
+The development code for QSS is at <a class="reference external" href="https://github.com/NREL/SOEP-QSS">https://github.com/NREL/SOEP-QSS</a>.</p>
 <ol class="arabic simple">
 <li><p>The implementation shall support the ability to mix traditional discrete time
 simulation of some subsystems with QSS solution of others.</p></li>
@@ -488,11 +466,9 @@ An example are distributed discrete time controls.</p></li>
 If these pose a problem, we may want to avoid them at a later stage in the solver.</p></li>
 <li><p>Algebraic loops shall be supported (without the use of micro-delays).</p></li>
 </ol>
-<p>Open question: Shall we use OpenMP or some other system?</p>
 </div>
 <div class="section" id="master-algorithm">
 <h2>4.5. Master Algorithm<a class="headerlink" href="#master-algorithm" title="Permalink to this headline">¶</a></h2>
-<p><strong>This section should probably be deleted.</strong></p>
 <p>The master algorithm must satisfy the following requirements:</p>
 <ol class="arabic simple">
 <li><p>The master algorithm must be using the BSD license. Hence,
@@ -519,8 +495,8 @@ the default behavior. However, it must be possible
 to disable this error handling so that a completion of
 the simulation is only possible if all FMUs
 simulated without error.</p></li>
-<li><p>The master algorithm must run on Windows 32/64 bit,
-Linux 32/64 bit, and Mac OS X 64 bit.</p></li>
+<li><p>The master algorithm must run on Windows 64 bit,
+Linux 64 bit, and Mac OS X 64 bit.</p></li>
 </ol>
 </div>
 </div>
