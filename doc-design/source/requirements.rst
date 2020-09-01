@@ -381,15 +381,9 @@ The development code for QSS is at https://github.com/NREL/SOEP-QSS.
    If these pose a problem, we may want to avoid them at a later stage in the solver.
 #. Algebraic loops shall be supported (without the use of micro-delays).
 
-Open question: Shall we use OpenMP or some other system?
-
-
-
 
 Master Algorithm
 ^^^^^^^^^^^^^^^^
-
-**This section should probably be deleted.**
 
 The master algorithm must satisfy the following requirements:
 
@@ -421,5 +415,5 @@ The master algorithm must satisfy the following requirements:
    the simulation is only possible if all FMUs
    simulated without error.
 
-#. The master algorithm must run on Windows 32/64 bit,
-   Linux 32/64 bit, and Mac OS X 64 bit.
+#. The master algorithm must run on Windows 64 bit,
+   Linux 64 bit, and Mac OS X 64 bit.
