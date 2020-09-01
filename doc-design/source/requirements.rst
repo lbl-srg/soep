@@ -336,31 +336,9 @@ the following optional properties of the FMI 2.0 standard.
    This property is required for FMUs to make maximum progress
    in each time step. See :cite:`Broman2013`.
 
-#. FMUs distributed with SOEP must run on Windows 32/64 bit, Linux 32/64 bit
+#. FMUs distributed with SOEP must run on Windows 64 bit, Linux 64 bit
    and Mac OS X 64 bit.
 
-
-Interface Variables of FMU
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The parameters, inputs, outputs and state variables of FMUs
-shall provide the following information:
-
-#. A descriptive text that can be used in a user interface.
-#. Units of the variable.
-#. Optionally, a start value that may be used as a guess
-   for a numerical solvers. If not specified, the default is ``0``.
-#. Optionally, nominal values that indicate the magnitude of
-   the variable.
-   This is used to scale variables in convergence tests of
-   numerical solvers. If not specified, the default is ``1``.
-#. Optionally, minimum and maximum values that the variable
-   is allowed to attain.
-
-Note that a container for exporting HVAC components as an FMU is described
-in :cite:`WetterFuchsNouidui:2015`, and the Modelica Buildings library
-development version contains a revised package `Buildings.Fluid.FMI` that
-allows exporting HVAC systems and thermal zones.
 
 QSS Implementation
 ^^^^^^^^^^^^^^^^^^
