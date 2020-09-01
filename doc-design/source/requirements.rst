@@ -366,7 +366,7 @@ QSS Implementation
 ^^^^^^^^^^^^^^^^^^
 
 This section describes the requirements for the QSS solver implementation.
-The development code for QSS is at https://gitlab.com/ObjexxEP/QSS/tree/master.
+The development code for QSS is at https://github.com/NREL/SOEP-QSS.
 
 #. The implementation shall support the ability to mix traditional discrete time
    simulation of some subsystems with QSS solution of others.

@@ -9,9 +9,9 @@ SOEP is still development. The development version for Linux 64 bit is accessibl
 
    git clone -b issue1129_energyPlus_zone git@github.com:lbl-srg/modelica-buildings.git
 
-This will download the development version which has been tested with JModelica.
+This will download the development version which has been tested with OPTIMICA and with JModelica.
 
-You will also need to install JModelica. A docker image that is used to develop SOEP
+You will also need to install OPTIMICA or JModelica. A JModelica docker image that is used to develop SOEP
 is available from https://github.com/lbl-srg/docker-ubuntu-jmodelica
 
 You can then simulate models by running, for example,

@@ -6,7 +6,7 @@ Software Architecture
 
 This section describes the overall software architecture (:numref:`sec_ove_sof_arc`),
 the coupling of Modelica with EnergyPlus (:numref:`sec_cou_ene_mod`),
-the integration of the QSS solver with JModelica (:numref:`sec_qss_jmo_int`), and
+the integration of the QSS solver with OPTIMICA (:numref:`sec_qss_jmo_int`), and
 the OpenStudio integration (:numref:`sec_int_ope_stu`).
 
 .. _sec_ove_sof_arc:
@@ -83,11 +83,11 @@ dynamic load models for the SOEP mode.
 
    [HVAC Systems Editor\n(SOEP Mode)] ..> mod_AST : parses json\nAST
 
-   [Conversion Script] .> [JModelica]: parses\nAST
-   [SOEP\nSimulator Interface] .> [JModelica] : writes inputs,\nruns simulation,\nreads outputs
+   [Conversion Script] .> [OPTIMICA]: parses\nAST
+   [SOEP\nSimulator Interface] .> [OPTIMICA] : writes inputs,\nruns simulation,\nreads outputs
 
    [Conversion Script] -> mod_AST: generates
-   [JModelica] -> [Modelica\nBuildings Library]: imports
+   [OPTIMICA] -> [Modelica\nBuildings Library]: imports
    }
 
 
@@ -108,7 +108,7 @@ dynamic load models for the SOEP mode.
    [Measures] ..> () API : uses
 
    database "User-Provided\nModelica Library"
-   [JModelica] --> [User-Provided\nModelica Library]: imports
+   [OPTIMICA] --> [User-Provided\nModelica Library]: imports
 
    EnergyPlus <.. [EnergyPlus\nSimulator Interface]: writes inputs,\nruns simulation,\nreads outputs
 
@@ -621,9 +621,9 @@ For the case of a model with one thermal zone, the content of this file looks as
    {
     "version": "0.1",
     "EnergyPlus": {
-      "idf": "/tmp/JModelica.org/jm_tmpPVJfHP/resources/0/RefBldgSmallOfficeNew2004_Chicago.idf",
-      "idd": "/tmp/JModelica.org/jm_tmpPVJfHP/resources/2/Energy+.idd",
-      "weather": "/tmp/JModelica.org/jm_tmpPVJfHP/resources/1/USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.epw"
+      "idf": "/tmp/tmp-spawn/jm_tmpPVJfHP/resources/0/RefBldgSmallOfficeNew2004_Chicago.idf",
+      "idd": "/tmp/tmp-spawn/jm_tmpPVJfHP/resources/2/Energy+.idd",
+      "weather": "/tmp/tmp-spawn/jm_tmpPVJfHP/resources/1/USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.epw"
     },
     "fmu": {
         "name": "/mnt/shared/modelica-buildings/tmp-eplus-fmuName/fmuName.fmu",
@@ -807,10 +807,10 @@ between an EnergyPlus output and an EnergyPlus input, as described in :numref:`s
 
 .. _sec_qss_jmo_int:
 
-Integration of QSS solver with JModelica
-========================================
+Integration of QSS solver with OPTIMICA
+=======================================
 
-This section describes the integration of the QSS solver in JModelica.
+This section describes the integration of the QSS solver in OPTIMICA.
 
 We will first introduce terminology.
 Consider the code-snippet
@@ -863,10 +863,10 @@ shows single FMUs, but we anticipated having multiple interconnected FMUs.
 .. _fig_sof_arc_qss_jmod2:
 
 .. uml::
-   :caption: Software architecture for QSS integration with JModelica
+   :caption: Software architecture for QSS integration with OPTIMICA
              with extended FMI API.
 
-   title Software architecture for QSS integration with JModelica with extended FMI API
+   title Software architecture for QSS integration with OPTIMICA with extended FMI API
 
    skinparam componentStyle uml2
 
@@ -887,10 +887,10 @@ shows single FMUs, but we anticipated having multiple interconnected FMUs.
    [Sundials] <- ode : "dx/dt"
 
    package Optimica {
-   [JModelica compiler] as jmc
+   [OPTIMICA compiler] as oct
    }
 
-   jmc -l-> FMU_QSS
+   oct -l-> FMU_QSS
 
    FMU_QSS -down-> qss_sol : "derivatives"
    qss_sol -down-> FMU_QSS : "inputs, time, states"
@@ -1111,7 +1111,7 @@ and what variables the FMU will modify when an event fires.
 Furthermore, QSS will need to
 have access to, or else approximate numerically, the time derivatives of the
 event indicator. FMI 2.0 outputs an array of real-valued event indicators,
-but no variable dependencies. Therefore, JModelica added the output
+but no variable dependencies. Therefore, OPTIMICA added the output
 
 .. code-block:: xml
 
@@ -1124,19 +1124,19 @@ but no variable dependencies. Therefore, JModelica added the output
 This causes event indicators to become output variables, and therefore their dependency can be reported
 using existing FMI 2.0 conventions.
 
-Furthermore, JModelica added in the ``<VendorAnnotations>`` the section ``<Tool name="OCT_StateEvents">``.
+Furthermore, OPTIMICA added in the ``<VendorAnnotations>`` the section ``<Tool name="OCT_StateEvents">``.
 The meaning of the entries in this section is as follows:
 
  - The section ``EventIndicators`` lists all event indicators in an ``<Element>`` section.
    Its entries are defined as follows:
 
-   - The attribute ``index`` points to the index of the event indicator, which JModelica will add as an output
+   - The attribute ``index`` points to the index of the event indicator, which OPTIMICA will add as an output
      of the FMU.
    - The attribute ``reverseDependencies`` lists the index of the variables and state derivatives that
      the FMU modifies *via* an event handler when it detects that this event has occurred.
 
 Note that for the event indicator, the ``dependencies`` can be obtained from the section
-``<ModelStructure><Outputs>...</ModelStructure></Outputs>`` because JModelica added the event indicator as
+``<ModelStructure><Outputs>...</ModelStructure></Outputs>`` because OPTIMICA added the event indicator as
 an output variable.
 
 
@@ -1264,7 +1264,7 @@ but a time event is not described with event indicator,
 it is not possible to use the same approach as done for
 ``StateEvent1`` without further modificaton.
 
-We therefore propose that JModelica turns all time events into state events and
+We therefore propose that OPTIMICA turns all time events into state events and
 adds new event indicators as output variables.
 
 .. note::
@@ -1378,13 +1378,13 @@ Here is a list with a summary of proposed changes
   This element will expose event indicators with their ``dependencies`` and time derivatives.
 
 - If a model has an event indicator, and the event indicator has a direct
-  feedthrough on an input variable, then JModelica will exclude the derivatives
+  feedthrough on an input variable, then OPTIMICA will exclude the derivatives
   of that event indicator from the model description file.
 
 - A new dependency attribute ``eventIndicatorsDependencies`` will be added to state derivatives listed
   in the ``<Derivatives>`` element to include event indicators on which the state derivatives depend on.
 
-- JModelica will convert time event into state events, generate event indicators
+- OPTIMICA will convert time event into state events, generate event indicators
   for those state events, and add those event indicators to the ``eventIndicatorsDependencies``
   of state derivatives which depend on them.
 

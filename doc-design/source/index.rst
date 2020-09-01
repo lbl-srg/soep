@@ -7,13 +7,17 @@
       and as a workflow automation tool,
     * the `Modelica Buildings Library <http://simulationresearch.lbl.gov/modelica>`_
       as a repository of models,
-    * `JModelica <http://www.jmodelica.org/>`_ as a translator that
+    * `OPTIMICA <https://www.modelon.com/products-services/modelon-creator-suite/optimica-compiler-toolkit/>`_
+      as a translator that
       translate models from the
       `Modelica <https://modelica.org/>`_ standard to the
       `Functional Mockup Interface <http://fmi-standard.org/>`_ standard
       for simulation and for execution on control systems,
-    * `PyFMI <https://pypi.python.org/pypi/PyFMI>`_ as a master algorithm
-      that conducts a time domain simulation.
+    * `QSS solvers <https://github.com/NREL/SOEP-QSS>`_,
+      a class of new solvers that we develop for Spawn,
+    * `PyFMI <https://pypi.python.org/pypi/PyFMI>`_ as a suite of
+      state-of-the-art numerical solvers
+      that conduct a time domain simulation.
 
    The intent is for SOEP and EnergyPlus to live side-by-side,
    with the OpenStudio software development kit providing access to both
