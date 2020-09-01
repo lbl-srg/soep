@@ -22,8 +22,8 @@
    with control workflows, and allow users and manufacturers to insert
    their own models into SOEP.
 
-   .. figure:: img/interactions-01-medRes.png
-      :scale: 50%
+   .. figure:: img/spawnArchitecture.*
+      :width: 1000px
 
       Spawn-of-EnergyPlus (SOEP) is a next-generation BEM engine that
       leverages open standards for equation-based modeling (Modelica)
