@@ -3,6 +3,9 @@
 Download
 --------
 
+Software
+^^^^^^^^
+
 SOEP is still development. The development version for Linux 64 bit is accessible with
 
 .. code-block:: bash
@@ -29,3 +32,11 @@ For more information, see also the user guide in the Modelica Buildings Library 
 
 Currently, only Linux 64 bit is available. Support for other operating systems,
 as well as an end-user installer, will be added later.
+
+
+Publications
+^^^^^^^^^^^^
+
+| Michael Wetter, Kyle Benne, Antoine Gautier, Thierry S. Nouidui, Agnes Ramle, Amir Roth, Hubertus Tummescheit, Stuart Mentzer and Christian Winther.
+| `Lifting the Garage Door on Spawn, an Open-Source BEM-Controls Engine. <downloads/2020-simBuild-spawn.pdf>`_
+| Proc. of Building Performance Modeling Conference and SimBuild, p. 518--525, Chicago, IL, USA, September 2020.

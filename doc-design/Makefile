@@ -54,6 +54,7 @@ cleanModels:
 clean:
 	-rm -rf $(BUILDDIR)/*
 	-rm -rf ../docs/*.html
+	-rm -rf ../docs/downloads
 	-rm -rf ../docs/_images
 	-rm -rf ../docs/_sources
 	-rm -rf ../docs/_static
@@ -62,6 +63,7 @@ html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) ../docs
 	./fixHtml.py
 	@cp ../.nojekyll ../docs/
+	@cp -rp source/downloads ../docs/
 	@echo
 	@echo "Build finished. The HTML pages are in ../docs"
 
