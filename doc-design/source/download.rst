@@ -6,18 +6,19 @@ Download
 Software
 ^^^^^^^^
 
-SOEP is still development. The development version for Linux 64 bit is accessible with
+SOEP is still in development. The development version for Linux 64 bit and Windows 64 bit is accessible with
 
 .. code-block:: bash
 
-   git clone -b issue1129_energyPlus_zone git@github.com:lbl-srg/modelica-buildings.git
+   git clone git@github.com:lbl-srg/modelica-buildings.git
 
-This will download the development version which has been tested with OPTIMICA and with JModelica.
+This will download the development version which has been tested with OPTIMICA, JModelica and Dymola.
 
-You will also need to install OPTIMICA or JModelica. A JModelica docker image that is used to develop SOEP
+Either OPTIMICA, JModelica and Dymola needs to be installed.
+A JModelica docker image that is used to test Spawn
 is available from https://github.com/lbl-srg/docker-ubuntu-jmodelica
 
-You can then simulate models by running, for example,
+You can then simulate models with OPTIMICA or JModelica by running
 
 .. code-block:: bash
 
@@ -30,8 +31,7 @@ Dymola.
 For more information, see also the user guide in the Modelica Buildings Library at
 `Buildings.Experimental.EnergyPlus.UsersGuide`.
 
-Currently, only Linux 64 bit is available. Support for other operating systems,
-as well as an end-user installer, will be added later.
+Support for an end-user installer and for OS X, will be added later.
 
 
 Publications
