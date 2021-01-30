@@ -1,4 +1,5 @@
-Ambiguity in when
+Ambiguity in when constructors of ExternalObjects are called
+------------------------------------------------------------
 
 The specification (https://specification.modelica.org/master/functions.html#external-function-interface) says
 
@@ -6,17 +7,40 @@ The specification (https://specification.modelica.org/master/functions.html#exte
 ```
 
 This does not prescribe whether all constructors in a model need to be called before
-statements in the `initial equation` or `initial algorithm` are processed.
+statements in the `initial equation` or `initial algorithm` are processed,
+unless a "call" also means a parameter assignment.
 
+My suggestion is therefore to rephrase
+> The constructor function is called exactly once before the first use of the object
+
+to
+> The constructor function is called exactly once before any other instance of an `ExternalObject` is
+  used in any function call.
+
+This should be easy to ensure by the sorting algorithm because the specification already says that constructors
+"must not require any other calls to be made for the initialization to be complete".
+
+Let me explain below the reason for this clarification that would ensure deterministic behavior across tools.
 I have a model that only works if the following is true:
-If there are `n` instances, then a tool must call all `n` constructors
-before any one of the constructed instance derived from ExternalObject is
+If there are `n` instances of constructors that use a `ExternalObject`,
+then a tool must call all `n` constructors
+before any one of the constructed instance is
 used in a function in the `initial equation` section.
 
-It turns out that this is what OpenModelica, Dymola 2021 and OPTIMICA are doing,
-*except* if the constructor has an argument that is a `parameter` whose value
+It turns out that this is what OpenModelica 1.16, Dymola 2021 and OPTIMICA r19089 are doing
+if the constructor has no argument that is a `parameter`.
+However, if the constructor has an argument that is a `parameter` whose value
 is assigned in the `initial equation` section
-(of which I am not sure whether it is legal because of "...must not require any other calls to be made for the initialization to be complete...").
+(of which I am not sure whether it is legal because of "...must not require any other calls to be made for the initialization to be complete...")
+then tools behave differently.
+
+For my code, I am fine with the situation where the constructor has only arguments
+that are `constant` rather than `parameter`.
+Being able to set a parameter value as an argument in the constructor call
+would be better, but is not required.
+But I need to rely on the same behavior across tools,
+which the language definition does not guarantee.
+
 
 The Modelica code is as follows:
 ```modelica
@@ -26,7 +50,7 @@ package BuildingRooms
   model ThermalZone
     constant String name=getInstanceName();
     ZoneClass adapter = ZoneClass(name);
-    //--ZoneClass adapter = ZoneClass(name, startTime);
+    //--ZoneClass adapter = ZoneClass(name, startTime) "THIS WILL LEAD TO WRONG RESULTS";
 
     parameter Modelica.SIunits.Time startTime(
       fixed=false)
@@ -48,23 +72,23 @@ package BuildingRooms
   end ThermalZone;
   ///////////////////////////////////////////////////////////////////
   class ZoneClass
-  "Class used to couple the FMU to interact with a thermal zone"
-  extends ExternalObject;
-  function constructor
-    input String name "Name of the zone";
-   //-- input Modelica.SIunits.Time startTime "THIS WILL LEAD TO THE WRONG EXECUTION";
-    output ZoneClass adapter;
-  external "C" adapter=ZoneAllocate(name)
-    annotation (Include="#include <thermalZone.c>",
-                IncludeDirectory="modelica://BuildingRooms/Resources/C-Sources");
-  end constructor;
+    extends ExternalObject;
 
-  function destructor
-    input ZoneClass adapter;
-  external "C" ZoneFree(adapter)
-    annotation (Include="#include <thermalZone.c>",
-                IncludeDirectory="modelica://BuildingRooms/Resources/C-Sources");
-  end destructor;
+    function constructor
+      input String name "Name of the zone";
+      //--input Modelica.SIunits.Time startTime "THIS WILL LEAD TO WRONG RESULTS";
+      output ZoneClass adapter;
+    external "C" adapter=ZoneAllocate(name)
+      annotation (Include="#include <thermalZone.c>",
+                  IncludeDirectory="modelica://BuildingRooms/Resources/C-Sources");
+    end constructor;
+
+    function destructor
+      input ZoneClass adapter;
+    external "C" ZoneFree(adapter)
+      annotation (Include="#include <thermalZone.c>",
+                  IncludeDirectory="modelica://BuildingRooms/Resources/C-Sources");
+    end destructor;
 
   end ZoneClass;
   ///////////////////////////////////////////////////////////////////
@@ -72,7 +96,7 @@ package BuildingRooms
     input ZoneClass adapter
       "External object";
     input Modelica.SIunits.Time startTime "Start time of the simulation";
-    output Integer nZ "Number of zones in building (obtained from common FMU)";
+    output Integer nZ "THIS VALUE IS NOT GUARANTEED TO BE CORRECT";
     external "C" ZoneInitialize(adapter, startTime, nZ)
     annotation (Include="#include <thermalZone.c>",
                 IncludeDirectory="modelica://BuildingRooms/Resources/C-Sources");
@@ -90,7 +114,7 @@ package BuildingRooms
                 IncludeDirectory="modelica://BuildingRooms/Resources/C-Sources");
   end zoneExchange;
 
-  model Building
+  model Building "Buildings with two thermal zones, e.g., nZ=2"
     ThermalZone t1;
     ThermalZone t2;
   end Building;
@@ -103,10 +127,12 @@ The C code is
 #define thermalZone_c
 
 #include <string.h>
+#include <stdbool.h>
 
 #include "thermalZone.h"
 
 static int nZon = 0;     /* Number of zones in building */
+static bool buildingIsInstantiated = false;     /* Number of buildings that are initialized */
 
 void* ZoneAllocate(const char* name){
   Zone* ptrZone;
@@ -115,7 +141,7 @@ void* ZoneAllocate(const char* name){
   ptrZone = (Zone*) malloc(sizeof(Zone));
   ptrZone->name = malloc((strlen(name)+1) * sizeof(char));
   strcpy(ptrZone->name, name);
-  nZon++;
+  nZon++; /* Increment counter for number of zones */
 
   ModelicaFormatMessage("Allocated zone %s\n", name);
   return (void*) ptrZone;
@@ -124,11 +150,24 @@ void* ZoneAllocate(const char* name){
 void ZoneInitialize(void* object, double startTime, int* nZ){
     Zone* zone = (Zone*) object;
     *nZ = nZon;
-    ModelicaFormatMessage("Initialized zone %s, nZon = %d\n", zone->name, nZon);
+    if (!buildingIsInstantiated){
+        /* Here, the actual implementation constructs an FMU that is shared by all zones
+           using a pointer to a C structure.
+           This requires that all zones executed ZoneAllocate().
+        */
+        buildingIsInstantiated = true;
+        ModelicaFormatMessage("Initialized zone %s. Instantiated building with %d zones.\n", zone->name, nZon);
+    }
+    else{
+        ModelicaFormatMessage("Initialized zone %s, nZon = %d\n", zone->name, nZon);
+    }
 }
 
 void ZoneExchange(void* object, double time, double T, double* tNext, double* Q_flow){
     Zone* zone = (Zone*) object;
+    /* In the actual implementation, this is computed in an FMU that has models for all nZ zones
+       which exchange heat among each other.
+    */
     *Q_flow = 283.15-T;
     *tNext = time + 1;
     ModelicaFormatMessage("Exchanged with zone %s at time=%f, nZon = %d\n", zone->name, time, nZon);
@@ -136,14 +175,13 @@ void ZoneExchange(void* object, double time, double T, double* tNext, double* Q_
 
 void ZoneFree(void* object){
     Zone* zone = (Zone*) object;
-    ModelicaFormatMessage("Freeing memory for %s\n", zone->name);
 }
 
 #endif
 ```
+
 and
-```
-C
+```C
 #ifndef thermalZone_h
 #define thermalZone_h
 
@@ -157,7 +195,8 @@ typedef struct Zone
 
 (The complete files with C code is uploaded in the zip file.)
 
-I made two tests, one with the code above, and one with
+I made two tests, one with the code above, and one with the change below to
+enable a `parameter` as an argument of the constructor.
 ```modelica
 ...
     //-- ZoneClass adapter = ZoneClass(name);
@@ -176,11 +215,13 @@ before calling any other function.
 If `startTime` is used as a constructor, then all three tools call
 another function before calling the 2nd constructor.
 
-My expected behavior are the runs that contain `nZon = 2` in
+The expected behavior are the runs that contain
 ```
-Initialized zone BuildingRooms.Building.t1, nZon = 2
-Initialized zone BuildingRooms.Building.t2, nZon = 2
+Instantiated building with 2 zones.
 ```
+as in these, both constructors were called before any of the objects
+is used in another function call.
+If `Instantiated building with 1 zones.` the result will be wrong.
 
 Here is the result of the three tools:
 
@@ -191,96 +232,81 @@ Allocated zone Building.t1
 Allocated zone Building.t2
 Exchanged with zone Building.t1 at time=0.000000, nZon = 2
 Exchanged with zone Building.t2 at time=0.000000, nZon = 2
-Initialized zone Building.t1, nZon = 2
+Initialized zone Building.t1. Instantiated building with 2 zones.
 Initialized zone Building.t2, nZon = 2
 Exchanged with zone Building.t1 at time=1.000000, nZon = 2
 Exchanged with zone Building.t1 at time=1.000000, nZon = 2
 Exchanged with zone Building.t2 at time=1.000000, nZon = 2
 Exchanged with zone Building.t2 at time=1.000000, nZon = 2
-Freeing memory for Building.t1
-Freeing memory for Building.t2
+
 ```
 
 and if `startTime` is an argument of the constructor:
 ```
 Allocated zone Building.t1
-Exchanged with zone Building.t1 at time=0.000000, nZon = 1
+Exchanged with zone Building.t1 at time=0.000000, nZon = 1  // <- This can be handled (in my code)
 Allocated zone Building.t2
-Exchanged with zone Building.t2 at time=0.000000, nZon = 2
-Initialized zone Building.t1, nZon = 2
+Exchanged with zone Building.t2 at time=0.000000, nZon = 2  // <- This can be handled (in my code)
+Initialized zone Building.t1. Instantiated building with 2 zones.
 Initialized zone Building.t2, nZon = 2
 Exchanged with zone Building.t1 at time=1.000000, nZon = 2
 Exchanged with zone Building.t1 at time=1.000000, nZon = 2
 Exchanged with zone Building.t2 at time=1.000000, nZon = 2
 Exchanged with zone Building.t2 at time=1.000000, nZon = 2
-Freeing memory for Building.t1
-Freeing memory for Building.t2
+
 ```
 
 Dymola produces
 ```
 Allocated zone Building.t1
 Allocated zone Building.t2
-Initialized zone Building.t1, nZon = 2
+Initialized zone Building.t1. Instantiated building with 2 zones.
 Initialized zone Building.t2, nZon = 2
 Exchanged with zone Building.t1 at time=0.000000, nZon = 2
 Exchanged with zone Building.t2 at time=0.000000, nZon = 2
 Exchanged with zone Building.t1 at time=1.000000, nZon = 2
 Exchanged with zone Building.t2 at time=1.000000, nZon = 2
-Freeing memory for Building.t2
-Freeing memory for Building.t1
 ```
 and if `startTime` is an argument of the constructor:
 ```
 Allocated zone Building.t1
-Initialized zone Building.t1, nZon = 1
+Initialized zone Building.t1. Instantiated building with 1 zones.  // <- This is wrong.
 Allocated zone Building.t2
 Initialized zone Building.t2, nZon = 2
 Exchanged with zone Building.t1 at time=0.000000, nZon = 2
 Exchanged with zone Building.t2 at time=0.000000, nZon = 2
 Exchanged with zone Building.t1 at time=1.000000, nZon = 2
 Exchanged with zone Building.t2 at time=1.000000, nZon = 2
-Freeing memory for Building.t2
-Freeing memory for Building.t1
 ```
 
-OMEdit produces
+OpenModelica produces
 
 ```
 Allocated zone BuildingRooms.Building.t1
 Allocated zone BuildingRooms.Building.t2
 Exchanged with zone BuildingRooms.Building.t1 at time=0.000000, nZon = 2
 Exchanged with zone BuildingRooms.Building.t2 at time=0.000000, nZon = 2
-Initialized zone BuildingRooms.Building.t2, nZon = 2
+Initialized zone BuildingRooms.Building.t2. Instantiated building with 2 zones.
 Initialized zone BuildingRooms.Building.t1, nZon = 2
-Freeing memory for BuildingRooms.Building.t1
-Freeing memory for BuildingRooms.Building.t2
 
 ```
 
 and if `startTime` is an argument of the constructor:
 ```
 Allocated zone BuildingRooms.Building.t1
-Initialized zone BuildingRooms.Building.t1, nZon = 1
+Initialized zone BuildingRooms.Building.t1. Instantiated building with 1 zones.  // <- This is wrong.
 Exchanged with zone BuildingRooms.Building.t1 at time=0.000000, nZon = 1
 Allocated zone BuildingRooms.Building.t2
 Initialized zone BuildingRooms.Building.t2, nZon = 2
 Exchanged with zone BuildingRooms.Building.t2 at time=0.000000, nZon = 2
-Freeing memory for BuildingRooms.Building.t1
-Freeing memory for BuildingRooms.Building.t2
 ```
 
 
 In my actual implementation (at https://github.com/lbl-srg/modelica-buildings/tree/master/Buildings/ThermalZones/EnergyPlus)
-it would be impractical to work-around this, or requesting the user
-to specify how many instances of `ThermalZone` there are as there can be hundreds,
-and their ports need to be connected graphically for the model to be of use to most users.
-
-
-
-My suggestion is therefore to rephrase
-> The constructor function is called exactly once before the first use of the object
-
-to
-> The constructor function is called exactly once before any other instance of an `ExternalObject` is
-  used in any function call.
+it would be impractical to implement a work-around that guards against the situation
+where the initialization is called before all constructors are called.
+This would require the user to specify how many instances of `ThermalZone` there are,
+which can be hundreds, and it would give wrong results (or a segmentation fault) if this number
+is not set correctly by the user. It would also require specifying the names of
+hundreds of zones in two places of the Modelica model.
+Hence, ensuring that all constructors are called first seems to be the only practical way.

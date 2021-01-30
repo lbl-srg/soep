@@ -3,8 +3,8 @@ package BuildingRooms
 
   model ThermalZone
     constant String name=getInstanceName();
-    //--ZoneClass adapter = ZoneClass(name);
-    ZoneClass adapter = ZoneClass(name, startTime);
+    ZoneClass adapter = ZoneClass(name);
+    //--ZoneClass adapter = ZoneClass(name, startTime) "THIS WILL LEAD TO WRONG RESULTS";
 
     parameter Modelica.SIunits.Time startTime(
       fixed=false)
@@ -26,23 +26,23 @@ package BuildingRooms
   end ThermalZone;
   ///////////////////////////////////////////////////////////////////
   class ZoneClass
-  "Class used to couple the FMU to interact with a thermal zone"
-  extends ExternalObject;
-  function constructor
-    input String name "Name of the zone";
-    input Modelica.SIunits.Time startTime "THIS WILL LEAD TO THE WRONG EXECUTION";
-    output ZoneClass adapter;
-  external "C" adapter=ZoneAllocate(name)
-    annotation (Include="#include <thermalZone.c>",
-                IncludeDirectory="modelica://BuildingRooms/Resources/C-Sources");
-  end constructor;
+    extends ExternalObject;
 
-  function destructor
-    input ZoneClass adapter;
-  external "C" ZoneFree(adapter)
-    annotation (Include="#include <thermalZone.c>",
-                IncludeDirectory="modelica://BuildingRooms/Resources/C-Sources");
-  end destructor;
+    function constructor
+      input String name "Name of the zone";
+      //--input Modelica.SIunits.Time startTime "THIS WILL LEAD TO WRONG RESULTS";
+      output ZoneClass adapter;
+    external "C" adapter=ZoneAllocate(name)
+      annotation (Include="#include <thermalZone.c>",
+                  IncludeDirectory="modelica://BuildingRooms/Resources/C-Sources");
+    end constructor;
+
+    function destructor
+      input ZoneClass adapter;
+    external "C" ZoneFree(adapter)
+      annotation (Include="#include <thermalZone.c>",
+                  IncludeDirectory="modelica://BuildingRooms/Resources/C-Sources");
+    end destructor;
 
   end ZoneClass;
   ///////////////////////////////////////////////////////////////////
@@ -50,7 +50,7 @@ package BuildingRooms
     input ZoneClass adapter
       "External object";
     input Modelica.SIunits.Time startTime "Start time of the simulation";
-    output Integer nZ "Number of zones in building (obtained from common FMU)";
+    output Integer nZ "THIS VALUE IS NOT GUARANTEED TO BE CORRECT";
     external "C" ZoneInitialize(adapter, startTime, nZ)
     annotation (Include="#include <thermalZone.c>",
                 IncludeDirectory="modelica://BuildingRooms/Resources/C-Sources");
@@ -68,7 +68,7 @@ package BuildingRooms
                 IncludeDirectory="modelica://BuildingRooms/Resources/C-Sources");
   end zoneExchange;
 
-  model Building
+  model Building "Buildings with two thermal zones, e.g., nZ=2"
     ThermalZone t1;
     ThermalZone t2;
   end Building;
