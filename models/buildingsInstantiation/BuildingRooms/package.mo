@@ -37,7 +37,7 @@ package BuildingRooms
     extends Synchronize.CollidingObject;
     constant String name=getInstanceName();
     // ZoneClass adapter = ZoneClass(name);
-    ZoneClass adapter = ZoneClass(name, startTime) "THIS WILL LEAD TO WRONG RESULTS";
+    ZoneClass adapter = ZoneClass(name, startTime);
 
     parameter Modelica.SIunits.Time startTime(fixed=false) "Simulation start time";
     parameter Integer nZ(fixed=false, start=0) "Total number of zones in Building";
@@ -62,7 +62,7 @@ package BuildingRooms
 
     function constructor
       input String name "Name of the zone";
-      input Modelica.SIunits.Time startTime "THIS WILL LEAD TO WRONG RESULTS";
+      input Modelica.SIunits.Time startTime;
       output ZoneClass adapter;
     external "C" adapter=ZoneAllocate(name)
       annotation (Include="#include <thermalZone.c>",
