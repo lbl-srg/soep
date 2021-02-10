@@ -1,15 +1,46 @@
 within ;
 package BuildingRooms
 
-  model ThermalZone
-    constant String name=getInstanceName();
-    ZoneClass adapter = ZoneClass(name);
-    //--ZoneClass adapter = ZoneClass(name, startTime) "THIS WILL LEAD TO WRONG RESULTS";
+  package Synchronize
+    connector SynchronizeConnector
+      Real do;
+      flow Real done;
+    end SynchronizeConnector;
 
-    parameter Modelica.SIunits.Time startTime(
-      fixed=false)
-      "Simulation start time";
-    parameter Integer nZ(fixed=false) "Total number of zones in Building";
+    model SyncronizeModel
+      SynchronizeConnector synchronize;
+    end SyncronizeModel;
+
+    model CollidingObject
+      outer CollidingWorld collidingWorld;
+      SyncronizeModel sync;
+    equation
+      connect(collidingWorld.synchronize, sync.synchronize);
+    end CollidingObject;
+  end Synchronize;
+
+  model CollidingWorld
+    // ExternalScene scene=ExternalScene(id="s");
+    Synchronize.SynchronizeConnector synchronize;
+    Real bodyMoved = synchronize.done;
+    Real forceCalculated;
+    Real dummy;
+  equation
+    synchronize.do = 0;
+  algorithm
+    dummy := bodyMoved;
+    // calculateForces(scene);
+    forceCalculated := 0;
+  end CollidingWorld;
+  ///////////////////////////////////////////////////////////////////
+  model ThermalZone
+    extends Synchronize.CollidingObject;
+    constant String name=getInstanceName();
+    // ZoneClass adapter = ZoneClass(name);
+    ZoneClass adapter = ZoneClass(name, startTime) "THIS WILL LEAD TO WRONG RESULTS";
+
+    parameter Modelica.SIunits.Time startTime(fixed=false) "Simulation start time";
+    parameter Integer nZ(fixed=false, start=0) "Total number of zones in Building";
     constant Real k=1;
     Modelica.SIunits.Time tNext(start=startTime, fixed=true) "Next sampling time";
     Modelica.SIunits.Temperature T(start=293.15, fixed=true);
@@ -17,12 +48,13 @@ package BuildingRooms
 
   initial equation
     startTime=time;
-    nZ=zoneInitialize(adapter=adapter, startTime=time);
+    nZ=zoneInitialize(adapter=adapter, startTime=time, forceCalculated=collidingWorld.forceCalculated);
   equation
     when {initial(), time >= pre(tNext)} then
       (tNext, Q_flow) = zoneExchange(adapter, time, T);
     end when;
     k*der(T) = Q_flow;
+    nZ = sync.synchronize.done;
   end ThermalZone;
   ///////////////////////////////////////////////////////////////////
   class ZoneClass
@@ -30,7 +62,7 @@ package BuildingRooms
 
     function constructor
       input String name "Name of the zone";
-      //--input Modelica.SIunits.Time startTime "THIS WILL LEAD TO WRONG RESULTS";
+      input Modelica.SIunits.Time startTime "THIS WILL LEAD TO WRONG RESULTS";
       output ZoneClass adapter;
     external "C" adapter=ZoneAllocate(name)
       annotation (Include="#include <thermalZone.c>",
@@ -47,9 +79,9 @@ package BuildingRooms
   end ZoneClass;
   ///////////////////////////////////////////////////////////////////
   function zoneInitialize
-    input ZoneClass adapter
-      "External object";
+    input ZoneClass adapter "External object";
     input Modelica.SIunits.Time startTime "Start time of the simulation";
+    input Real forceCalculated;
     output Integer nZ "THIS VALUE IS NOT GUARANTEED TO BE CORRECT";
     external "C" ZoneInitialize(adapter, startTime, nZ)
     annotation (Include="#include <thermalZone.c>",
@@ -57,8 +89,7 @@ package BuildingRooms
   end zoneInitialize;
   ///////////////////////////////////////////////////////////////////
   function zoneExchange
-    input ZoneClass adapter
-      "External object";
+    input ZoneClass adapter "External object";
     input Modelica.SIunits.Time t;
     input Modelica.SIunits.Temperature T;
     output Modelica.SIunits.Time tNext;
@@ -69,6 +100,7 @@ package BuildingRooms
   end zoneExchange;
 
   model Building "Buildings with two thermal zones, e.g., nZ=2"
+    inner CollidingWorld collidingWorld;
     ThermalZone t1;
     ThermalZone t2;
   end Building;
