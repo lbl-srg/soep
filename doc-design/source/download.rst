@@ -6,6 +6,9 @@ Download
 Software
 ^^^^^^^^
 
+.. note:: Git Large File Storage is required for loading all the required dependencies of Spawn.
+  See `git-lfs installation instructions <https://github.com/git-lfs/git-lfs/wiki/Installation>`.
+
 SOEP is still in development. The development version for Linux 64 bit and Windows 64 bit is accessible with
 
 .. code-block:: bash

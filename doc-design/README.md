@@ -14,7 +14,7 @@ and a few contributions, which can be installed by running
 ```
 pip3 install --user sphinx
 pip3 install --user sphinx_bootstrap_theme
-pip3 install --user sphinxcontrib.bibtex
+pip3 install --user sphinxcontrib.bibtex==1.0
 pip3 install --user sphinxcontrib-plantuml
 ```
 
