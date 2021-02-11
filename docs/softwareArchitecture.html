@@ -2,13 +2,12 @@
 
 <!DOCTYPE html>
 
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>5. Software Architecture &#8212; Spawn of EnergyPlus</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css" />
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap.css" />
@@ -21,11 +20,12 @@
     <link rel="stylesheet" type="text/css" href="_static/bootstrap_custom.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom-sphinx.css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/lbl-icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -227,13 +227,13 @@
     <div class="body col-md-12 content" role="main">
       
   <div class="section" id="software-architecture">
-<span id="sec-soft-arch"></span><h1><span class="section-number">5. </span>Software Architecture<a class="headerlink" href="#software-architecture" title="Permalink to this headline">¶</a></h1>
+<span id="sec-soft-arch"></span><h1>5. Software Architecture<a class="headerlink" href="#software-architecture" title="Permalink to this headline">¶</a></h1>
 <p>This section describes the overall software architecture (<a class="reference internal" href="#sec-ove-sof-arc"><span class="std std-numref">Section 5.1</span></a>),
 the coupling of Modelica with EnergyPlus (<a class="reference internal" href="#sec-cou-ene-mod"><span class="std std-numref">Section 5.2</span></a>),
 the integration of the QSS solver with OPTIMICA (<a class="reference internal" href="#sec-qss-jmo-int"><span class="std std-numref">Section 5.3</span></a>), and
 the OpenStudio integration (<a class="reference internal" href="#sec-int-ope-stu"><span class="std std-numref">Section 5.4</span></a>).</p>
 <div class="section" id="overall-software-architecture">
-<span id="sec-ove-sof-arc"></span><h2><span class="section-number">5.1. </span>Overall software architecture<a class="headerlink" href="#overall-software-architecture" title="Permalink to this headline">¶</a></h2>
+<span id="sec-ove-sof-arc"></span><h2>5.1. Overall software architecture<a class="headerlink" href="#overall-software-architecture" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference internal" href="#fig-overall-software-architecture"><span class="std std-numref">Fig. 5.1</span></a>
 shows the overall software architecture of SOEP.</p>
 <p>The <cite>Application</cite> on top of the figure may be an
@@ -350,7 +350,7 @@ end note"/>
 </div>
 </div>
 <div class="section" id="coupling-of-energyplus-with-modelica">
-<span id="sec-cou-ene-mod"></span><h2><span class="section-number">5.2. </span>Coupling of EnergyPlus with Modelica<a class="headerlink" href="#coupling-of-energyplus-with-modelica" title="Permalink to this headline">¶</a></h2>
+<span id="sec-cou-ene-mod"></span><h2>5.2. Coupling of EnergyPlus with Modelica<a class="headerlink" href="#coupling-of-energyplus-with-modelica" title="Permalink to this headline">¶</a></h2>
 <p>This section describes the coupling of EnergyPlus with Modelica.
 The coupling allows two types of interactions between the two tools:</p>
 <ol class="arabic simple">
@@ -369,7 +369,7 @@ to package EnergyPlus as an FMU for Model Exchange 2.0.
 Modelica will then automatically instantiate this FMU and use it
 for the simulation using the FMI Library from Modelon.</p>
 <div class="section" id="assumptions-and-limitations">
-<h3><span class="section-number">5.2.1. </span>Assumptions and limitations<a class="headerlink" href="#assumptions-and-limitations" title="Permalink to this headline">¶</a></h3>
+<h3>5.2.1. Assumptions and limitations<a class="headerlink" href="#assumptions-and-limitations" title="Permalink to this headline">¶</a></h3>
 <p>To implement the coupling, will make the following assumptions:</p>
 <ol class="arabic">
 <li><p>Only the lumped room air model will be refactored, not the
@@ -395,7 +395,7 @@ the room temperature changes. Hence, it decouples the thermal and the mass balan
 </ol>
 </div>
 <div class="section" id="unit-system">
-<span id="sec-uni-sys"></span><h3><span class="section-number">5.2.2. </span>Unit system<a class="headerlink" href="#unit-system" title="Permalink to this headline">¶</a></h3>
+<span id="sec-uni-sys"></span><h3>5.2.2. Unit system<a class="headerlink" href="#unit-system" title="Permalink to this headline">¶</a></h3>
 <p>Modelica and EnergyPlus each have their own unit system. Spawn of EnergyPlus will
 automatically convert between these units, using information from the <code class="docutils literal notranslate"><span class="pre">modelDescription.xml</span></code> file,
 or stop the simulation if an unknown unit is encountered.
@@ -490,7 +490,7 @@ and 1)</p></td>
 </table>
 </div>
 <div class="section" id="partitioning-of-the-models">
-<h3><span class="section-number">5.2.3. </span>Partitioning of the models<a class="headerlink" href="#partitioning-of-the-models" title="Permalink to this headline">¶</a></h3>
+<h3>5.2.3. Partitioning of the models<a class="headerlink" href="#partitioning-of-the-models" title="Permalink to this headline">¶</a></h3>
 <p>To link EnergyPlus and Modelica, the models are partitioned as shown in
 as shown in <a class="reference internal" href="#fig-partition-envelop-room-hvac"><span class="std std-numref">Fig. 5.2</span></a>.
 Loosely speaking, everything that is air and controls is simulated in Modelica,
@@ -506,7 +506,7 @@ schedules and EMS actuators.</p>
 <a class="reference internal" href="#sec-req-ene-exp-fmu"><span class="std std-numref">Section 5.2.4</span></a> describes the API used to generate the FMU, and
 <a class="reference internal" href="#sec-time-sync"><span class="std std-numref">Section 5.2.5</span></a> describes the synchronization of the tools.</p>
 <div class="section" id="coupling-of-the-envelope-model">
-<span id="sec-cou-env"></span><h4><span class="section-number">5.2.3.1. </span>Coupling of the envelope model<a class="headerlink" href="#coupling-of-the-envelope-model" title="Permalink to this headline">¶</a></h4>
+<span id="sec-cou-env"></span><h4>5.2.3.1. Coupling of the envelope model<a class="headerlink" href="#coupling-of-the-envelope-model" title="Permalink to this headline">¶</a></h4>
 <p>To couple the Modelica room model to the EnergyPlus envelope model, EnergyPlus exposes the following parameters.
 Modelica will obtain their values during the initialization of the Modelica model.</p>
 <table class="docutils align-default">
@@ -620,7 +620,7 @@ using the current input variables. (For example, multiple calls within a time st
 the derivative of <code class="docutils literal notranslate"><span class="pre">QConSen_flow</span></code> with respect to <code class="docutils literal notranslate"><span class="pre">T</span></code>.)</p>
 </div>
 <div class="section" id="coupling-of-a-zone-surface">
-<span id="sec-cou-zon-sur"></span><h4><span class="section-number">5.2.3.2. </span>Coupling of a zone surface<a class="headerlink" href="#coupling-of-a-zone-surface" title="Permalink to this headline">¶</a></h4>
+<span id="sec-cou-zon-sur"></span><h4>5.2.3.2. Coupling of a zone surface<a class="headerlink" href="#coupling-of-a-zone-surface" title="Permalink to this headline">¶</a></h4>
 <p>The following interface models the heat transfer of a surface with the EnergyPlus thermal zone.
 This allows for example coupling of a radiant heating or cooling system that is modeled in Modelica
 to the EnergyPlus thermal zone model. Examples of such radiant systems include a floor slab with embedded
@@ -697,7 +697,7 @@ using the current input variables. (For example, multiple calls within a time st
 the derivative of <code class="docutils literal notranslate"><span class="pre">Q_flow</span></code> with respect to <code class="docutils literal notranslate"><span class="pre">T</span></code>.)</p>
 </div>
 <div class="section" id="retrieving-output-variables-from-energyplus">
-<span id="sec-out-var"></span><h4><span class="section-number">5.2.3.3. </span>Retrieving output variables from EnergyPlus<a class="headerlink" href="#retrieving-output-variables-from-energyplus" title="Permalink to this headline">¶</a></h4>
+<span id="sec-out-var"></span><h4>5.2.3.3. Retrieving output variables from EnergyPlus<a class="headerlink" href="#retrieving-output-variables-from-energyplus" title="Permalink to this headline">¶</a></h4>
 <p>This section describes how to retrieve in Modelica values from the EnergyPlus object
 <code class="docutils literal notranslate"><span class="pre">Output:Variable</span></code>.</p>
 <p>There will be a Modelica block called <code class="docutils literal notranslate"><span class="pre">EnergyPlus.OutputVariable</span></code> with parameters</p>
@@ -740,7 +740,7 @@ then Modelica will retrieve <span class="math notranslate nohighlight">\(y(t^+)\
 <p>where <code class="docutils literal notranslate"><span class="pre">adapter</span></code> stores the data structure used to communicate with EnergyPlus.</p>
 </div>
 <div class="section" id="sending-input-to-energyplus">
-<span id="sec-sen-var"></span><h4><span class="section-number">5.2.3.4. </span>Sending input to EnergyPlus<a class="headerlink" href="#sending-input-to-energyplus" title="Permalink to this headline">¶</a></h4>
+<span id="sec-sen-var"></span><h4>5.2.3.4. Sending input to EnergyPlus<a class="headerlink" href="#sending-input-to-energyplus" title="Permalink to this headline">¶</a></h4>
 <p>This section describes how to send Modelica values to the EnergyPlus objects</p>
 <ol class="arabic simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">ExternalInterface:FunctionalMockupUnitExport:To:Schedule</span></code>, and</p></li>
@@ -791,7 +791,7 @@ This simple example also illustrates that inputs and outputs may need for certai
 applications be exchanged at a sampling rate that is below the EnergyPlus zone time step
 in order to get satisfactory closed loop control performance.</p>
 <div class="section" id="schedules">
-<span id="sec-inp-sch"></span><h5><span class="section-number">5.2.3.4.1. </span>Schedules<a class="headerlink" href="#schedules" title="Permalink to this headline">¶</a></h5>
+<span id="sec-inp-sch"></span><h5>5.2.3.4.1. Schedules<a class="headerlink" href="#schedules" title="Permalink to this headline">¶</a></h5>
 <p>There will be a Modelica block called <code class="docutils literal notranslate"><span class="pre">EnergyPlus.Schedule</span></code> with parameters</p>
 <table class="docutils align-default">
 <colgroup>
@@ -836,7 +836,7 @@ values will be sent as doubles.</p>
 <code class="docutils literal notranslate"><span class="pre">pre(u)</span></code> is the value of the input before <code class="docutils literal notranslate"><span class="pre">sample(t0,</span> <span class="pre">samplePeriod)</span></code> becomes <code class="docutils literal notranslate"><span class="pre">true</span></code>.</p>
 </div>
 <div class="section" id="actuators">
-<span id="sec-inp-act"></span><h5><span class="section-number">5.2.3.4.2. </span>Actuators<a class="headerlink" href="#actuators" title="Permalink to this headline">¶</a></h5>
+<span id="sec-inp-act"></span><h5>5.2.3.4.2. Actuators<a class="headerlink" href="#actuators" title="Permalink to this headline">¶</a></h5>
 <p>There will be a Modelica block called <code class="docutils literal notranslate"><span class="pre">EnergyPlus.Actuator</span></code> with parameters</p>
 <table class="docutils align-default">
 <colgroup>
@@ -889,7 +889,7 @@ values will be sent as doubles.</p>
 </div>
 </div>
 <div class="section" id="api-used-to-export-energyplus-as-an-fmu">
-<span id="sec-req-ene-exp-fmu"></span><h3><span class="section-number">5.2.4. </span>API used to Export EnergyPlus as an FMU<a class="headerlink" href="#api-used-to-export-energyplus-as-an-fmu" title="Permalink to this headline">¶</a></h3>
+<span id="sec-req-ene-exp-fmu"></span><h3>5.2.4. API used to Export EnergyPlus as an FMU<a class="headerlink" href="#api-used-to-export-energyplus-as-an-fmu" title="Permalink to this headline">¶</a></h3>
 <p>To export EnergyPlus as an FMU for model exchange, EnergyPlus provides an executable that
 reads a json configuration file and packages EnergyPlus as an FMU for Model Exchange 2.0.</p>
 <div class="admonition note">
@@ -906,7 +906,7 @@ as they may reject a step size if the error is too large.
 Also, rejecting steps is needed to identify state events (but not for QSS solvers).</p>
 </div>
 <div class="section" id="instantiation">
-<span id="sec-int-c-api"></span><h4><span class="section-number">5.2.4.1. </span>Instantiation<a class="headerlink" href="#instantiation" title="Permalink to this headline">¶</a></h4>
+<span id="sec-int-c-api"></span><h4>5.2.4.1. Instantiation<a class="headerlink" href="#instantiation" title="Permalink to this headline">¶</a></h4>
 <p>To instantiate EnergyPlus, EnergyPlus generates an FMU 2.0 for model exchange.
 This is initiated by Modelica, which invokes a system command of the form</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>spawn path_to_json
@@ -939,7 +939,7 @@ For the case of a model with one thermal zone, the content of this file looks as
 <code class="docutils literal notranslate"><span class="pre">/mnt/shared/modelica-buildings/tmp-eplus-fmuName/fmuName.fmu</span></code></p>
 <p>We will now describe how to the exchanged variables are configured.</p>
 <div class="section" id="envelope-model">
-<h5><span class="section-number">5.2.4.1.1. </span>Envelope model<a class="headerlink" href="#envelope-model" title="Permalink to this headline">¶</a></h5>
+<h5>5.2.4.1.1. Envelope model<a class="headerlink" href="#envelope-model" title="Permalink to this headline">¶</a></h5>
 <p>To configure the variables to be exchanged for the envelope model described in <a class="reference internal" href="#sec-cou-env"><span class="std std-numref">Section 5.2.3.1</span></a>,
 the following data structures will be used for a building with a zone called <code class="docutils literal notranslate"><span class="pre">basement</span></code> and a zone called <code class="docutils literal notranslate"><span class="pre">office</span></code>.</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="s">&quot;zones&quot;</span><span class="o">:</span> <span class="p">[</span>
@@ -953,7 +953,7 @@ inputs called <code class="docutils literal notranslate"><span class="pre">basem
 <code class="docutils literal notranslate"><span class="pre">basement_QConSen_flow</span></code> and <code class="docutils literal notranslate"><span class="pre">office_QConSen_flow</span></code>.</p>
 </div>
 <div class="section" id="zone-surface">
-<h5><span class="section-number">5.2.4.1.2. </span>Zone surface<a class="headerlink" href="#zone-surface" title="Permalink to this headline">¶</a></h5>
+<h5>5.2.4.1.2. Zone surface<a class="headerlink" href="#zone-surface" title="Permalink to this headline">¶</a></h5>
 <p>To configure the variables to be exchanged for a surface that is part of an EnergyPlus thermal zone as described in <a class="reference internal" href="#sec-cou-zon-sur"><span class="std std-numref">Section 5.2.3.2</span></a>,
 the following data structures will be used for a building with an EnergyPlus surface called <code class="docutils literal notranslate"><span class="pre">north</span> <span class="pre">ceiling</span> <span class="pre">office</span></code> and a zone called <code class="docutils literal notranslate"><span class="pre">south</span> <span class="pre">ceiling</span> <span class="pre">office</span></code>.
 (This requires to add a surface object to EnergyPlus, including all information needed by EnergyPlus such
@@ -966,7 +966,7 @@ as the surface location and its solar and infrared emissivity.)</p>
 </div>
 </div>
 <div class="section" id="output-variables">
-<h5><span class="section-number">5.2.4.1.3. </span>Output variables<a class="headerlink" href="#output-variables" title="Permalink to this headline">¶</a></h5>
+<h5>5.2.4.1.3. Output variables<a class="headerlink" href="#output-variables" title="Permalink to this headline">¶</a></h5>
 <p>To configure the data exchange for output variables, as described in <a class="reference internal" href="#sec-out-var"><span class="std std-numref">Section 5.2.3.3</span></a>,
 consider an example where one wants to retrieve the outdoor drybulb temperature from EnergyPlus.</p>
 <p>The corresponsding section in the <code class="docutils literal notranslate"><span class="pre">ModelicaBuildingsEnergyPlus.json</span></code> configuration file is</p>
@@ -985,7 +985,7 @@ consider an example where one wants to retrieve the outdoor drybulb temperature 
 <code class="docutils literal notranslate"><span class="pre">outputVariables.fmiName</span></code> and units consistent with <a class="reference internal" href="#tab-uni-spe"><span class="std std-numref">Table 5.1</span></a>.</p>
 </div>
 <div class="section" id="id2">
-<h5><span class="section-number">5.2.4.1.4. </span>Schedules<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h5>
+<h5>5.2.4.1.4. Schedules<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h5>
 <p>To configure the data exchange for schedules, as described in <a class="reference internal" href="#sec-inp-sch"><span class="std std-numref">Section 5.2.3.4.1</span></a>,
 consider an example where one wants to write to an EnergyPlus schedule called <code class="docutils literal notranslate"><span class="pre">Lights</span></code>.</p>
 <p>The corresponsding section in the <code class="docutils literal notranslate"><span class="pre">ModelicaBuildingsEnergyPlus.json</span></code> configuration file is</p>
@@ -1006,7 +1006,7 @@ Modelica will write to this schedule with units shown in the column <em>EnergyPl
 in <a class="reference internal" href="#tab-uni-spe"><span class="std std-numref">Table 5.1</span></a>.</p>
 </div>
 <div class="section" id="ems-actuators">
-<h5><span class="section-number">5.2.4.1.5. </span>EMS actuators<a class="headerlink" href="#ems-actuators" title="Permalink to this headline">¶</a></h5>
+<h5>5.2.4.1.5. EMS actuators<a class="headerlink" href="#ems-actuators" title="Permalink to this headline">¶</a></h5>
 <p>To configure the data exchange for schedules, as described in <a class="reference internal" href="#sec-inp-act"><span class="std std-numref">Section 5.2.3.4.2</span></a>,
 consider an example where one wants to write to an EnergyPlus schedule called <code class="docutils literal notranslate"><span class="pre">Lights</span></code>.</p>
 <p>The corresponsding section in the <code class="docutils literal notranslate"><span class="pre">ModelicaBuildingsEnergyPlus.json</span></code> configuration file is</p>
@@ -1032,11 +1032,11 @@ in <a class="reference internal" href="#tab-uni-spe"><span class="std std-numref
 </div>
 </div>
 <div class="section" id="time-synchronization">
-<span id="sec-time-sync"></span><h3><span class="section-number">5.2.5. </span>Time synchronization<a class="headerlink" href="#time-synchronization" title="Permalink to this headline">¶</a></h3>
+<span id="sec-time-sync"></span><h3>5.2.5. Time synchronization<a class="headerlink" href="#time-synchronization" title="Permalink to this headline">¶</a></h3>
 <div class="figure align-default" id="id7">
 <span id="fig-fmi-me-20-state-machine"></span><a class="reference internal image-reference" href="_images/StateMachineModelExchange.png"><img alt="_images/StateMachineModelExchange.png" src="_images/StateMachineModelExchange.png" style="width: 736.0px; height: 583.0px;" /></a>
 <p class="caption"><span class="caption-number">Fig. 5.3 </span>: Calling sequence of Model Exchange C functions in form of an UML 2.0 state machine (Figure
-reproduced from <a class="bibtex reference internal" href="zreferences.html#modelisar2014" id="id3">[MODELISARConsortium14]</a>.</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
+reproduced from <a class="reference internal" href="zreferences.html#modelisar2014" id="id3">[MODELISARConsortium14]</a>.</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
 </div>
 <p><a class="reference internal" href="#fig-fmi-me-20-state-machine"><span class="std std-numref">Fig. 5.3</span></a> shows the state machine for calling an FMU 2.0 for Model Exchange.
 To communicate with EnergyPlus, we are using the same API and calling sequence.
@@ -1072,7 +1072,7 @@ between an EnergyPlus output and an EnergyPlus input, as described in <a class="
 </div>
 </div>
 <div class="section" id="integration-of-qss-solver-with-optimica">
-<span id="sec-qss-jmo-int"></span><h2><span class="section-number">5.3. </span>Integration of QSS solver with OPTIMICA<a class="headerlink" href="#integration-of-qss-solver-with-optimica" title="Permalink to this headline">¶</a></h2>
+<span id="sec-qss-jmo-int"></span><h2>5.3. Integration of QSS solver with OPTIMICA<a class="headerlink" href="#integration-of-qss-solver-with-optimica" title="Permalink to this headline">¶</a></h2>
 <p>This section describes the integration of the QSS solver in OPTIMICA.</p>
 <p>We will first introduce terminology.
 Consider the code-snippet</p>
@@ -1156,9 +1156,9 @@ with extended FMI API.</span><a class="headerlink" href="#id8" title="Permalink 
 and FMI has limited support for QSS, we discuss extensions
 that are needed for an efficient implementation of QSS.</p>
 <div class="section" id="fmi-changes-for-qss">
-<h3><span class="section-number">5.3.1. </span>FMI Changes for QSS<a class="headerlink" href="#fmi-changes-for-qss" title="Permalink to this headline">¶</a></h3>
+<h3>5.3.1. FMI Changes for QSS<a class="headerlink" href="#fmi-changes-for-qss" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="setting-individual-elements-of-the-state-vector">
-<h4><span class="section-number">5.3.1.1. </span>Setting individual elements of the state vector<a class="headerlink" href="#setting-individual-elements-of-the-state-vector" title="Permalink to this headline">¶</a></h4>
+<h4>5.3.1.1. Setting individual elements of the state vector<a class="headerlink" href="#setting-individual-elements-of-the-state-vector" title="Permalink to this headline">¶</a></h4>
 <p>QSS generally requires to only update a subset of the continuous-time state vector. We therefore
 propose to use the function</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">fmi2Status</span> <span class="nf">fmi2SetReal</span><span class="p">(</span><span class="n">fmi2Component</span> <span class="n">c</span><span class="p">,</span>
@@ -1197,7 +1197,7 @@ reduce computing time for QSS.</p></li>
 </ul>
 </div>
 <div class="section" id="getting-derivatives-of-state-variables">
-<h4><span class="section-number">5.3.1.2. </span>Getting derivatives of state variables<a class="headerlink" href="#getting-derivatives-of-state-variables" title="Permalink to this headline">¶</a></h4>
+<h4>5.3.1.2. Getting derivatives of state variables<a class="headerlink" href="#getting-derivatives-of-state-variables" title="Permalink to this headline">¶</a></h4>
 <p>First order derivatives of state variables <span class="math notranslate nohighlight">\(\dot x_c(t)\)</span> in <a class="reference internal" href="#equation-eqn-ini-val">(5.1)</a>
 can be obtained with the existing
 <code class="docutils literal notranslate"><span class="pre">fmi2GetReal</span></code> function.</p>
@@ -1227,9 +1227,9 @@ and 1<sup>st</sup>, 2<sup>nd</sup> and 3<sup>rd</sup> derivatives of event indic
 </ul>
 </div>
 <div class="section" id="event-handling">
-<h4><span class="section-number">5.3.1.3. </span>Event Handling<a class="headerlink" href="#event-handling" title="Permalink to this headline">¶</a></h4>
+<h4>5.3.1.3. Event Handling<a class="headerlink" href="#event-handling" title="Permalink to this headline">¶</a></h4>
 <div class="section" id="state-events">
-<span id="subsec-se"></span><h5><span class="section-number">5.3.1.3.1. </span>State Events<a class="headerlink" href="#state-events" title="Permalink to this headline">¶</a></h5>
+<span id="subsec-se"></span><h5>5.3.1.3.1. State Events<a class="headerlink" href="#state-events" title="Permalink to this headline">¶</a></h5>
 <p>For this discussion, consider the simple model</p>
 <div class="highlight-modelica notranslate"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">StateEvent2</span> <span class="s2">&quot;This model tests state event detection&quot;</span>
   <span class="nb">Real</span> <span class="n">x</span><span class="p">(</span><span class="n">start</span><span class="o">=-</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">)</span> <span class="s2">&quot;State variable&quot;</span><span class="p">;</span>
@@ -1349,7 +1349,7 @@ an output variable.</p>
 </div>
 </div>
 <div class="section" id="getting-derivatives-of-event-indicator-functions">
-<h4><span class="section-number">5.3.1.4. </span>Getting derivatives of event indicator functions<a class="headerlink" href="#getting-derivatives-of-event-indicator-functions" title="Permalink to this headline">¶</a></h4>
+<h4>5.3.1.4. Getting derivatives of event indicator functions<a class="headerlink" href="#getting-derivatives-of-event-indicator-functions" title="Permalink to this headline">¶</a></h4>
 <p>For some <span class="math notranslate nohighlight">\(n,m \in \mathbb N\)</span>, let <span class="math notranslate nohighlight">\(z \colon \Re^n \times \mathbb Z^m \times \Re \to \Re\)</span> be an event indicator function.
 (For simplicity, we omitted the input and parameter dependency of <span class="math notranslate nohighlight">\(z(\cdot, \cdot, \cdot)\)</span> in <a class="reference internal" href="#equation-eqn-ini-val">(5.1)</a>.)
 Then the first order time derivative of the event indicator <span class="math notranslate nohighlight">\(\dot z\)</span>
@@ -1378,10 +1378,10 @@ For 3<sup>rd</sup> order QSS, we would require atomic evaluation of
 </ul>
 </div>
 <div class="section" id="test-models">
-<h4><span class="section-number">5.3.1.5. </span>Test models<a class="headerlink" href="#test-models" title="Permalink to this headline">¶</a></h4>
+<h4>5.3.1.5. Test models<a class="headerlink" href="#test-models" title="Permalink to this headline">¶</a></h4>
 <p>This section lists test cases that are corner cases for QSS.</p>
 <div class="section" id="model-with-two-conditions-that-fire-an-event">
-<h5><span class="section-number">5.3.1.5.1. </span>Model with two conditions that fire an event<a class="headerlink" href="#model-with-two-conditions-that-fire-an-event" title="Permalink to this headline">¶</a></h5>
+<h5>5.3.1.5.1. Model with two conditions that fire an event<a class="headerlink" href="#model-with-two-conditions-that-fire-an-event" title="Permalink to this headline">¶</a></h5>
 <p>Consider the following model</p>
 <div class="highlight-modelica notranslate"><div class="highlight"><pre><span></span><span class="kr">within</span> <span class="nn">QSS</span><span class="o">.</span><span class="n">Docs</span><span class="p">;</span>
 <span class="kr">model</span> <span class="nc">StateEvent1</span> <span class="s2">&quot;This model tests state event detection&quot;</span>
@@ -1409,7 +1409,7 @@ and one at t=0.6924 when simulated from 0 to 1 s.
 for an event to fire.</p>
 </div>
 <div class="section" id="event-indicators-that-depend-on-the-input">
-<span id="subsec-te"></span><h5><span class="section-number">5.3.1.5.2. </span>Event indicators that depend on the input<a class="headerlink" href="#event-indicators-that-depend-on-the-input" title="Permalink to this headline">¶</a></h5>
+<span id="subsec-te"></span><h5>5.3.1.5.2. Event indicators that depend on the input<a class="headerlink" href="#event-indicators-that-depend-on-the-input" title="Permalink to this headline">¶</a></h5>
 <p>Consider the following model</p>
 <div class="highlight-modelica notranslate"><div class="highlight"><pre><span></span><span class="kr">within</span> <span class="nn">QSS</span><span class="o">.</span><span class="n">Docs</span><span class="p">;</span>
 <span class="kr">model</span> <span class="nc">StateEvent2</span> <span class="s2">&quot;This model tests state event detection&quot;</span>
@@ -1445,7 +1445,7 @@ information from the XML file and numerically approximate
 the event indicator derivatives.</p>
 </div>
 <div class="section" id="handling-of-variables-reinitialized-with-reinit">
-<h5><span class="section-number">5.3.1.5.3. </span>Handling of variables reinitialized with <code class="docutils literal notranslate"><span class="pre">reinit()</span></code><a class="headerlink" href="#handling-of-variables-reinitialized-with-reinit" title="Permalink to this headline">¶</a></h5>
+<h5>5.3.1.5.3. Handling of variables reinitialized with <code class="docutils literal notranslate"><span class="pre">reinit()</span></code><a class="headerlink" href="#handling-of-variables-reinitialized-with-reinit" title="Permalink to this headline">¶</a></h5>
 <p>Consider following model</p>
 <div class="highlight-modelica notranslate"><div class="highlight"><pre><span></span><span class="kr">within</span> <span class="nn">QSS</span><span class="o">.</span><span class="n">Docs</span><span class="p">;</span>
 <span class="kr">model</span> <span class="nc">StateEvent3</span> <span class="s2">&quot;This model tests state event detection&quot;</span>
@@ -1487,7 +1487,7 @@ number of event indicators shall be equal to half the value of the <code class="
 </div>
 </div>
 <div class="section" id="time-events">
-<h5><span class="section-number">5.3.1.5.4. </span>Time Events<a class="headerlink" href="#time-events" title="Permalink to this headline">¶</a></h5>
+<h5>5.3.1.5.4. Time Events<a class="headerlink" href="#time-events" title="Permalink to this headline">¶</a></h5>
 <p>This section discusses additional requirements for handling time events with QSS.</p>
 <p>Consider following model</p>
 <div class="highlight-modelica notranslate"><div class="highlight"><pre><span></span><span class="kr">within</span> <span class="nn">QSS</span><span class="o">.</span><span class="n">Docs</span><span class="p">;</span>
@@ -1531,7 +1531,7 @@ they got approved and included in the FMI standard.</p>
 </div>
 </div>
 <div class="section" id="smoothtoken-for-qss">
-<h4><span class="section-number">5.3.1.6. </span>SmoothToken for QSS<a class="headerlink" href="#smoothtoken-for-qss" title="Permalink to this headline">¶</a></h4>
+<h4>5.3.1.6. SmoothToken for QSS<a class="headerlink" href="#smoothtoken-for-qss" title="Permalink to this headline">¶</a></h4>
 <p>This section discusses a proposal for a new data type which should be used for input and output variables of FMU-QSS.
 FMU-QSS is an FMU for Model Exchange (FMU-ME) which uses QSS to integrate an imported FMU-ME.
 We propose that FMU-QSS communicates with other FMUs using a SmoothToken data type.</p>
@@ -1600,7 +1600,7 @@ then <span class="math notranslate nohighlight">\(dy/dt\)</span> cannot be compu
 </div>
 </div>
 <div class="section" id="summary-of-proposed-changes">
-<h4><span class="section-number">5.3.1.7. </span>Summary of Proposed Changes<a class="headerlink" href="#summary-of-proposed-changes" title="Permalink to this headline">¶</a></h4>
+<h4>5.3.1.7. Summary of Proposed Changes<a class="headerlink" href="#summary-of-proposed-changes" title="Permalink to this headline">¶</a></h4>
 <p><strong>To be updated</strong></p>
 <p>Here is a list with a summary of proposed changes</p>
 <ul class="simple">
@@ -1633,16 +1633,16 @@ on the QSS side.</p></li>
 </div>
 </div>
 <div class="section" id="open-topics">
-<h4><span class="section-number">5.3.1.8. </span>Open Topics<a class="headerlink" href="#open-topics" title="Permalink to this headline">¶</a></h4>
+<h4>5.3.1.8. Open Topics<a class="headerlink" href="#open-topics" title="Permalink to this headline">¶</a></h4>
 <p>This section includes a list of measures which could further improve the efficiency of QSS.
 Some of the measures should be implemented and benchmarked to ensure their necessity for QSS.</p>
 <div class="section" id="atomic-api">
-<h5><span class="section-number">5.3.1.8.1. </span>Atomic API<a class="headerlink" href="#atomic-api" title="Permalink to this headline">¶</a></h5>
+<h5>5.3.1.8.1. Atomic API<a class="headerlink" href="#atomic-api" title="Permalink to this headline">¶</a></h5>
 <p>A fundamental property of QSS is that variables are advanced at different time rates.
 To make this practically efficient with FMUs, an API for individual values and derivatives is essential.</p>
 </div>
 <div class="section" id="xml-api">
-<h5><span class="section-number">5.3.1.8.2. </span>XML/API<a class="headerlink" href="#xml-api" title="Permalink to this headline">¶</a></h5>
+<h5>5.3.1.8.2. XML/API<a class="headerlink" href="#xml-api" title="Permalink to this headline">¶</a></h5>
 <p>All variables with non-constant values probably need to be exposed via the xml
 with all their interdependencies. The practicality and benefit of trying
 to hide some variables such as algebraic variables by short-circuiting
@@ -1650,13 +1650,13 @@ their dependencies in the xml (or doing this short-circuiting on the QSS side)
 should be considered for efficiency reasons.</p>
 </div>
 <div class="section" id="higher-derivatives">
-<h5><span class="section-number">5.3.1.8.3. </span>Higher Derivatives<a class="headerlink" href="#higher-derivatives" title="Permalink to this headline">¶</a></h5>
+<h5>5.3.1.8.3. Higher Derivatives<a class="headerlink" href="#higher-derivatives" title="Permalink to this headline">¶</a></h5>
 <p>Numerical differentiation significantly complicates and slows the QSS code:
 automatic differentiation provided by the FMU will be a major improvement
 and allows practical development of 3rd order QSS solvers.</p>
 </div>
 <div class="section" id="input-variables">
-<h5><span class="section-number">5.3.1.8.4. </span>Input Variables<a class="headerlink" href="#input-variables" title="Permalink to this headline">¶</a></h5>
+<h5>5.3.1.8.4. Input Variables<a class="headerlink" href="#input-variables" title="Permalink to this headline">¶</a></h5>
 <ul class="simple">
 <li><p>Input functions with discontinuities up to the QSS order need to be exposed to
 QSS and provide next event time access to the master algorithm.</p></li>
@@ -1666,7 +1666,7 @@ to allow numeric differentiation and event trigger stepping.</p></li>
 </ul>
 </div>
 <div class="section" id="annotations">
-<h5><span class="section-number">5.3.1.8.5. </span>Annotations<a class="headerlink" href="#annotations" title="Permalink to this headline">¶</a></h5>
+<h5>5.3.1.8.5. Annotations<a class="headerlink" href="#annotations" title="Permalink to this headline">¶</a></h5>
 <p>Some per-variable annotations that will allow for more efficient solutions by overriding global settings (which are also needed as annotations) include:</p>
 <ul class="simple">
 <li><p>Various time steps: <code class="docutils literal notranslate"><span class="pre">dt_min</span></code>, <code class="docutils literal notranslate"><span class="pre">dt_max</span></code>, <code class="docutils literal notranslate"><span class="pre">dt_inf</span></code>, …</p></li>
@@ -1675,7 +1675,7 @@ to allow numeric differentiation and event trigger stepping.</p></li>
 </ul>
 </div>
 <div class="section" id="conditional-expressions-and-event-indicators">
-<h5><span class="section-number">5.3.1.8.6. </span>Conditional Expressions and Event Indicators<a class="headerlink" href="#conditional-expressions-and-event-indicators" title="Permalink to this headline">¶</a></h5>
+<h5>5.3.1.8.6. Conditional Expressions and Event Indicators<a class="headerlink" href="#conditional-expressions-and-event-indicators" title="Permalink to this headline">¶</a></h5>
 <ul>
 <li><p>How to reliably get the FMU to detect an event at the time QSS predicts one?</p>
 <p>QSS predicts zero-crossing event times that, even with Newton refinement,
@@ -1721,7 +1721,7 @@ FMU that a zero crossing occurred at a given time (and maybe with crossing direc
 </div>
 </div>
 <div class="section" id="integration-with-openstudio">
-<span id="sec-int-ope-stu"></span><h2><span class="section-number">5.4. </span>Integration with OpenStudio<a class="headerlink" href="#integration-with-openstudio" title="Permalink to this headline">¶</a></h2>
+<span id="sec-int-ope-stu"></span><h2>5.4. Integration with OpenStudio<a class="headerlink" href="#integration-with-openstudio" title="Permalink to this headline">¶</a></h2>
 <p>The integration with OpenStudio will be done through
 an html5 widget. The development of this link is documented at
 <a class="reference external" href="https://github.com/lbl-srg/linkage.js">https://github.com/lbl-srg/linkage.js</a></p>
@@ -1745,7 +1745,7 @@ an html5 widget. The development of this link is documented at
     </p>
     <p>
         &copy; Copyright (c) All rights reserved.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.4.3.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.<br/>
     </p>
   </div>
 </footer>

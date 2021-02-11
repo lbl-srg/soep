@@ -2,13 +2,12 @@
 
 <!DOCTYPE html>
 
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>4. Requirements &#8212; Spawn of EnergyPlus</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css" />
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap.css" />
@@ -21,11 +20,12 @@
     <link rel="stylesheet" type="text/css" href="_static/bootstrap_custom.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom-sphinx.css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/lbl-icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -178,10 +178,10 @@
     <div class="body col-md-12 content" role="main">
       
   <div class="section" id="requirements">
-<span id="sec-requirements"></span><h1><span class="section-number">4. </span>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h1>
+<span id="sec-requirements"></span><h1>4. Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h1>
 <p>This section describes the functional, mathematical and software requirements.</p>
 <div class="section" id="openstudio-integration">
-<h2><span class="section-number">4.1. </span>OpenStudio integration<a class="headerlink" href="#openstudio-integration" title="Permalink to this headline">¶</a></h2>
+<h2>4.1. OpenStudio integration<a class="headerlink" href="#openstudio-integration" title="Permalink to this headline">¶</a></h2>
 <p>Below is an initial list of requirements for the OpenStudio integration.</p>
 <ol class="arabic">
 <li><p><em>Translation of legacy models</em>: It need not be possible to translate
@@ -237,7 +237,7 @@ shall be rejected by the OpenStudio model and the graphical editor.</p>
 </ol>
 </div>
 <div class="section" id="mathematics">
-<h2><span class="section-number">4.2. </span>Mathematics<a class="headerlink" href="#mathematics" title="Permalink to this headline">¶</a></h2>
+<h2>4.2. Mathematics<a class="headerlink" href="#mathematics" title="Permalink to this headline">¶</a></h2>
 <p>In SOEP, models are implemented in the form of Modelica models. These models
 may call FMUs or C-functions for certain algorithms.
 When connecting models, differential algebraic systems of equations may be formed.
@@ -248,12 +248,12 @@ computational efficiency of the iterative solution methods.
 The next sections describe these mathematical properties that
 need to be satisfied by the model equations.</p>
 <div class="section" id="differentiability">
-<h3><span class="section-number">4.2.1. </span>Differentiability<a class="headerlink" href="#differentiability" title="Permalink to this headline">¶</a></h3>
+<h3>4.2.1. Differentiability<a class="headerlink" href="#differentiability" title="Permalink to this headline">¶</a></h3>
 <p>Building simulation problems can be formulated as a semi-explicit
 nonlinear DAE system with index one
-<a class="bibtex reference internal" href="zreferences.html#brenancampbellpetzold1989" id="id1">[BCP89]</a>, coupled to the discrete variables
+<a class="reference internal" href="zreferences.html#brenancampbellpetzold1989" id="id1">[BCP89]</a>, coupled to the discrete variables
 <span class="math notranslate nohighlight">\(x_d(\cdot)\)</span> and <span class="math notranslate nohighlight">\(u_d(\cdot)\)</span>.
-The general form is <a class="bibtex reference internal" href="zreferences.html#wetter2005-1" id="id2">[Wet05]</a></p>
+The general form is <a class="reference internal" href="zreferences.html#wetter2005-1" id="id2">[Wet05]</a></p>
 <div class="math notranslate nohighlight" id="equation-eq-daephy">
 <span class="eqno">(4.1)<a class="headerlink" href="#equation-eq-daephy" title="Permalink to this equation">¶</a></span>\[ \begin{align}\begin{aligned}\left[\dot x_c(t), x_d(t)\right] &amp; = f(x_c(t), x_d(t^-), u_c(t), u_d(t), p, t),\\\left[y_c(t), y_d(t)\right] &amp; = g(x_c(t), x_d(t), u_c(t), u_d(t), p, t),\\0 &amp; = \gamma\bigl(u_c(t), y_c(t), y_d(t) \bigr),\\\left[x_c(t_0), x_d(t_0)\right] &amp; = (x_{c,0}, x_{d,0}),\end{aligned}\end{align} \]</div>
 <p>where
@@ -295,7 +295,7 @@ that the matrix with partial derivatives
 <span class="math notranslate nohighlight">\(\partial \gamma(x, \mu^*(x))/ \partial \mu \in \Re^{m \times m}\)</span>
 is non-singular.</p>
 <p>With this assumption and the use of the
-Implicit Function Theorem <a class="bibtex reference internal" href="zreferences.html#pol97-1" id="id3">[Pol97]</a>, one can show that
+Implicit Function Theorem <a class="reference internal" href="zreferences.html#pol97-1" id="id3">[Pol97]</a>, one can show that
 the solution
 <span class="math notranslate nohighlight">\(\mu^*(x)\)</span> that satisfies
 <span class="math notranslate nohighlight">\(\gamma(x, \mu^*(x) )=0\)</span>,
@@ -339,7 +339,7 @@ as in
 </li>
 </ol>
 </div></blockquote>
-<p>With these conditions, it follows as a special case of Corollary 5.6.9 in <a class="bibtex reference internal" href="zreferences.html#pol97-1" id="id4">[Pol97]</a>,
+<p>With these conditions, it follows as a special case of Corollary 5.6.9 in <a class="reference internal" href="zreferences.html#pol97-1" id="id4">[Pol97]</a>,
 that the solution
 <span class="math notranslate nohighlight">\(x(t_f)\)</span> to <a class="reference internal" href="#equation-eq-daephycon">(4.2)</a> exists and is once continuously differentiable with
 respect to the parameter <span class="math notranslate nohighlight">\(p\)</span> on bounded sets.</p>
@@ -351,7 +351,7 @@ is sized by solving an optimization problem.</p>
 </div>
 </div>
 <div class="section" id="control-of-numerical-noise">
-<h3><span class="section-number">4.2.2. </span>Control of Numerical Noise<a class="headerlink" href="#control-of-numerical-noise" title="Permalink to this headline">¶</a></h3>
+<h3>4.2.2. Control of Numerical Noise<a class="headerlink" href="#control-of-numerical-noise" title="Permalink to this headline">¶</a></h3>
 <p>Evaluating the functions
 <span class="math notranslate nohighlight">\(f(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)\)</span>,
 <span class="math notranslate nohighlight">\(g(\cdot, \cdot, \cdot, \cdot, \cdot, \cdot)\)</span> and
@@ -384,14 +384,14 @@ an <span class="math notranslate nohighlight">\(\epsilon' &gt; 0\)</span> and a 
 <p>Note that this means that as the tolerance of the solver is decreased, the numerical error decreases.
 This requirement allows proving convergence to a first order
 optimal point for a class of derivative-free optimization
-algorithms <a class="bibtex reference internal" href="zreferences.html#polakwetter2006" id="id5">[PW06]</a>.</p>
+algorithms <a class="reference internal" href="zreferences.html#polakwetter2006" id="id5">[PW06]</a>.</p>
 </div>
 </div>
 <div class="section" id="fmu-requirements">
-<span id="sec-fmu-cap"></span><h2><span class="section-number">4.3. </span>FMU Requirements<a class="headerlink" href="#fmu-requirements" title="Permalink to this headline">¶</a></h2>
+<span id="sec-fmu-cap"></span><h2>4.3. FMU Requirements<a class="headerlink" href="#fmu-requirements" title="Permalink to this headline">¶</a></h2>
 <p>The FMI standard contains various properties that it declares optional to implement.</p>
 <div class="section" id="fmu-capabilities">
-<h3><span class="section-number">4.3.1. </span>FMU Capabilities<a class="headerlink" href="#fmu-capabilities" title="Permalink to this headline">¶</a></h3>
+<h3>4.3.1. FMU Capabilities<a class="headerlink" href="#fmu-capabilities" title="Permalink to this headline">¶</a></h3>
 <p>For computing efficiency, FMUs that are used in the SOEP must support
 the following optional properties of the FMI 2.0 standard.</p>
 <ol class="arabic simple">
@@ -439,21 +439,21 @@ step <span class="math notranslate nohighlight">\(h\)</span> (i.e., it returns t
 <span class="math notranslate nohighlight">\(h''\)</span> smaller than or equal to <span class="math notranslate nohighlight">\(h'\)</span>,
 provided the FMU is started from the same state.
 This is required for proving termination of the master algorithm.
-See <a class="bibtex reference internal" href="zreferences.html#broman2013" id="id6">[BBG+13]</a>.</p></li>
+See <a class="reference internal" href="zreferences.html#broman2013" id="id6">[BBG+13]</a>.</p></li>
 <li><p>If an FMU for co-simulation is asked to integrate for some
 <span class="math notranslate nohighlight">\(0 &lt; h\)</span>, but it returns that it can only integrate until some
 <span class="math notranslate nohighlight">\(0 &lt; h' &lt; h\)</span>, then if it is asked to integrate
 to some <span class="math notranslate nohighlight">\(h''&gt;h'\)</span>, it will again only integrate until
 <span class="math notranslate nohighlight">\(h'\)</span>.
 This property is required for FMUs to make maximum progress
-in each time step. See <a class="bibtex reference internal" href="zreferences.html#broman2013" id="id7">[BBG+13]</a>.</p></li>
+in each time step. See <a class="reference internal" href="zreferences.html#broman2013" id="id7">[BBG+13]</a>.</p></li>
 <li><p>FMUs distributed with SOEP must run on Windows 64 bit, Linux 64 bit
 and Mac OS X 64 bit.</p></li>
 </ol>
 </div>
 </div>
 <div class="section" id="qss-implementation">
-<h2><span class="section-number">4.4. </span>QSS Implementation<a class="headerlink" href="#qss-implementation" title="Permalink to this headline">¶</a></h2>
+<h2>4.4. QSS Implementation<a class="headerlink" href="#qss-implementation" title="Permalink to this headline">¶</a></h2>
 <p>This section describes the requirements for the QSS solver implementation.
 The development code for QSS is at <a class="reference external" href="https://github.com/NREL/SOEP-QSS">https://github.com/NREL/SOEP-QSS</a>.</p>
 <ol class="arabic simple">
@@ -472,7 +472,7 @@ If these pose a problem, we may want to avoid them at a later stage in the solve
 </ol>
 </div>
 <div class="section" id="master-algorithm">
-<h2><span class="section-number">4.5. </span>Master Algorithm<a class="headerlink" href="#master-algorithm" title="Permalink to this headline">¶</a></h2>
+<h2>4.5. Master Algorithm<a class="headerlink" href="#master-algorithm" title="Permalink to this headline">¶</a></h2>
 <p>The master algorithm must satisfy the following requirements:</p>
 <ol class="arabic simple">
 <li><p>The master algorithm must be using the BSD license. Hence,
@@ -522,7 +522,7 @@ Linux 64 bit, and Mac OS X 64 bit.</p></li>
     </p>
     <p>
         &copy; Copyright (c) All rights reserved.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.4.3.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.<br/>
     </p>
   </div>
 </footer>

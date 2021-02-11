@@ -2,13 +2,12 @@
 
 <!DOCTYPE html>
 
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>9. Glossary &#8212; Spawn of EnergyPlus</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css" />
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap.css" />
@@ -21,11 +20,12 @@
     <link rel="stylesheet" type="text/css" href="_static/bootstrap_custom.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom-sphinx.css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/lbl-icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -164,7 +164,7 @@
     <div class="body col-md-12 content" role="main">
       
   <div class="section" id="glossary">
-<span id="id1"></span><h1><span class="section-number">9. </span>Glossary<a class="headerlink" href="#glossary" title="Permalink to this headline">¶</a></h1>
+<span id="id1"></span><h1>9. Glossary<a class="headerlink" href="#glossary" title="Permalink to this headline">¶</a></h1>
 <p>This section defines various technical terms that are used throughout
 the report.</p>
 <dl class="glossary">
@@ -242,15 +242,15 @@ integration methods such as the QSS methods.</p>
 <p class="caption"><span class="caption-number">Fig. 9.1 </span>: Signal flow diagram that illustrates direct dependency.</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
 </div>
 </dd>
-<dt id="term-Functional-Mockup-Interface">Functional Mockup Interface</dt><dd><p>The Functional Mockup Interface (FMI) standard defines an open interface
-to be implemented by an executable called <a class="reference internal" href="#term-Functional-Mockup-Unit"><span class="xref std std-term">Functional Mockup Unit</span></a> (FMU).
+<dt id="term-functional-mockup-interface">Functional Mockup Interface</dt><dd><p>The Functional Mockup Interface (FMI) standard defines an open interface
+to be implemented by an executable called <a class="reference internal" href="#term-functional-mockup-unit"><span class="xref std std-term">Functional Mockup Unit</span></a> (FMU).
 The FMI functions are called by a simulator to create one or more instances of the FMU,
 called models, and to run these models, typically together with other models.
 An FMU may either be self-integrating (co-simulation) or require the simulator
 to perform the numerical integration.</p>
 </dd>
-<dt id="term-Functional-Mockup-Unit">Functional Mockup Unit</dt><dd><p>Compiled code or source code that can be executed using the
-application programming interface defined in the <a class="reference internal" href="#term-Functional-Mockup-Interface"><span class="xref std std-term">Functional Mockup Interface</span></a> standard.</p>
+<dt id="term-functional-mockup-unit">Functional Mockup Unit</dt><dd><p>Compiled code or source code that can be executed using the
+application programming interface defined in the <a class="reference internal" href="#term-functional-mockup-interface"><span class="xref std std-term">Functional Mockup Interface</span></a> standard.</p>
 </dd>
 <dt id="term-rollback">rollback</dt><dd><p>We say that a simulator is doing a rollback if its model time is set to a previous
 time instant, and all its state variables are set to the values they had at that previous
@@ -281,7 +281,7 @@ that depends on a state variable. For example, for some initial condition <span 
 is the independent variable for describing the <a class="reference internal" href="#term-continuous-time-variable"><span class="xref std std-term">continuous-time behavior</span></a>
 of the model between events. In this phase, <span class="math notranslate nohighlight">\(t_I = 0\)</span>.
 The integer part <span class="math notranslate nohighlight">\(t_I\)</span> of this tuple is a counter to enumerate, and therefore distinguish,
-the events at the same continuous-time instant <span class="math notranslate nohighlight">\(t_R\)</span> <a class="bibtex reference internal" href="zreferences.html#leezheng2007-1" id="id2">[LZ07]</a>.</p>
+the events at the same continuous-time instant <span class="math notranslate nohighlight">\(t_R\)</span> <a class="reference internal" href="zreferences.html#leezheng2007-1" id="id2">[LZ07]</a>.</p>
 </dd>
 </dl>
 </div>
@@ -303,7 +303,7 @@ the events at the same continuous-time instant <span class="math notranslate noh
     </p>
     <p>
         &copy; Copyright (c) All rights reserved.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.4.3.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.<br/>
     </p>
   </div>
 </footer>
