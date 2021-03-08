@@ -24,7 +24,8 @@ equation
     (tNext, Q_flow) =exchange(
       adapter,
       time,
-      T);
+      T,
+      nZ);
   end when;
   k*der(T) = Q_flow;
   nZ =synBui.synchronize.done;
