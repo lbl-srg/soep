@@ -1,15 +1,15 @@
 within BuildingRooms;
 package Synchronize
-  connector SynchronizeConnector "Connector to synchronize Spawn objects"
+  connector SynchronizeConnector
     Real do "Potential variable";
     flow Real done "Flow variable";
   end SynchronizeConnector;
 
-  model SynchronizeBuilding "Model to synchronize the Spawn objects"
-    SynchronizeConnector synchronize "Connector that is used to synchronize objects";
+  model SynchronizeBuilding
+    SynchronizeConnector synchronize;
   end SynchronizeBuilding;
 
-  model ObjectSynchronizer "Block that synchronizes an object"
+  model ObjectSynchronizer
     outer Building building;
   SynchronizeBuilding synBui;
   equation

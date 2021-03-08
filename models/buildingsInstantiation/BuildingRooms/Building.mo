@@ -1,6 +1,6 @@
 within BuildingRooms;
 model Building
-  "Model that declares a building to which all objects belong to"
+  "Model that declares a building"
   Synchronize.SynchronizeConnector synchronize;
   Real synchronization_done = synchronize.done;
   Real isSynchronized;
