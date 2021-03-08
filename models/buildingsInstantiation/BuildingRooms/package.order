@@ -1,7 +1,7 @@
 Synchronize
-CollidingWorld
+Building
 ThermalZone
 ZoneClass
-zoneInitialize
-zoneExchange
-Building
+initialize
+exchange
+MyBuildingInstance

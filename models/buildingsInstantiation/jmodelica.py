@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 import pprint
 
 debug_solver = False
-model="BuildingRooms.Building"
+model="BuildingRooms.MyBuildingInstance"
 generate_plot = False
 
 # Overwrite model with command line argument if specified
