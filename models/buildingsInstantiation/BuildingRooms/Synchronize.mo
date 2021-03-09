@@ -11,7 +11,7 @@ package Synchronize
 
   model ObjectSynchronizer
     outer Building building;
-  SynchronizeBuilding synBui;
+    SynchronizeBuilding synBui;
   equation
   connect(building.synchronize, synBui.synchronize);
   end ObjectSynchronizer;
