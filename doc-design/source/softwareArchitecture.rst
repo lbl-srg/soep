@@ -767,8 +767,10 @@ Time synchronization
 
 :numref:`fig-fmi-me-20-state-machine` shows the state machine for calling an FMU 2.0 for Model Exchange.
 To communicate with EnergyPlus, we are using the same API and calling sequence.
-As shown in :numref:`fig-partition-envelop-room-hvac`, the EnergyPlus envelope model is invoked
-at a variable time step.
+The EnergyPlus envelope model is invoked at a variable time step, using a Modelica time event.
+In the implementation, EnergyPlus sends the time instant when it needs to be called the next time.
+:numref:`fig-partition-envelop-room-hvac` shows this as the EnergyPlus time step, but the Modelica
+implementation allows for any time step requested by EnergyPlus.
 Therefore, for the envelope model, data is exchanged within the mode labelled *Continuous Time Mode*
 in :numref:`fig-fmi-me-20-state-machine`.
 Internally, EnergyPlus samples its heat conduction model at the envelope time step :math:`\Delta t_z`.

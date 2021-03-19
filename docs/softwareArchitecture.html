@@ -1040,8 +1040,10 @@ reproduced from <a class="reference internal" href="zreferences.html#modelisar20
 </div>
 <p><a class="reference internal" href="#fig-fmi-me-20-state-machine"><span class="std std-numref">Fig. 5.3</span></a> shows the state machine for calling an FMU 2.0 for Model Exchange.
 To communicate with EnergyPlus, we are using the same API and calling sequence.
-As shown in <a class="reference internal" href="#fig-partition-envelop-room-hvac"><span class="std std-numref">Fig. 5.2</span></a>, the EnergyPlus envelope model is invoked
-at a variable time step.
+The EnergyPlus envelope model is invoked at a variable time step, using a Modelica time event.
+In the implementation, EnergyPlus sends the time instant when it needs to be called the next time.
+<a class="reference internal" href="#fig-partition-envelop-room-hvac"><span class="std std-numref">Fig. 5.2</span></a> shows this as the EnergyPlus time step, but the Modelica
+implementation allows for any time step requested by EnergyPlus.
 Therefore, for the envelope model, data is exchanged within the mode labelled <em>Continuous Time Mode</em>
 in <a class="reference internal" href="#fig-fmi-me-20-state-machine"><span class="std std-numref">Fig. 5.3</span></a>.
 Internally, EnergyPlus samples its heat conduction model at the envelope time step <span class="math notranslate nohighlight">\(\Delta t_z\)</span>.
