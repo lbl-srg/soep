@@ -343,8 +343,9 @@ Coupling of a zone surface
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The following interface models the heat transfer of a surface with the EnergyPlus thermal zone.
-This allows for example coupling of a radiant heating or cooling system that is modeled in Modelica
-to the EnergyPlus thermal zone model. EnergyPlus
+This allows for example coupling of a radiant heating in the 1st floor that is modeled in Modelica
+to the EnergyPlus thermal zone model for heat exchange with the zone,
+while simulating the ground coupling of the slab in Modelica. EnergyPlus
 models the heat transfer between the surface and the thermal zone. Therefore, EnergyPlus will
 model the convective heat transfer, the short-wave radiation absorbed by the surface and the
 long-wave radiation absorbed minus emitted by the surface.
@@ -404,7 +405,8 @@ which could be another thermal zone, the outside, or the ground coupling,
 depending on its specification of the `Outside Boundary Condition` in EnergyPlus.
 Therefore, EnergyPlus will
 model all heat that enters the surface from its boundary condition.
-For a thermal zone or the outside, this is the convective heat transfer, the short-wave radiation absorbed by the surface and the
+For a thermal zone or the outside, this is the convective heat transfer,
+the short-wave radiation absorbed by the surface and the
 long-wave radiation absorbed minus emitted by the surface.
 For ground coupled surfaces, this is the heat transfer from the ground.
 
