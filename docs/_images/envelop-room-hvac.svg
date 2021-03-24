@@ -7,8 +7,8 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="788.21375"
-   height="346.81485"
+   width="787.99695"
+   height="421.4433"
    id="svg2"
    version="1.1"
    inkscape:version="1.0.1 (0767f8302a, 2020-10-17)"
@@ -199,9 +199,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="3.4477969"
-     inkscape:cx="271.24469"
-     inkscape:cy="219.45247"
+     inkscape:zoom="2.4379606"
+     inkscape:cx="215.80931"
+     inkscape:cy="240.44311"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -234,8 +234,8 @@
        enabled="true"
        snapvisiblegridlinesonly="true"
        dotted="false"
-       originx="38.346173"
-       originy="-503.16571" />
+       originx="38.237774"
+       originy="-428.65674" />
   </sodipodi:namedview>
   <metadata
      id="metadata7">
@@ -245,7 +245,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -253,11 +253,11 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(38.346173,-165.37434)">
+     transform="translate(38.237774,-90.86537)">
     <g
        style="fill:#ececec;stroke-width:0.281031;stroke-miterlimit:4;stroke-dasharray:none"
        id="g1036"
-       transform="matrix(7.1747987,0,0,7.8976591,-695.36391,-1585.6696)">
+       transform="matrix(7.1728254,0,0,9.5970963,-695.07481,-2036.9724)">
       <rect
          style="fill:#ececec;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.281031;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          id="rect1034"
@@ -276,7 +276,7 @@
        y="315.97937"
        transform="scale(-1,1)" />
     <g
-       transform="matrix(7.1747987,0,0,7.8976591,-257.42824,-1585.6696)"
+       transform="matrix(7.1728254,0,0,9.5970963,-257.25959,-2036.9724)"
        id="g3111-6-2"
        style="fill:#ececec;stroke-width:0.281031;stroke-miterlimit:4;stroke-dasharray:none">
       <rect
@@ -292,12 +292,12 @@
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:12px;line-height:0%;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
        x="407.60547"
-       y="184.27692"
+       y="112.27692"
        id="text4398-8-0-2-2-7-7"><tspan
          id="tspan3187-3-7-4"
          sodipodi:role="line"
          x="407.60547"
-         y="184.27692"
+         y="112.27692"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:12px;line-height:1.25;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal">Modelica </tspan></text>
     <text
        xml:space="preserve"
@@ -444,12 +444,12 @@
          id="tspan3858">OutputVariable</tspan></text>
     <text
        id="text3865"
-       y="184.27692"
+       y="112.27692"
        x="-30.433594"
        style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:12px;line-height:0%;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:12px;line-height:1.25;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal"
-         y="184.27692"
+         y="112.27692"
          x="-30.433594"
          sodipodi:role="line"
          id="tspan3863">EnergyPlus</tspan></text>
@@ -538,11 +538,11 @@
        width="155.96991"
        height="76.189377"
        x="-578.91315"
-       y="203.03389"
+       y="131.03389"
        transform="scale(-1,1)" />
     <rect
        transform="scale(-1,1)"
-       y="225.6501"
+       y="153.6501"
        x="-571.8858"
        height="47.827835"
        width="141.62158"
@@ -550,7 +550,7 @@
        style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.6993;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <rect
        transform="scale(-1,1)"
-       y="203.01109"
+       y="131.01109"
        x="-289.02234"
        height="76.518326"
        width="156.00768"
@@ -560,31 +560,31 @@
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:0%;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
        x="433.91992"
-       y="237.45984"
+       y="165.45984"
        id="text4277"><tspan
          id="tspan4281"
          sodipodi:role="line"
          x="433.91992"
-         y="237.45984"
+         y="165.45984"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start">Air temperature</tspan><tspan
          sodipodi:role="line"
          x="433.91992"
-         y="247.45984"
+         y="175.45984"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start"
          id="tspan1058">Air humidity</tspan><tspan
          sodipodi:role="line"
          x="433.91992"
-         y="257.45984"
+         y="185.45984"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start"
          id="tspan1009">Radiant internal gains</tspan><tspan
          sodipodi:role="line"
          x="433.91992"
-         y="267.45984"
+         y="195.45984"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start"
          id="tspan1060">Air mass flow rate &amp; temperature</tspan></text>
     <rect
        transform="scale(-1,1)"
-       y="226.79417"
+       y="154.79417"
        x="-280.31241"
        height="48.528709"
        width="138.35878"
@@ -594,58 +594,58 @@
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:0%;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
        x="145.52409"
-       y="239.42728"
+       y="167.42728"
        id="text3974"><tspan
          sodipodi:role="line"
          x="145.52409"
-         y="239.42728"
+         y="167.42728"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start"
          id="tspan3972">Radiative temperature</tspan><tspan
          sodipodi:role="line"
          x="145.52409"
-         y="249.42728"
+         y="177.42728"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start"
          id="tspan1054">Sensible heat flow rates to air</tspan><tspan
          sodipodi:role="line"
          x="145.52409"
-         y="259.42728"
+         y="187.42728"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start"
          id="tspan1050">Latent heat flow rates to air</tspan><tspan
          sodipodi:role="line"
          x="145.52409"
-         y="269.42728"
+         y="197.42728"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start"
          id="tspan1052">Heat gains from people</tspan></text>
     <text
        id="text1004"
-       y="215.47195"
+       y="143.47195"
        x="138.0293"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:0%;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          id="tspan1002"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start"
-         y="215.47195"
+         y="143.47195"
          x="138.0293"
          sodipodi:role="line">Thermal zone</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:0%;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
        x="428.0293"
-       y="215.47195"
+       y="143.47195"
        id="text1008"><tspan
          sodipodi:role="line"
          x="428.0293"
-         y="215.47195"
+         y="143.47195"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start"
          id="tspan1006">Thermal zone</tspan></text>
     <path
        inkscape:connector-curvature="0"
        id="path1016"
-       d="M 428.87568,244.34454 C 290.47122,244.22889 290.47122,244.22889 290.47122,244.22889"
+       d="M 428.87568,172.34454 C 290.47122,172.22889 290.47122,172.22889 290.47122,172.22889"
        style="fill:none;stroke:#000000;stroke-width:0.576717;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Lend)" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.57821;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#Arrow1Lstart)"
-       d="M 420.87901,263.39889 C 281.41668,263.28352 281.41668,263.28352 281.41668,263.28352"
+       d="M 420.87901,191.39889 C 281.41668,191.28352 281.41668,191.28352 281.41668,191.28352"
        id="path1018"
        inkscape:connector-curvature="0" />
     <path
@@ -720,7 +720,7 @@
          sodipodi:role="line"
          x="433.71597"
          y="320.0929"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start">Surface temperature</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start">Temperature of surface</tspan></text>
     <rect
        transform="scale(-1,1)"
        y="324.70398"
@@ -771,6 +771,97 @@
        style="fill:none;stroke:#000000;stroke-width:0.57821;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#Arrow1Lstart)"
        d="M 420.87901,335.39889 C 281.41668,335.28352 281.41668,335.28352 281.41668,335.28352"
        id="path1069"
+       inkscape:connector-curvature="0" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1.4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect1017"
+       width="156.01851"
+       height="63.035046"
+       x="-578.9826"
+       y="216.31055"
+       transform="scale(-1,1)" />
+    <rect
+       transform="scale(-1,1)"
+       y="235.14987"
+       x="-568.88721"
+       height="21.212313"
+       width="138.88719"
+       id="rect1019"
+       style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.666667;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <rect
+       transform="scale(-1,1)"
+       y="216.29169"
+       x="-289.0015"
+       height="63.307201"
+       width="156.05627"
+       id="rect1021"
+       style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1.4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:0%;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+       x="433.71597"
+       y="248.0929"
+       id="text1025"><tspan
+         id="tspan1023"
+         sodipodi:role="line"
+         x="433.71597"
+         y="248.0929"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start">Temperature of both surfaces</tspan></text>
+    <rect
+       transform="scale(-1,1)"
+       y="245.86433"
+       x="-280.51382"
+       height="29.989124"
+       width="138.76154"
+       id="rect1027"
+       style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.792319;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:0%;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+       x="145.52409"
+       y="259.42728"
+       id="text1031"><tspan
+         sodipodi:role="line"
+         x="145.52409"
+         y="259.42728"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start"
+         id="tspan1029">External heat flow rate at</tspan><tspan
+         sodipodi:role="line"
+         x="145.52409"
+         y="269.42728"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start"
+         id="tspan1045">both surfaces</tspan></text>
+    <text
+       id="text1035"
+       y="229.47195"
+       x="138.0293"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:0%;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+       xml:space="preserve"><tspan
+         id="tspan1033"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start"
+         y="229.47195"
+         x="138.0293"
+         sodipodi:role="line">Opaque construction</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:0%;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
+       x="428.0293"
+       y="229.47195"
+       id="text1039"><tspan
+         sodipodi:role="line"
+         x="428.0293"
+         y="229.47195"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start"
+         id="tspan1037">Opaque construction</tspan></text>
+    <path
+       inkscape:connector-curvature="0"
+       id="path1041"
+       d="M 428.87568,244.34454 C 290.47122,244.22889 290.47122,244.22889 290.47122,244.22889"
+       style="fill:none;stroke:#000000;stroke-width:0.576717;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Lend)" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.57821;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#Arrow1Lstart)"
+       d="M 420.87901,263.39889 C 281.41668,263.28352 281.41668,263.28352 281.41668,263.28352"
+       id="path1043"
        inkscape:connector-curvature="0" />
   </g>
 </svg>

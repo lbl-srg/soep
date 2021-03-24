@@ -337,55 +337,6 @@ using the current input variables. (For example, multiple calls within a time st
 the derivative of ``QConSen_flow`` with respect to ``T``.)
 
 
-.. _sec_cou_zon_sur:
-
-Coupling of a zone surface
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The following interface models the heat transfer of a surface with the EnergyPlus thermal zone.
-This allows for example coupling of a radiant heating in the 1st floor that is modeled in Modelica
-to the EnergyPlus thermal zone model for heat exchange with the zone,
-while simulating the ground coupling of the slab in Modelica. EnergyPlus
-models the heat transfer between the surface and the thermal zone. Therefore, EnergyPlus will
-model the convective heat transfer, the short-wave radiation absorbed by the surface and the
-long-wave radiation absorbed minus emitted by the surface.
-
-EnergyPlus exposes the following parameter, which Modelica will obtain during the initialization.
-
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| Variable                  | Quantity                                                                                                    | Unit            |
-+===========================+=============================================================================================================+=================+
-| A                         | Area of the surface that is exposed to the thermal zone.                                                    |   m2            |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-
-The following time-dependent variables are exchanged between EnergyPlus and Modelica during the time integratione.
-
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| Variable                  | Quantity                                                                                                    | Unit            |
-+===========================+=============================================================================================================+=================+
-| *From Modelica to EnergyPlus*                                                                                                                             |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| T                         | Temperature of the surface.                                                                                 |   degC          |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| t                         | Model time at which the above inputs T is valid, with :math:`t=0` defined as January 1, 0 am local time,    |   s             |
-|                           | and with                                                                                                    |                 |
-|                           | no correction for daylight savings time.                                                                    |                 |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| *From EnergyPlus to Modelica*                                                                                                                             |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| Q_flow                    | Net heat flow rate from the thermal zone to the surface, consisting of convective heat flow,                |   W             |
-|                           | absorbed solar radiation, absorbed infrared radiation minus emitted infrared radiation.                     |                 |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| nextEventTime             | Model time :math:`t` when EnergyPlus needs to be called next (typically the next zone time step).           |   s             |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-
-
-The calling sequences of the functions that send data to EnergyPlus and read data from EnergyPlus is
-as for any :term:`continuous-time variable` in FMI. That is, at any time instant,
-variables can be set multiple times, and the values returned by EnergyPlus must be computed
-using the current input variables. (For example, multiple calls within a time step may be used to compute
-the derivative of ``Q_flow`` with respect to ``T``.)
-
 .. _sec_cou_opa_con:
 
 Coupling of an opaque construction
@@ -396,6 +347,7 @@ with the two surfaces of an EnergyPlus `BuildingSurface:Detailed`.
 This allows for example coupling of a radiant slab that is modeled in Modelica
 to the EnergyPlus thermal zone model. Examples of such radiant systems include a floor slab with embedded
 pipes and a radiant cooling panel that is suspended from a ceiling.
+
 The partitioning is such that Modelica models the heat transfer between the surfaces and the device
 behind the surface (e.g., a concrete slab with pipes or a radiant panel) and sends
 the surface temperatures to EnergyPlus. EnergyPlus
@@ -404,7 +356,7 @@ and it models the heat transfer of the back surface and its respective boundary 
 which could be another thermal zone, the outside, or the ground coupling,
 depending on its specification of the `Outside Boundary Condition` in EnergyPlus.
 Therefore, EnergyPlus will
-model all heat that enters the surface from its boundary condition.
+model all heat that enters the surface from its external boundary condition.
 For a thermal zone or the outside, this is the convective heat transfer,
 the short-wave radiation absorbed by the surface and the
 long-wave radiation absorbed minus emitted by the surface.
@@ -453,6 +405,57 @@ as for any :term:`continuous-time variable` in FMI. That is, at any time instant
 variables can be set multiple times, and the values returned by EnergyPlus must be computed
 using the current input variables. (For example, multiple calls within a time step may be used to compute
 the derivative of ``QFront_flow`` with respect to ``TFront``, and ``QBack_flow`` with respect to ``TBack``.)
+
+
+
+.. _sec_cou_zon_sur:
+
+Coupling of a zone surface
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The following interface models the heat transfer of a surface with the EnergyPlus thermal zone.
+This allows for example coupling of a radiant heating in the 1st floor that is modeled in Modelica
+to the EnergyPlus thermal zone model for heat exchange with the zone,
+while simulating the ground coupling of the slab in Modelica. EnergyPlus
+models the heat transfer between the surface and the thermal zone. Therefore, EnergyPlus will
+model the convective heat transfer, the short-wave radiation absorbed by the surface and the
+long-wave radiation absorbed minus emitted by the surface.
+
+EnergyPlus exposes the following parameter, which Modelica will obtain during the initialization.
+
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| Variable                  | Quantity                                                                                                    | Unit            |
++===========================+=============================================================================================================+=================+
+| A                         | Area of the surface that is exposed to the thermal zone.                                                    |   m2            |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+
+The following time-dependent variables are exchanged between EnergyPlus and Modelica during the time integratione.
+
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| Variable                  | Quantity                                                                                                    | Unit            |
++===========================+=============================================================================================================+=================+
+| *From Modelica to EnergyPlus*                                                                                                                             |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| T                         | Temperature of the surface.                                                                                 |   degC          |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| t                         | Model time at which the above inputs T is valid, with :math:`t=0` defined as January 1, 0 am local time,    |   s             |
+|                           | and with                                                                                                    |                 |
+|                           | no correction for daylight savings time.                                                                    |                 |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| *From EnergyPlus to Modelica*                                                                                                                             |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| Q_flow                    | Net heat flow rate from the thermal zone to the surface, consisting of convective heat flow,                |   W             |
+|                           | absorbed solar radiation, absorbed infrared radiation minus emitted infrared radiation.                     |                 |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| nextEventTime             | Model time :math:`t` when EnergyPlus needs to be called next (typically the next zone time step).           |   s             |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+
+
+The calling sequences of the functions that send data to EnergyPlus and read data from EnergyPlus is
+as for any :term:`continuous-time variable` in FMI. That is, at any time instant,
+variables can be set multiple times, and the values returned by EnergyPlus must be computed
+using the current input variables. (For example, multiple calls within a time step may be used to compute
+the derivative of ``Q_flow`` with respect to ``T``.)
 
 
 .. _sec_out_var:
@@ -722,6 +725,21 @@ inputs called ``basement_T`` and ``office_T`` and outputs called
 ``basement_QConSen_flow`` and ``office_QConSen_flow``.
 
 
+Opaque construction
+"""""""""""""""""""
+
+To configure the variables to be exchanged for an opaque construction that is part of an EnergyPlus thermal zone as described in :numref:`sec_cou_opa_con`,
+the following data structures will be used for a building with an EnergyPlus surface called ``north ceiling office`` and a zone called ``south ceiling office``.
+(This requires to add a surface object to EnergyPlus, including all information needed by EnergyPlus such
+as the surface location and its solar and infrared emissivity.)
+
+.. code-block:: c
+
+   "buildingSurfaceDetailed": [
+      { "name": "north ceiling office" },
+      { "name": "south ceiling office" }
+   ]
+
 
 Zone surface
 """"""""""""
@@ -737,23 +755,6 @@ as the surface location and its solar and infrared emissivity.)
       { "name": "north ceiling office" },
       { "name": "south ceiling office" }
    ]
-
-
-Zone surface
-""""""""""""
-
-To configure the variables to be exchanged for an opaque construction that is part of an EnergyPlus thermal zone as described in :numref:`sec_cou_opa_con`,
-the following data structures will be used for a building with an EnergyPlus surface called ``north ceiling office`` and a zone called ``south ceiling office``.
-(This requires to add a surface object to EnergyPlus, including all information needed by EnergyPlus such
-as the surface location and its solar and infrared emissivity.)
-
-.. code-block:: c
-
-   "buildingSurfaceDetailed": [
-      { "name": "north ceiling office" },
-      { "name": "south ceiling office" }
-   ]
-
 
 
 
