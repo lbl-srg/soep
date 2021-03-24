@@ -126,11 +126,12 @@
 <li><a class="reference internal" href="#unit-system">5.2.2. Unit system</a></li>
 <li><a class="reference internal" href="#partitioning-of-the-models">5.2.3. Partitioning of the models</a><ul>
 <li><a class="reference internal" href="#coupling-of-the-envelope-model">5.2.3.1. Coupling of the envelope model</a></li>
-<li><a class="reference internal" href="#coupling-of-a-zone-surface">5.2.3.2. Coupling of a zone surface</a></li>
-<li><a class="reference internal" href="#retrieving-output-variables-from-energyplus">5.2.3.3. Retrieving output variables from EnergyPlus</a></li>
-<li><a class="reference internal" href="#sending-input-to-energyplus">5.2.3.4. Sending input to EnergyPlus</a><ul>
-<li><a class="reference internal" href="#schedules">5.2.3.4.1. Schedules</a></li>
-<li><a class="reference internal" href="#actuators">5.2.3.4.2. Actuators</a></li>
+<li><a class="reference internal" href="#coupling-of-an-opaque-construction">5.2.3.2. Coupling of an opaque construction</a></li>
+<li><a class="reference internal" href="#coupling-of-a-zone-surface">5.2.3.3. Coupling of a zone surface</a></li>
+<li><a class="reference internal" href="#retrieving-output-variables-from-energyplus">5.2.3.4. Retrieving output variables from EnergyPlus</a></li>
+<li><a class="reference internal" href="#sending-input-to-energyplus">5.2.3.5. Sending input to EnergyPlus</a><ul>
+<li><a class="reference internal" href="#schedules">5.2.3.5.1. Schedules</a></li>
+<li><a class="reference internal" href="#actuators">5.2.3.5.2. Actuators</a></li>
 </ul>
 </li>
 </ul>
@@ -138,10 +139,11 @@
 <li><a class="reference internal" href="#api-used-to-export-energyplus-as-an-fmu">5.2.4. API used to Export EnergyPlus as an FMU</a><ul>
 <li><a class="reference internal" href="#instantiation">5.2.4.1. Instantiation</a><ul>
 <li><a class="reference internal" href="#envelope-model">5.2.4.1.1. Envelope model</a></li>
-<li><a class="reference internal" href="#zone-surface">5.2.4.1.2. Zone surface</a></li>
-<li><a class="reference internal" href="#output-variables">5.2.4.1.3. Output variables</a></li>
-<li><a class="reference internal" href="#id2">5.2.4.1.4. Schedules</a></li>
-<li><a class="reference internal" href="#ems-actuators">5.2.4.1.5. EMS actuators</a></li>
+<li><a class="reference internal" href="#opaque-construction">5.2.4.1.2. Opaque construction</a></li>
+<li><a class="reference internal" href="#zone-surface">5.2.4.1.3. Zone surface</a></li>
+<li><a class="reference internal" href="#output-variables">5.2.4.1.4. Output variables</a></li>
+<li><a class="reference internal" href="#id2">5.2.4.1.5. Schedules</a></li>
+<li><a class="reference internal" href="#ems-actuators">5.2.4.1.6. EMS actuators</a></li>
 </ul>
 </li>
 </ul>
@@ -358,9 +360,9 @@ The coupling allows two types of interactions between the two tools:</p>
 which in turn is coupled to Modelica HVAC and interzone air exchange.
 This is described in <a class="reference internal" href="#sec-cou-env"><span class="std std-numref">Section 5.2.3.1</span></a>.</p></li>
 <li><p>Modelica can instantiate and then read EnergyPlus output variables.
-This is described in <a class="reference internal" href="#sec-out-var"><span class="std std-numref">Section 5.2.3.3</span></a>.</p></li>
+This is described in <a class="reference internal" href="#sec-out-var"><span class="std std-numref">Section 5.2.3.4</span></a>.</p></li>
 <li><p>Modelica can instantiate and then set the values of EnergyPlus schedules and EMS actuators.
-This is described in <a class="reference internal" href="#sec-sen-var"><span class="std std-numref">Section 5.2.3.4</span></a>.</p></li>
+This is described in <a class="reference internal" href="#sec-sen-var"><span class="std std-numref">Section 5.2.3.5</span></a>.</p></li>
 </ol>
 <p>Users will set up this data exchange by instantiating corresponding
 Modelica models or blocks. These Modelica instances will then
@@ -500,7 +502,7 @@ the thermal zone model, through EnergyPlus outputs and through EnergyPlus
 schedules and EMS actuators.</p>
 <div class="figure align-default" id="id6">
 <span id="fig-partition-envelop-room-hvac"></span><a class="reference internal image-reference" href="_images/envelop-room-hvac.svg"><img alt="_images/envelop-room-hvac.svg" src="_images/envelop-room-hvac.svg" width="1600px" /></a>
-<p class="caption"><span class="caption-number">Fig. 5.2 </span>: Partitioning of the envelope, room and HVAC model.</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-number">Fig. 5.2 </span>: Partitioning of the envelope, room and HVAC model. <strong>Update figure to add opaque constructions</strong></span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
 </div>
 <p>The following <a class="reference internal" href="#sec-cou-env"><span class="std std-numref">Section 5.2.3.1</span></a> specifies the coupling of these models,
 <a class="reference internal" href="#sec-req-ene-exp-fmu"><span class="std std-numref">Section 5.2.4</span></a> describes the API used to generate the FMU, and
@@ -619,15 +621,109 @@ variables can be set multiple times, and the values returned by EnergyPlus must 
 using the current input variables. (For example, multiple calls within a time step are used to compute
 the derivative of <code class="docutils literal notranslate"><span class="pre">QConSen_flow</span></code> with respect to <code class="docutils literal notranslate"><span class="pre">T</span></code>.)</p>
 </div>
-<div class="section" id="coupling-of-a-zone-surface">
-<span id="sec-cou-zon-sur"></span><h4>5.2.3.2. Coupling of a zone surface<a class="headerlink" href="#coupling-of-a-zone-surface" title="Permalink to this headline">¶</a></h4>
-<p>The following interface models the heat transfer of a surface with the EnergyPlus thermal zone.
-This allows for example coupling of a radiant heating or cooling system that is modeled in Modelica
+<div class="section" id="coupling-of-an-opaque-construction">
+<span id="sec-cou-opa-con"></span><h4>5.2.3.2. Coupling of an opaque construction<a class="headerlink" href="#coupling-of-an-opaque-construction" title="Permalink to this headline">¶</a></h4>
+<p>The following interface models the coupling of an heat transfer model for an opaque construction
+with the two surfaces of an EnergyPlus <cite>BuildingSurface:Detailed</cite>.
+This allows for example coupling of a radiant slab that is modeled in Modelica
 to the EnergyPlus thermal zone model. Examples of such radiant systems include a floor slab with embedded
-pipes and a radiant cooling panel that is suspended from a ceiling.
-The partitioning is such that Modelica models the heat transfer between the surface and the device
+pipes and a radiant cooling panel that is suspended from a ceiling.</p>
+<p>The partitioning is such that Modelica models the heat transfer between the surfaces and the device
 behind the surface (e.g., a concrete slab with pipes or a radiant panel) and sends
-the surface temperature to EnergyPlus. EnergyPlus
+the surface temperatures to EnergyPlus. EnergyPlus
+models the heat transfer between the front surface and its respective thermal zone,
+and it models the heat transfer of the back surface and its respective boundary condition,
+which could be another thermal zone, the outside, or the ground coupling,
+depending on its specification of the <cite>Outside Boundary Condition</cite> in EnergyPlus.
+Therefore, EnergyPlus will
+model all heat that enters the surface from its external boundary condition.
+For a thermal zone or the outside, this is the convective heat transfer,
+the short-wave radiation absorbed by the surface and the
+long-wave radiation absorbed minus emitted by the surface.
+For ground coupled surfaces, this is the heat transfer from the ground.</p>
+<p>EnergyPlus exposes the following parameter, which Modelica will obtain during the initialization.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 71%" />
+<col style="width: 11%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
+<th class="head"><p>Quantity</p></th>
+<th class="head"><p>Unit</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>A</p></td>
+<td><p>Area of the surface that is exposed to the thermal zone.</p></td>
+<td><p>m2</p></td>
+</tr>
+</tbody>
+</table>
+<p>The following time-dependent variables are exchanged between EnergyPlus and Modelica during the time integratione.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 71%" />
+<col style="width: 11%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
+<th class="head"><p>Quantity</p></th>
+<th class="head"><p>Unit</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td colspan="3"><p><em>From Modelica to EnergyPlus</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>TFront</p></td>
+<td><p>Temperature of the front-facing surface.</p></td>
+<td><p>degC</p></td>
+</tr>
+<tr class="row-even"><td><p>TBack</p></td>
+<td><p>Temperature of the back-facing surface.</p></td>
+<td><p>degC</p></td>
+</tr>
+<tr class="row-odd"><td><p>t</p></td>
+<td><p>Model time at which the above inputs T is valid, with <span class="math notranslate nohighlight">\(t=0\)</span> defined as January 1, 0 am local time,
+and with
+no correction for daylight savings time.</p></td>
+<td><p>s</p></td>
+</tr>
+<tr class="row-even"><td colspan="3"><p><em>From EnergyPlus to Modelica</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>QFront_flow</p></td>
+<td><p>Net heat flow rate from the thermal zone to the front-facing surface,
+consisting of convective heat flow,
+absorbed solar radiation, absorbed infrared radiation minus emitted infrared radiation.</p></td>
+<td><p>W</p></td>
+</tr>
+<tr class="row-even"><td><p>QBack_flow</p></td>
+<td><p>Net heat flow rate to the back-facing surface.
+If coupled to another thermal zone or the outside, this consist of convective heat flow,
+absorbed solar radiation, absorbed infrared radiation minus emitted infrared radiation.
+If coupled to the ground, this consists of the heat flow rate from the ground.</p></td>
+<td><p>W</p></td>
+</tr>
+<tr class="row-odd"><td><p>nextEventTime</p></td>
+<td><p>Model time <span class="math notranslate nohighlight">\(t\)</span> when EnergyPlus needs to be called next (typically the next zone time step).</p></td>
+<td><p>s</p></td>
+</tr>
+</tbody>
+</table>
+<p>The calling sequences of the functions that send data to EnergyPlus and read data from EnergyPlus is
+as for any <a class="reference internal" href="glossary.html#term-continuous-time-variable"><span class="xref std std-term">continuous-time variable</span></a> in FMI. That is, at any time instant,
+variables can be set multiple times, and the values returned by EnergyPlus must be computed
+using the current input variables. (For example, multiple calls within a time step may be used to compute
+the derivative of <code class="docutils literal notranslate"><span class="pre">QFront_flow</span></code> with respect to <code class="docutils literal notranslate"><span class="pre">TFront</span></code>, and <code class="docutils literal notranslate"><span class="pre">QBack_flow</span></code> with respect to <code class="docutils literal notranslate"><span class="pre">TBack</span></code>.)</p>
+</div>
+<div class="section" id="coupling-of-a-zone-surface">
+<span id="sec-cou-zon-sur"></span><h4>5.2.3.3. Coupling of a zone surface<a class="headerlink" href="#coupling-of-a-zone-surface" title="Permalink to this headline">¶</a></h4>
+<p>The following interface models the heat transfer of a surface with the EnergyPlus thermal zone.
+This allows for example coupling of a radiant heating in the 1st floor that is modeled in Modelica
+to the EnergyPlus thermal zone model for heat exchange with the zone,
+while simulating the ground coupling of the slab in Modelica. EnergyPlus
 models the heat transfer between the surface and the thermal zone. Therefore, EnergyPlus will
 model the convective heat transfer, the short-wave radiation absorbed by the surface and the
 long-wave radiation absorbed minus emitted by the surface.</p>
@@ -697,7 +793,7 @@ using the current input variables. (For example, multiple calls within a time st
 the derivative of <code class="docutils literal notranslate"><span class="pre">Q_flow</span></code> with respect to <code class="docutils literal notranslate"><span class="pre">T</span></code>.)</p>
 </div>
 <div class="section" id="retrieving-output-variables-from-energyplus">
-<span id="sec-out-var"></span><h4>5.2.3.3. Retrieving output variables from EnergyPlus<a class="headerlink" href="#retrieving-output-variables-from-energyplus" title="Permalink to this headline">¶</a></h4>
+<span id="sec-out-var"></span><h4>5.2.3.4. Retrieving output variables from EnergyPlus<a class="headerlink" href="#retrieving-output-variables-from-energyplus" title="Permalink to this headline">¶</a></h4>
 <p>This section describes how to retrieve in Modelica values from the EnergyPlus object
 <code class="docutils literal notranslate"><span class="pre">Output:Variable</span></code>.</p>
 <p>There will be a Modelica block called <code class="docutils literal notranslate"><span class="pre">EnergyPlus.OutputVariable</span></code> with parameters</p>
@@ -740,7 +836,7 @@ then Modelica will retrieve <span class="math notranslate nohighlight">\(y(t^+)\
 <p>where <code class="docutils literal notranslate"><span class="pre">adapter</span></code> stores the data structure used to communicate with EnergyPlus.</p>
 </div>
 <div class="section" id="sending-input-to-energyplus">
-<span id="sec-sen-var"></span><h4>5.2.3.4. Sending input to EnergyPlus<a class="headerlink" href="#sending-input-to-energyplus" title="Permalink to this headline">¶</a></h4>
+<span id="sec-sen-var"></span><h4>5.2.3.5. Sending input to EnergyPlus<a class="headerlink" href="#sending-input-to-energyplus" title="Permalink to this headline">¶</a></h4>
 <p>This section describes how to send Modelica values to the EnergyPlus objects</p>
 <ol class="arabic simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">ExternalInterface:FunctionalMockupUnitExport:To:Schedule</span></code>, and</p></li>
@@ -766,7 +862,7 @@ ExternalInterface:FunctionalMockupUnitExport:To:Actuator,
 <p>For the Modelica coupling, these objects need not be declared in the idf file.</p>
 <p>For Modelica, exchanging variables with these objects will be done
 using a Modelica block that has only one input and no output.</p>
-<p>As in <a class="reference internal" href="#sec-out-var"><span class="std std-numref">Section 5.2.3.3</span></a>,
+<p>As in <a class="reference internal" href="#sec-out-var"><span class="std std-numref">Section 5.2.3.4</span></a>,
 we assume that these variables are <a class="reference internal" href="glossary.html#term-discrete-time-variable"><span class="xref std std-term">discrete-time variables</span></a>
 and hence change their values only at events. Specifically, if
 <span class="math notranslate nohighlight">\(u(\cdot)\)</span> is a variable of time that is computed in Modelica
@@ -774,7 +870,7 @@ that is sampled at some time instant <span class="math notranslate nohighlight">
 then Modelica will send <span class="math notranslate nohighlight">\(u(\mathbin{^-t})\)</span>, where
 <span class="math notranslate nohighlight">\(\mathbin{^-t} = (\lim_{\epsilon \to 0} (t-\epsilon), 0)\)</span>.</p>
 <p>With this construct, there is no iteration needed if a control loop is closed
-between Modelica and EnergyPlus that uses outputs from <a class="reference internal" href="#sec-out-var"><span class="std std-numref">Section 5.2.3.3</span></a>
+between Modelica and EnergyPlus that uses outputs from <a class="reference internal" href="#sec-out-var"><span class="std std-numref">Section 5.2.3.4</span></a>
 and inputs from this section.
 To see this, consider
 a controller in Modelica that will send
@@ -791,7 +887,7 @@ This simple example also illustrates that inputs and outputs may need for certai
 applications be exchanged at a sampling rate that is below the EnergyPlus zone time step
 in order to get satisfactory closed loop control performance.</p>
 <div class="section" id="schedules">
-<span id="sec-inp-sch"></span><h5>5.2.3.4.1. Schedules<a class="headerlink" href="#schedules" title="Permalink to this headline">¶</a></h5>
+<span id="sec-inp-sch"></span><h5>5.2.3.5.1. Schedules<a class="headerlink" href="#schedules" title="Permalink to this headline">¶</a></h5>
 <p>There will be a Modelica block called <code class="docutils literal notranslate"><span class="pre">EnergyPlus.Schedule</span></code> with parameters</p>
 <table class="docutils align-default">
 <colgroup>
@@ -836,7 +932,7 @@ values will be sent as doubles.</p>
 <code class="docutils literal notranslate"><span class="pre">pre(u)</span></code> is the value of the input before <code class="docutils literal notranslate"><span class="pre">sample(t0,</span> <span class="pre">samplePeriod)</span></code> becomes <code class="docutils literal notranslate"><span class="pre">true</span></code>.</p>
 </div>
 <div class="section" id="actuators">
-<span id="sec-inp-act"></span><h5>5.2.3.4.2. Actuators<a class="headerlink" href="#actuators" title="Permalink to this headline">¶</a></h5>
+<span id="sec-inp-act"></span><h5>5.2.3.5.2. Actuators<a class="headerlink" href="#actuators" title="Permalink to this headline">¶</a></h5>
 <p>There will be a Modelica block called <code class="docutils literal notranslate"><span class="pre">EnergyPlus.Actuator</span></code> with parameters</p>
 <table class="docutils align-default">
 <colgroup>
@@ -952,9 +1048,22 @@ the following data structures will be used for a building with a zone called <co
 inputs called <code class="docutils literal notranslate"><span class="pre">basement_T</span></code> and <code class="docutils literal notranslate"><span class="pre">office_T</span></code> and outputs called
 <code class="docutils literal notranslate"><span class="pre">basement_QConSen_flow</span></code> and <code class="docutils literal notranslate"><span class="pre">office_QConSen_flow</span></code>.</p>
 </div>
+<div class="section" id="opaque-construction">
+<h5>5.2.4.1.2. Opaque construction<a class="headerlink" href="#opaque-construction" title="Permalink to this headline">¶</a></h5>
+<p>To configure the variables to be exchanged for an opaque construction that is part of an EnergyPlus thermal zone as described in <a class="reference internal" href="#sec-cou-opa-con"><span class="std std-numref">Section 5.2.3.2</span></a>,
+the following data structures will be used for a building with an EnergyPlus surface called <code class="docutils literal notranslate"><span class="pre">north</span> <span class="pre">ceiling</span> <span class="pre">office</span></code> and a zone called <code class="docutils literal notranslate"><span class="pre">south</span> <span class="pre">ceiling</span> <span class="pre">office</span></code>.
+(This requires to add a surface object to EnergyPlus, including all information needed by EnergyPlus such
+as the surface location and its solar and infrared emissivity.)</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="s">&quot;buildingSurfaceDetailed&quot;</span><span class="o">:</span> <span class="p">[</span>
+   <span class="p">{</span> <span class="s">&quot;name&quot;</span><span class="o">:</span> <span class="s">&quot;north ceiling office&quot;</span> <span class="p">},</span>
+   <span class="p">{</span> <span class="s">&quot;name&quot;</span><span class="o">:</span> <span class="s">&quot;south ceiling office&quot;</span> <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="zone-surface">
-<h5>5.2.4.1.2. Zone surface<a class="headerlink" href="#zone-surface" title="Permalink to this headline">¶</a></h5>
-<p>To configure the variables to be exchanged for a surface that is part of an EnergyPlus thermal zone as described in <a class="reference internal" href="#sec-cou-zon-sur"><span class="std std-numref">Section 5.2.3.2</span></a>,
+<h5>5.2.4.1.3. Zone surface<a class="headerlink" href="#zone-surface" title="Permalink to this headline">¶</a></h5>
+<p>To configure the variables to be exchanged for a surface that is part of an EnergyPlus thermal zone as described in <a class="reference internal" href="#sec-cou-zon-sur"><span class="std std-numref">Section 5.2.3.3</span></a>,
 the following data structures will be used for a building with an EnergyPlus surface called <code class="docutils literal notranslate"><span class="pre">north</span> <span class="pre">ceiling</span> <span class="pre">office</span></code> and a zone called <code class="docutils literal notranslate"><span class="pre">south</span> <span class="pre">ceiling</span> <span class="pre">office</span></code>.
 (This requires to add a surface object to EnergyPlus, including all information needed by EnergyPlus such
 as the surface location and its solar and infrared emissivity.)</p>
@@ -966,8 +1075,8 @@ as the surface location and its solar and infrared emissivity.)</p>
 </div>
 </div>
 <div class="section" id="output-variables">
-<h5>5.2.4.1.3. Output variables<a class="headerlink" href="#output-variables" title="Permalink to this headline">¶</a></h5>
-<p>To configure the data exchange for output variables, as described in <a class="reference internal" href="#sec-out-var"><span class="std std-numref">Section 5.2.3.3</span></a>,
+<h5>5.2.4.1.4. Output variables<a class="headerlink" href="#output-variables" title="Permalink to this headline">¶</a></h5>
+<p>To configure the data exchange for output variables, as described in <a class="reference internal" href="#sec-out-var"><span class="std std-numref">Section 5.2.3.4</span></a>,
 consider an example where one wants to retrieve the outdoor drybulb temperature from EnergyPlus.</p>
 <p>The corresponsding section in the <code class="docutils literal notranslate"><span class="pre">ModelicaBuildingsEnergyPlus.json</span></code> configuration file is</p>
 <div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;model&quot;</span><span class="o">:</span> <span class="p">{</span>
@@ -985,8 +1094,8 @@ consider an example where one wants to retrieve the outdoor drybulb temperature 
 <code class="docutils literal notranslate"><span class="pre">outputVariables.fmiName</span></code> and units consistent with <a class="reference internal" href="#tab-uni-spe"><span class="std std-numref">Table 5.1</span></a>.</p>
 </div>
 <div class="section" id="id2">
-<h5>5.2.4.1.4. Schedules<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h5>
-<p>To configure the data exchange for schedules, as described in <a class="reference internal" href="#sec-inp-sch"><span class="std std-numref">Section 5.2.3.4.1</span></a>,
+<h5>5.2.4.1.5. Schedules<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h5>
+<p>To configure the data exchange for schedules, as described in <a class="reference internal" href="#sec-inp-sch"><span class="std std-numref">Section 5.2.3.5.1</span></a>,
 consider an example where one wants to write to an EnergyPlus schedule called <code class="docutils literal notranslate"><span class="pre">Lights</span></code>.</p>
 <p>The corresponsding section in the <code class="docutils literal notranslate"><span class="pre">ModelicaBuildingsEnergyPlus.json</span></code> configuration file is</p>
 <div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;model&quot;</span><span class="o">:</span> <span class="p">{</span>
@@ -1006,8 +1115,8 @@ Modelica will write to this schedule with units shown in the column <em>EnergyPl
 in <a class="reference internal" href="#tab-uni-spe"><span class="std std-numref">Table 5.1</span></a>.</p>
 </div>
 <div class="section" id="ems-actuators">
-<h5>5.2.4.1.5. EMS actuators<a class="headerlink" href="#ems-actuators" title="Permalink to this headline">¶</a></h5>
-<p>To configure the data exchange for schedules, as described in <a class="reference internal" href="#sec-inp-act"><span class="std std-numref">Section 5.2.3.4.2</span></a>,
+<h5>5.2.4.1.6. EMS actuators<a class="headerlink" href="#ems-actuators" title="Permalink to this headline">¶</a></h5>
+<p>To configure the data exchange for schedules, as described in <a class="reference internal" href="#sec-inp-act"><span class="std std-numref">Section 5.2.3.5.2</span></a>,
 consider an example where one wants to write to an EnergyPlus schedule called <code class="docutils literal notranslate"><span class="pre">Lights</span></code>.</p>
 <p>The corresponsding section in the <code class="docutils literal notranslate"><span class="pre">ModelicaBuildingsEnergyPlus.json</span></code> configuration file is</p>
 <div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;model&quot;</span><span class="o">:</span> <span class="p">{</span>
@@ -1070,7 +1179,7 @@ which may change at times that do not coincide with the zone time step <span cla
 and EMS actuators
 happens in the mode labelled <em>EventMode</em>.
 This allows to avoid algebraic loops that may be formed by adding a controller
-between an EnergyPlus output and an EnergyPlus input, as described in <a class="reference internal" href="#sec-sen-var"><span class="std std-numref">Section 5.2.3.4</span></a>.</p>
+between an EnergyPlus output and an EnergyPlus input, as described in <a class="reference internal" href="#sec-sen-var"><span class="std std-numref">Section 5.2.3.5</span></a>.</p>
 </div>
 </div>
 <div class="section" id="integration-of-qss-solver-with-optimica">
