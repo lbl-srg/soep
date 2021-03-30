@@ -494,14 +494,14 @@ and 1)</p></td>
 <div class="section" id="partitioning-of-the-models">
 <h3>5.2.3. Partitioning of the models<a class="headerlink" href="#partitioning-of-the-models" title="Permalink to this headline">¶</a></h3>
 <p>To link EnergyPlus and Modelica, the models are partitioned as shown in
-as shown in <a class="reference internal" href="#fig-partition-envelop-room-hvac"><span class="std std-numref">Fig. 5.2</span></a>.
+as shown in <a class="reference internal" href="#fig-partition-envelope-room-hvac"><span class="std std-numref">Fig. 5.2</span></a>.
 Loosely speaking, everything that is air and controls is simulated in Modelica,
 while EnergyPlus simulates heat conduction in solid and through windows.
 Both simulators can declare and use schedules, and they can interact through
 the thermal zone model, through EnergyPlus outputs and through EnergyPlus
 schedules and EMS actuators.</p>
 <div class="figure align-default" id="id6">
-<span id="fig-partition-envelop-room-hvac"></span><a class="reference internal image-reference" href="_images/envelop-room-hvac.svg"><img alt="_images/envelop-room-hvac.svg" src="_images/envelop-room-hvac.svg" width="1600px" /></a>
+<span id="fig-partition-envelope-room-hvac"></span><a class="reference internal image-reference" href="_images/envelope-room-hvac.svg"><img alt="_images/envelope-room-hvac.svg" src="_images/envelope-room-hvac.svg" width="1600px" /></a>
 <p class="caption"><span class="caption-number">Fig. 5.2 </span>: Partitioning of the envelope, room and HVAC model. <strong>Update figure to add opaque constructions</strong></span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
 </div>
 <p>The following <a class="reference internal" href="#sec-cou-env"><span class="std std-numref">Section 5.2.3.1</span></a> specifies the coupling of these models,
@@ -1151,7 +1151,7 @@ reproduced from <a class="reference internal" href="zreferences.html#modelisar20
 To communicate with EnergyPlus, we are using the same API and calling sequence.
 The EnergyPlus envelope model is invoked at a variable time step, using a Modelica time event.
 In the implementation, EnergyPlus sends the time instant when it needs to be called the next time.
-<a class="reference internal" href="#fig-partition-envelop-room-hvac"><span class="std std-numref">Fig. 5.2</span></a> shows this as the EnergyPlus time step, but the Modelica
+<a class="reference internal" href="#fig-partition-envelope-room-hvac"><span class="std std-numref">Fig. 5.2</span></a> shows this as the EnergyPlus time step, but the Modelica
 implementation allows for any time step requested by EnergyPlus.
 Therefore, for the envelope model, data is exchanged within the mode labelled <em>Continuous Time Mode</em>
 in <a class="reference internal" href="#fig-fmi-me-20-state-machine"><span class="std std-numref">Fig. 5.3</span></a>.
