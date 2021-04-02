@@ -30,7 +30,7 @@ You can then simulate models with OPTIMICA or JModelica by running
 .. code-block:: bash
 
    cd modelica-buildings
-   jm_ipython.sh jmodelica.py Buildings.Experimental.EnergyPlus.Validation.OneZoneWithControl
+   jm_ipython.sh jmodelica.py Buildings.ThermalZones.EnergyPlus.Examples.SingleFamilyHouse.AirHeating
 
 The output file can be read with https://simulationresearch.lbl.gov/modelica/buildingspy/ or
 Dymola.
