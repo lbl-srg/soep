@@ -247,19 +247,19 @@ Partitioning of the models
 --------------------------
 
 To link EnergyPlus and Modelica, the models are partitioned as shown in
-as shown in :numref:`fig-partition-envelop-room-hvac`.
+as shown in :numref:`fig-partition-envelope-room-hvac`.
 Loosely speaking, everything that is air and controls is simulated in Modelica,
 while EnergyPlus simulates heat conduction in solid and through windows.
 Both simulators can declare and use schedules, and they can interact through
 the thermal zone model, through EnergyPlus outputs and through EnergyPlus
 schedules and EMS actuators.
 
-.. _fig-partition-envelop-room-hvac:
+.. _fig-partition-envelope-room-hvac:
 
-.. figure:: img/envelop-room-hvac.*
+.. figure:: img/envelope-room-hvac.*
    :width: 1600px
 
-   Partitioning of the envelope, room and HVAC model. **Update figure to add opaque constructions**
+   Partitioning of the envelope, room and HVAC model.
 
 The following :numref:`sec_cou_env` specifies the coupling of these models,
 :numref:`sec_req_ene_exp_fmu` describes the API used to generate the FMU, and
@@ -854,7 +854,7 @@ Time synchronization
 To communicate with EnergyPlus, we are using the same API and calling sequence.
 The EnergyPlus envelope model is invoked at a variable time step, using a Modelica time event.
 In the implementation, EnergyPlus sends the time instant when it needs to be called the next time.
-:numref:`fig-partition-envelop-room-hvac` shows this as the EnergyPlus time step, but the Modelica
+:numref:`fig-partition-envelope-room-hvac` shows this as the EnergyPlus time step, but the Modelica
 implementation allows for any time step requested by EnergyPlus.
 Therefore, for the envelope model, data is exchanged within the mode labelled *Continuous Time Mode*
 in :numref:`fig-fmi-me-20-state-machine`.
