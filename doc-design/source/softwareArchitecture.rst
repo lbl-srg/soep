@@ -327,9 +327,6 @@ is being modeled, we do not receive the contaminant emission from EnergyPlus.
 Instead, we obtain the heat gain due to people, which is then used to optionally compute the
 CO2 emitted by people.
 
-For this coupling, all zones of EnergyPlus will be accessed from Modelica.
-For example, if a building has two zones, then both zones need to be modeled in Modelica.
-
 The calling sequences of the functions that send data to EnergyPlus and read data from EnergyPlus is
 as for any :term:`continuous-time variable` in FMI. That is, at any time instant,
 variables can be set multiple times, and the values returned by EnergyPlus must be computed
