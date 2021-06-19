@@ -69,6 +69,8 @@ void ZoneExchange(
 
 void ZoneFree(void* object){
     Zone* zone = (Zone*) object;
+    free(zone->name);
+    free(zone);
 }
 
 #endif
