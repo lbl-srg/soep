@@ -1285,11 +1285,19 @@ in a way that models or FMUs from the Modelica Buildings Library find this insta
 <li><p>It must be possible to exchange a Modelica FMU, that then contains the idf and epw file.</p></li>
 </ol>
 <p>To satisfy these requirements, the following setup will be implemented in Buildings 9.0 and Spawn 0.2:</p>
-<ol class="arabic simple">
+<ol class="arabic">
 <li><p>The idf and epw file are part of the generated Modelica FMU.</p></li>
-<li><p>The Modelica code assumes that the spawn executable is on the system PATH, and otherwise issues an error during the initialization phase.</p></li>
 <li><p>Each build of the spawn executable has a unique name, such as <code class="docutils literal notranslate"><span class="pre">spawn-0.2.0-a23bb23</span></code>. (Hash codes are needed for development iterations,
 and ideally remain in the final distribution.)</p></li>
+<li><p>The Modelica code tries to invoke the spawn executable in this order:</p>
+<ol class="arabic simple">
+<li><p>Check for <code class="docutils literal notranslate"><span class="pre">Buildings[</span> <span class="pre">x.y.z]/Resources/bin/spawn-[linux64,win64]/bin/spawn-0.2.0-a23bb23[.exe]</span></code> where
+<code class="docutils literal notranslate"><span class="pre">Buildings[</span> <span class="pre">x.y.z]</span></code> is the installation folder of the Modelica Buildings Library.</p></li>
+<li><p>Check on the environment variable <code class="docutils literal notranslate"><span class="pre">SPAWNPATH</span></code> for <code class="docutils literal notranslate"><span class="pre">spawn-0.2.0-a23bb23[.exe]</span></code>.</p></li>
+<li><p>Check on the environment variable <code class="docutils literal notranslate"><span class="pre">PATH</span></code> for <code class="docutils literal notranslate"><span class="pre">spawn-0.2.0-a23bb23[.exe]</span></code>.</p></li>
+</ol>
+<p>If none of this succeeds, it will report an error.</p>
+</li>
 <li><p>The spawn executable does not have dependencies other than the idf and epw file that a Modelica FMU needs to know.
 In particular, the <code class="docutils literal notranslate"><span class="pre">spawn</span></code> executable finds its libraries and its idd file relative to its folder.</p></li>
 <li><p>The Spawn installation can be fully automated using a permanent download location (to be used in documentation and error messages).</p></li>

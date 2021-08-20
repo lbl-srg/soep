@@ -1008,9 +1008,16 @@ The requirements for such an installation are as follows:
 To satisfy these requirements, the following setup will be implemented in Buildings 9.0 and Spawn 0.2:
 
 1. The idf and epw file are part of the generated Modelica FMU.
-2. The Modelica code assumes that the spawn executable is on the system PATH, and otherwise issues an error during the initialization phase.
-3. Each build of the spawn executable has a unique name, such as ``spawn-0.2.0-a23bb23``. (Hash codes are needed for development iterations,
+2. Each build of the spawn executable has a unique name, such as ``spawn-0.2.0-a23bb23``. (Hash codes are needed for development iterations,
    and ideally remain in the final distribution.)
+3. The Modelica code tries to invoke the spawn executable in this order:
+
+   1. Check for ``Buildings[ x.y.z]/Resources/bin/spawn-[linux64,win64]/bin/spawn-0.2.0-a23bb23[.exe]`` where
+      ``Buildings[ x.y.z]`` is the installation folder of the Modelica Buildings Library.
+   2. Check on the environment variable ``SPAWNPATH`` for ``spawn-0.2.0-a23bb23[.exe]``.
+   3. Check on the environment variable ``PATH`` for ``spawn-0.2.0-a23bb23[.exe]``.
+
+   If none of this succeeds, it will report an error.
 4. The spawn executable does not have dependencies other than the idf and epw file that a Modelica FMU needs to know.
    In particular, the ``spawn`` executable finds its libraries and its idd file relative to its folder.
 5. The Spawn installation can be fully automated using a permanent download location (to be used in documentation and error messages).
