@@ -93,8 +93,9 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">5. Software Architecture</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#overall-software-architecture">5.1. Overall software architecture</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#coupling-of-energyplus-with-modelica">5.2. Coupling of EnergyPlus with Modelica</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#integration-of-qss-solver-with-optimica">5.3. Integration of QSS solver with OPTIMICA</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#integration-with-openstudio">5.4. Integration with OpenStudio</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#distribution-of-spawn-and-the-modelica-buildings-library">5.3. Distribution of Spawn and the Modelica Buildings Library</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#integration-of-qss-solver-with-optimica">5.4. Integration of QSS solver with OPTIMICA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#integration-with-openstudio">5.5. Integration with OpenStudio</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="numericalMethods.html">6. Numerical Methods of the Master Algorithm</a><ul>
@@ -149,41 +150,41 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#time-synchronization">5.2.5. Time synchronization</a></li>
-<li><a class="reference internal" href="#distribution-of-spawn-and-the-modelica-buildings-library">5.2.6. Distribution of Spawn and the Modelica Buildings Library</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#integration-of-qss-solver-with-optimica">5.3. Integration of QSS solver with OPTIMICA</a><ul>
-<li><a class="reference internal" href="#fmi-changes-for-qss">5.3.1. FMI Changes for QSS</a><ul>
-<li><a class="reference internal" href="#setting-individual-elements-of-the-state-vector">5.3.1.1. Setting individual elements of the state vector</a></li>
-<li><a class="reference internal" href="#getting-derivatives-of-state-variables">5.3.1.2. Getting derivatives of state variables</a></li>
-<li><a class="reference internal" href="#event-handling">5.3.1.3. Event Handling</a><ul>
-<li><a class="reference internal" href="#state-events">5.3.1.3.1. State Events</a></li>
+<li><a class="reference internal" href="#distribution-of-spawn-and-the-modelica-buildings-library">5.3. Distribution of Spawn and the Modelica Buildings Library</a></li>
+<li><a class="reference internal" href="#integration-of-qss-solver-with-optimica">5.4. Integration of QSS solver with OPTIMICA</a><ul>
+<li><a class="reference internal" href="#fmi-changes-for-qss">5.4.1. FMI Changes for QSS</a><ul>
+<li><a class="reference internal" href="#setting-individual-elements-of-the-state-vector">5.4.1.1. Setting individual elements of the state vector</a></li>
+<li><a class="reference internal" href="#getting-derivatives-of-state-variables">5.4.1.2. Getting derivatives of state variables</a></li>
+<li><a class="reference internal" href="#event-handling">5.4.1.3. Event Handling</a><ul>
+<li><a class="reference internal" href="#state-events">5.4.1.3.1. State Events</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#getting-derivatives-of-event-indicator-functions">5.3.1.4. Getting derivatives of event indicator functions</a></li>
-<li><a class="reference internal" href="#test-models">5.3.1.5. Test models</a><ul>
-<li><a class="reference internal" href="#model-with-two-conditions-that-fire-an-event">5.3.1.5.1. Model with two conditions that fire an event</a></li>
-<li><a class="reference internal" href="#event-indicators-that-depend-on-the-input">5.3.1.5.2. Event indicators that depend on the input</a></li>
-<li><a class="reference internal" href="#handling-of-variables-reinitialized-with-reinit">5.3.1.5.3. Handling of variables reinitialized with <code class="docutils literal notranslate"><span class="pre">reinit()</span></code></a></li>
-<li><a class="reference internal" href="#time-events">5.3.1.5.4. Time Events</a></li>
+<li><a class="reference internal" href="#getting-derivatives-of-event-indicator-functions">5.4.1.4. Getting derivatives of event indicator functions</a></li>
+<li><a class="reference internal" href="#test-models">5.4.1.5. Test models</a><ul>
+<li><a class="reference internal" href="#model-with-two-conditions-that-fire-an-event">5.4.1.5.1. Model with two conditions that fire an event</a></li>
+<li><a class="reference internal" href="#event-indicators-that-depend-on-the-input">5.4.1.5.2. Event indicators that depend on the input</a></li>
+<li><a class="reference internal" href="#handling-of-variables-reinitialized-with-reinit">5.4.1.5.3. Handling of variables reinitialized with <code class="docutils literal notranslate"><span class="pre">reinit()</span></code></a></li>
+<li><a class="reference internal" href="#time-events">5.4.1.5.4. Time Events</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#smoothtoken-for-qss">5.3.1.6. SmoothToken for QSS</a></li>
-<li><a class="reference internal" href="#summary-of-proposed-changes">5.3.1.7. Summary of Proposed Changes</a></li>
-<li><a class="reference internal" href="#open-topics">5.3.1.8. Open Topics</a><ul>
-<li><a class="reference internal" href="#atomic-api">5.3.1.8.1. Atomic API</a></li>
-<li><a class="reference internal" href="#xml-api">5.3.1.8.2. XML/API</a></li>
-<li><a class="reference internal" href="#higher-derivatives">5.3.1.8.3. Higher Derivatives</a></li>
-<li><a class="reference internal" href="#input-variables">5.3.1.8.4. Input Variables</a></li>
-<li><a class="reference internal" href="#annotations">5.3.1.8.5. Annotations</a></li>
-<li><a class="reference internal" href="#conditional-expressions-and-event-indicators">5.3.1.8.6. Conditional Expressions and Event Indicators</a></li>
+<li><a class="reference internal" href="#smoothtoken-for-qss">5.4.1.6. SmoothToken for QSS</a></li>
+<li><a class="reference internal" href="#summary-of-proposed-changes">5.4.1.7. Summary of Proposed Changes</a></li>
+<li><a class="reference internal" href="#open-topics">5.4.1.8. Open Topics</a><ul>
+<li><a class="reference internal" href="#atomic-api">5.4.1.8.1. Atomic API</a></li>
+<li><a class="reference internal" href="#xml-api">5.4.1.8.2. XML/API</a></li>
+<li><a class="reference internal" href="#higher-derivatives">5.4.1.8.3. Higher Derivatives</a></li>
+<li><a class="reference internal" href="#input-variables">5.4.1.8.4. Input Variables</a></li>
+<li><a class="reference internal" href="#annotations">5.4.1.8.5. Annotations</a></li>
+<li><a class="reference internal" href="#conditional-expressions-and-event-indicators">5.4.1.8.6. Conditional Expressions and Event Indicators</a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#integration-with-openstudio">5.4. Integration with OpenStudio</a></li>
+<li><a class="reference internal" href="#integration-with-openstudio">5.5. Integration with OpenStudio</a></li>
 </ul>
 </li>
 </ul>
@@ -233,8 +234,8 @@
 <span id="sec-soft-arch"></span><h1>5. Software Architecture<a class="headerlink" href="#software-architecture" title="Permalink to this headline">¶</a></h1>
 <p>This section describes the overall software architecture (<a class="reference internal" href="#sec-ove-sof-arc"><span class="std std-numref">Section 5.1</span></a>),
 the coupling of Modelica with EnergyPlus (<a class="reference internal" href="#sec-cou-ene-mod"><span class="std std-numref">Section 5.2</span></a>),
-the integration of the QSS solver with OPTIMICA (<a class="reference internal" href="#sec-qss-jmo-int"><span class="std std-numref">Section 5.3</span></a>), and
-the OpenStudio integration (<a class="reference internal" href="#sec-int-ope-stu"><span class="std std-numref">Section 5.4</span></a>).</p>
+the integration of the QSS solver with OPTIMICA (<a class="reference internal" href="#sec-qss-jmo-int"><span class="std std-numref">Section 5.4</span></a>), and
+the OpenStudio integration (<a class="reference internal" href="#sec-int-ope-stu"><span class="std std-numref">Section 5.5</span></a>).</p>
 <div class="section" id="overall-software-architecture">
 <span id="sec-ove-sof-arc"></span><h2>5.1. Overall software architecture<a class="headerlink" href="#overall-software-architecture" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference internal" href="#fig-overall-software-architecture"><span class="std std-numref">Fig. 5.1</span></a>
@@ -1180,14 +1181,15 @@ happens in the mode labelled <em>EventMode</em>.
 This allows to avoid algebraic loops that may be formed by adding a controller
 between an EnergyPlus output and an EnergyPlus input, as described in <a class="reference internal" href="#sec-sen-var"><span class="std std-numref">Section 5.2.3.5</span></a>.</p>
 </div>
+</div>
 <div class="section" id="distribution-of-spawn-and-the-modelica-buildings-library">
-<span id="sec-dist"></span><h3>5.2.6. Distribution of Spawn and the Modelica Buildings Library<a class="headerlink" href="#distribution-of-spawn-and-the-modelica-buildings-library" title="Permalink to this headline">¶</a></h3>
+<span id="sec-dist"></span><h2>5.3. Distribution of Spawn and the Modelica Buildings Library<a class="headerlink" href="#distribution-of-spawn-and-the-modelica-buildings-library" title="Permalink to this headline">¶</a></h2>
 <p>This section describes how Spawn and the Modelica Buildings Library coupling with Spawn
 needs to be set up for development and distribution.</p>
 <p>First, recall that there are three distinct phases of a Modelica model life cycle,
 namely</p>
 <ol class="arabic simple">
-<li><p>the translation from Modelica to a binary (an executable or an FMU),</p></li>
+<li><p>the translation from Modelica to a binary (an FMU or an executable),</p></li>
 <li><p>the initialization of the model, and</p></li>
 <li><p>the time-domain simulation of the model (including the termination of the simulation).</p></li>
 </ol>
@@ -1295,9 +1297,8 @@ In particular, the <code class="docutils literal notranslate"><span class="pre">
 Modelica Buildings Library distribution (e.g., to <code class="docutils literal notranslate"><span class="pre">Buildings-v9.0.0.zip</span></code>).</p></li>
 </ol>
 </div>
-</div>
 <div class="section" id="integration-of-qss-solver-with-optimica">
-<span id="sec-qss-jmo-int"></span><h2>5.3. Integration of QSS solver with OPTIMICA<a class="headerlink" href="#integration-of-qss-solver-with-optimica" title="Permalink to this headline">¶</a></h2>
+<span id="sec-qss-jmo-int"></span><h2>5.4. Integration of QSS solver with OPTIMICA<a class="headerlink" href="#integration-of-qss-solver-with-optimica" title="Permalink to this headline">¶</a></h2>
 <p>This section describes the integration of the QSS solver in OPTIMICA.</p>
 <p>We will first introduce terminology.
 Consider the code-snippet</p>
@@ -1381,9 +1382,9 @@ with extended FMI API.</span><a class="headerlink" href="#id8" title="Permalink 
 and FMI has limited support for QSS, we discuss extensions
 that are needed for an efficient implementation of QSS.</p>
 <div class="section" id="fmi-changes-for-qss">
-<h3>5.3.1. FMI Changes for QSS<a class="headerlink" href="#fmi-changes-for-qss" title="Permalink to this headline">¶</a></h3>
+<h3>5.4.1. FMI Changes for QSS<a class="headerlink" href="#fmi-changes-for-qss" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="setting-individual-elements-of-the-state-vector">
-<h4>5.3.1.1. Setting individual elements of the state vector<a class="headerlink" href="#setting-individual-elements-of-the-state-vector" title="Permalink to this headline">¶</a></h4>
+<h4>5.4.1.1. Setting individual elements of the state vector<a class="headerlink" href="#setting-individual-elements-of-the-state-vector" title="Permalink to this headline">¶</a></h4>
 <p>QSS generally requires to only update a subset of the continuous-time state vector. We therefore
 propose to use the function</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">fmi2Status</span> <span class="nf">fmi2SetReal</span><span class="p">(</span><span class="n">fmi2Component</span> <span class="n">c</span><span class="p">,</span>
@@ -1422,7 +1423,7 @@ reduce computing time for QSS.</p></li>
 </ul>
 </div>
 <div class="section" id="getting-derivatives-of-state-variables">
-<h4>5.3.1.2. Getting derivatives of state variables<a class="headerlink" href="#getting-derivatives-of-state-variables" title="Permalink to this headline">¶</a></h4>
+<h4>5.4.1.2. Getting derivatives of state variables<a class="headerlink" href="#getting-derivatives-of-state-variables" title="Permalink to this headline">¶</a></h4>
 <p>First order derivatives of state variables <span class="math notranslate nohighlight">\(\dot x_c(t)\)</span> in <a class="reference internal" href="#equation-eqn-ini-val">(5.1)</a>
 can be obtained with the existing
 <code class="docutils literal notranslate"><span class="pre">fmi2GetReal</span></code> function.</p>
@@ -1452,9 +1453,9 @@ and 1<sup>st</sup>, 2<sup>nd</sup> and 3<sup>rd</sup> derivatives of event indic
 </ul>
 </div>
 <div class="section" id="event-handling">
-<h4>5.3.1.3. Event Handling<a class="headerlink" href="#event-handling" title="Permalink to this headline">¶</a></h4>
+<h4>5.4.1.3. Event Handling<a class="headerlink" href="#event-handling" title="Permalink to this headline">¶</a></h4>
 <div class="section" id="state-events">
-<span id="subsec-se"></span><h5>5.3.1.3.1. State Events<a class="headerlink" href="#state-events" title="Permalink to this headline">¶</a></h5>
+<span id="subsec-se"></span><h5>5.4.1.3.1. State Events<a class="headerlink" href="#state-events" title="Permalink to this headline">¶</a></h5>
 <p>For this discussion, consider the simple model</p>
 <div class="highlight-modelica notranslate"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">StateEvent2</span> <span class="s2">&quot;This model tests state event detection&quot;</span>
   <span class="nb">Real</span> <span class="n">x</span><span class="p">(</span><span class="n">start</span><span class="o">=-</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">)</span> <span class="s2">&quot;State variable&quot;</span><span class="p">;</span>
@@ -1574,7 +1575,7 @@ an output variable.</p>
 </div>
 </div>
 <div class="section" id="getting-derivatives-of-event-indicator-functions">
-<h4>5.3.1.4. Getting derivatives of event indicator functions<a class="headerlink" href="#getting-derivatives-of-event-indicator-functions" title="Permalink to this headline">¶</a></h4>
+<h4>5.4.1.4. Getting derivatives of event indicator functions<a class="headerlink" href="#getting-derivatives-of-event-indicator-functions" title="Permalink to this headline">¶</a></h4>
 <p>For some <span class="math notranslate nohighlight">\(n,m \in \mathbb N\)</span>, let <span class="math notranslate nohighlight">\(z \colon \Re^n \times \mathbb Z^m \times \Re \to \Re\)</span> be an event indicator function.
 (For simplicity, we omitted the input and parameter dependency of <span class="math notranslate nohighlight">\(z(\cdot, \cdot, \cdot)\)</span> in <a class="reference internal" href="#equation-eqn-ini-val">(5.1)</a>.)
 Then the first order time derivative of the event indicator <span class="math notranslate nohighlight">\(\dot z\)</span>
@@ -1603,10 +1604,10 @@ For 3<sup>rd</sup> order QSS, we would require atomic evaluation of
 </ul>
 </div>
 <div class="section" id="test-models">
-<h4>5.3.1.5. Test models<a class="headerlink" href="#test-models" title="Permalink to this headline">¶</a></h4>
+<h4>5.4.1.5. Test models<a class="headerlink" href="#test-models" title="Permalink to this headline">¶</a></h4>
 <p>This section lists test cases that are corner cases for QSS.</p>
 <div class="section" id="model-with-two-conditions-that-fire-an-event">
-<h5>5.3.1.5.1. Model with two conditions that fire an event<a class="headerlink" href="#model-with-two-conditions-that-fire-an-event" title="Permalink to this headline">¶</a></h5>
+<h5>5.4.1.5.1. Model with two conditions that fire an event<a class="headerlink" href="#model-with-two-conditions-that-fire-an-event" title="Permalink to this headline">¶</a></h5>
 <p>Consider the following model</p>
 <div class="highlight-modelica notranslate"><div class="highlight"><pre><span></span><span class="kr">within</span> <span class="nn">QSS</span><span class="o">.</span><span class="n">Docs</span><span class="p">;</span>
 <span class="kr">model</span> <span class="nc">StateEvent1</span> <span class="s2">&quot;This model tests state event detection&quot;</span>
@@ -1634,7 +1635,7 @@ and one at t=0.6924 when simulated from 0 to 1 s.
 for an event to fire.</p>
 </div>
 <div class="section" id="event-indicators-that-depend-on-the-input">
-<span id="subsec-te"></span><h5>5.3.1.5.2. Event indicators that depend on the input<a class="headerlink" href="#event-indicators-that-depend-on-the-input" title="Permalink to this headline">¶</a></h5>
+<span id="subsec-te"></span><h5>5.4.1.5.2. Event indicators that depend on the input<a class="headerlink" href="#event-indicators-that-depend-on-the-input" title="Permalink to this headline">¶</a></h5>
 <p>Consider the following model</p>
 <div class="highlight-modelica notranslate"><div class="highlight"><pre><span></span><span class="kr">within</span> <span class="nn">QSS</span><span class="o">.</span><span class="n">Docs</span><span class="p">;</span>
 <span class="kr">model</span> <span class="nc">StateEvent2</span> <span class="s2">&quot;This model tests state event detection&quot;</span>
@@ -1670,7 +1671,7 @@ information from the XML file and numerically approximate
 the event indicator derivatives.</p>
 </div>
 <div class="section" id="handling-of-variables-reinitialized-with-reinit">
-<h5>5.3.1.5.3. Handling of variables reinitialized with <code class="docutils literal notranslate"><span class="pre">reinit()</span></code><a class="headerlink" href="#handling-of-variables-reinitialized-with-reinit" title="Permalink to this headline">¶</a></h5>
+<h5>5.4.1.5.3. Handling of variables reinitialized with <code class="docutils literal notranslate"><span class="pre">reinit()</span></code><a class="headerlink" href="#handling-of-variables-reinitialized-with-reinit" title="Permalink to this headline">¶</a></h5>
 <p>Consider following model</p>
 <div class="highlight-modelica notranslate"><div class="highlight"><pre><span></span><span class="kr">within</span> <span class="nn">QSS</span><span class="o">.</span><span class="n">Docs</span><span class="p">;</span>
 <span class="kr">model</span> <span class="nc">StateEvent3</span> <span class="s2">&quot;This model tests state event detection&quot;</span>
@@ -1712,7 +1713,7 @@ number of event indicators shall be equal to half the value of the <code class="
 </div>
 </div>
 <div class="section" id="time-events">
-<h5>5.3.1.5.4. Time Events<a class="headerlink" href="#time-events" title="Permalink to this headline">¶</a></h5>
+<h5>5.4.1.5.4. Time Events<a class="headerlink" href="#time-events" title="Permalink to this headline">¶</a></h5>
 <p>This section discusses additional requirements for handling time events with QSS.</p>
 <p>Consider following model</p>
 <div class="highlight-modelica notranslate"><div class="highlight"><pre><span></span><span class="kr">within</span> <span class="nn">QSS</span><span class="o">.</span><span class="n">Docs</span><span class="p">;</span>
@@ -1756,7 +1757,7 @@ they got approved and included in the FMI standard.</p>
 </div>
 </div>
 <div class="section" id="smoothtoken-for-qss">
-<h4>5.3.1.6. SmoothToken for QSS<a class="headerlink" href="#smoothtoken-for-qss" title="Permalink to this headline">¶</a></h4>
+<h4>5.4.1.6. SmoothToken for QSS<a class="headerlink" href="#smoothtoken-for-qss" title="Permalink to this headline">¶</a></h4>
 <p>This section discusses a proposal for a new data type which should be used for input and output variables of FMU-QSS.
 FMU-QSS is an FMU for Model Exchange (FMU-ME) which uses QSS to integrate an imported FMU-ME.
 We propose that FMU-QSS communicates with other FMUs using a SmoothToken data type.</p>
@@ -1825,7 +1826,7 @@ then <span class="math notranslate nohighlight">\(dy/dt\)</span> cannot be compu
 </div>
 </div>
 <div class="section" id="summary-of-proposed-changes">
-<h4>5.3.1.7. Summary of Proposed Changes<a class="headerlink" href="#summary-of-proposed-changes" title="Permalink to this headline">¶</a></h4>
+<h4>5.4.1.7. Summary of Proposed Changes<a class="headerlink" href="#summary-of-proposed-changes" title="Permalink to this headline">¶</a></h4>
 <p><strong>To be updated</strong></p>
 <p>Here is a list with a summary of proposed changes</p>
 <ul class="simple">
@@ -1858,16 +1859,16 @@ on the QSS side.</p></li>
 </div>
 </div>
 <div class="section" id="open-topics">
-<h4>5.3.1.8. Open Topics<a class="headerlink" href="#open-topics" title="Permalink to this headline">¶</a></h4>
+<h4>5.4.1.8. Open Topics<a class="headerlink" href="#open-topics" title="Permalink to this headline">¶</a></h4>
 <p>This section includes a list of measures which could further improve the efficiency of QSS.
 Some of the measures should be implemented and benchmarked to ensure their necessity for QSS.</p>
 <div class="section" id="atomic-api">
-<h5>5.3.1.8.1. Atomic API<a class="headerlink" href="#atomic-api" title="Permalink to this headline">¶</a></h5>
+<h5>5.4.1.8.1. Atomic API<a class="headerlink" href="#atomic-api" title="Permalink to this headline">¶</a></h5>
 <p>A fundamental property of QSS is that variables are advanced at different time rates.
 To make this practically efficient with FMUs, an API for individual values and derivatives is essential.</p>
 </div>
 <div class="section" id="xml-api">
-<h5>5.3.1.8.2. XML/API<a class="headerlink" href="#xml-api" title="Permalink to this headline">¶</a></h5>
+<h5>5.4.1.8.2. XML/API<a class="headerlink" href="#xml-api" title="Permalink to this headline">¶</a></h5>
 <p>All variables with non-constant values probably need to be exposed via the xml
 with all their interdependencies. The practicality and benefit of trying
 to hide some variables such as algebraic variables by short-circuiting
@@ -1875,13 +1876,13 @@ their dependencies in the xml (or doing this short-circuiting on the QSS side)
 should be considered for efficiency reasons.</p>
 </div>
 <div class="section" id="higher-derivatives">
-<h5>5.3.1.8.3. Higher Derivatives<a class="headerlink" href="#higher-derivatives" title="Permalink to this headline">¶</a></h5>
+<h5>5.4.1.8.3. Higher Derivatives<a class="headerlink" href="#higher-derivatives" title="Permalink to this headline">¶</a></h5>
 <p>Numerical differentiation significantly complicates and slows the QSS code:
 automatic differentiation provided by the FMU will be a major improvement
 and allows practical development of 3rd order QSS solvers.</p>
 </div>
 <div class="section" id="input-variables">
-<h5>5.3.1.8.4. Input Variables<a class="headerlink" href="#input-variables" title="Permalink to this headline">¶</a></h5>
+<h5>5.4.1.8.4. Input Variables<a class="headerlink" href="#input-variables" title="Permalink to this headline">¶</a></h5>
 <ul class="simple">
 <li><p>Input functions with discontinuities up to the QSS order need to be exposed to
 QSS and provide next event time access to the master algorithm.</p></li>
@@ -1891,7 +1892,7 @@ to allow numeric differentiation and event trigger stepping.</p></li>
 </ul>
 </div>
 <div class="section" id="annotations">
-<h5>5.3.1.8.5. Annotations<a class="headerlink" href="#annotations" title="Permalink to this headline">¶</a></h5>
+<h5>5.4.1.8.5. Annotations<a class="headerlink" href="#annotations" title="Permalink to this headline">¶</a></h5>
 <p>Some per-variable annotations that will allow for more efficient solutions by overriding global settings (which are also needed as annotations) include:</p>
 <ul class="simple">
 <li><p>Various time steps: <code class="docutils literal notranslate"><span class="pre">dt_min</span></code>, <code class="docutils literal notranslate"><span class="pre">dt_max</span></code>, <code class="docutils literal notranslate"><span class="pre">dt_inf</span></code>, …</p></li>
@@ -1900,7 +1901,7 @@ to allow numeric differentiation and event trigger stepping.</p></li>
 </ul>
 </div>
 <div class="section" id="conditional-expressions-and-event-indicators">
-<h5>5.3.1.8.6. Conditional Expressions and Event Indicators<a class="headerlink" href="#conditional-expressions-and-event-indicators" title="Permalink to this headline">¶</a></h5>
+<h5>5.4.1.8.6. Conditional Expressions and Event Indicators<a class="headerlink" href="#conditional-expressions-and-event-indicators" title="Permalink to this headline">¶</a></h5>
 <ul>
 <li><p>How to reliably get the FMU to detect an event at the time QSS predicts one?</p>
 <p>QSS predicts zero-crossing event times that, even with Newton refinement,
@@ -1946,7 +1947,7 @@ FMU that a zero crossing occurred at a given time (and maybe with crossing direc
 </div>
 </div>
 <div class="section" id="integration-with-openstudio">
-<span id="sec-int-ope-stu"></span><h2>5.4. Integration with OpenStudio<a class="headerlink" href="#integration-with-openstudio" title="Permalink to this headline">¶</a></h2>
+<span id="sec-int-ope-stu"></span><h2>5.5. Integration with OpenStudio<a class="headerlink" href="#integration-with-openstudio" title="Permalink to this headline">¶</a></h2>
 <p>The integration with OpenStudio will be done through
 an html5 widget. The development of this link is documented at
 <a class="reference external" href="https://github.com/lbl-srg/linkage.js">https://github.com/lbl-srg/linkage.js</a></p>

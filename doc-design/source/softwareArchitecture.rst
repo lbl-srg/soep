@@ -887,7 +887,7 @@ between an EnergyPlus output and an EnergyPlus input, as described in :numref:`s
 .. _sec_dist:
 
 Distribution of Spawn and the Modelica Buildings Library
---------------------------------------------------------
+========================================================
 
 This section describes how Spawn and the Modelica Buildings Library coupling with Spawn
 needs to be set up for development and distribution.
@@ -895,7 +895,7 @@ needs to be set up for development and distribution.
 First, recall that there are three distinct phases of a Modelica model life cycle,
 namely
 
-1. the translation from Modelica to a binary (an executable or an FMU),
+1. the translation from Modelica to a binary (an FMU or an executable),
 2. the initialization of the model, and
 3. the time-domain simulation of the model (including the termination of the simulation).
 
