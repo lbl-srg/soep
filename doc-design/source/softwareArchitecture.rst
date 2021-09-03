@@ -1213,104 +1213,136 @@ Event Handling
 State Events
 """"""""""""
 
+QSS needs additional dependency information beyond what is in the standard FMU modelDescription.xml
+file to simulate state events correctly and efficiently. OCT provides this support with a vendor
+annotation section, additional event indicator variables for the conditional clauses in ``when``
+and ``if`` constructs, and some changes to how dependencies are tracked.
+
 For this discussion, consider the simple model
 
 .. code-block:: modelica
 
-   model StateEvent2 "This model tests state event detection"
-     Real x(start=-0.5, fixed=true) "State variable";
-     discrete Real y(start=1.0, fixed=true "Discrete variable");
-     Modelica.Blocks.Interfaces.RealInput u "Input variable";
+   model DepTest "Demonstrates QSS state event dependency requirements"
+     Real x(start=0.0, fixed=true); // State
+     discrete Real l(start = 1.0, fixed = true); // Local
+     discrete output Real o(start = 2.0, fixed = true); // Output
    equation
-     der(x) = y;
-     when (u > x) then
-       y = -1.0;
+     der(x) = 0.001;
+   algorithm
+     when time > l + x then
+       l := pre(l) + 1.0;
      end when;
-   end StateEvent2;
+     when time > o + x then
+       o := pre(o) + 2.0;
+     end when;
+   annotation( experiment(StartTime=0, StopTime=5, Tolerance=1e-4) );
+   end DepTest;
 
-with an associated entry in the ``modelDescription.xml`` file that looks like
+For QSS the ``modelDescription.xml`` file should have an OCT vendor annotation of this form
 
 .. code-block:: xml
 
    <VendorAnnotations>
+     <Tool name="Optimica Compiler Toolkit">
+       <Annotations>
+         <Annotation name="CompilerVersion" value="OCT-r23206_JM-r14295"/>
+       </Annotations>
+     </Tool>
      <Tool name="OCT_StateEvents">
        <EventIndicators>
-         <Element index="10" reverseDependencies="44" />
+         <Element index="11" reverseDependencies="46"/>
+         <Element index="12" reverseDependencies="47"/>
        </EventIndicators>
      </Tool>
    </VendorAnnotations>
 
-   <ModelVariables>
-     <!-- Not all elements shown -->
-     <!-- Variable with index #10 -->
-     <ScalarVariable name="_eventIndicator_1" valueReference="42" causality="output" variability="continuous" initial="calculated">
-       <Real relativeQuantity="false" />
-     </ScalarVariable>
-     <!-- Not all elements shown -->
-     <!-- Variable with index #42 -->
-     <ScalarVariable name="u" valueReference="41" description="Input variable" causality="input" variability="continuous">
-       <Real relativeQuantity="false" start="0.0" />
-     </ScalarVariable>
-     <!-- Variable with index #43 -->
-     <ScalarVariable name="x" valueReference="40" description="State variable" causality="local" variability="continuous" initial="exact">
-       <Real relativeQuantity="false" start="-0.5" />
-     </ScalarVariable>
-     <!-- Variable with index #44 -->
-     <ScalarVariable name="der(x)" valueReference="39" causality="local" variability="continuous" initial="calculated">
-       <Real relativeQuantity="false" derivative="43" />
-     </ScalarVariable>
-     <!-- Variable with index #45 -->
-       <ScalarVariable name="y" valueReference="45" causality="local" variability="discrete" initial="exact">
-       <Real relativeQuantity="false" start="1.0" />
-     </ScalarVariable>
+describing that the first zero-crossing function, ``time - ( l + x ) > 0``,  modifies the
+discrete local variable ``l`` (index 46), and that the second zero-crossing function,
+``time - ( o + x ) > 0``,  modifies the discrete output variable ``o`` (index 47).
 
-   </ModelVariables>
+This model demonstrates that QSS needs the full dependency information for local variables
+that appear in event indicator expressions. That can be achieved by converting such variables
+to output variables.
+
+The dependency information to make this work is show below
+
+.. code-block:: xml
 
    <ModelStructure>
      <Outputs>
-       <Unknown index="10" dependencies="42 43" />
+       <Unknown index="46" dependencies="" dependenciesKind=""/>
+       <Unknown index="47" dependencies="" dependenciesKind=""/>
+       <Unknown index="11" dependencies="46 50 52" dependenciesKind="constant constant constant"/>
+       <Unknown index="12" dependencies="47 50 52" dependenciesKind="constant constant constant"/>
      </Outputs>
     <Derivatives>
-       <Unknown index="44" dependencies="42 43" />
+      <Unknown index="53" dependencies="" dependenciesKind=""/>
+      <Unknown index="51" dependencies="" dependenciesKind=""/>
      </Derivatives>
      <InitialUnknowns>
-       <Unknown index="10" dependencies="42 43" />
-       <Unknown index="44" dependencies="" />
+       <Unknown index="11" dependencies="46 50 52"/>
+       <Unknown index="12" dependencies="47 50 52"/>
+       <Unknown index="50" dependencies=""/>
+       <Unknown index="51" dependencies=""/>
+       <Unknown index="53" dependencies=""/>
      </InitialUnknowns>
    </ModelStructure>
 
-.. note:: In ``EventIndicators``, I removed ``dependencies="42 43"`` because this is already stated for the new output that
-          was added for the event indicator function.
+where the indexes for the variables in this FMU built by OCT are
 
-.. note:: In ``EventIndicators``, ``45`` is not part of the ``reverseDependencies`` because ``y`` is an internal variable.
-          If ``y`` were declared with ``causality = output``, then it would be listed in ``reverseDependencies``.
-          As a consequence, a master algorithm is only allowed to connect variables that declare ``causality = output``.
+=====  ===================
+Index  Variable
+=====  ===================
+  11   _eventIndicator_1
+  12   _eventIndicator_2
+  46   l
+  47   o
+  50   time
+  51   der(time)
+  52   x
+  53   der(x)
+=====  ===================
 
+The key differences in the dependencies for QSS are:
+
+- State, local, and output variables (other than those with ``variability="fixed"``) modified by an
+  event indicator's block when its state event occurs appear as its reverse dependencies and those
+  variables do *not* have dependencies on variables appearing in the event indicator's expression.
+  State variables modified by a state event should themselves appear as a reverse dependency, not
+  their derivatives.
+
+- An event indicator has dependencies on all state, local, and output variables (other than those
+  with ``variability="fixed"``) appearing in its expression.
+
+- Local variables appearing in event indicator expressions are converted to output variables to
+  give them a place for dependencies in the ``<Outputs>`` section of modelDescription.xml.
 
 QSS works with the FMU to process events. When a QSS zero-crossing event is at the top
 of the QSS event queue, QSS sets the state of all dependencies of the corresponding
 event indicator to their QSS trajectory values at a time slightly past the QSS-predicted
 event time, and then runs the FMU event indicator process. The FMU should then detect the event
 and run the event handler process that will update the value of the variables indicated
-with the ``reverseDependencies`` attribute of the event
-indicator. QSS then performs the necessary QSS-side updates to those reverse dependency
-variables and their dependent variables. This is an indirect and potentially inefficient
-process, but without an "imperative" API for telling the FMU that a crossing event occurred
-at a given time this procedure is necessary.
+with the ``reverseDependencies`` attribute of the event indicator. QSS then performs the
+necessary QSS-side updates to those reverse dependency variables and their dependent variables.
+This time "bumping" is an indirect and potentially inefficient process, but without an "imperative"
+API for telling the FMU that a state event occurred at a given time this procedure is necessary.
 
 For efficiency, QSS requires knowledge of what variables an event indicator depends on,
 and what variables the FMU will modify when an event fires.
-Furthermore, QSS will need to
-have access to, or else approximate numerically, the time derivatives of the
-event indicator. FMI 2.0 outputs an array of real-valued event indicators,
-but no variable dependencies. Therefore, OPTIMICA added the output
+Furthermore, QSS will need to have access to, or else approximate numerically, the time derivatives
+of the event indicators. FMI 2.0 outputs an array of real-valued event indicators, but no variable
+dependencies. Therefore, OPTIMICA adds event indicator output variables such as these for the
+``DepTest`` model above
 
 .. code-block:: xml
 
-   <!-- Variable with index #10 -->
-   <ScalarVariable name="_eventIndicator_1" valueReference="42" causality="output"
-                   variability="continuous" initial="calculated">
-      <Real relativeQuantity="false" />
+   <!-- Variable with index #11 -->
+   <ScalarVariable name="_eventIndicator_1" valueReference="47" causality="output" variability="continuous" initial="calculated">
+     <Real relativeQuantity="false"/>
+   </ScalarVariable>
+   <!-- Variable with index #12 -->
+   <ScalarVariable name="_eventIndicator_2" valueReference="48" causality="output" variability="continuous" initial="calculated">
+     <Real relativeQuantity="false"/>
    </ScalarVariable>
 
 This causes event indicators to become output variables, and therefore their dependency can be reported
@@ -1327,9 +1359,9 @@ The meaning of the entries in this section is as follows:
    - The attribute ``reverseDependencies`` lists the index of the variables and state derivatives that
      the FMU modifies *via* an event handler when it detects that this event has occurred.
 
-Note that for the event indicator, the ``dependencies`` can be obtained from the section
-``<ModelStructure><Outputs>...</ModelStructure></Outputs>`` because OPTIMICA added the event indicator as
-an output variable.
+Note that event indicator (forward) ``dependencies`` can be obtained from the section
+``<ModelStructure><Outputs>...</ModelStructure></Outputs>`` because OPTIMICA added the event indicators as
+output variables.
 
 
 Getting derivatives of event indicator functions
