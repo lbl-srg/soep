@@ -1464,99 +1464,146 @@ and 1<sup>st</sup>, 2<sup>nd</sup> and 3<sup>rd</sup> derivatives of event indic
 <h4>5.4.1.3. Event Handling<a class="headerlink" href="#event-handling" title="Permalink to this headline">¶</a></h4>
 <div class="section" id="state-events">
 <span id="subsec-se"></span><h5>5.4.1.3.1. State Events<a class="headerlink" href="#state-events" title="Permalink to this headline">¶</a></h5>
+<p>QSS needs additional dependency information beyond what is in the standard FMU <code class="docutils literal notranslate"><span class="pre">modelDescription.xml</span></code>
+file to simulate state events correctly and efficiently. OCT provides this support with a vendor
+annotation section, additional event indicator variables for the conditional clauses in <code class="docutils literal notranslate"><span class="pre">when</span></code>
+and <code class="docutils literal notranslate"><span class="pre">if</span></code> constructs, and some changes to how dependencies are tracked.</p>
 <p>For this discussion, consider the simple model</p>
-<div class="highlight-modelica notranslate"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">StateEvent2</span> <span class="s2">&quot;This model tests state event detection&quot;</span>
-  <span class="nb">Real</span> <span class="n">x</span><span class="p">(</span><span class="n">start</span><span class="o">=-</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">)</span> <span class="s2">&quot;State variable&quot;</span><span class="p">;</span>
-  <span class="kr">discrete</span> <span class="nb">Real</span> <span class="n">y</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span> <span class="s2">&quot;Discrete variable&quot;</span><span class="p">);</span>
-  <span class="n">Modelica</span><span class="o">.</span><span class="n">Blocks</span><span class="o">.</span><span class="n">Interfaces</span><span class="o">.</span><span class="n">RealInput</span> <span class="n">u</span> <span class="s2">&quot;Input variable&quot;</span><span class="p">;</span>
+<div class="highlight-modelica notranslate"><div class="highlight"><pre><span></span><span class="kr">model</span> <span class="nc">DepTest</span>
+  <span class="nb">Real</span> <span class="n">x</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">true</span><span class="p">);</span> <span class="c1">// State</span>
+  <span class="kr">discrete</span> <span class="nb">Real</span> <span class="n">l</span><span class="p">(</span><span class="n">start</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">fixed</span> <span class="o">=</span> <span class="kc">true</span><span class="p">);</span> <span class="c1">// Local</span>
+  <span class="kr">discrete</span> <span class="kr">output</span> <span class="nb">Real</span> <span class="n">o</span><span class="p">(</span><span class="n">start</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">fixed</span> <span class="o">=</span> <span class="kc">true</span><span class="p">);</span> <span class="c1">// Output</span>
 <span class="kr">equation</span>
-  <span class="kr">der</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="n">y</span><span class="p">;</span>
-  <span class="kr">when</span> <span class="p">(</span><span class="n">u</span> <span class="o">&gt;</span> <span class="n">x</span><span class="p">)</span> <span class="kr">then</span>
-    <span class="n">y</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">;</span>
+  <span class="kr">der</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="mf">0.001</span><span class="p">;</span>
+<span class="kr">algorithm</span>
+  <span class="kr">when</span> <span class="nb">time</span> <span class="o">&gt;</span> <span class="n">l</span> <span class="o">+</span> <span class="n">x</span> <span class="kr">then</span>
+    <span class="n">l</span> <span class="o">:=</span> <span class="nb">pre</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">;</span>
   <span class="kr">end</span> <span class="kr">when</span><span class="p">;</span>
-<span class="kr">end</span> <span class="nc">StateEvent2</span><span class="p">;</span>
+  <span class="kr">when</span> <span class="nb">time</span> <span class="o">&gt;</span> <span class="n">o</span> <span class="o">+</span> <span class="n">x</span> <span class="kr">then</span>
+    <span class="n">o</span> <span class="o">:=</span> <span class="nb">pre</span><span class="p">(</span><span class="n">o</span><span class="p">)</span> <span class="o">+</span> <span class="mf">2.0</span><span class="p">;</span>
+  <span class="kr">end</span> <span class="kr">when</span><span class="p">;</span>
+<span class="kr">annotation</span><span class="p">(</span> <span class="n">experiment</span><span class="p">(</span><span class="n">StartTime</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">StopTime</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">Tolerance</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span> <span class="p">);</span>
+<span class="kr">end</span> <span class="nc">DepTest</span><span class="p">;</span>
 </pre></div>
 </div>
-<p>with an associated entry in the <code class="docutils literal notranslate"><span class="pre">modelDescription.xml</span></code> file that looks like</p>
+<p>For QSS the <code class="docutils literal notranslate"><span class="pre">modelDescription.xml</span></code> file should have an OCT vendor annotation of this form</p>
 <div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;VendorAnnotations&gt;</span>
+  <span class="nt">&lt;Tool</span> <span class="na">name=</span><span class="s">&quot;Optimica Compiler Toolkit&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;Annotations&gt;</span>
+      <span class="nt">&lt;Annotation</span> <span class="na">name=</span><span class="s">&quot;CompilerVersion&quot;</span> <span class="na">value=</span><span class="s">&quot;OCT-r23206_JM-r14295&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/Annotations&gt;</span>
+  <span class="nt">&lt;/Tool&gt;</span>
   <span class="nt">&lt;Tool</span> <span class="na">name=</span><span class="s">&quot;OCT_StateEvents&quot;</span><span class="nt">&gt;</span>
     <span class="nt">&lt;EventIndicators&gt;</span>
-      <span class="nt">&lt;Element</span> <span class="na">index=</span><span class="s">&quot;10&quot;</span> <span class="na">reverseDependencies=</span><span class="s">&quot;44&quot;</span> <span class="nt">/&gt;</span>
+      <span class="nt">&lt;Element</span> <span class="na">index=</span><span class="s">&quot;11&quot;</span> <span class="na">reverseDependencies=</span><span class="s">&quot;46&quot;</span><span class="nt">/&gt;</span>
+      <span class="nt">&lt;Element</span> <span class="na">index=</span><span class="s">&quot;12&quot;</span> <span class="na">reverseDependencies=</span><span class="s">&quot;47&quot;</span><span class="nt">/&gt;</span>
     <span class="nt">&lt;/EventIndicators&gt;</span>
   <span class="nt">&lt;/Tool&gt;</span>
 <span class="nt">&lt;/VendorAnnotations&gt;</span>
-
-<span class="nt">&lt;ModelVariables&gt;</span>
-  <span class="c">&lt;!-- Not all elements shown --&gt;</span>
-  <span class="c">&lt;!-- Variable with index #10 --&gt;</span>
-  <span class="nt">&lt;ScalarVariable</span> <span class="na">name=</span><span class="s">&quot;_eventIndicator_1&quot;</span> <span class="na">valueReference=</span><span class="s">&quot;42&quot;</span> <span class="na">causality=</span><span class="s">&quot;output&quot;</span> <span class="na">variability=</span><span class="s">&quot;continuous&quot;</span> <span class="na">initial=</span><span class="s">&quot;calculated&quot;</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;Real</span> <span class="na">relativeQuantity=</span><span class="s">&quot;false&quot;</span> <span class="nt">/&gt;</span>
-  <span class="nt">&lt;/ScalarVariable&gt;</span>
-  <span class="c">&lt;!-- Not all elements shown --&gt;</span>
-  <span class="c">&lt;!-- Variable with index #42 --&gt;</span>
-  <span class="nt">&lt;ScalarVariable</span> <span class="na">name=</span><span class="s">&quot;u&quot;</span> <span class="na">valueReference=</span><span class="s">&quot;41&quot;</span> <span class="na">description=</span><span class="s">&quot;Input variable&quot;</span> <span class="na">causality=</span><span class="s">&quot;input&quot;</span> <span class="na">variability=</span><span class="s">&quot;continuous&quot;</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;Real</span> <span class="na">relativeQuantity=</span><span class="s">&quot;false&quot;</span> <span class="na">start=</span><span class="s">&quot;0.0&quot;</span> <span class="nt">/&gt;</span>
-  <span class="nt">&lt;/ScalarVariable&gt;</span>
-  <span class="c">&lt;!-- Variable with index #43 --&gt;</span>
-  <span class="nt">&lt;ScalarVariable</span> <span class="na">name=</span><span class="s">&quot;x&quot;</span> <span class="na">valueReference=</span><span class="s">&quot;40&quot;</span> <span class="na">description=</span><span class="s">&quot;State variable&quot;</span> <span class="na">causality=</span><span class="s">&quot;local&quot;</span> <span class="na">variability=</span><span class="s">&quot;continuous&quot;</span> <span class="na">initial=</span><span class="s">&quot;exact&quot;</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;Real</span> <span class="na">relativeQuantity=</span><span class="s">&quot;false&quot;</span> <span class="na">start=</span><span class="s">&quot;-0.5&quot;</span> <span class="nt">/&gt;</span>
-  <span class="nt">&lt;/ScalarVariable&gt;</span>
-  <span class="c">&lt;!-- Variable with index #44 --&gt;</span>
-  <span class="nt">&lt;ScalarVariable</span> <span class="na">name=</span><span class="s">&quot;der(x)&quot;</span> <span class="na">valueReference=</span><span class="s">&quot;39&quot;</span> <span class="na">causality=</span><span class="s">&quot;local&quot;</span> <span class="na">variability=</span><span class="s">&quot;continuous&quot;</span> <span class="na">initial=</span><span class="s">&quot;calculated&quot;</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;Real</span> <span class="na">relativeQuantity=</span><span class="s">&quot;false&quot;</span> <span class="na">derivative=</span><span class="s">&quot;43&quot;</span> <span class="nt">/&gt;</span>
-  <span class="nt">&lt;/ScalarVariable&gt;</span>
-  <span class="c">&lt;!-- Variable with index #45 --&gt;</span>
-    <span class="nt">&lt;ScalarVariable</span> <span class="na">name=</span><span class="s">&quot;y&quot;</span> <span class="na">valueReference=</span><span class="s">&quot;45&quot;</span> <span class="na">causality=</span><span class="s">&quot;local&quot;</span> <span class="na">variability=</span><span class="s">&quot;discrete&quot;</span> <span class="na">initial=</span><span class="s">&quot;exact&quot;</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;Real</span> <span class="na">relativeQuantity=</span><span class="s">&quot;false&quot;</span> <span class="na">start=</span><span class="s">&quot;1.0&quot;</span> <span class="nt">/&gt;</span>
-  <span class="nt">&lt;/ScalarVariable&gt;</span>
-
-<span class="nt">&lt;/ModelVariables&gt;</span>
-
-<span class="nt">&lt;ModelStructure&gt;</span>
+</pre></div>
+</div>
+<p>This vendor annotation describes that the first zero-crossing function <code class="docutils literal notranslate"><span class="pre">time</span> <span class="pre">-</span> <span class="pre">(</span> <span class="pre">l</span> <span class="pre">+</span> <span class="pre">x</span> <span class="pre">)</span> <span class="pre">&gt;</span> <span class="pre">0</span></code> (index 11)  modifies the
+discrete local variable <code class="docutils literal notranslate"><span class="pre">l</span></code> (index 46), and that the second zero-crossing function
+<code class="docutils literal notranslate"><span class="pre">time</span> <span class="pre">-</span> <span class="pre">(</span> <span class="pre">o</span> <span class="pre">+</span> <span class="pre">x</span> <span class="pre">)</span> <span class="pre">&gt;</span> <span class="pre">0</span></code> (index 12)  modifies the discrete output variable <code class="docutils literal notranslate"><span class="pre">o</span></code> (index 47).</p>
+<p>This model demonstrates that QSS needs the full dependency information for local variables
+that appear in event indicator expressions. That can be achieved by converting such variables
+to output variables.</p>
+<p>The dependency information to make this work is shown below</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;ModelStructure&gt;</span>
   <span class="nt">&lt;Outputs&gt;</span>
-    <span class="nt">&lt;Unknown</span> <span class="na">index=</span><span class="s">&quot;10&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;42 43&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;Unknown</span> <span class="na">index=</span><span class="s">&quot;46&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;&quot;</span> <span class="na">dependenciesKind=</span><span class="s">&quot;&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;Unknown</span> <span class="na">index=</span><span class="s">&quot;47&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;&quot;</span> <span class="na">dependenciesKind=</span><span class="s">&quot;&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;Unknown</span> <span class="na">index=</span><span class="s">&quot;11&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;46 50 52&quot;</span> <span class="na">dependenciesKind=</span><span class="s">&quot;constant constant constant&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;Unknown</span> <span class="na">index=</span><span class="s">&quot;12&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;47 50 52&quot;</span> <span class="na">dependenciesKind=</span><span class="s">&quot;constant constant constant&quot;</span><span class="nt">/&gt;</span>
   <span class="nt">&lt;/Outputs&gt;</span>
  <span class="nt">&lt;Derivatives&gt;</span>
-    <span class="nt">&lt;Unknown</span> <span class="na">index=</span><span class="s">&quot;44&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;42 43&quot;</span> <span class="nt">/&gt;</span>
+   <span class="nt">&lt;Unknown</span> <span class="na">index=</span><span class="s">&quot;53&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;&quot;</span> <span class="na">dependenciesKind=</span><span class="s">&quot;&quot;</span><span class="nt">/&gt;</span>
+   <span class="nt">&lt;Unknown</span> <span class="na">index=</span><span class="s">&quot;51&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;&quot;</span> <span class="na">dependenciesKind=</span><span class="s">&quot;&quot;</span><span class="nt">/&gt;</span>
   <span class="nt">&lt;/Derivatives&gt;</span>
   <span class="nt">&lt;InitialUnknowns&gt;</span>
-    <span class="nt">&lt;Unknown</span> <span class="na">index=</span><span class="s">&quot;10&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;42 43&quot;</span> <span class="nt">/&gt;</span>
-    <span class="nt">&lt;Unknown</span> <span class="na">index=</span><span class="s">&quot;44&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;Unknown</span> <span class="na">index=</span><span class="s">&quot;11&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;46 50 52&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;Unknown</span> <span class="na">index=</span><span class="s">&quot;12&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;47 50 52&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;Unknown</span> <span class="na">index=</span><span class="s">&quot;50&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;Unknown</span> <span class="na">index=</span><span class="s">&quot;51&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;Unknown</span> <span class="na">index=</span><span class="s">&quot;53&quot;</span> <span class="na">dependencies=</span><span class="s">&quot;&quot;</span><span class="nt">/&gt;</span>
   <span class="nt">&lt;/InitialUnknowns&gt;</span>
 <span class="nt">&lt;/ModelStructure&gt;</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>In <code class="docutils literal notranslate"><span class="pre">EventIndicators</span></code>, I removed <code class="docutils literal notranslate"><span class="pre">dependencies=&quot;42</span> <span class="pre">43&quot;</span></code> because this is already stated for the new output that
-was added for the event indicator function.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>In <code class="docutils literal notranslate"><span class="pre">EventIndicators</span></code>, <code class="docutils literal notranslate"><span class="pre">45</span></code> is not part of the <code class="docutils literal notranslate"><span class="pre">reverseDependencies</span></code> because <code class="docutils literal notranslate"><span class="pre">y</span></code> is an internal variable.
-If <code class="docutils literal notranslate"><span class="pre">y</span></code> were declared with <code class="docutils literal notranslate"><span class="pre">causality</span> <span class="pre">=</span> <span class="pre">output</span></code>, then it would be listed in <code class="docutils literal notranslate"><span class="pre">reverseDependencies</span></code>.
-As a consequence, a master algorithm is only allowed to connect variables that declare <code class="docutils literal notranslate"><span class="pre">causality</span> <span class="pre">=</span> <span class="pre">output</span></code>.</p>
-</div>
+<p>where the indexes for the variables in this FMU built by OCT are</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 21%" />
+<col style="width: 79%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Index</p></th>
+<th class="head"><p>Variable</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>11</p></td>
+<td><p>_eventIndicator_1</p></td>
+</tr>
+<tr class="row-odd"><td><p>12</p></td>
+<td><p>_eventIndicator_2</p></td>
+</tr>
+<tr class="row-even"><td><p>46</p></td>
+<td><p>l</p></td>
+</tr>
+<tr class="row-odd"><td><p>47</p></td>
+<td><p>o</p></td>
+</tr>
+<tr class="row-even"><td><p>50</p></td>
+<td><p>time</p></td>
+</tr>
+<tr class="row-odd"><td><p>51</p></td>
+<td><p>der(time)</p></td>
+</tr>
+<tr class="row-even"><td><p>52</p></td>
+<td><p>x</p></td>
+</tr>
+<tr class="row-odd"><td><p>53</p></td>
+<td><p>der(x)</p></td>
+</tr>
+</tbody>
+</table>
+<p>The key differences in the dependencies for QSS are:</p>
+<ul class="simple">
+<li><p>State, local, and output variables modified by an
+event indicator’s block when its state event occurs appear as its reverse dependencies and those
+variables do <em>not</em> have dependencies on variables appearing in the event indicator.
+State variables modified by a state event should themselves appear as a reverse dependency, not
+their derivatives.</p></li>
+<li><p>An event indicator has dependencies on all state, local, and output variables (other than those
+with <code class="docutils literal notranslate"><span class="pre">variability=&quot;fixed&quot;</span></code>) appearing in its expression.</p></li>
+<li><p>Local variables appearing in event indicator are converted to output variables to
+give them a place for dependencies in the <code class="docutils literal notranslate"><span class="pre">&lt;Outputs&gt;</span></code> section of the <code class="docutils literal notranslate"><span class="pre">modelDescription.xml</span></code> file.
+To indicate that these are extra outputs that are not declared as outputs in the Modelica model,
+they are given the prefix <code class="docutils literal notranslate"><span class="pre">_qssLocal_</span></code>.</p></li>
+</ul>
 <p>QSS works with the FMU to process events. When a QSS zero-crossing event is at the top
 of the QSS event queue, QSS sets the state of all dependencies of the corresponding
 event indicator to their QSS trajectory values at a time slightly past the QSS-predicted
 event time, and then runs the FMU event indicator process. The FMU should then detect the event
 and run the event handler process that will update the value of the variables indicated
-with the <code class="docutils literal notranslate"><span class="pre">reverseDependencies</span></code> attribute of the event
-indicator. QSS then performs the necessary QSS-side updates to those reverse dependency
-variables and their dependent variables. This is an indirect and potentially inefficient
-process, but without an “imperative” API for telling the FMU that a crossing event occurred
-at a given time this procedure is necessary.</p>
+with the <code class="docutils literal notranslate"><span class="pre">reverseDependencies</span></code> attribute of the event indicator. QSS then performs the
+necessary QSS-side updates to those reverse dependency variables and their dependent variables.
+This time “bumping” is an indirect and potentially inefficient process, but without an “imperative”
+API for telling the FMU that a state event occurred at a given time this procedure is necessary.</p>
 <p>For efficiency, QSS requires knowledge of what variables an event indicator depends on,
 and what variables the FMU will modify when an event fires.
-Furthermore, QSS will need to
-have access to, or else approximate numerically, the time derivatives of the
-event indicator. FMI 2.0 outputs an array of real-valued event indicators,
-but no variable dependencies. Therefore, OPTIMICA added the output</p>
-<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="c">&lt;!-- Variable with index #10 --&gt;</span>
-<span class="nt">&lt;ScalarVariable</span> <span class="na">name=</span><span class="s">&quot;_eventIndicator_1&quot;</span> <span class="na">valueReference=</span><span class="s">&quot;42&quot;</span> <span class="na">causality=</span><span class="s">&quot;output&quot;</span>
-                <span class="na">variability=</span><span class="s">&quot;continuous&quot;</span> <span class="na">initial=</span><span class="s">&quot;calculated&quot;</span><span class="nt">&gt;</span>
-   <span class="nt">&lt;Real</span> <span class="na">relativeQuantity=</span><span class="s">&quot;false&quot;</span> <span class="nt">/&gt;</span>
+Furthermore, QSS will need to have access to, or else approximate numerically, the time derivatives
+of the event indicators. FMI 2.0 outputs an array of real-valued event indicators, but no variable
+dependencies. Therefore, OPTIMICA adds event indicator output variables such as these for the
+<code class="docutils literal notranslate"><span class="pre">DepTest</span></code> model above</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="c">&lt;!-- Variable with index #11 --&gt;</span>
+<span class="nt">&lt;ScalarVariable</span> <span class="na">name=</span><span class="s">&quot;_eventIndicator_1&quot;</span> <span class="na">valueReference=</span><span class="s">&quot;47&quot;</span> <span class="na">causality=</span><span class="s">&quot;output&quot;</span> <span class="na">variability=</span><span class="s">&quot;continuous&quot;</span> <span class="na">initial=</span><span class="s">&quot;calculated&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;Real</span> <span class="na">relativeQuantity=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/ScalarVariable&gt;</span>
+<span class="c">&lt;!-- Variable with index #12 --&gt;</span>
+<span class="nt">&lt;ScalarVariable</span> <span class="na">name=</span><span class="s">&quot;_eventIndicator_2&quot;</span> <span class="na">valueReference=</span><span class="s">&quot;48&quot;</span> <span class="na">causality=</span><span class="s">&quot;output&quot;</span> <span class="na">variability=</span><span class="s">&quot;continuous&quot;</span> <span class="na">initial=</span><span class="s">&quot;calculated&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;Real</span> <span class="na">relativeQuantity=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
 <span class="nt">&lt;/ScalarVariable&gt;</span>
 </pre></div>
 </div>
@@ -1577,9 +1624,9 @@ the FMU modifies <em>via</em> an event handler when it detects that this event h
 </li>
 </ul>
 </div></blockquote>
-<p>Note that for the event indicator, the <code class="docutils literal notranslate"><span class="pre">dependencies</span></code> can be obtained from the section
-<code class="docutils literal notranslate"><span class="pre">&lt;ModelStructure&gt;&lt;Outputs&gt;...&lt;/ModelStructure&gt;&lt;/Outputs&gt;</span></code> because OPTIMICA added the event indicator as
-an output variable.</p>
+<p>Note that event indicator (forward) <code class="docutils literal notranslate"><span class="pre">dependencies</span></code> can be obtained from the section
+<code class="docutils literal notranslate"><span class="pre">&lt;ModelStructure&gt;&lt;Outputs&gt;...&lt;/ModelStructure&gt;&lt;/Outputs&gt;</span></code> because OPTIMICA added the event indicators as
+output variables.</p>
 </div>
 </div>
 <div class="section" id="getting-derivatives-of-event-indicator-functions">

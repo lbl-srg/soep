@@ -1213,30 +1213,15 @@ Event Handling
 State Events
 """"""""""""
 
-QSS needs additional dependency information beyond what is in the standard FMU modelDescription.xml
+QSS needs additional dependency information beyond what is in the standard FMU ``modelDescription.xml``
 file to simulate state events correctly and efficiently. OCT provides this support with a vendor
 annotation section, additional event indicator variables for the conditional clauses in ``when``
 and ``if`` constructs, and some changes to how dependencies are tracked.
 
 For this discussion, consider the simple model
 
-.. code-block:: modelica
-
-   model DepTest "Demonstrates QSS state event dependency requirements"
-     Real x(start=0.0, fixed=true); // State
-     discrete Real l(start = 1.0, fixed = true); // Local
-     discrete output Real o(start = 2.0, fixed = true); // Output
-   equation
-     der(x) = 0.001;
-   algorithm
-     when time > l + x then
-       l := pre(l) + 1.0;
-     end when;
-     when time > o + x then
-       o := pre(o) + 2.0;
-     end when;
-   annotation( experiment(StartTime=0, StopTime=5, Tolerance=1e-4) );
-   end DepTest;
+.. literalinclude:: ../../models/modelica_for_qss/QSS/Docs/DepTest.mo
+   :language: modelica
 
 For QSS the ``modelDescription.xml`` file should have an OCT vendor annotation of this form
 
@@ -1256,15 +1241,15 @@ For QSS the ``modelDescription.xml`` file should have an OCT vendor annotation o
      </Tool>
    </VendorAnnotations>
 
-describing that the first zero-crossing function, ``time - ( l + x ) > 0``,  modifies the
-discrete local variable ``l`` (index 46), and that the second zero-crossing function,
-``time - ( o + x ) > 0``,  modifies the discrete output variable ``o`` (index 47).
+This vendor annotation describes that the first zero-crossing function ``time - ( l + x ) > 0`` (index 11)  modifies the
+discrete local variable ``l`` (index 46), and that the second zero-crossing function
+``time - ( o + x ) > 0`` (index 12)  modifies the discrete output variable ``o`` (index 47).
 
 This model demonstrates that QSS needs the full dependency information for local variables
 that appear in event indicator expressions. That can be achieved by converting such variables
 to output variables.
 
-The dependency information to make this work is show below
+The dependency information to make this work is shown below
 
 .. code-block:: xml
 
@@ -1305,17 +1290,19 @@ Index  Variable
 
 The key differences in the dependencies for QSS are:
 
-- State, local, and output variables (other than those with ``variability="fixed"``) modified by an
+- State, local, and output variables modified by an
   event indicator's block when its state event occurs appear as its reverse dependencies and those
-  variables do *not* have dependencies on variables appearing in the event indicator's expression.
+  variables do *not* have dependencies on variables appearing in the event indicator.
   State variables modified by a state event should themselves appear as a reverse dependency, not
   their derivatives.
 
 - An event indicator has dependencies on all state, local, and output variables (other than those
   with ``variability="fixed"``) appearing in its expression.
 
-- Local variables appearing in event indicator expressions are converted to output variables to
-  give them a place for dependencies in the ``<Outputs>`` section of modelDescription.xml.
+- Local variables appearing in event indicator are converted to output variables to
+  give them a place for dependencies in the ``<Outputs>`` section of the ``modelDescription.xml`` file.
+  To indicate that these are extra outputs that are not declared as outputs in the Modelica model,
+  they are given the prefix ``_qssLocal_``.
 
 QSS works with the FMU to process events. When a QSS zero-crossing event is at the top
 of the QSS event queue, QSS sets the state of all dependencies of the corresponding
