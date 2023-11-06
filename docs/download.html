@@ -2,12 +2,14 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>2. Download &#8212; Spawn of EnergyPlus</title>
-    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css" />
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap.css" />
@@ -20,12 +22,12 @@
     <link rel="stylesheet" type="text/css" href="_static/bootstrap_custom.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom-sphinx.css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <link rel="shortcut icon" href="_static/lbl-icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -35,9 +37,9 @@
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="_static/js/jquery-1.12.4.min.js "></script>
 <script type="text/javascript" src="_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="_static/bootstrap-3.4.1/js/bootstrap.min.js "></script>
 <script type="text/javascript" src="_static/bootstrap-sphinx.js "></script>
 
   </head><body>
@@ -121,7 +123,11 @@
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
 <li><a class="reference internal" href="#">2. Download</a><ul>
-<li><a class="reference internal" href="#software">2.1. Software</a></li>
+<li><a class="reference internal" href="#software">2.1. Software</a><ul>
+<li><a class="reference internal" href="#official-releases">2.1.1. Official releases</a></li>
+<li><a class="reference internal" href="#development-version">2.1.2. Development version</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#publications">2.2. Publications</a></li>
 </ul>
 </li>
@@ -168,11 +174,19 @@
   <div class="row">
     <div class="body col-md-12 content" role="main">
       
-  <div class="section" id="download">
-<span id="sec-download"></span><h1>2. Download<a class="headerlink" href="#download" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="software">
-<h2>2.1. Software<a class="headerlink" href="#software" title="Permalink to this headline">¶</a></h2>
-<p>SOEP is still in development.</p>
+  <section id="download">
+<span id="sec-download"></span><h1><span class="section-number">2. </span>Download<a class="headerlink" href="#download" title="Permalink to this heading">¶</a></h1>
+<section id="software">
+<h2><span class="section-number">2.1. </span>Software<a class="headerlink" href="#software" title="Permalink to this heading">¶</a></h2>
+<section id="official-releases">
+<h3><span class="section-number">2.1.1. </span>Official releases<a class="headerlink" href="#official-releases" title="Permalink to this heading">¶</a></h3>
+<p>To download SOEP, go to <a class="reference external" href="https://simulationresearch.lbl.gov/modelica/download.html">https://simulationresearch.lbl.gov/modelica/download.html</a>.</p>
+<p>OpenModelica users can also install the Modelica Buildings Library using the OMEdit
+package manager.</p>
+<p>Either approach installs all required binaries.</p>
+</section>
+<section id="development-version">
+<h3><span class="section-number">2.1.2. </span>Development version<a class="headerlink" href="#development-version" title="Permalink to this heading">¶</a></h3>
 <p>The development version for Linux 64 bit and Windows 64 can be downloaded from github.</p>
 <p>To download all required dependencies, Git Large File Storage is required.
 See <a class="reference external" href="https://github.com/git-lfs/git-lfs/wiki/Installation">git-lfs installation instructions</a>.</p>
@@ -180,11 +194,9 @@ See <a class="reference external" href="https://github.com/git-lfs/git-lfs/wiki/
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone git@github.com:lbl-srg/modelica-buildings.git
 </pre></div>
 </div>
-<p>This will download the development version which has been tested with OPTIMICA, JModelica and Dymola.</p>
-<p>Either OPTIMICA, JModelica and Dymola needs to be installed.
-A JModelica docker image that is used to test Spawn
-is available from <a class="reference external" href="https://github.com/lbl-srg/docker-ubuntu-jmodelica">https://github.com/lbl-srg/docker-ubuntu-jmodelica</a></p>
-<p>You can then simulate models with OPTIMICA or JModelica by running</p>
+<p>This will download the development version which has been tested with OpenModelica, OPTIMICA and Dymola.</p>
+<p>Either OpenModelica, OPTIMICA or Dymola needs to be installed.</p>
+<p>You can then simulate models with OPTIMICA by running</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> modelica-buildings
 jm_ipython.sh jmodelica.py Buildings.ThermalZones.EnergyPlus.Examples.SingleFamilyHouse.AirHeating
 </pre></div>
@@ -192,18 +204,23 @@ jm_ipython.sh jmodelica.py Buildings.ThermalZones.EnergyPlus.Examples.SingleFami
 <p>The output file can be read with <a class="reference external" href="https://simulationresearch.lbl.gov/modelica/buildingspy/">https://simulationresearch.lbl.gov/modelica/buildingspy/</a> or
 Dymola.</p>
 <p>For more information, see also the user guide in the Modelica Buildings Library at
-<cite>Buildings.Experimental.EnergyPlus.UsersGuide</cite>.</p>
-<p>Support for an end-user installer and for OS X, will be added later.</p>
+<a class="reference external" href="https://simulationresearch.lbl.gov/modelica/releases/v10.0.0/help/Buildings_ThermalZones_EnergyPlus_9_6_0_UsersGuide.html">Buildings.ThermalZones.EnergyPlus_9_6_0</a>.</p>
+</section>
+</section>
+<section id="publications">
+<h2><span class="section-number">2.2. </span>Publications<a class="headerlink" href="#publications" title="Permalink to this heading">¶</a></h2>
+<div class="line-block">
+<div class="line">Michael Wetter, Kyle Benne, Hubertus Tummescheit and Christian Winther.</div>
+<div class="line"><a class="reference external" href="https://doi.org/10.1080/19401493.2023.2266414">Spawn: coupling Modelica Buildings Library and EnergyPlus to enable new energy system and control applications.</a></div>
+<div class="line">Journal of Building Performance Simulation. Pages 1-19. 2023.</div>
 </div>
-<div class="section" id="publications">
-<h2>2.2. Publications<a class="headerlink" href="#publications" title="Permalink to this headline">¶</a></h2>
 <div class="line-block">
 <div class="line">Michael Wetter, Kyle Benne, Antoine Gautier, Thierry S. Nouidui, Agnes Ramle, Amir Roth, Hubertus Tummescheit, Stuart Mentzer and Christian Winther.</div>
 <div class="line"><a class="reference external" href="downloads/2020-simBuild-spawn.pdf">Lifting the Garage Door on Spawn, an Open-Source BEM-Controls Engine.</a></div>
 <div class="line">Proc. of Building Performance Modeling Conference and SimBuild, p. 518–525, Chicago, IL, USA, September 2020.</div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
     </div>
@@ -222,7 +239,7 @@ Dymola.</p>
     </p>
     <p>
         &copy; Copyright (c) All rights reserved.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br/>
     </p>
   </div>
 </footer>
