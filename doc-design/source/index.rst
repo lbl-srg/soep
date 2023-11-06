@@ -35,9 +35,12 @@
 
    This documentation is a working document for the design, development
    and implementation of the Spawn of EnergyPlus (SOEP).
-   The document is work in progress, used as a discussion basis,
-   and any of the design may change.
 
+   To cite Spawn of EnergyPlus, use
+   
+   | Michael Wetter, Kyle Benne, Hubertus Tummescheit and Christian Winther.
+   | `Spawn: coupling Modelica Buildings Library and EnergyPlus to enable new energy system and control applications. <https://doi.org/10.1080/19401493.2023.2266414>`_
+   | Journal of Building Performance Simulation. Pages 1-19. 2023.
 
 
 
