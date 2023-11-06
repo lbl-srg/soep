@@ -6,7 +6,18 @@ Download
 Software
 ^^^^^^^^
 
-SOEP is still in development.
+Official releases
+.................
+
+To download SOEP, go to https://simulationresearch.lbl.gov/modelica/download.html.
+
+OpenModelica users can also install the Modelica Buildings Library using the OMEdit
+package manager.
+
+Either approach installs all required binaries.
+
+Development version
+...................
 
 The development version for Linux 64 bit and Windows 64 can be downloaded from github.
 
@@ -19,13 +30,11 @@ If Git Large File System is installed, Spawn can be downloaded as
 
    git clone git@github.com:lbl-srg/modelica-buildings.git
 
-This will download the development version which has been tested with OPTIMICA, JModelica and Dymola.
+This will download the development version which has been tested with OpenModelica, OPTIMICA and Dymola.
 
-Either OPTIMICA, JModelica and Dymola needs to be installed.
-A JModelica docker image that is used to test Spawn
-is available from https://github.com/lbl-srg/docker-ubuntu-jmodelica
+Either OpenModelica, OPTIMICA or Dymola needs to be installed.
 
-You can then simulate models with OPTIMICA or JModelica by running
+You can then simulate models with OPTIMICA by running
 
 .. code-block:: bash
 
@@ -36,13 +45,15 @@ The output file can be read with https://simulationresearch.lbl.gov/modelica/bui
 Dymola.
 
 For more information, see also the user guide in the Modelica Buildings Library at
-`Buildings.Experimental.EnergyPlus.UsersGuide`.
-
-Support for an end-user installer and for OS X, will be added later.
+`Buildings.ThermalZones.EnergyPlus_9_6_0 <https://simulationresearch.lbl.gov/modelica/releases/v10.0.0/help/Buildings_ThermalZones_EnergyPlus_9_6_0_UsersGuide.html>`_.
 
 
 Publications
 ^^^^^^^^^^^^
+
+| Michael Wetter, Kyle Benne, Hubertus Tummescheit and Christian Winther.
+| `Spawn: coupling Modelica Buildings Library and EnergyPlus to enable new energy system and control applications. <https://doi.org/10.1080/19401493.2023.2266414>`_
+| Journal of Building Performance Simulation. Pages 1-19. 2023.
 
 | Michael Wetter, Kyle Benne, Antoine Gautier, Thierry S. Nouidui, Agnes Ramle, Amir Roth, Hubertus Tummescheit, Stuart Mentzer and Christian Winther.
 | `Lifting the Garage Door on Spawn, an Open-Source BEM-Controls Engine. <downloads/2020-simBuild-spawn.pdf>`_
