@@ -181,7 +181,87 @@ To implement the coupling, will make the following assumptions:
    the new time step.
 3. In each room, mass, as opposed to volume, is conserved.
    The reason is that this does not induce an air flow in the HVAC system if
-   the room temperature changes. Hence, it decouples the thermal and the mass balance.
+   the room to temperature changes. Hence, it decouples the thermal and the mass balance.
+
+.. _sec_aut_siz:
+
+Sizing calculations
+-------------------
+
+Spawn allows to invoke the EnergyPlus zone sizing calculations and to retrieve sizing data in
+Modelica for each thermal zone and for groups of thermal zones, the latter taking
+into account load diversity as needed for system sizing.
+The sizing data are sensible and latent cooling loads, heating loads, minimum
+outdoor air flow rates, corresponding outdoor conditions needed for sizing
+of central air handlers or central cooling and heating plants,
+and the times when the sizing conditions occur.
+
+During the EnergyPlus sizing calculations, no time-dependent data of Modelica is used.
+Thus, any supply air flow rate, infiltration, interzonal air exchange or
+internal loads modeled in Modelica
+is not taken into account in the sizing calculation, and users need to add such
+contributions to the results obtained by EnergyPlus.
+Also, as is usual in Spawn coupling, any
+supply air flow rate, infiltration, or interzonal air exchange specified in the EnergyPlus
+idf file is not taken into account in the sizing calculation.
+
+Sizing specifications
+^^^^^^^^^^^^^^^^^^^^^
+
+For the zone sizing calculations, EnergyPlus uses the sizing specified in the idf file.
+Thus, idf objects such as
+``Sizing:Parameter``,
+``SizingPeriod:WeatherFileDays`` and
+``SizingPeriod:WeatherFileConditionType`` may be used.
+However, whether a sizing is performed is determined by a Modelica parameter.
+
+As EnergyPlus removes the HVAC system in the idf file, the idf object
+``DesignSpecification:ZoneHVAC:Sizing`` is not taken into account, and also
+any sizing specification in
+``ZoneAirHeatBalanceAlgorithm`` is disregarded.
+
+EnergyPlus also has sizing specification in the idf object
+``SimulationControl``. These settings are ignored as only few of the settings
+are applicable, and those that are applicable are exposed as Modelica parameters.
+
+Zone multipliers
+^^^^^^^^^^^^^^^^
+
+The idf file contains in the ``Zone`` object the entry ``Multiplier``,
+which multiples the zone volume, zone floor area and load to allow simulation
+of identical zones using one instance of a zone model only.
+EnergyPlus takes this value from the idf file into account when calculating
+the volume, area and zone loads that it sends to Modelica.
+
+EnergyPlus allows a zone to be added to a ``ZoneList``, and a ``ZoneList`` to
+be added to a ``Zone Group``. For example, a ``ZoneList`` allows all zones
+on a floor to be listed, and a ``Zone Group`` allows all zones to be multiplied
+such as to model a high-rise building.
+EnergyPlus takes the ``Zone Group`` into account.
+Thus, if a ``Zone`` has a multiplier of 2, and it is added to a ``Zone Group``
+which has a multiplier of 3, then EnergyPlus will send its
+surface, volume and load after multiplying it by a factor of 6.
+
+Sizing parameters obtained by Modelica
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If Modelica enabled the EnergyPlus sizing calculations,
+it will receive for each Modelica ``ThermalZone`` the
+sensible cooling load,
+latent cooling load,
+and the corresponding outdoor air temperature,
+humidity concentration, minimum outdoor air mass flow rate and the time
+when these loads occur.
+These quantities are assigned by the Spawn interface to Modelica parameters.
+This allows use of these values in Modelica parameter expressions that assign
+component sizes.
+
+Modelica also allows ``ThermalZones`` to be grouped together, which
+allows for sizing calculations to take into account the load diversity.
+For each group, the above quantities will be obtained, also as
+Modelica parameters.
+
+
 
 .. _sec_uni_sys:
 
@@ -681,11 +761,13 @@ For the case of a model with one thermal zone, the content of this file looks as
 .. code-block:: json
 
    {
-    "version": "0.1",
+    "version": "1.0",
     "EnergyPlus": {
       "idf": "/tmp/tmp-spawn/jm_tmpPVJfHP/resources/0/RefBldgSmallOfficeNew2004_Chicago.idf",
       "idd": "/tmp/tmp-spawn/jm_tmpPVJfHP/resources/2/Energy+.idd",
-      "weather": "/tmp/tmp-spawn/jm_tmpPVJfHP/resources/1/USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.epw"
+      "weather": "/tmp/tmp-spawn/jm_tmpPVJfHP/resources/1/USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.epw",
+      "autosize": true,
+      "runSimulationForSizingPeriods": true
     },
     "fmu": {
         "name": "/mnt/shared/modelica-buildings/tmp-eplus-fmuName/fmuName.fmu",
@@ -695,12 +777,27 @@ For the case of a model with one thermal zone, the content of this file looks as
     "model": {
         "zones": [
             { "name": "office" }
+        ],
+        "zoneGroups":[
+          "name1": 
+          [
+            "office", "core"
+          ]
+          "name2":
+          [
+            "south", "southWest", "southEast"
+          ]
         ]
       }
     }
 
 Using this information, EnergyPlus creates the FMU with name
-``/mnt/shared/modelica-buildings/tmp-eplus-fmuName/fmuName.fmu``
+``/mnt/shared/modelica-buildings/tmp-eplus-fmuName/fmuName.fmu``.
+
+Depending on the boolean entry ``autosize``, EnergyPlus will conduct an autosizing calculation.
+If ``autosize: true``, then ``runSimulationForSizingPeriods`` determines whether
+the simulation will be run on all the included ``SizingPeriod`` objects in the idf file
+(i.e., ``SizingPeriod:DesignDay``, ``SizingPeriod:WeatherFileDays``, and ``SizingPeriod:WeatherFileConditionType``).
 
 We will now describe how to the exchanged variables are configured.
 
@@ -720,6 +817,60 @@ the following data structures will be used for a building with a zone called ``b
 In this case, the FMU must have parameters called ``basement_V``, ``office_V``, ``basement_AFlo`` etc.
 inputs called ``basement_T`` and ``office_T`` and outputs called
 ``basement_QConSen_flow`` and ``office_QConSen_flow``.
+
+
+The entry ``zoneGroups`` is used to group thermal zones for autosizing. Its syntax is
+
+.. code-block:: c
+
+        "zoneGroups":[
+          "name1": 
+          [
+            "office", "core"
+          ]
+          "name2":
+          [
+            "south", "southWest", "southEast"
+          ]
+        ]
+
+
+
+The length of ``zoneGroups`` may be zero for the special case of
+no thermal Modelica ``ThermalZone`` being specified.
+Modelica ensures that there is always a ``zoneGroups`` entry.
+
+For the above example, the FMU must have parameters called
+
+- ``hvac_sizing_group_name1_QCooSen_flow`` for sensible cooling load,
+- ``hvac_sizing_group_name1_QCooLat_flow`` for latent cooling load,
+- ``hvac_sizing_group_name1_TOutCoo`` for outdoor drybulb temperature at the cooling design load,
+- ``hvac_sizing_group_name1_XOutCoo`` for outdoor humidity ratio at the cooling design load,
+- ``hvac_sizing_group_name1_tCoo`` time at which these loads occurred,
+- ``hvac_sizing_group_name1_QHeat_flow`` for heating load,
+- ``hvac_sizing_group_name1_TOutHea`` for outdoor drybulb temperature at the heating design load,
+- ``hvac_sizing_group_name1_XOutHea`` for outdoor humidity ratio at the heating design load,
+- ``hvac_sizing_group_name1_mOutCoo_flow`` for minimum outdoor air flow rate during the cooling design load,
+- ``hvac_sizing_group_name1_mOutHea_flow`` for minimum outdoor air flow rate during the heating design load, and
+- ``hvac_sizing_group_name1_tHea`` time at which these loads occurred,
+
+similar for
+the group ``name2``. 
+The quantities ``*Coo*`` and ``*Hea*`` are at the respective time step that determines
+the sizing.
+They include outdoor mass flow rates and outdoor condition to allow for fully automatic
+system sizing through Modelica parameter expressions.
+The units are ``[W]`` and ``kg/s``, respectively, and the quantities are
+after applying all EnergyPlus zone and group multipliers.
+
+
+Similarly, for each thermal zone, there will be parameters in the FMU as above,
+but with ``group_name1`` replaced by ``zone`` and the zone name, such as
+``hvac_sizing_zone_office_QCooSen_flow``.
+
+If ``autosizing: false``, then all of these values need to be set to ``0``.
+
+
 
 
 Opaque construction

@@ -127,32 +127,38 @@
 <li><a class="reference internal" href="#overall-software-architecture">5.1. Overall software architecture</a></li>
 <li><a class="reference internal" href="#coupling-of-energyplus-with-modelica">5.2. Coupling of EnergyPlus with Modelica</a><ul>
 <li><a class="reference internal" href="#assumptions-and-limitations">5.2.1. Assumptions and limitations</a></li>
-<li><a class="reference internal" href="#unit-system">5.2.2. Unit system</a></li>
-<li><a class="reference internal" href="#partitioning-of-the-models">5.2.3. Partitioning of the models</a><ul>
-<li><a class="reference internal" href="#coupling-of-the-envelope-model">5.2.3.1. Coupling of the envelope model</a></li>
-<li><a class="reference internal" href="#coupling-of-an-opaque-construction">5.2.3.2. Coupling of an opaque construction</a></li>
-<li><a class="reference internal" href="#coupling-of-a-zone-surface">5.2.3.3. Coupling of a zone surface</a></li>
-<li><a class="reference internal" href="#retrieving-output-variables-from-energyplus">5.2.3.4. Retrieving output variables from EnergyPlus</a></li>
-<li><a class="reference internal" href="#sending-input-to-energyplus">5.2.3.5. Sending input to EnergyPlus</a><ul>
-<li><a class="reference internal" href="#schedules">5.2.3.5.1. Schedules</a></li>
-<li><a class="reference internal" href="#actuators">5.2.3.5.2. Actuators</a></li>
+<li><a class="reference internal" href="#sizing-calculations">5.2.2. Sizing calculations</a><ul>
+<li><a class="reference internal" href="#sizing-specifications">5.2.2.1. Sizing specifications</a></li>
+<li><a class="reference internal" href="#zone-multipliers">5.2.2.2. Zone multipliers</a></li>
+<li><a class="reference internal" href="#sizing-parameters-obtained-by-modelica">5.2.2.3. Sizing parameters obtained by Modelica</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#unit-system">5.2.3. Unit system</a></li>
+<li><a class="reference internal" href="#partitioning-of-the-models">5.2.4. Partitioning of the models</a><ul>
+<li><a class="reference internal" href="#coupling-of-the-envelope-model">5.2.4.1. Coupling of the envelope model</a></li>
+<li><a class="reference internal" href="#coupling-of-an-opaque-construction">5.2.4.2. Coupling of an opaque construction</a></li>
+<li><a class="reference internal" href="#coupling-of-a-zone-surface">5.2.4.3. Coupling of a zone surface</a></li>
+<li><a class="reference internal" href="#retrieving-output-variables-from-energyplus">5.2.4.4. Retrieving output variables from EnergyPlus</a></li>
+<li><a class="reference internal" href="#sending-input-to-energyplus">5.2.4.5. Sending input to EnergyPlus</a><ul>
+<li><a class="reference internal" href="#schedules">5.2.4.5.1. Schedules</a></li>
+<li><a class="reference internal" href="#actuators">5.2.4.5.2. Actuators</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#api-used-to-export-energyplus-as-an-fmu">5.2.4. API used to Export EnergyPlus as an FMU</a><ul>
-<li><a class="reference internal" href="#instantiation">5.2.4.1. Instantiation</a><ul>
-<li><a class="reference internal" href="#envelope-model">5.2.4.1.1. Envelope model</a></li>
-<li><a class="reference internal" href="#opaque-construction">5.2.4.1.2. Opaque construction</a></li>
-<li><a class="reference internal" href="#zone-surface">5.2.4.1.3. Zone surface</a></li>
-<li><a class="reference internal" href="#output-variables">5.2.4.1.4. Output variables</a></li>
-<li><a class="reference internal" href="#id2">5.2.4.1.5. Schedules</a></li>
-<li><a class="reference internal" href="#ems-actuators">5.2.4.1.6. EMS actuators</a></li>
+<li><a class="reference internal" href="#api-used-to-export-energyplus-as-an-fmu">5.2.5. API used to Export EnergyPlus as an FMU</a><ul>
+<li><a class="reference internal" href="#instantiation">5.2.5.1. Instantiation</a><ul>
+<li><a class="reference internal" href="#envelope-model">5.2.5.1.1. Envelope model</a></li>
+<li><a class="reference internal" href="#opaque-construction">5.2.5.1.2. Opaque construction</a></li>
+<li><a class="reference internal" href="#zone-surface">5.2.5.1.3. Zone surface</a></li>
+<li><a class="reference internal" href="#output-variables">5.2.5.1.4. Output variables</a></li>
+<li><a class="reference internal" href="#id2">5.2.5.1.5. Schedules</a></li>
+<li><a class="reference internal" href="#ems-actuators">5.2.5.1.6. EMS actuators</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#time-synchronization">5.2.5. Time synchronization</a></li>
+<li><a class="reference internal" href="#time-synchronization">5.2.6. Time synchronization</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#distribution-of-spawn-and-the-modelica-buildings-library">5.3. Distribution of Spawn and the Modelica Buildings Library</a></li>
@@ -365,11 +371,11 @@ The coupling allows two types of interactions between the two tools:</p>
 <ol class="arabic simple">
 <li><p>The EnergyPlus envelope model can be coupled with the Modelica room model,
 which in turn is coupled to Modelica HVAC and interzone air exchange.
-This is described in <a class="reference internal" href="#sec-cou-env"><span class="std std-numref">Section 5.2.3.1</span></a>.</p></li>
+This is described in <a class="reference internal" href="#sec-cou-env"><span class="std std-numref">Section 5.2.4.1</span></a>.</p></li>
 <li><p>Modelica can instantiate and then read EnergyPlus output variables.
-This is described in <a class="reference internal" href="#sec-out-var"><span class="std std-numref">Section 5.2.3.4</span></a>.</p></li>
+This is described in <a class="reference internal" href="#sec-out-var"><span class="std std-numref">Section 5.2.4.4</span></a>.</p></li>
 <li><p>Modelica can instantiate and then set the values of EnergyPlus schedules and EMS actuators.
-This is described in <a class="reference internal" href="#sec-sen-var"><span class="std std-numref">Section 5.2.3.5</span></a>.</p></li>
+This is described in <a class="reference internal" href="#sec-sen-var"><span class="std std-numref">Section 5.2.4.5</span></a>.</p></li>
 </ol>
 <p>Users will set up this data exchange by instantiating corresponding
 Modelica models or blocks. These Modelica instances will then
@@ -400,11 +406,78 @@ the new time step.</p>
 </li>
 <li><p>In each room, mass, as opposed to volume, is conserved.
 The reason is that this does not induce an air flow in the HVAC system if
-the room temperature changes. Hence, it decouples the thermal and the mass balance.</p></li>
+the room to temperature changes. Hence, it decouples the thermal and the mass balance.</p></li>
 </ol>
 </section>
+<section id="sizing-calculations">
+<span id="sec-aut-siz"></span><h3><span class="section-number">5.2.2. </span>Sizing calculations<a class="headerlink" href="#sizing-calculations" title="Permalink to this heading">¶</a></h3>
+<p>Spawn allows to invoke the EnergyPlus zone sizing calculations and to retrieve sizing data in
+Modelica for each thermal zone and for groups of thermal zones, the latter taking
+into account load diversity as needed for system sizing.
+The sizing data are sensible and latent cooling loads, heating loads, minimum
+outdoor air flow rates, corresponding outdoor conditions needed for sizing
+of central air handlers or central cooling and heating plants,
+and the times when the sizing conditions occur.</p>
+<p>During the EnergyPlus sizing calculations, no time-dependent data of Modelica is used.
+Thus, any supply air flow rate, infiltration, interzonal air exchange or
+internal loads modeled in Modelica
+is not taken into account in the sizing calculation, and users need to add such
+contributions to the results obtained by EnergyPlus.
+Also, as is usual in Spawn coupling, any
+supply air flow rate, infiltration, or interzonal air exchange specified in the EnergyPlus
+idf file is not taken into account in the sizing calculation.</p>
+<section id="sizing-specifications">
+<h4><span class="section-number">5.2.2.1. </span>Sizing specifications<a class="headerlink" href="#sizing-specifications" title="Permalink to this heading">¶</a></h4>
+<p>For the zone sizing calculations, EnergyPlus uses the sizing specified in the idf file.
+Thus, idf objects such as
+<code class="docutils literal notranslate"><span class="pre">Sizing:Parameter</span></code>,
+<code class="docutils literal notranslate"><span class="pre">SizingPeriod:WeatherFileDays</span></code> and
+<code class="docutils literal notranslate"><span class="pre">SizingPeriod:WeatherFileConditionType</span></code> may be used.
+However, whether a sizing is performed is determined by a Modelica parameter.</p>
+<p>As EnergyPlus removes the HVAC system in the idf file, the idf object
+<code class="docutils literal notranslate"><span class="pre">DesignSpecification:ZoneHVAC:Sizing</span></code> is not taken into account, and also
+any sizing specification in
+<code class="docutils literal notranslate"><span class="pre">ZoneAirHeatBalanceAlgorithm</span></code> is disregarded.</p>
+<p>EnergyPlus also has sizing specification in the idf object
+<code class="docutils literal notranslate"><span class="pre">SimulationControl</span></code>. These settings are ignored as only few of the settings
+are applicable, and those that are applicable are exposed as Modelica parameters.</p>
+</section>
+<section id="zone-multipliers">
+<h4><span class="section-number">5.2.2.2. </span>Zone multipliers<a class="headerlink" href="#zone-multipliers" title="Permalink to this heading">¶</a></h4>
+<p>The idf file contains in the <code class="docutils literal notranslate"><span class="pre">Zone</span></code> object the entry <code class="docutils literal notranslate"><span class="pre">Multiplier</span></code>,
+which multiples the zone volume, zone floor area and load to allow simulation
+of identical zones using one instance of a zone model only.
+EnergyPlus takes this value from the idf file into account when calculating
+the volume, area and zone loads that it sends to Modelica.</p>
+<p>EnergyPlus allows a zone to be added to a <code class="docutils literal notranslate"><span class="pre">ZoneList</span></code>, and a <code class="docutils literal notranslate"><span class="pre">ZoneList</span></code> to
+be added to a <code class="docutils literal notranslate"><span class="pre">Zone</span> <span class="pre">Group</span></code>. For example, a <code class="docutils literal notranslate"><span class="pre">ZoneList</span></code> allows all zones
+on a floor to be listed, and a <code class="docutils literal notranslate"><span class="pre">Zone</span> <span class="pre">Group</span></code> allows all zones to be multiplied
+such as to model a high-rise building.
+EnergyPlus takes the <code class="docutils literal notranslate"><span class="pre">Zone</span> <span class="pre">Group</span></code> into account.
+Thus, if a <code class="docutils literal notranslate"><span class="pre">Zone</span></code> has a multiplier of 2, and it is added to a <code class="docutils literal notranslate"><span class="pre">Zone</span> <span class="pre">Group</span></code>
+which has a multiplier of 3, then EnergyPlus will send its
+surface, volume and load after multiplying it by a factor of 6.</p>
+</section>
+<section id="sizing-parameters-obtained-by-modelica">
+<h4><span class="section-number">5.2.2.3. </span>Sizing parameters obtained by Modelica<a class="headerlink" href="#sizing-parameters-obtained-by-modelica" title="Permalink to this heading">¶</a></h4>
+<p>If Modelica enabled the EnergyPlus sizing calculations,
+it will receive for each Modelica <code class="docutils literal notranslate"><span class="pre">ThermalZone</span></code> the
+sensible cooling load,
+latent cooling load,
+and the corresponding outdoor air temperature,
+humidity concentration, minimum outdoor air mass flow rate and the time
+when these loads occur.
+These quantities are assigned by the Spawn interface to Modelica parameters.
+This allows use of these values in Modelica parameter expressions that assign
+component sizes.</p>
+<p>Modelica also allows <code class="docutils literal notranslate"><span class="pre">ThermalZones</span></code> to be grouped together, which
+allows for sizing calculations to take into account the load diversity.
+For each group, the above quantities will be obtained, also as
+Modelica parameters.</p>
+</section>
+</section>
 <section id="unit-system">
-<span id="sec-uni-sys"></span><h3><span class="section-number">5.2.2. </span>Unit system<a class="headerlink" href="#unit-system" title="Permalink to this heading">¶</a></h3>
+<span id="sec-uni-sys"></span><h3><span class="section-number">5.2.3. </span>Unit system<a class="headerlink" href="#unit-system" title="Permalink to this heading">¶</a></h3>
 <p>Modelica and EnergyPlus each have their own unit system. Spawn of EnergyPlus will
 automatically convert between these units, using information from the <code class="docutils literal notranslate"><span class="pre">modelDescription.xml</span></code> file,
 or stop the simulation if an unknown unit is encountered.
@@ -499,7 +572,7 @@ and 1)</p></td>
 </table>
 </section>
 <section id="partitioning-of-the-models">
-<h3><span class="section-number">5.2.3. </span>Partitioning of the models<a class="headerlink" href="#partitioning-of-the-models" title="Permalink to this heading">¶</a></h3>
+<h3><span class="section-number">5.2.4. </span>Partitioning of the models<a class="headerlink" href="#partitioning-of-the-models" title="Permalink to this heading">¶</a></h3>
 <p>To link EnergyPlus and Modelica, the models are partitioned as shown in
 as shown in <a class="reference internal" href="#fig-partition-envelope-room-hvac"><span class="std std-numref">Fig. 5.2</span></a>.
 Loosely speaking, everything that is air and controls is simulated in Modelica,
@@ -513,11 +586,11 @@ schedules and EMS actuators.</p>
 <p><span class="caption-number">Fig. 5.2 </span>: Partitioning of the envelope, room and HVAC model.</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
-<p>The following <a class="reference internal" href="#sec-cou-env"><span class="std std-numref">Section 5.2.3.1</span></a> specifies the coupling of these models,
-<a class="reference internal" href="#sec-req-ene-exp-fmu"><span class="std std-numref">Section 5.2.4</span></a> describes the API used to generate the FMU, and
-<a class="reference internal" href="#sec-time-sync"><span class="std std-numref">Section 5.2.5</span></a> describes the synchronization of the tools.</p>
+<p>The following <a class="reference internal" href="#sec-cou-env"><span class="std std-numref">Section 5.2.4.1</span></a> specifies the coupling of these models,
+<a class="reference internal" href="#sec-req-ene-exp-fmu"><span class="std std-numref">Section 5.2.5</span></a> describes the API used to generate the FMU, and
+<a class="reference internal" href="#sec-time-sync"><span class="std std-numref">Section 5.2.6</span></a> describes the synchronization of the tools.</p>
 <section id="coupling-of-the-envelope-model">
-<span id="sec-cou-env"></span><h4><span class="section-number">5.2.3.1. </span>Coupling of the envelope model<a class="headerlink" href="#coupling-of-the-envelope-model" title="Permalink to this heading">¶</a></h4>
+<span id="sec-cou-env"></span><h4><span class="section-number">5.2.4.1. </span>Coupling of the envelope model<a class="headerlink" href="#coupling-of-the-envelope-model" title="Permalink to this heading">¶</a></h4>
 <p>To couple the Modelica room model to the EnergyPlus envelope model, EnergyPlus exposes the following parameters.
 Modelica will obtain their values during the initialization of the Modelica model.</p>
 <table class="docutils align-default">
@@ -629,7 +702,7 @@ using the current input variables. (For example, multiple calls within a time st
 the derivative of <code class="docutils literal notranslate"><span class="pre">QConSen_flow</span></code> with respect to <code class="docutils literal notranslate"><span class="pre">T</span></code>.)</p>
 </section>
 <section id="coupling-of-an-opaque-construction">
-<span id="sec-cou-opa-con"></span><h4><span class="section-number">5.2.3.2. </span>Coupling of an opaque construction<a class="headerlink" href="#coupling-of-an-opaque-construction" title="Permalink to this heading">¶</a></h4>
+<span id="sec-cou-opa-con"></span><h4><span class="section-number">5.2.4.2. </span>Coupling of an opaque construction<a class="headerlink" href="#coupling-of-an-opaque-construction" title="Permalink to this heading">¶</a></h4>
 <p>The following interface models the coupling of an heat transfer model for an opaque construction
 with the two surfaces of an EnergyPlus <cite>BuildingSurface:Detailed</cite>.
 This allows for example coupling of a radiant slab that is modeled in Modelica
@@ -726,7 +799,7 @@ using the current input variables. (For example, multiple calls within a time st
 the derivative of <code class="docutils literal notranslate"><span class="pre">QFront_flow</span></code> with respect to <code class="docutils literal notranslate"><span class="pre">TFront</span></code>, and <code class="docutils literal notranslate"><span class="pre">QBack_flow</span></code> with respect to <code class="docutils literal notranslate"><span class="pre">TBack</span></code>.)</p>
 </section>
 <section id="coupling-of-a-zone-surface">
-<span id="sec-cou-zon-sur"></span><h4><span class="section-number">5.2.3.3. </span>Coupling of a zone surface<a class="headerlink" href="#coupling-of-a-zone-surface" title="Permalink to this heading">¶</a></h4>
+<span id="sec-cou-zon-sur"></span><h4><span class="section-number">5.2.4.3. </span>Coupling of a zone surface<a class="headerlink" href="#coupling-of-a-zone-surface" title="Permalink to this heading">¶</a></h4>
 <p>The following interface models the heat transfer of a surface with the EnergyPlus thermal zone.
 This allows for example coupling of a radiant heating in the 1st floor that is modeled in Modelica
 to the EnergyPlus thermal zone model for heat exchange with the zone,
@@ -800,7 +873,7 @@ using the current input variables. (For example, multiple calls within a time st
 the derivative of <code class="docutils literal notranslate"><span class="pre">Q_flow</span></code> with respect to <code class="docutils literal notranslate"><span class="pre">T</span></code>.)</p>
 </section>
 <section id="retrieving-output-variables-from-energyplus">
-<span id="sec-out-var"></span><h4><span class="section-number">5.2.3.4. </span>Retrieving output variables from EnergyPlus<a class="headerlink" href="#retrieving-output-variables-from-energyplus" title="Permalink to this heading">¶</a></h4>
+<span id="sec-out-var"></span><h4><span class="section-number">5.2.4.4. </span>Retrieving output variables from EnergyPlus<a class="headerlink" href="#retrieving-output-variables-from-energyplus" title="Permalink to this heading">¶</a></h4>
 <p>This section describes how to retrieve in Modelica values from the EnergyPlus object
 <code class="docutils literal notranslate"><span class="pre">Output:Variable</span></code>.</p>
 <p>There will be a Modelica block called <code class="docutils literal notranslate"><span class="pre">EnergyPlus.OutputVariable</span></code> with parameters</p>
@@ -843,7 +916,7 @@ then Modelica will retrieve <span class="math notranslate nohighlight">\(y(t^+)\
 <p>where <code class="docutils literal notranslate"><span class="pre">adapter</span></code> stores the data structure used to communicate with EnergyPlus.</p>
 </section>
 <section id="sending-input-to-energyplus">
-<span id="sec-sen-var"></span><h4><span class="section-number">5.2.3.5. </span>Sending input to EnergyPlus<a class="headerlink" href="#sending-input-to-energyplus" title="Permalink to this heading">¶</a></h4>
+<span id="sec-sen-var"></span><h4><span class="section-number">5.2.4.5. </span>Sending input to EnergyPlus<a class="headerlink" href="#sending-input-to-energyplus" title="Permalink to this heading">¶</a></h4>
 <p>This section describes how to send Modelica values to the EnergyPlus objects</p>
 <ol class="arabic simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">ExternalInterface:FunctionalMockupUnitExport:To:Schedule</span></code>, and</p></li>
@@ -869,7 +942,7 @@ ExternalInterface:FunctionalMockupUnitExport:To:Actuator,
 <p>For the Modelica coupling, these objects need not be declared in the idf file.</p>
 <p>For Modelica, exchanging variables with these objects will be done
 using a Modelica block that has only one input and no output.</p>
-<p>As in <a class="reference internal" href="#sec-out-var"><span class="std std-numref">Section 5.2.3.4</span></a>,
+<p>As in <a class="reference internal" href="#sec-out-var"><span class="std std-numref">Section 5.2.4.4</span></a>,
 we assume that these variables are <a class="reference internal" href="glossary.html#term-discrete-time-variable"><span class="xref std std-term">discrete-time variables</span></a>
 and hence change their values only at events. Specifically, if
 <span class="math notranslate nohighlight">\(u(\cdot)\)</span> is a variable of time that is computed in Modelica
@@ -877,7 +950,7 @@ that is sampled at some time instant <span class="math notranslate nohighlight">
 then Modelica will send <span class="math notranslate nohighlight">\(u(\mathbin{^-t})\)</span>, where
 <span class="math notranslate nohighlight">\(\mathbin{^-t} = (\lim_{\epsilon \to 0} (t-\epsilon), 0)\)</span>.</p>
 <p>With this construct, there is no iteration needed if a control loop is closed
-between Modelica and EnergyPlus that uses outputs from <a class="reference internal" href="#sec-out-var"><span class="std std-numref">Section 5.2.3.4</span></a>
+between Modelica and EnergyPlus that uses outputs from <a class="reference internal" href="#sec-out-var"><span class="std std-numref">Section 5.2.4.4</span></a>
 and inputs from this section.
 To see this, consider
 a controller in Modelica that will send
@@ -894,7 +967,7 @@ This simple example also illustrates that inputs and outputs may need for certai
 applications be exchanged at a sampling rate that is below the EnergyPlus zone time step
 in order to get satisfactory closed loop control performance.</p>
 <section id="schedules">
-<span id="sec-inp-sch"></span><h5><span class="section-number">5.2.3.5.1. </span>Schedules<a class="headerlink" href="#schedules" title="Permalink to this heading">¶</a></h5>
+<span id="sec-inp-sch"></span><h5><span class="section-number">5.2.4.5.1. </span>Schedules<a class="headerlink" href="#schedules" title="Permalink to this heading">¶</a></h5>
 <p>There will be a Modelica block called <code class="docutils literal notranslate"><span class="pre">EnergyPlus.Schedule</span></code> with parameters</p>
 <table class="docutils align-default">
 <colgroup>
@@ -939,7 +1012,7 @@ values will be sent as doubles.</p>
 <code class="docutils literal notranslate"><span class="pre">pre(u)</span></code> is the value of the input before <code class="docutils literal notranslate"><span class="pre">sample(t0,</span> <span class="pre">samplePeriod)</span></code> becomes <code class="docutils literal notranslate"><span class="pre">true</span></code>.</p>
 </section>
 <section id="actuators">
-<span id="sec-inp-act"></span><h5><span class="section-number">5.2.3.5.2. </span>Actuators<a class="headerlink" href="#actuators" title="Permalink to this heading">¶</a></h5>
+<span id="sec-inp-act"></span><h5><span class="section-number">5.2.4.5.2. </span>Actuators<a class="headerlink" href="#actuators" title="Permalink to this heading">¶</a></h5>
 <p>There will be a Modelica block called <code class="docutils literal notranslate"><span class="pre">EnergyPlus.Actuator</span></code> with parameters</p>
 <table class="docutils align-default">
 <colgroup>
@@ -992,7 +1065,7 @@ values will be sent as doubles.</p>
 </section>
 </section>
 <section id="api-used-to-export-energyplus-as-an-fmu">
-<span id="sec-req-ene-exp-fmu"></span><h3><span class="section-number">5.2.4. </span>API used to Export EnergyPlus as an FMU<a class="headerlink" href="#api-used-to-export-energyplus-as-an-fmu" title="Permalink to this heading">¶</a></h3>
+<span id="sec-req-ene-exp-fmu"></span><h3><span class="section-number">5.2.5. </span>API used to Export EnergyPlus as an FMU<a class="headerlink" href="#api-used-to-export-energyplus-as-an-fmu" title="Permalink to this heading">¶</a></h3>
 <p>To export EnergyPlus as an FMU for model exchange, EnergyPlus provides an executable that
 reads a json configuration file and packages EnergyPlus as an FMU for Model Exchange 2.0.</p>
 <div class="admonition note">
@@ -1009,7 +1082,7 @@ as they may reject a step size if the error is too large.
 Also, rejecting steps is needed to identify state events (but not for QSS solvers).</p>
 </div>
 <section id="instantiation">
-<span id="sec-int-c-api"></span><h4><span class="section-number">5.2.4.1. </span>Instantiation<a class="headerlink" href="#instantiation" title="Permalink to this heading">¶</a></h4>
+<span id="sec-int-c-api"></span><h4><span class="section-number">5.2.5.1. </span>Instantiation<a class="headerlink" href="#instantiation" title="Permalink to this heading">¶</a></h4>
 <p>To instantiate EnergyPlus, EnergyPlus generates an FMU 2.0 for model exchange.
 This is initiated by Modelica, which invokes a system command of the form</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>spawn path_to_json
@@ -1019,11 +1092,13 @@ This is initiated by Modelica, which invokes a system command of the form</p>
 is the absolute path of the json file <code class="docutils literal notranslate"><span class="pre">ModelicaBuildingsEnergyPlus.json</span></code> that configures EnergyPlus.
 For the case of a model with one thermal zone, the content of this file looks as follows:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
-<span class="w"> </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.1&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w"> </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.0&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w"> </span><span class="nt">&quot;EnergyPlus&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">   </span><span class="nt">&quot;idf&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/tmp/tmp-spawn/jm_tmpPVJfHP/resources/0/RefBldgSmallOfficeNew2004_Chicago.idf&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">   </span><span class="nt">&quot;idd&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/tmp/tmp-spawn/jm_tmpPVJfHP/resources/2/Energy+.idd&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">   </span><span class="nt">&quot;weather&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/tmp/tmp-spawn/jm_tmpPVJfHP/resources/1/USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.epw&quot;</span><span class="w"></span>
+<span class="w">   </span><span class="nt">&quot;weather&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/tmp/tmp-spawn/jm_tmpPVJfHP/resources/1/USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.epw&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">   </span><span class="nt">&quot;autosize&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"></span>
+<span class="w">   </span><span class="nt">&quot;runSimulationForSizingPeriods&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"></span>
 <span class="w"> </span><span class="p">},</span><span class="w"></span>
 <span class="w"> </span><span class="nt">&quot;fmu&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">     </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/mnt/shared/modelica-buildings/tmp-eplus-fmuName/fmuName.fmu&quot;</span><span class="p">,</span><span class="w"></span>
@@ -1033,17 +1108,31 @@ For the case of a model with one thermal zone, the content of this file looks as
 <span class="w"> </span><span class="nt">&quot;model&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">     </span><span class="nt">&quot;zones&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
 <span class="w">         </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;office&quot;</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+<span class="w">     </span><span class="p">],</span><span class="w"></span>
+<span class="w">     </span><span class="nt">&quot;zoneGroups&quot;</span><span class="p">:[</span><span class="w"></span>
+<span class="w">       </span><span class="nt">&quot;name1&quot;</span><span class="p">:</span><span class="w"></span>
+<span class="w">       </span><span class="p">[</span><span class="w"></span>
+<span class="w">         </span><span class="s2">&quot;office&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;core&quot;</span><span class="w"></span>
+<span class="w">       </span><span class="p">]</span><span class="w"></span>
+<span class="w">       </span><span class="nt">&quot;name2&quot;</span><span class="p">:</span><span class="w"></span>
+<span class="w">       </span><span class="p">[</span><span class="w"></span>
+<span class="w">         </span><span class="s2">&quot;south&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;southWest&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;southEast&quot;</span><span class="w"></span>
+<span class="w">       </span><span class="p">]</span><span class="w"></span>
 <span class="w">     </span><span class="p">]</span><span class="w"></span>
 <span class="w">   </span><span class="p">}</span><span class="w"></span>
 <span class="w"> </span><span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Using this information, EnergyPlus creates the FMU with name
-<code class="docutils literal notranslate"><span class="pre">/mnt/shared/modelica-buildings/tmp-eplus-fmuName/fmuName.fmu</span></code></p>
+<code class="docutils literal notranslate"><span class="pre">/mnt/shared/modelica-buildings/tmp-eplus-fmuName/fmuName.fmu</span></code>.</p>
+<p>Depending on the boolean entry <code class="docutils literal notranslate"><span class="pre">autosize</span></code>, EnergyPlus will conduct an autosizing calculation.
+If <code class="docutils literal notranslate"><span class="pre">autosize:</span> <span class="pre">true</span></code>, then <code class="docutils literal notranslate"><span class="pre">runSimulationForSizingPeriods</span></code> determines whether
+the simulation will be run on all the included <code class="docutils literal notranslate"><span class="pre">SizingPeriod</span></code> objects in the idf file
+(i.e., <code class="docutils literal notranslate"><span class="pre">SizingPeriod:DesignDay</span></code>, <code class="docutils literal notranslate"><span class="pre">SizingPeriod:WeatherFileDays</span></code>, and <code class="docutils literal notranslate"><span class="pre">SizingPeriod:WeatherFileConditionType</span></code>).</p>
 <p>We will now describe how to the exchanged variables are configured.</p>
 <section id="envelope-model">
-<h5><span class="section-number">5.2.4.1.1. </span>Envelope model<a class="headerlink" href="#envelope-model" title="Permalink to this heading">¶</a></h5>
-<p>To configure the variables to be exchanged for the envelope model described in <a class="reference internal" href="#sec-cou-env"><span class="std std-numref">Section 5.2.3.1</span></a>,
+<h5><span class="section-number">5.2.5.1.1. </span>Envelope model<a class="headerlink" href="#envelope-model" title="Permalink to this heading">¶</a></h5>
+<p>To configure the variables to be exchanged for the envelope model described in <a class="reference internal" href="#sec-cou-env"><span class="std std-numref">Section 5.2.4.1</span></a>,
 the following data structures will be used for a building with a zone called <code class="docutils literal notranslate"><span class="pre">basement</span></code> and a zone called <code class="docutils literal notranslate"><span class="pre">office</span></code>.</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="s">&quot;zones&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
 <span class="w">   </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s">&quot;basement&quot;</span><span class="w"> </span><span class="p">},</span><span class="w"></span>
@@ -1054,10 +1143,52 @@ the following data structures will be used for a building with a zone called <co
 <p>In this case, the FMU must have parameters called <code class="docutils literal notranslate"><span class="pre">basement_V</span></code>, <code class="docutils literal notranslate"><span class="pre">office_V</span></code>, <code class="docutils literal notranslate"><span class="pre">basement_AFlo</span></code> etc.
 inputs called <code class="docutils literal notranslate"><span class="pre">basement_T</span></code> and <code class="docutils literal notranslate"><span class="pre">office_T</span></code> and outputs called
 <code class="docutils literal notranslate"><span class="pre">basement_QConSen_flow</span></code> and <code class="docutils literal notranslate"><span class="pre">office_QConSen_flow</span></code>.</p>
+<p>The entry <code class="docutils literal notranslate"><span class="pre">zoneGroups</span></code> is used to group thermal zones for autosizing. Its syntax is</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="s">&quot;zoneGroups&quot;</span><span class="o">:</span><span class="p">[</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;name1&quot;</span><span class="o">:</span><span class="w"></span>
+<span class="w">  </span><span class="p">[</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;office&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;core&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="p">]</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;name2&quot;</span><span class="o">:</span><span class="w"></span>
+<span class="w">  </span><span class="p">[</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;south&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;southWest&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;southEast&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="p">]</span><span class="w"></span>
+<span class="p">]</span><span class="w"></span>
+</pre></div>
+</div>
+<p>The length of <code class="docutils literal notranslate"><span class="pre">zoneGroups</span></code> may be zero for the special case of
+no thermal Modelica <code class="docutils literal notranslate"><span class="pre">ThermalZone</span></code> being specified.
+Modelica ensures that there is always a <code class="docutils literal notranslate"><span class="pre">zoneGroups</span></code> entry.</p>
+<p>For the above example, the FMU must have parameters called</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">hvac_sizing_group_name1_QCooSen_flow</span></code> for sensible cooling load,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hvac_sizing_group_name1_QCooLat_flow</span></code> for latent cooling load,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hvac_sizing_group_name1_TOutCoo</span></code> for outdoor drybulb temperature at the cooling design load,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hvac_sizing_group_name1_XOutCoo</span></code> for outdoor humidity ratio at the cooling design load,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hvac_sizing_group_name1_tCoo</span></code> time at which these loads occurred,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hvac_sizing_group_name1_QHeat_flow</span></code> for heating load,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hvac_sizing_group_name1_TOutHea</span></code> for outdoor drybulb temperature at the heating design load,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hvac_sizing_group_name1_XOutHea</span></code> for outdoor humidity ratio at the heating design load,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hvac_sizing_group_name1_mOutCoo_flow</span></code> for minimum outdoor air flow rate during the cooling design load,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hvac_sizing_group_name1_mOutHea_flow</span></code> for minimum outdoor air flow rate during the heating design load, and</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hvac_sizing_group_name1_tHea</span></code> time at which these loads occurred,</p></li>
+</ul>
+<p>similar for
+the group <code class="docutils literal notranslate"><span class="pre">name2</span></code>.
+The quantities <code class="docutils literal notranslate"><span class="pre">*Coo*</span></code> and <code class="docutils literal notranslate"><span class="pre">*Hea*</span></code> are at the respective time step that determines
+the sizing.
+They include outdoor mass flow rates and outdoor condition to allow for fully automatic
+system sizing through Modelica parameter expressions.
+The units are <code class="docutils literal notranslate"><span class="pre">[W]</span></code> and <code class="docutils literal notranslate"><span class="pre">kg/s</span></code>, respectively, and the quantities are
+after applying all EnergyPlus zone and group multipliers.</p>
+<p>Similarly, for each thermal zone, there will be parameters in the FMU as above,
+but with <code class="docutils literal notranslate"><span class="pre">group_name1</span></code> replaced by <code class="docutils literal notranslate"><span class="pre">zone</span></code> and the zone name, such as
+<code class="docutils literal notranslate"><span class="pre">hvac_sizing_zone_office_QCooSen_flow</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">autosizing:</span> <span class="pre">false</span></code>, then all of these values need to be set to <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p>
 </section>
 <section id="opaque-construction">
-<h5><span class="section-number">5.2.4.1.2. </span>Opaque construction<a class="headerlink" href="#opaque-construction" title="Permalink to this heading">¶</a></h5>
-<p>To configure the variables to be exchanged for an opaque construction that is part of an EnergyPlus thermal zone as described in <a class="reference internal" href="#sec-cou-opa-con"><span class="std std-numref">Section 5.2.3.2</span></a>,
+<h5><span class="section-number">5.2.5.1.2. </span>Opaque construction<a class="headerlink" href="#opaque-construction" title="Permalink to this heading">¶</a></h5>
+<p>To configure the variables to be exchanged for an opaque construction that is part of an EnergyPlus thermal zone as described in <a class="reference internal" href="#sec-cou-opa-con"><span class="std std-numref">Section 5.2.4.2</span></a>,
 the following data structures will be used for a building with an EnergyPlus surface called <code class="docutils literal notranslate"><span class="pre">north</span> <span class="pre">ceiling</span> <span class="pre">office</span></code> and a zone called <code class="docutils literal notranslate"><span class="pre">south</span> <span class="pre">ceiling</span> <span class="pre">office</span></code>.
 (This requires to add a surface object to EnergyPlus, including all information needed by EnergyPlus such
 as the surface location and its solar and infrared emissivity.)</p>
@@ -1069,8 +1200,8 @@ as the surface location and its solar and infrared emissivity.)</p>
 </div>
 </section>
 <section id="zone-surface">
-<h5><span class="section-number">5.2.4.1.3. </span>Zone surface<a class="headerlink" href="#zone-surface" title="Permalink to this heading">¶</a></h5>
-<p>To configure the variables to be exchanged for a surface that is part of an EnergyPlus thermal zone as described in <a class="reference internal" href="#sec-cou-zon-sur"><span class="std std-numref">Section 5.2.3.3</span></a>,
+<h5><span class="section-number">5.2.5.1.3. </span>Zone surface<a class="headerlink" href="#zone-surface" title="Permalink to this heading">¶</a></h5>
+<p>To configure the variables to be exchanged for a surface that is part of an EnergyPlus thermal zone as described in <a class="reference internal" href="#sec-cou-zon-sur"><span class="std std-numref">Section 5.2.4.3</span></a>,
 the following data structures will be used for a building with an EnergyPlus surface called <code class="docutils literal notranslate"><span class="pre">north</span> <span class="pre">ceiling</span> <span class="pre">office</span></code> and a zone called <code class="docutils literal notranslate"><span class="pre">south</span> <span class="pre">ceiling</span> <span class="pre">office</span></code>.
 (This requires to add a surface object to EnergyPlus, including all information needed by EnergyPlus such
 as the surface location and its solar and infrared emissivity.)</p>
@@ -1082,8 +1213,8 @@ as the surface location and its solar and infrared emissivity.)</p>
 </div>
 </section>
 <section id="output-variables">
-<h5><span class="section-number">5.2.4.1.4. </span>Output variables<a class="headerlink" href="#output-variables" title="Permalink to this heading">¶</a></h5>
-<p>To configure the data exchange for output variables, as described in <a class="reference internal" href="#sec-out-var"><span class="std std-numref">Section 5.2.3.4</span></a>,
+<h5><span class="section-number">5.2.5.1.4. </span>Output variables<a class="headerlink" href="#output-variables" title="Permalink to this heading">¶</a></h5>
+<p>To configure the data exchange for output variables, as described in <a class="reference internal" href="#sec-out-var"><span class="std std-numref">Section 5.2.4.4</span></a>,
 consider an example where one wants to retrieve the outdoor drybulb temperature from EnergyPlus.</p>
 <p>The corresponsding section in the <code class="docutils literal notranslate"><span class="pre">ModelicaBuildingsEnergyPlus.json</span></code> configuration file is</p>
 <div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;model&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
@@ -1101,8 +1232,8 @@ consider an example where one wants to retrieve the outdoor drybulb temperature 
 <code class="docutils literal notranslate"><span class="pre">outputVariables.fmiName</span></code> and units consistent with <a class="reference internal" href="#tab-uni-spe"><span class="std std-numref">Table 5.1</span></a>.</p>
 </section>
 <section id="id2">
-<h5><span class="section-number">5.2.4.1.5. </span>Schedules<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h5>
-<p>To configure the data exchange for schedules, as described in <a class="reference internal" href="#sec-inp-sch"><span class="std std-numref">Section 5.2.3.5.1</span></a>,
+<h5><span class="section-number">5.2.5.1.5. </span>Schedules<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h5>
+<p>To configure the data exchange for schedules, as described in <a class="reference internal" href="#sec-inp-sch"><span class="std std-numref">Section 5.2.4.5.1</span></a>,
 consider an example where one wants to write to an EnergyPlus schedule called <code class="docutils literal notranslate"><span class="pre">Lights</span></code>.</p>
 <p>The corresponsding section in the <code class="docutils literal notranslate"><span class="pre">ModelicaBuildingsEnergyPlus.json</span></code> configuration file is</p>
 <div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;model&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
@@ -1122,8 +1253,8 @@ Modelica will write to this schedule with units shown in the column <em>EnergyPl
 in <a class="reference internal" href="#tab-uni-spe"><span class="std std-numref">Table 5.1</span></a>.</p>
 </section>
 <section id="ems-actuators">
-<h5><span class="section-number">5.2.4.1.6. </span>EMS actuators<a class="headerlink" href="#ems-actuators" title="Permalink to this heading">¶</a></h5>
-<p>To configure the data exchange for schedules, as described in <a class="reference internal" href="#sec-inp-act"><span class="std std-numref">Section 5.2.3.5.2</span></a>,
+<h5><span class="section-number">5.2.5.1.6. </span>EMS actuators<a class="headerlink" href="#ems-actuators" title="Permalink to this heading">¶</a></h5>
+<p>To configure the data exchange for schedules, as described in <a class="reference internal" href="#sec-inp-act"><span class="std std-numref">Section 5.2.4.5.2</span></a>,
 consider an example where one wants to write to an EnergyPlus schedule called <code class="docutils literal notranslate"><span class="pre">Lights</span></code>.</p>
 <p>The corresponsding section in the <code class="docutils literal notranslate"><span class="pre">ModelicaBuildingsEnergyPlus.json</span></code> configuration file is</p>
 <div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;model&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
@@ -1148,7 +1279,7 @@ in <a class="reference internal" href="#tab-uni-spe"><span class="std std-numref
 </section>
 </section>
 <section id="time-synchronization">
-<span id="sec-time-sync"></span><h3><span class="section-number">5.2.5. </span>Time synchronization<a class="headerlink" href="#time-synchronization" title="Permalink to this heading">¶</a></h3>
+<span id="sec-time-sync"></span><h3><span class="section-number">5.2.6. </span>Time synchronization<a class="headerlink" href="#time-synchronization" title="Permalink to this heading">¶</a></h3>
 <figure class="align-default" id="id7">
 <span id="fig-fmi-me-20-state-machine"></span><a class="reference internal image-reference" href="_images/StateMachineModelExchange.png"><img alt="_images/StateMachineModelExchange.png" src="_images/StateMachineModelExchange.png" style="width: 736.0px; height: 583.0px;" /></a>
 <figcaption>
@@ -1188,7 +1319,7 @@ which may change at times that do not coincide with the zone time step <span cla
 and EMS actuators
 happens in the mode labelled <em>EventMode</em>.
 This allows to avoid algebraic loops that may be formed by adding a controller
-between an EnergyPlus output and an EnergyPlus input, as described in <a class="reference internal" href="#sec-sen-var"><span class="std std-numref">Section 5.2.3.5</span></a>.</p>
+between an EnergyPlus output and an EnergyPlus input, as described in <a class="reference internal" href="#sec-sen-var"><span class="std std-numref">Section 5.2.4.5</span></a>.</p>
 </section>
 </section>
 <section id="distribution-of-spawn-and-the-modelica-buildings-library">
