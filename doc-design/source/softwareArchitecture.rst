@@ -782,6 +782,7 @@ For the case of a model with one thermal zone, the content of this file looks as
           "name1": 
           [
             "office", "core"
+fixme: This misses the entry for zone list multiplier, such as  "8;  !- Zone List Multiplier"
           ]
           "name2":
           [
