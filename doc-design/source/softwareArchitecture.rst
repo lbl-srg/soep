@@ -868,7 +868,7 @@ Similarly, for each thermal zone, there will be parameters in the FMU as above,
 but with ``group_name1`` replaced by ``zone`` and the zone name, such as
 ``hvac_sizing_zone_office_QCooSen_flow``.
 
-If ``autosizing: false``, then all of these values need to be set to ``0``.
+If ``autosizing: false``, then these values must not be in the ``modelDescription.xml`` file.
 
 
 
