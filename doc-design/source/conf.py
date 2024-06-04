@@ -26,6 +26,7 @@ extensions = ['sphinx.ext.autodoc', \
               'sphinxcontrib.bibtex', \
               'sphinxcontrib.plantuml', \
               'sphinx.ext.todo']
+bibtex_bibfiles = ['references.bib']
 todo_include_todos = True
 
 # mathjax_path is based on http://www.mathjax.org/docs/2.0/start.html

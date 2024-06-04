@@ -228,11 +228,11 @@ Zone multipliers
 ^^^^^^^^^^^^^^^^
 
 Up to the Modelica Buildings Library version 11, the Spawn coupling does not support
-zone multipliers. If a idf file contains a ``Zone`` object with a multiplier that is
+zone multipliers. If an idf file contains a ``Zone`` object with a multiplier that is
 not 1, the simulation stops with an error.
 
 In later versions, EnergyPlus multipliers are supported. This allows for example
-authoring of the EnergyPlus envelope geometry, including adding multipliers for zones
+authoring of the EnergyPlus envelope geometry, including adding multipliers for zones,
 in dedicated EnergyPlus envelope authoring tools such as OpenStudio.
 Spawn handles multipliers as follows:
 
@@ -243,11 +243,13 @@ between Modelica and EnergyPlus.
 Hence, this allows through a specification in the idf file to multiply the size
 of thermal zones.
 Modelica will then use these multiplied values in its simulation.
-Hence, suppose a zone has a volume of :math:`V=100 \, \mathrm{m^3}` and
-a design air flow rate of :math:`\dot m_0 = 1.0 \, \mathrm{kg/s}`.
-Moreover, suppose, the idf file specifies a zone multiplier of :math:`2` for that zone.
-Then, Modelica will obtain a zone volume of :math:`V=200 \, \mathrm{m^3}`.
-Moreover, users need to ensure that the design air mass flow rate is :math:`\dot m_0 = 2.0 \, \mathrm{kg/s}`.
+For example, suppose an idf file specifies a zone that
+has a volume of :math:`V=100 \, \mathrm{m^3}`,
+a design air flow rate of :math:`\dot m_0 = 1.0 \, \mathrm{kg/s}` and
+a zone multiplier of :math:`2`.
+Then, Modelica will obtain a zone volume of :math:`V=200 \, \mathrm{m^3}`,
+and users need to ensure that the design air mass flow rate
+in Modelica is :math:`\dot m_0 = 2.0 \, \mathrm{kg/s}`.
 
 EnergyPlus allows a zone to be added to a ``ZoneList``, and a ``ZoneList`` to
 be added to a ``Zone Group``.
@@ -259,15 +261,16 @@ Thus, if the zone in the above example has a multiplier of :math:`2`,
 and it is added to an EnergyPlus ``Zone Group``
 which has a multiplier of :math:`3`, then EnergyPlus will send its
 surface, volume and load after multiplying it by a factor of :math:`6`.
-Therefore, users need to ensure that the design air mass flow rate is :math:`\dot m_0 = 6.0 \, \mathrm{kg/s}`.
+Therefore, users need to ensure that the design air mass flow rate
+in Modelica is :math:`\dot m_0 = 6.0 \, \mathrm{kg/s}`.
 
 In Modelica, thermal zones may be grouped to HVAC systems.
 As the HVAC system in the idf file is removed, Modelica has its own object to
 group thermal zones to an HVAC system for the purpose of taking into account
-the load diversity for system sizing. The corresponding Modelica object is
-called ``HVACZones`` and described in xxx.
+the load diversity for system sizing. The corresponding Modelica class is
+called ``HVACZones``.
 Note that the Modelica ``HVACZones`` model has no entry for zone or group multipliers,
-as the values from the EnergyPlus idf file are applied during the system sizing
+as the values from the idf file are applied during the system sizing
 as described in the above two paragraphs.
 
 
@@ -577,7 +580,7 @@ Retrieving output variables from EnergyPlus
 This section describes how to retrieve in Modelica values from the EnergyPlus object
 ``Output:Variable``.
 
-There will be a Modelica block called ``EnergyPlus.OutputVariable`` with parameters
+There is a Modelica block called ``OutputVariable`` with parameters
 
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | Name                      | Comment                                                                                          |
@@ -679,7 +682,7 @@ in order to get satisfactory closed loop control performance.
 Schedules
 """""""""
 
-There will be a Modelica block called ``EnergyPlus.Schedule`` with parameters
+There is a Modelica block called ``Schedule`` with parameters
 
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | Name                      | Comment                                                                                          |
@@ -717,7 +720,7 @@ where
 Actuators
 """""""""
 
-There will be a Modelica block called ``EnergyPlus.Actuator`` with parameters
+There is a Modelica block called ``Actuator`` with parameters
 
 +---------------------------+--------------------------------------------------------------------------------------------------+
 | Name                      | Comment                                                                                          |
@@ -815,17 +818,18 @@ For the case of a model with one thermal zone, the content of this file looks as
         "hvacZones":[
           {
             "name": "office_and_core_zones",
-            "zones" :
+            "zones":
             [
-              "name": "office",
-              "name": "core"
+              { "name": "office" },
+              { "name": "core" }
             ]
           },
           {
             "name": "south zones",
+            "zones":
             [
-              "name: "southWest",
-              "name": "southEast"
+              { "name:" "southWest" },
+              { "name": "southEast" }
             ]
           }
         ]
@@ -859,6 +863,8 @@ In this case, the FMU must have parameters called ``basement_V``, ``office_V``, 
 inputs called ``basement_T`` and ``office_T`` and outputs called
 ``basement_QConSen_flow`` and ``office_QConSen_flow``.
 
+HVAC zones used for auto-sizing
+"""""""""""""""""""""""""""""""
 
 The entry ``hvacZones`` is used to group thermal zones for autosizing. Its syntax is
 
@@ -867,17 +873,18 @@ The entry ``hvacZones`` is used to group thermal zones for autosizing. Its synta
     "hvacZones":[
       {
         "name": "office_and_core_zones",
-        "zones" :
+        "zones":
         [
-          "name": "office",
-          "name": "core"
+          { "name": "office" },
+          { "name": "core" }
         ]
       },
       {
         "name": "south_zones",
+        "zones":
         [
-          "name: "southWest",
-          "name": "southEast"
+          { "name": "southWest" },
+          { "name": "southEast" }
         ]
       }
     ]
@@ -885,7 +892,7 @@ The entry ``hvacZones`` is used to group thermal zones for autosizing. Its synta
 
 
 The length of ``hvacZones`` may be zero for the special case of
-no thermal Modelica ``ThermalZone`` being specified.
+the Modelica model having no ``ThermalZone`` specified.
 Modelica ensures that there is always a ``hvacZones`` entry.
 
 For the above example, the FMU must have parameters called
@@ -904,16 +911,16 @@ For the above example, the FMU must have parameters called
 
 where ``xxx`` is ``office_and_core_zones`` and ``south_zones``, respectively.
 The quantities ``*Coo*`` and ``*Hea*`` are at the respective time step that determines
-the sizing as specified by ``*tCoo`` and ``*tHea`.
+the sizing as specified by ``*tCoo`` and ``*tHea``.
 The exchanged parameters include outdoor mass flow rates and outdoor condition to allow for fully automatic
 system sizing through Modelica parameter expressions.
 The units are ``[W]``, ``degC``,  ``kg/kg`` water vapor mass fraction per total air mass of the zone,
-``[s]`` since January 1 at 0:00:00, ``kg/s``.
+``[s]`` since January 1 at 0:00:00, and ``kg/s``.
 All quantities are after applying all EnergyPlus zone and group multipliers.
 
 
 Similarly, for each thermal zone, there will be parameters in the FMU as above,
-but with ``group`` replaced by ``zone`` and the zone name, such as in
+but with ``group`` replaced by ``zone`` and the zone name inserted, such as in
 ``hvac_sizing_zone_office_QCooSen_flow``.
 
 If ``autosizing: false``, then these values must not be in the ``modelDescription.xml`` file.
