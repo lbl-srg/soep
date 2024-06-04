@@ -227,20 +227,50 @@ are applicable, and those that are applicable are exposed as Modelica parameters
 Zone multipliers
 ^^^^^^^^^^^^^^^^
 
-The idf file contains in the ``Zone`` object the entry ``Multiplier``,
-which multiples the zone volume, zone floor area and load to allow simulation
-of identical zones using one instance of a zone model only.
-EnergyPlus takes this value from the idf file into account when calculating
-the volume, area and zone loads that it sends to Modelica.
+Up to the Modelica Buildings Library version 11, the Spawn coupling does not support
+zone multipliers. If a idf file contains a ``Zone`` object with a multiplier that is
+not 1, the simulation stops with an error.
+
+In later versions, EnergyPlus multipliers are supported. This allows for example
+authoring of the EnergyPlus envelope geometry, including adding multipliers for zones
+in dedicated EnergyPlus envelope authoring tools such as OpenStudio.
+Spawn handles multipliers as follows:
+
+If idf file contains in the ``Zone`` object the entry ``Multiplier``,
+then EnergyPlus multiplies the zone volume, zone floor area and internal and external loads.
+EnergyPlus also takes the multiplier into account in the heat flow rates that are exchanged
+between Modelica and EnergyPlus.
+Hence, this allows through a specification in the idf file to multiply the size
+of thermal zones.
+Modelica will then use these multiplied values in its simulation.
+Hence, suppose a zone has a volume of :math:`V=100 \, \mathrm{m^3}` and
+a design air flow rate of :math:`\dot m_0 = 1.0 \, \mathrm{kg/s}`.
+Moreover, suppose, the idf file specifies a zone multiplier of :math:`2` for that zone.
+Then, Modelica will obtain a zone volume of :math:`V=200 \, \mathrm{m^3}`.
+Moreover, users need to ensure that the design air mass flow rate is :math:`\dot m_0 = 2.0 \, \mathrm{kg/s}`.
 
 EnergyPlus allows a zone to be added to a ``ZoneList``, and a ``ZoneList`` to
-be added to a ``Zone Group``. For example, a ``ZoneList`` allows all zones
+be added to a ``Zone Group``.
+For example, a ``ZoneList`` allows all zones
 on a floor to be listed, and a ``Zone Group`` allows all zones to be multiplied
 such as to model a high-rise building.
 EnergyPlus takes the ``Zone Group`` into account.
-Thus, if a ``Zone`` has a multiplier of 2, and it is added to a ``Zone Group``
-which has a multiplier of 3, then EnergyPlus will send its
-surface, volume and load after multiplying it by a factor of 6.
+Thus, if the zone in the above example has a multiplier of :math:`2`,
+and it is added to an EnergyPlus ``Zone Group``
+which has a multiplier of :math:`3`, then EnergyPlus will send its
+surface, volume and load after multiplying it by a factor of :math:`6`.
+Therefore, users need to ensure that the design air mass flow rate is :math:`\dot m_0 = 6.0 \, \mathrm{kg/s}`.
+
+In Modelica, thermal zones may be grouped to HVAC systems.
+As the HVAC system in the idf file is removed, Modelica has its own object to
+group thermal zones to an HVAC system for the purpose of taking into account
+the load diversity for system sizing. The corresponding Modelica object is
+called ``HVACZones`` and described in xxx.
+Note that the Modelica ``HVACZones`` model has no entry for zone or group multipliers,
+as the values from the EnergyPlus idf file are applied during the system sizing
+as described in the above two paragraphs.
+
+
 
 Sizing parameters obtained by Modelica
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -252,11 +282,15 @@ latent cooling load,
 and the corresponding outdoor air temperature,
 humidity concentration, minimum outdoor air mass flow rate and the time
 when these loads occur.
-These quantities are assigned by the Spawn interface to Modelica parameters.
-This allows use of these values in Modelica parameter expressions that assign
+These quantities are assigned by the Spawn interface to Modelica parameters,
+and these values already take into account the ``Multiplier`` of both,
+the ``Zone`` object and the ``Zone Group`` object
+in the EnergyPlus idf file.
+The values can then be used in Modelica parameter expressions to assign
 component sizes.
 
-Modelica also allows ``ThermalZones`` to be grouped together, which
+Modelica also allows ``ThermalZones`` to be grouped together through the Modelica
+``HVACZones`` object, which
 allows for sizing calculations to take into account the load diversity.
 For each group, the above quantities will be obtained, also as
 Modelica parameters.
@@ -778,15 +812,22 @@ For the case of a model with one thermal zone, the content of this file looks as
         "zones": [
             { "name": "office" }
         ],
-        "zoneGroups":[
-          "name1": 
-          [
-            "office", "core"
-          ]
-          "name2":
-          [
-            "south", "southWest", "southEast"
-          ]
+        "hvacZones":[
+          {
+            "name": "office_and_core_zones",
+            "zones" :
+            [
+              "name": "office",
+              "name": "core"
+            ]
+          },
+          {
+            "name": "south zones",
+            [
+              "name: "southWest",
+              "name": "southEast"
+            ]
+          }
         ]
       }
     }
@@ -819,57 +860,63 @@ inputs called ``basement_T`` and ``office_T`` and outputs called
 ``basement_QConSen_flow`` and ``office_QConSen_flow``.
 
 
-The entry ``zoneGroups`` is used to group thermal zones for autosizing. Its syntax is
+The entry ``hvacZones`` is used to group thermal zones for autosizing. Its syntax is
 
 .. code-block:: c
 
-        "zoneGroups":[
-          "name1": 
-          [
-            "office", "core"
-          ]
-          "name2":
-          [
-            "south", "southWest", "southEast"
-          ]
+    "hvacZones":[
+      {
+        "name": "office_and_core_zones",
+        "zones" :
+        [
+          "name": "office",
+          "name": "core"
         ]
+      },
+      {
+        "name": "south_zones",
+        [
+          "name: "southWest",
+          "name": "southEast"
+        ]
+      }
+    ]
 
 
 
-The length of ``zoneGroups`` may be zero for the special case of
+The length of ``hvacZones`` may be zero for the special case of
 no thermal Modelica ``ThermalZone`` being specified.
-Modelica ensures that there is always a ``zoneGroups`` entry.
+Modelica ensures that there is always a ``hvacZones`` entry.
 
 For the above example, the FMU must have parameters called
 
-- ``hvac_sizing_group_name1_QCooSen_flow`` for sensible cooling load,
-- ``hvac_sizing_group_name1_QCooLat_flow`` for latent cooling load,
-- ``hvac_sizing_group_name1_TOutCoo`` for outdoor drybulb temperature at the cooling design load,
-- ``hvac_sizing_group_name1_XOutCoo`` for outdoor humidity ratio at the cooling design load,
-- ``hvac_sizing_group_name1_tCoo`` time at which these loads occurred,
-- ``hvac_sizing_group_name1_QHeat_flow`` for heating load,
-- ``hvac_sizing_group_name1_TOutHea`` for outdoor drybulb temperature at the heating design load,
-- ``hvac_sizing_group_name1_XOutHea`` for outdoor humidity ratio at the heating design load,
-- ``hvac_sizing_group_name1_mOutCoo_flow`` for minimum outdoor air flow rate during the cooling design load,
-- ``hvac_sizing_group_name1_mOutHea_flow`` for minimum outdoor air flow rate during the heating design load, and
-- ``hvac_sizing_group_name1_tHea`` time at which these loads occurred,
+- ``hvac_sizing_group_xxx_QCooSen_flow`` for sensible cooling load,
+- ``hvac_sizing_group_xxx_QCooLat_flow`` for latent cooling load,
+- ``hvac_sizing_group_xxx_TOutCoo`` for outdoor drybulb temperature at the cooling design load,
+- ``hvac_sizing_group_xxx_XOutCoo`` for outdoor humidity ratio at the cooling design load,
+- ``hvac_sizing_group_xxx_tCoo`` time at which these loads occurred,
+- ``hvac_sizing_group_xxx_QHeat_flow`` for heating load,
+- ``hvac_sizing_group_xxx_TOutHea`` for outdoor drybulb temperature at the heating design load,
+- ``hvac_sizing_group_xxx_XOutHea`` for outdoor humidity ratio at the heating design load,
+- ``hvac_sizing_group_xxx_mOutCoo_flow`` for minimum outdoor air flow rate during the cooling design load,
+- ``hvac_sizing_group_xxx_mOutHea_flow`` for minimum outdoor air flow rate during the heating design load, and
+- ``hvac_sizing_group_xxx_tHea`` time at which these loads occurred,
 
-similar for
-the group ``name2``. 
+where ``xxx`` is ``office_and_core_zones`` and ``south_zones``, respectively.
 The quantities ``*Coo*`` and ``*Hea*`` are at the respective time step that determines
-the sizing.
-They include outdoor mass flow rates and outdoor condition to allow for fully automatic
+the sizing as specified by ``*tCoo`` and ``*tHea`.
+The exchanged parameters include outdoor mass flow rates and outdoor condition to allow for fully automatic
 system sizing through Modelica parameter expressions.
-The units are ``[W]`` and ``kg/s``, respectively, and the quantities are
-after applying all EnergyPlus zone and group multipliers.
+The units are ``[W]``, ``degC``,  ``kg/kg`` water vapor mass fraction per total air mass of the zone,
+``[s]`` since January 1 at 0:00:00, ``kg/s``.
+All quantities are after applying all EnergyPlus zone and group multipliers.
 
 
 Similarly, for each thermal zone, there will be parameters in the FMU as above,
-but with ``group_name1`` replaced by ``zone`` and the zone name, such as
+but with ``group`` replaced by ``zone`` and the zone name, such as in
 ``hvac_sizing_zone_office_QCooSen_flow``.
 
 If ``autosizing: false``, then all of these values need to be set to ``0``.
-
 
 
 
