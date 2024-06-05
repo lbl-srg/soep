@@ -902,7 +902,7 @@ For the above example, the FMU must have parameters called
 - ``hvac_sizing_group_xxx_TOutCoo`` for outdoor drybulb temperature at the cooling design load,
 - ``hvac_sizing_group_xxx_XOutCoo`` for outdoor humidity ratio at the cooling design load,
 - ``hvac_sizing_group_xxx_tCoo`` time at which these loads occurred,
-- ``hvac_sizing_group_xxx_QHeat_flow`` for heating load,
+- ``hvac_sizing_group_xxx_QHea_flow`` for heating load,
 - ``hvac_sizing_group_xxx_TOutHea`` for outdoor drybulb temperature at the heating design load,
 - ``hvac_sizing_group_xxx_XOutHea`` for outdoor humidity ratio at the heating design load,
 - ``hvac_sizing_group_xxx_mOutCoo_flow`` for minimum outdoor air flow rate during the cooling design load,
