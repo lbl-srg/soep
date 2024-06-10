@@ -827,7 +827,7 @@ For the case of a model with one thermal zone, the content of this file looks as
             "name": "south zones",
             "zones":
             [
-              { "name:" "southWest" },
+              { "name": "southWest" },
               { "name": "southEast" }
             ]
           }
