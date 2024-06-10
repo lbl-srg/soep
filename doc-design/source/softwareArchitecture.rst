@@ -201,9 +201,8 @@ Thus, any supply air flow rate, infiltration, interzonal air exchange or
 internal loads modeled in Modelica
 is not taken into account in the sizing calculation, and users need to add such
 contributions to the results obtained by EnergyPlus.
-Also, as is usual in Spawn coupling, any
-supply air flow rate, infiltration, or interzonal air exchange specified in the EnergyPlus
-idf file is not taken into account in the sizing calculation.
+*To be discussed:* Infiltration, interzonal air exchange and internal loads that are
+specified in the EnergyPlus idf file is taken into account in the sizing calculation.
 
 Sizing specifications
 ^^^^^^^^^^^^^^^^^^^^^
