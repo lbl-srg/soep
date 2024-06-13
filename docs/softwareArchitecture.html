@@ -428,12 +428,18 @@ specified in the EnergyPlus idf file is taken into account in the sizing calcula
 <h4><span class="section-number">5.2.2.1. </span>Sizing specifications<a class="headerlink" href="#sizing-specifications" title="Permalink to this headline">¶</a></h4>
 <p>For the zone sizing calculations, EnergyPlus uses the sizing specified in the idf file.
 Thus, idf objects such as
+<code class="docutils literal notranslate"><span class="pre">SizingPeriod:DesignDay</span></code>,
 <code class="docutils literal notranslate"><span class="pre">Sizing:Parameter</span></code>,
 <code class="docutils literal notranslate"><span class="pre">SizingPeriod:WeatherFileDays</span></code> and
 <code class="docutils literal notranslate"><span class="pre">SizingPeriod:WeatherFileConditionType</span></code> may be used.
 However, whether a sizing is performed is determined by a Modelica parameter.</p>
-<p>As EnergyPlus removes the HVAC system in the idf file, the idf object
-<code class="docutils literal notranslate"><span class="pre">DesignSpecification:ZoneHVAC:Sizing</span></code> is not taken into account, and also
+<p>Spawn removes the HVAC system in the idf file, the idf objects
+<code class="docutils literal notranslate"><span class="pre">DesignSpecification:ZoneHVAC:Sizing</span></code>,
+<code class="docutils literal notranslate"><span class="pre">DesignSpecification:OutdoorAir</span></code> (<strong>fixme: to be discussed</strong>),
+<code class="docutils literal notranslate"><span class="pre">DesignSpecification:OutdoorAir:SpaceList</span></code> (<strong>fixme: to be discussed</strong>),
+<code class="docutils literal notranslate"><span class="pre">DesignSpecification:ZoneAirDistribution</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">DesignSpecification:AirTerminal:Sizing</span></code>
+are not taken into account, and also
 any sizing specification in
 <code class="docutils literal notranslate"><span class="pre">ZoneAirHeatBalanceAlgorithm</span></code> is disregarded.</p>
 <p>EnergyPlus also has sizing specification in the idf object
@@ -647,6 +653,103 @@ Modelica will obtain their values during the initialization of the Modelica mode
 <tr class="row-even"><td><p>mSenFac</p></td>
 <td><p>Factor for scaling the sensible thermal mass of the zone air volume.</p></td>
 <td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td colspan="3"><p><em>Parameters obtained from EnergyPlus zone HVAC sizing. Note that</em> sizZon <em>is a Modelica record used to group sizing parameter</em>
+<em>If sizing is disabled, then these values are set to zero.</em>
+<em>All quantities are after applying all EnergyPlus zone and group multipliers.</em></p></td>
+</tr>
+<tr class="row-even"><td><p>sizZon.QCooSen_flow</p></td>
+<td><p>Design sensible cooling load.</p></td>
+<td><p>W</p></td>
+</tr>
+<tr class="row-odd"><td><p>sizZon.QCooLat_flow</p></td>
+<td><p>Design latent cooling load.</p></td>
+<td><p>W</p></td>
+</tr>
+<tr class="row-even"><td><p>sizZon.TOutCoo</p></td>
+<td><p>Outdoor drybulb temperature at the cooling design load.</p></td>
+<td><p>degC</p></td>
+</tr>
+<tr class="row-odd"><td><p>sizZon.XOutCoo</p></td>
+<td><p>Outdoor humidity ratio at the cooling design load per total air mass of the zone.</p></td>
+<td><p>kg/kg</p></td>
+</tr>
+<tr class="row-even"><td><p>sizZon.tCoo</p></td>
+<td><p>Time at which these loads occurred.</p></td>
+<td><p>s</p></td>
+</tr>
+<tr class="row-odd"><td><p>sizZon.QHea_flow</p></td>
+<td><p>Design heating load.</p></td>
+<td><p>W</p></td>
+</tr>
+<tr class="row-even"><td><p>sizZon.TOutHea</p></td>
+<td><p>Outdoor drybulb temperature at the heating design load.</p></td>
+<td><p>kg/kg</p></td>
+</tr>
+<tr class="row-odd"><td><p>sizZon.XOutHea</p></td>
+<td><p>Outdoor humidity ratio at the heating design load per total air mass of the zone.</p></td>
+<td><p>W</p></td>
+</tr>
+<tr class="row-even"><td><p>sizZon.mOutCoo_flow</p></td>
+<td><p>Minimum outdoor air flow rate during the cooling design load.</p></td>
+<td><p>kg/s</p></td>
+</tr>
+<tr class="row-odd"><td><p>sizZon.mOutHea_flow</p></td>
+<td><p>Minimum outdoor air flow rate during the heating design load.</p></td>
+<td><p>kg/s</p></td>
+</tr>
+<tr class="row-even"><td><p>sizZon.tHea</p></td>
+<td><p>Time at which these loads occurred.</p></td>
+<td><p>s</p></td>
+</tr>
+<tr class="row-odd"><td colspan="3"><p><em>Parameters obtained from EnergyPlus HVAC system sizing, taking into account the load diversity of thermal zones that are part of this HVAC system.</em>
+<em>Note that</em> sizSys <em>is a Modelica record used to group sizing parameter.</em>
+<em>If sizing is disabled, then these values are set to zero.</em>
+<em>All quantities are after applying all EnergyPlus zone and group multipliers.</em></p></td>
+</tr>
+<tr class="row-even"><td><p>sizSys.QCooSen_flow</p></td>
+<td><p>Design sensible cooling load.</p></td>
+<td><p>W</p></td>
+</tr>
+<tr class="row-odd"><td><p>sizSys.QCooLat_flow</p></td>
+<td><p>Design latent cooling load.</p></td>
+<td><p>W</p></td>
+</tr>
+<tr class="row-even"><td><p>sizSys.TOutCoo</p></td>
+<td><p>Outdoor drybulb temperature at the cooling design load.</p></td>
+<td><p>degC</p></td>
+</tr>
+<tr class="row-odd"><td><p>sizSys.XOutCoo</p></td>
+<td><p>Outdoor humidity ratio at the cooling design load per total air mass of the zone.</p></td>
+<td><p>kg/kg</p></td>
+</tr>
+<tr class="row-even"><td><p>sizSys.tCoo</p></td>
+<td><p>Time at which these loads occurred.</p></td>
+<td><p>s</p></td>
+</tr>
+<tr class="row-odd"><td><p>sizSys.QHea_flow</p></td>
+<td><p>Design heating load.</p></td>
+<td><p>W</p></td>
+</tr>
+<tr class="row-even"><td><p>sizSys.TOutHea</p></td>
+<td><p>Outdoor drybulb temperature at the heating design load.</p></td>
+<td><p>kg/kg</p></td>
+</tr>
+<tr class="row-odd"><td><p>sizSys.XOutHea</p></td>
+<td><p>Outdoor humidity ratio at the heating design load per total air mass of the zone.</p></td>
+<td><p>W</p></td>
+</tr>
+<tr class="row-even"><td><p>sizSys.mOutCoo_flow</p></td>
+<td><p>Minimum outdoor air flow rate during the cooling design load.</p></td>
+<td><p>kg/s</p></td>
+</tr>
+<tr class="row-odd"><td><p>sizSys.mOutHea_flow</p></td>
+<td><p>Minimum outdoor air flow rate during the heating design load.</p></td>
+<td><p>kg/s</p></td>
+</tr>
+<tr class="row-even"><td><p>sizSys.tHea</p></td>
+<td><p>Time at which these loads occurred.</p></td>
+<td><p>s</p></td>
 </tr>
 </tbody>
 </table>
