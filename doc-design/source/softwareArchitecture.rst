@@ -421,7 +421,7 @@ Modelica will obtain their values during the initialization of the Modelica mode
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
 | sizZon.QHea_flow          | Design heating load.                                                                                        |   W             |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizZon.TOutHea            | Outdoor drybulb temperature at the heating design load.                                                     |   kg/kg         |
+| sizZon.TOutHea            | Outdoor drybulb temperature at the heating design load.                                                     |   degC          |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
 | sizZon.XOutHea            | Outdoor humidity ratio at the heating design load per total air mass of the zone.                           |   W             |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
@@ -448,7 +448,7 @@ Modelica will obtain their values during the initialization of the Modelica mode
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
 | sizSys.QHea_flow          | Design heating load.                                                                                        |   W             |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizSys.TOutHea            | Outdoor drybulb temperature at the heating design load.                                                     |   kg/kg         |
+| sizSys.TOutHea            | Outdoor drybulb temperature at the heating design load.                                                     |   degC          |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
 | sizSys.XOutHea            | Outdoor humidity ratio at the heating design load per total air mass of the zone.                           |   W             |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
