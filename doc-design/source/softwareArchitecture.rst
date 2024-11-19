@@ -211,14 +211,22 @@ For the zone sizing calculations, EnergyPlus uses the sizing specified in the id
 Thus, idf objects such as
 ``SizingPeriod:DesignDay``,
 ``Sizing:Parameter``,
-``SizingPeriod:WeatherFileDays`` and
-``SizingPeriod:WeatherFileConditionType`` may be used.
+``SizingPeriod:WeatherFileDays``,
+``SizingPeriod:WeatherFileConditionType``,
+``DesignSpecification:OutdoorAir`` and
+``DesignSpecification:OutdoorAir:SpaceList``
+may be used.
 However, whether a sizing is performed is determined by a Modelica parameter.
+Note that
+``DesignSpecification:OutdoorAir`` and
+``DesignSpecification:OutdoorAir:SpaceList``
+will cause EnergyPlus to determine the required outside air flow rate. But
+because EnergyPlus when coupled to Modelica is removing any HVAC system,
+the heating or cooling load does not include the heat needed to heat or cool that outside
+air to the zone air temperature.
 
 Spawn removes the HVAC system in the idf file, the idf objects
 ``DesignSpecification:ZoneHVAC:Sizing``,
-``DesignSpecification:OutdoorAir`` (**fixme: to be discussed**),
-``DesignSpecification:OutdoorAir:SpaceList`` (**fixme: to be discussed**),
 ``DesignSpecification:ZoneAirDistribution``, and
 ``DesignSpecification:AirTerminal:Sizing``
 are not taken into account, and also
@@ -287,7 +295,9 @@ If Modelica enabled the EnergyPlus sizing calculations,
 it will receive for each Modelica ``ThermalZone`` the
 sensible cooling load,
 latent cooling load,
-and the corresponding outdoor air temperature,
+and the corresponding
+room air temperature set point,
+outdoor air temperature,
 humidity concentration, minimum outdoor air mass flow rate and the time
 when these loads occur.
 These quantities are assigned by the Spawn interface to Modelica parameters,
@@ -955,26 +965,41 @@ The length of ``hvacZones`` may be zero for the special case of
 the Modelica model having no ``ThermalZone`` specified.
 Modelica ensures that there is always a ``hvacZones`` entry.
 
-For the above example, the FMU must have parameters called
+For the above example, the FMU must have the following parameters:
 
-- ``hvac_sizing_group_xxx_QCooSen_flow`` for sensible cooling load,
-- ``hvac_sizing_group_xxx_QCooLat_flow`` for latent cooling load,
-- ``hvac_sizing_group_xxx_TOutCoo`` for outdoor drybulb temperature at the cooling design load,
-- ``hvac_sizing_group_xxx_XOutCoo`` for outdoor humidity ratio at the cooling design load,
-- ``hvac_sizing_group_xxx_tCoo`` time at which these loads occurred,
-- ``hvac_sizing_group_xxx_QHea_flow`` for heating load,
-- ``hvac_sizing_group_xxx_TOutHea`` for outdoor drybulb temperature at the heating design load,
-- ``hvac_sizing_group_xxx_XOutHea`` for outdoor humidity ratio at the heating design load,
-- ``hvac_sizing_group_xxx_mOutCoo_flow`` for minimum outdoor air flow rate during the cooling design load,
-- ``hvac_sizing_group_xxx_mOutHea_flow`` for minimum outdoor air flow rate during the heating design load, and
-- ``hvac_sizing_group_xxx_tHea`` time at which these loads occurred,
+- ``hvac_sizing_group_xxx_SizingPeriodNameCoo`` for the name of the sizing period for the cooling load.
+- ``hvac_sizing_group_xxx_QCooSen_flow`` for sensible cooling load.
+- ``hvac_sizing_group_xxx_QCooLat_flow`` for latent cooling load.
+- ``hvac_sizing_group_xxx_TRooAirCoo`` for volume-weighted room air drybulb temperature at the cooling design load.
+  Note that if all zones in the HVAC sizing group have the same room air drybulb temperature,
+  which typically is the case if they all have the same set point and the set point is achieved, then this simply is
+  the set point; otherwise weighting it by the room volume is an approximation for the average room air temperature that
+  takes the size of the zone into account.)
+- ``hvac_sizing_group_xxx_TOutCoo`` for outdoor drybulb temperature at the cooling design load.
+- ``hvac_sizing_group_xxx_XOutCoo`` for outdoor humidity ratio at the cooling design load.
+- ``hvac_sizing_group_xxx_winSpeCoo`` for wind speed at the cooling design load.
+- ``hvac_sizing_group_xxx_winDirCoo`` for wind direction at the cooling design load.
+- ``hvac_sizing_group_xxx_tCoo`` time at which these loads occurred.
+- ``hvac_sizing_group_xxx_SizingPeriodNameHea`` for the name of the sizing period for the heating load.
+- ``hvac_sizing_group_xxx_QHea_flow`` for heating load.
+- ``hvac_sizing_group_xxx_TRooAirHea`` for volume-weighted room air drybulb temperature at the heating design load.
+  (See the note above at ``hvac_sizing_group_xxx_TRooAirCoo``).
+- ``hvac_sizing_group_xxx_TOutHea`` for outdoor drybulb temperature at the heating design load.
+- ``hvac_sizing_group_xxx_XOutHea`` for outdoor humidity ratio at the heating design load.
+- ``hvac_sizing_group_xxx_winSpeHea`` for wind speed at the heating design load.
+- ``hvac_sizing_group_xxx_winDirHea`` for wind direction at the heating design load.
+- ``hvac_sizing_group_xxx_mOutCoo_flow`` for minimum outdoor air flow rate during the cooling design load.
+- ``hvac_sizing_group_xxx_mOutHea_flow`` for minimum outdoor air flow rate during the heating design load.
+- ``hvac_sizing_group_xxx_tHea`` time at which these loads occurred.
 
-where ``xxx`` is ``office_and_core_zones`` and ``south_zones``, respectively.
+In the above list, ``xxx`` is ``office_and_core_zones`` and ``south_zones``, respectively.
 The quantities ``*Coo*`` and ``*Hea*`` are at the respective time step that determines
 the sizing as specified by ``*tCoo`` and ``*tHea``.
 The exchanged parameters include outdoor mass flow rates and outdoor condition to allow for fully automatic
 system sizing through Modelica parameter expressions.
 The units are ``[W]``, ``degC``,  ``kg/kg`` water vapor mass fraction per total air mass of the zone,
+``[m/s]`` for wind speed,
+``[rad]`` for wind direction as specified in the TMY3 weather file,
 ``[s]`` since January 1 at 0:00:00, and ``kg/s``.
 All quantities are after applying all EnergyPlus zone and group multipliers.
 
