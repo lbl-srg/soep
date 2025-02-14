@@ -212,14 +212,12 @@ Thus, idf objects such as
 ``SizingPeriod:DesignDay``,
 ``Sizing:Parameter``,
 ``SizingPeriod:WeatherFileDays``,
-``SizingPeriod:WeatherFileConditionType``,
-``DesignSpecification:OutdoorAir`` and
-``DesignSpecification:OutdoorAir:SpaceList``
+``SizingPeriod:WeatherFileConditionType`` and
+``DesignSpecification:OutdoorAir``
 may be used.
 However, whether a sizing is performed is determined by a Modelica parameter.
 Note that
-``DesignSpecification:OutdoorAir`` and
-``DesignSpecification:OutdoorAir:SpaceList``
+``DesignSpecification:OutdoorAir``
 will cause EnergyPlus to determine the required outside air flow rate. But
 because EnergyPlus when coupled to Modelica is removing any HVAC system,
 the heating or cooling load does not include the heat needed to heat or cool that outside
