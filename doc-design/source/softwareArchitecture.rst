@@ -188,32 +188,35 @@ To implement the coupling, will make the following assumptions:
 Sizing calculations
 -------------------
 
-Spawn allows to invoke the EnergyPlus zone sizing calculations and to retrieve sizing data in
+Spawn allows for invoking the EnergyPlus zone and system sizing calculations to retrieve sizing data in
 Modelica for each thermal zone and for groups of thermal zones, the latter taking
 into account load diversity as needed for system sizing.
-The sizing data are sensible and latent cooling loads, heating loads, minimum
-outdoor air flow rates, corresponding outdoor conditions needed for sizing
-of central air handlers or central cooling and heating plants,
-and the times when the sizing conditions occur.
+The sizing data are sensible and latent cooling loads, heating loads, zone temperature
+and humidity set points used for sizing, minimum
+outdoor air flow rates, corresponding outdoor temperature and humidity at design loads,
+and the times when the design sizing conditions occur.
 
 During the EnergyPlus sizing calculations, no time-dependent data of Modelica is used.
 Thus, any supply air flow rate, infiltration, interzonal air exchange or
 internal loads modeled in Modelica
 is not taken into account in the sizing calculation, and users need to add such
 contributions to the results obtained by EnergyPlus.
-*To be discussed:* Infiltration, interzonal air exchange and internal loads that are
-specified in the EnergyPlus idf file is taken into account in the sizing calculation.
+In addition, infiltration and interzonal air exchange specified in the EnergyPlus idf file 
+are also not considered. However, internal loads specified in the idf file are taken 
+into account in the sizing calculation.
 
 Sizing specifications
 ^^^^^^^^^^^^^^^^^^^^^
 
-For the zone sizing calculations, EnergyPlus uses the sizing specified in the idf file.
+For the zone sizing calculations, EnergyPlus uses the sizing objects specified in the idf file.
 Thus, idf objects such as
-``SizingPeriod:DesignDay``,
+``Sizing:Zone``,
 ``Sizing:Parameter``,
-``SizingPeriod:WeatherFileDays``,
-``SizingPeriod:WeatherFileConditionType`` and
-``DesignSpecification:OutdoorAir``
+``DesignSpecification:OutdoorAir``,
+``SimulationControl``,
+``SizingPeriod:DesignDay``,
+``SizingPeriod:WeatherFileDays``, and
+``SizingPeriod:WeatherFileConditionType``
 may be used.
 However, whether a sizing is performed is determined by a Modelica parameter.
 Note that
@@ -230,10 +233,6 @@ Spawn removes the HVAC system in the idf file, the idf objects
 are not taken into account, and also
 any sizing specification in
 ``ZoneAirHeatBalanceAlgorithm`` is disregarded.
-
-EnergyPlus also has sizing specification in the idf object
-``SimulationControl``. These settings are ignored as only few of the settings
-are applicable, and those that are applicable are exposed as Modelica parameters.
 
 Zone multipliers
 ^^^^^^^^^^^^^^^^
@@ -290,27 +289,21 @@ Sizing parameters obtained by Modelica
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If Modelica enabled the EnergyPlus sizing calculations,
-it will receive for each Modelica ``ThermalZone`` the
-sensible cooling load,
-latent cooling load,
-and the corresponding
-room air temperature set point,
-outdoor air temperature,
-humidity concentration, minimum outdoor air mass flow rate and the time
-when these loads occur.
-These quantities are assigned by the Spawn interface to Modelica parameters,
+it will receive for each Modelica ``ThermalZone`` and 
+``SystemSizing`` object the
+sensible and latent cooling and heating loads,
+corresponding zone air temperature and humidity set points used for sizing,
+the outdoor air temperature and humidity at the design condition,
+minimum outdoor air mass flow rate, and the time
+when the design loads occur.
+These quantities are assigned by the Spawn interface to Modelica record parameters
+in each object,
 and these values already take into account the ``Multiplier`` of both,
 the ``Zone`` object and the ``Zone Group`` object
-in the EnergyPlus idf file.
+in the EnergyPlus idf file.  In addition, the loads in ``SystemSizing``
+also take into account load diversity of the constituent zones.
 The values can then be used in Modelica parameter expressions to assign
 component sizes.
-
-Modelica also allows ``ThermalZones`` to be grouped together through the Modelica
-``HVACZones`` object, which
-allows for sizing calculations to take into account the load diversity.
-For each group, the above quantities will be obtained, also as
-Modelica parameters.
-
 
 
 .. _sec_uni_sys:
@@ -413,58 +406,26 @@ Modelica will obtain their values during the initialization of the Modelica mode
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
 | mSenFac                   | Factor for scaling the sensible thermal mass of the zone air volume.                                        |   1             |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| *Parameters obtained from EnergyPlus zone HVAC sizing. Note that* sizZon *is a Modelica record used to group sizing parameter*                            |
+| *Parameters obtained from EnergyPlus sizing. Note that these parameters appear in the records* sizHea *and* sizCoo*.*                                     |
+| *The records *sizHea* and *sizCoo* are present in both the ThermalZone and SystemSizing objects.*                                                         |
 | *If sizing is disabled, then these values are set to zero.*                                                                                               |
 | *All quantities are after applying all EnergyPlus zone and group multipliers.*                                                                            |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizZon.QCooSen_flow       | Design sensible cooling load.                                                                               |   W             |
+| QSen_flow                 | Design sensible load.                                                                                       |   W             |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizZon.QCooLat_flow       | Design latent cooling load.                                                                                 |   W             |
+| QLat_flow                 | Design latent load.                                                                                         |   W             |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizZon.TOutCoo            | Outdoor drybulb temperature at the cooling design load.                                                     |   degC          |
+| TSet                      | Indoor temperature set point at the design load.                                                            |   degC          |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizZon.XOutCoo            | Outdoor humidity ratio at the cooling design load per total air mass of the zone.                           |   kg/kg         |
+| XSet                      | Indoor humidity ratio set point at the design load per total air mass.                                      |   kg/kg         |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizZon.tCoo               | Time at which these loads occurred.                                                                         |   s             |
+| TOut                      | Outdoor drybulb temperature at the design load.                                                             |   degC          |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizZon.QHea_flow          | Design heating load.                                                                                        |   W             |
+| XOut                      | Outdoor humidity ratio at the design load per total air mass.                                               |   kg/kg         |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizZon.TOutHea            | Outdoor drybulb temperature at the heating design load.                                                     |   degC          |
+| mOut_flow                 | Minimum outdoor air flow rate during the design load.                                                       |   kg/s          |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizZon.XOutHea            | Outdoor humidity ratio at the heating design load per total air mass of the zone.                           |   W             |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizZon.mOutCoo_flow       | Minimum outdoor air flow rate during the cooling design load.                                               |   kg/s          |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizZon.mOutHea_flow       | Minimum outdoor air flow rate during the heating design load.                                               |   kg/s          |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizZon.tHea               | Time at which these loads occurred.                                                                         |   s             |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| *Parameters obtained from EnergyPlus HVAC system sizing, taking into account the load diversity of thermal zones that are part of this HVAC system.*      |
-| *Note that* sizSys *is a Modelica record used to group sizing parameter.*                                                                                 |
-| *If sizing is disabled, then these values are set to zero.*                                                                                               |
-| *All quantities are after applying all EnergyPlus zone and group multipliers.*                                                                            |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizSys.QCooSen_flow       | Design sensible cooling load.                                                                               |   W             |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizSys.QCooLat_flow       | Design latent cooling load.                                                                                 |   W             |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizSys.TOutCoo            | Outdoor drybulb temperature at the cooling design load.                                                     |   degC          |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizSys.XOutCoo            | Outdoor humidity ratio at the cooling design load per total air mass of the zone.                           |   kg/kg         |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizSys.tCoo               | Time at which these loads occurred.                                                                         |   s             |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizSys.QHea_flow          | Design heating load.                                                                                        |   W             |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizSys.TOutHea            | Outdoor drybulb temperature at the heating design load.                                                     |   degC          |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizSys.XOutHea            | Outdoor humidity ratio at the heating design load per total air mass of the zone.                           |   W             |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizSys.mOutCoo_flow       | Minimum outdoor air flow rate during the cooling design load.                                               |   kg/s          |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizSys.mOutHea_flow       | Minimum outdoor air flow rate during the heating design load.                                               |   kg/s          |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizSys.tHea               | Time at which these loads occurred.                                                                         |   s             |
+| t                         | Time at which these loads occurred.                                                                         |   s             |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
 
 
