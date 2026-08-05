@@ -819,52 +819,102 @@ For the case of a model with one thermal zone, the content of this file looks as
 
 .. code-block:: json
 
-   {
-    "version": "1.0",
-    "EnergyPlus": {
-      "idf": "/tmp/tmp-spawn/jm_tmpPVJfHP/resources/0/RefBldgSmallOfficeNew2004_Chicago.idf",
-      "idd": "/tmp/tmp-spawn/jm_tmpPVJfHP/resources/2/Energy+.idd",
-      "weather": "/tmp/tmp-spawn/jm_tmpPVJfHP/resources/1/USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.epw",
-      "autosize": true,
-      "runSimulationForSizingPeriods": true
-    },
-    "fmu": {
-        "name": "/mnt/shared/modelica-buildings/tmp-eplus-fmuName/fmuName.fmu",
-        "version": "2.0",
-        "kind"   : "ME"
-    },
-    "model": {
+    {
+      "version": "0.2",
+      "EnergyPlus": {
+        "idf": "buildings/modelica-buildings/Buildings/Resources/Data/ThermalZones/EnergyPlus_24_2_0/Examples/RefBldgSmallOffice/RefBldgSmallOfficeNew2004_Chicago.idf",
+        "weather": "buildings/modelica-buildings/Buildings/Resources/weatherdata/USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.epw",
+        "relativeSurfaceTolerance": 1.00e-06
+      },
+      "RunPeriod": {
+        "start_day_of_year": "Sunday",
+        "apply_weekend_holiday_rule": "No",
+        "use_weather_file_daylight_saving_period": "No",
+        "use_weather_file_holidays_and_special_days": "No",
+        "use_weather_file_rain_indicators": "Yes",
+        "use_weather_file_snow_indicators": "Yes"
+      },
+      "model": {
         "zones": [
-            { "name": "office" }
-        ],
-        "hvacZones":[
           {
-            "name": "office_and_core_zones",
-            "zones":
-            [
-              { "name": "office" },
-              { "name": "core" }
-            ]
+            "name": "Core_ZN"
           },
           {
-            "name": "south zones",
-            "zones":
-            [
-              { "name": "southWest" },
-              { "name": "southEast" }
-            ]
+            "name": "Attic"
+          },
+          {
+            "name": "Perimeter_ZN_2"
+          },
+          {
+            "name": "Perimeter_ZN_3"
+          },
+          {
+            "name": "Perimeter_ZN_1"
+          },
+          {
+            "name": "Perimeter_ZN_4"
+          }
+        ],
+        "hvacZones": [
+          {
+            "name": "core",
+              "zones": [
+                {
+                "name": "Core_ZN"
+                }
+              ]
+          },
+          {
+            "name": "none",
+              "zones": [
+                {
+                "name": "Attic"
+                }
+              ]
+          },
+          {
+            "name": "perimeter",
+              "zones": [
+                {
+                "name": "Perimeter_ZN_2"
+                },
+                {
+                "name": "Perimeter_ZN_3"
+                },
+                {
+                "name": "Perimeter_ZN_1"
+                },
+                {
+                "name": "Perimeter_ZN_4"
+                }
+              ]
+          }
+        ],
+        "hvacSystems": [
+          {
+            "name": "core",
+            "autosize": "false"
+          },
+          {
+            "name": "perimeter",
+            "autosize": "true"
           }
         ]
+      },
+      "fmu": {
+          "name": "buildings/modelica-buildings/spawn-IdealHeatingCoolingWinter_Autosizing.flo/EnergyPlus.fmu",
+          "version": "2.0",
+          "kind": "ME"
       }
     }
+
 
 Using this information, EnergyPlus creates the FMU with name
 ``/mnt/shared/modelica-buildings/tmp-eplus-fmuName/fmuName.fmu``.
 
-Depending on the boolean entry ``autosize``, EnergyPlus will conduct an autosizing calculation.
-If ``autosize: true``, then ``runSimulationForSizingPeriods`` determines whether
-the simulation will be run on all the included ``SizingPeriod`` objects in the idf file
-(i.e., ``SizingPeriod:DesignDay``, ``SizingPeriod:WeatherFileDays``, and ``SizingPeriod:WeatherFileConditionType``).
+Depending on the boolean entries of ``autosize``, EnergyPlus will conduct an autosizing calculation.
+If ``autosize: true`` for a particular system, then autosizing will be conducted for that
+system and the zones it contains.
 
 We will now describe how to the exchanged variables are configured.
 
@@ -872,18 +922,18 @@ Envelope model
 """"""""""""""
 
 To configure the variables to be exchanged for the envelope model described in :numref:`sec_cou_env`,
-the following data structures will be used for a building with a zone called ``basement`` and a zone called ``office``.
+the following data structures will be used for a building with a zone called ``Core_ZN`` and a zone called ``Attic``.
 
 .. code-block:: c
 
    "zones": [
-      { "name": "basement" },
-      { "name": "office" }
+      { "name": "Core_ZN" },
+      { "name": "Attic" }
    ]
 
-In this case, the FMU must have parameters called ``basement_V``, ``office_V``, ``basement_AFlo`` etc.
-inputs called ``basement_T`` and ``office_T`` and outputs called
-``basement_QConSen_flow`` and ``office_QConSen_flow``.
+In this case, the FMU must have parameters called ``Core_ZN_V``, ``Attic_V``, ``Core_ZN_AFlo`` etc.
+inputs called ``Core_ZN_T`` and ``Attic_T`` and outputs called
+``Core_ZN_QConSen_flow`` and ``Attic_QConSen_flow``.
 
 HVAC zones used for auto-sizing
 """""""""""""""""""""""""""""""
@@ -894,73 +944,95 @@ The entry ``hvacZones`` is used to group thermal zones for autosizing. Its synta
 
     "hvacZones":[
       {
-        "name": "office_and_core_zones",
-        "zones":
-        [
-          { "name": "office" },
-          { "name": "core" }
-        ]
+        "name": "core",
+          "zones": [
+            {
+            "name": "Core_ZN"
+            }
+          ]
       },
       {
-        "name": "south_zones",
-        "zones":
-        [
-          { "name": "southWest" },
-          { "name": "southEast" }
-        ]
+        "name": "perimeter",
+          "zones": [
+            {
+            "name": "Perimeter_ZN_2"
+            },
+            {
+            "name": "Perimeter_ZN_3"
+            },
+            {
+            "name": "Perimeter_ZN_1"
+            },
+            {
+            "name": "Perimeter_ZN_4"
+            }
+          ]
       }
     ]
-
 
 
 The length of ``hvacZones`` may be zero for the special case of
 the Modelica model having no ``ThermalZone`` specified.
 Modelica ensures that there is always a ``hvacZones`` entry.
+If a ``ThermalZone`` is not assigned to a ``SystemSizing`` object,
+it is added an ``hvacZones`` group with name ``none`` by default,
+and for which autosizing is not performed.
 
 For the above example, the FMU must have the following parameters:
 
-- ``hvac_sizing_group_xxx_SizingPeriodNameCoo`` for the name of the sizing period for the cooling load.
-- ``hvac_sizing_group_xxx_QCooSen_flow`` for sensible cooling load.
-- ``hvac_sizing_group_xxx_QCooLat_flow`` for latent cooling load.
-- ``hvac_sizing_group_xxx_TRooAirCoo`` for volume-weighted room air drybulb temperature at the cooling design load.
-  Note that if all zones in the HVAC sizing group have the same room air drybulb temperature,
-  which typically is the case if they all have the same set point and the set point is achieved, then this simply is
-  the set point; otherwise weighting it by the room volume is an approximation for the average room air temperature that
-  takes the size of the zone into account.)
+- ``hvac_sizing_group_xxx_QCooSen_flow`` for sensible design cooling load.
+- ``hvac_sizing_group_xxx_QCooLat_flow`` for latent design cooling load.
 - ``hvac_sizing_group_xxx_TOutCoo`` for outdoor drybulb temperature at the cooling design load.
 - ``hvac_sizing_group_xxx_XOutCoo`` for outdoor humidity ratio at the cooling design load.
-- ``hvac_sizing_group_xxx_winSpeCoo`` for wind speed at the cooling design load.
-- ``hvac_sizing_group_xxx_winDirCoo`` for wind direction at the cooling design load.
+- ``hvac_sizing_group_xxx_mOutCoo_flow`` for minimum outdoor air flow rate during the cooling design load.
 - ``hvac_sizing_group_xxx_tCoo`` time at which these loads occurred.
-- ``hvac_sizing_group_xxx_SizingPeriodNameHea`` for the name of the sizing period for the heating load.
-- ``hvac_sizing_group_xxx_QHea_flow`` for heating load.
-- ``hvac_sizing_group_xxx_TRooAirHea`` for volume-weighted room air drybulb temperature at the heating design load.
-  (See the note above at ``hvac_sizing_group_xxx_TRooAirCoo``).
+- ``hvac_sizing_group_xxx_QHea_flow`` for heating design load.
 - ``hvac_sizing_group_xxx_TOutHea`` for outdoor drybulb temperature at the heating design load.
 - ``hvac_sizing_group_xxx_XOutHea`` for outdoor humidity ratio at the heating design load.
-- ``hvac_sizing_group_xxx_winSpeHea`` for wind speed at the heating design load.
-- ``hvac_sizing_group_xxx_winDirHea`` for wind direction at the heating design load.
-- ``hvac_sizing_group_xxx_mOutCoo_flow`` for minimum outdoor air flow rate during the cooling design load.
 - ``hvac_sizing_group_xxx_mOutHea_flow`` for minimum outdoor air flow rate during the heating design load.
 - ``hvac_sizing_group_xxx_tHea`` time at which these loads occurred.
 
-In the above list, ``xxx`` is ``office_and_core_zones`` and ``south_zones``, respectively.
+In the above list and example, ``xxx`` is ``core`` and ``perimeter``, respectively.
 The quantities ``*Coo*`` and ``*Hea*`` are at the respective time step that determines
 the sizing as specified by ``*tCoo`` and ``*tHea``.
 The exchanged parameters include outdoor mass flow rates and outdoor condition to allow for fully automatic
 system sizing through Modelica parameter expressions.
 The units are ``[W]``, ``degC``,  ``kg/kg`` water vapor mass fraction per total air mass of the zone,
-``[m/s]`` for wind speed,
-``[rad]`` for wind direction as specified in the TMY3 weather file,
 ``[s]`` since January 1 at 0:00:00, and ``kg/s``.
 All quantities are after applying all EnergyPlus zone and group multipliers.
 
-
 Similarly, for each thermal zone, there will be parameters in the FMU as above,
-but with ``group`` replaced by ``zone`` and the zone name inserted, such as in
-``hvac_sizing_zone_office_QCooSen_flow``.
+but with ``hvac_sizing_group`` replaced by the zone name, such as in
+``Core_ZN_QCooSen_flow``.  Furthermore, there will be the following additional zone level sizing parameters:
 
-If ``autosizing: false``, then these values must not be in the ``modelDescription.xml`` file.
+- ``xxx_TSetCoo`` for zone temperature set point at cooling design load.
+- ``xxx_TSetHea`` for zone temperature set point at heating design load.
+- ``xxx_XSetCoo`` for zone humidity ratio set point at cooling design load.
+- ``xxx_XSetHea`` for zone humidity ratio set point at heating design load.
+
+In the above list and example, ``xxx`` would be ``Core_ZN``.
+The units are ``degC`` and  ``kg/kg`` water vapor mass fraction per total air mass of the zone.
+
+The entry ``hvacSystems`` is used to toggle autosizing for each group of zones defined in ``hvacZones``. 
+Its syntax is as follows:
+
+.. code-block:: c
+
+    "hvacSystems": [
+      {
+        "name": "core",
+        "autosize": "false"
+      },
+      {
+        "name": "perimeter",
+        "autosize": "true"
+      }
+    ]
+
+
+Note that if ``autosizing: false`` for a group, and for the ``hvacZones`` group named ``none``, 
+then the FMU sizing parameters defined before are still present, but will
+be set equal to zero in Modelica.
 
 
 
