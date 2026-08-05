@@ -189,12 +189,10 @@ Sizing calculations
 -------------------
 
 Spawn allows for invoking the EnergyPlus zone and system sizing calculations to retrieve sizing data in
-Modelica for each thermal zone and for groups of thermal zones, the latter taking
-into account load diversity as needed for system sizing.
-The sizing data are sensible and latent cooling loads, heating loads, zone temperature
-and humidity set points used for sizing, minimum
-outdoor air flow rates, corresponding outdoor temperature and humidity at design loads,
-and the times when the design sizing conditions occur.
+Modelica in the form of parameters for each thermal zone, defined by a ``ThermalZone`` object, 
+and for groups of thermal zones collected into systems, defined by a ``SystemSizing`` object.
+The sizing parameter values can then be used in Modelica parameter expressions to assign
+HVAC or other component parameter values.
 
 During the EnergyPlus sizing calculations, no time-dependent data of Modelica is used.
 Thus, any supply air flow rate, infiltration, interzonal air exchange or
@@ -205,10 +203,10 @@ In addition, infiltration and interzonal air exchange specified in the EnergyPlu
 are also not considered. However, internal loads specified in the idf file are taken 
 into account in the sizing calculation.
 
-Sizing specifications
+Sizing configuration
 ^^^^^^^^^^^^^^^^^^^^^
 
-For the zone sizing calculations, EnergyPlus uses the sizing objects specified in the idf file.
+For configuring zone sizing calculations, EnergyPlus uses the sizing objects specified in the idf file.
 Thus, idf objects such as
 ``Sizing:Zone``,
 ``Sizing:Parameter``,
@@ -246,12 +244,11 @@ authoring of the EnergyPlus envelope geometry, including adding multipliers for 
 in dedicated EnergyPlus envelope authoring tools such as OpenStudio.
 Spawn handles multipliers as follows:
 
-If idf file contains in the ``Zone`` object the entry ``Multiplier``,
-then EnergyPlus multiplies the zone volume, zone floor area and internal and external loads.
+If the idf file contains the ``Zone:Multiplier`` field, then EnergyPlus multiplies the zone 
+volume, zone floor area and internal and external loads by the field's value.
 EnergyPlus also takes the multiplier into account in the heat flow rates that are exchanged
 between Modelica and EnergyPlus.
-Hence, this allows through a specification in the idf file to multiply the size
-of thermal zones.
+Hence, this allows for multiplying the size of thermal zones through a specification in the idf file.
 Modelica will then use these multiplied values in its simulation.
 For example, suppose an idf file specifies a zone that
 has a volume of :math:`V=100 \, \mathrm{m^3}`,
@@ -261,34 +258,31 @@ Then, Modelica will obtain a zone volume of :math:`V=200 \, \mathrm{m^3}`,
 and users need to ensure that the design air mass flow rate
 in Modelica is :math:`\dot m_0 = 2.0 \, \mathrm{kg/s}`.
 
-EnergyPlus allows a zone to be added to a ``ZoneList``, and a ``ZoneList`` to
-be added to a ``Zone Group``.
-For example, a ``ZoneList`` allows all zones
-on a floor to be listed, and a ``Zone Group`` allows all zones to be multiplied
-such as to model a high-rise building.
-EnergyPlus takes the ``Zone Group`` into account.
-Thus, if the zone in the above example has a multiplier of :math:`2`,
-and it is added to an EnergyPlus ``Zone Group``
-which has a multiplier of :math:`3`, then EnergyPlus will send its
-surface, volume and load after multiplying it by a factor of :math:`6`.
-Therefore, users need to ensure that the design air mass flow rate
-in Modelica is :math:`\dot m_0 = 6.0 \, \mathrm{kg/s}`.
+EnergyPlus also allows multiple zones to be added to a ``ZoneList``, 
+where the ``ZoneList`` can be used elsewhere to apply objects to many zones at once.
+The ``ZoneGroup`` allows for applying a multiplier to a whole ``ZoneList``, multiplying the
+volumes, areas, and loads of each zone in the list.
+Hence, for example to model a high-rise building with repetative middle floors, 
+a ``ZoneList`` allows all zones
+on a floor to be listed together, and a ``ZoneGroup`` allows for applying a multiplier
+to all zones in the ``ZoneList``.
+EnergyPlus takes this multiplier into account in the heat flow rates that are exchanged
+between Modelica and EnergyPlus.
 
-In Modelica, thermal zones may be grouped to HVAC systems.
-As the HVAC system in the idf file is removed, Modelica has its own object to
-group thermal zones to an HVAC system for the purpose of taking into account
-the load diversity for system sizing. The corresponding Modelica class is
-called ``HVACZones``.
-Note that the Modelica ``HVACZones`` model has no entry for zone or group multipliers,
-as the values from the idf file are applied during the system sizing
-as described in the above two paragraphs.
-
+Given use of all of ``Zone:Multiplier``, ``ZoneList``, and ``ZoneGroup``,
+if a zone has a ``Zone:Multiplier`` of :math:`2`,
+and it is added to a ``ZoneList`` that is multiplied by a ``ZoneGroup``
+which has a multiplier of :math:`3`, then EnergyPlus will send the zone's
+surface, volume and load to Modelica after multiplying it by a factor of :math:`6`.
+Therefore, given the design air mass flow rate of the single zone is :math:`\dot m_0 = 1.0 \, \mathrm{kg/s}`,
+given the multipliers, users need to ensure that the design air mass flow rate
+in Modelica is actually :math:`\dot m_0 = 6.0 \, \mathrm{kg/s}`.
 
 
 Sizing parameters obtained by Modelica
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If Modelica enabled the EnergyPlus sizing calculations,
+If Modelica enables the EnergyPlus sizing calculations,
 it will receive for each Modelica ``ThermalZone`` and 
 ``SystemSizing`` object the
 sensible and latent cooling and heating loads,
@@ -298,12 +292,11 @@ minimum outdoor air mass flow rate, and the time
 when the design loads occur.
 These quantities are assigned by the Spawn interface to Modelica record parameters
 in each object,
-and these values already take into account the ``Multiplier`` of both,
-the ``Zone`` object and the ``Zone Group`` object
-in the EnergyPlus idf file.  In addition, the loads in ``SystemSizing``
+and these values already take into account the ``Multiplier`` field of both
+the ``Zone`` and ``ZoneGroup`` objects
+in the EnergyPlus idf file as described in the previous section.  
+In addition, the loads in ``SystemSizing``
 also take into account load diversity of the constituent zones.
-The values can then be used in Modelica parameter expressions to assign
-component sizes.
 
 
 .. _sec_uni_sys:
