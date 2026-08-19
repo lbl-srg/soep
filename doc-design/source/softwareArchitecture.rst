@@ -244,7 +244,12 @@ Each zone to be sized must be referenced by a ``Sizing:Zone`` object. A
 ``Sizing:Zone`` object may reference a zone directly or reference a ``ZoneList``;
 Spawn resolves these references without regard to letter case. If autosizing is
 requested but the idf file has no ``Sizing:Zone`` objects, Spawn issues a warning and
-the sizing parameters retain their default values.
+no EnergyPlus zone sizing results are available. Spawn still creates the FMU sizing
+parameters. It sets every zone-level calculated sizing parameter to zero. At the
+``SystemSizing`` level, it sets the load, humidity-ratio, mass-flow, and time parameters
+to zero and the cooling and heating outdoor drybulb temperature parameters to
+:math:`21\,\mathrm{degC}`. These hard-coded placeholder values are supplied by Spawn
+and must not be used for equipment sizing.
 
 When autosizing is enabled, Spawn replaces the EnergyPlus zone equipment with an
 ideal-loads system for each zone referenced by ``Sizing:Zone``. Spawn uses existing
@@ -383,9 +388,6 @@ Coupling of the envelope model
 
 To couple the Modelica room model to the EnergyPlus envelope model, EnergyPlus exposes the following parameters.
 Modelica will obtain their values during the initialization of the Modelica model.
-The units in the following tables are the FMU and Modelica-side units after Spawn
-applies the conversions specified in :numref:`tab_uni_spe`. All temperatures listed
-here are absolute temperatures and therefore use ``K`` rather than ``degC``.
 
 
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
@@ -399,13 +401,13 @@ here are absolute temperatures and therefore use ``K`` rather than ``degC``.
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
 | *Parameters obtained from EnergyPlus sizing. These parameters appear in the records* sizHea *and* sizCoo*.*                                               |
 | *The records* sizHea *and* sizCoo *are present in both the ThermalZone and SystemSizing objects.*                                                         |
-| *If sizing is disabled, the sizing values are defaults and must not be used for equipment selection.*                                                     |
+| *If sizing is disabled, Spawn supplies placeholder values that must not be used for equipment selection.*                                                 |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
 | QSen_flow                 | Design sensible load.                                                                                       |   W             |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
 | QLat_flow                 | Design latent cooling load at the sensible cooling peak. This value is zero in the heating sizing record.   |   W             |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| TOut                      | Outdoor drybulb temperature at the design load.                                                             |   K             |
+| TOut                      | Outdoor drybulb temperature at the design load.                                                             |   degC          |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
 | XOut                      | Outdoor humidity ratio at the design load per total air mass.                                               |   kg/kg         |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
@@ -423,13 +425,13 @@ for each thermal zone.
 +===========================+=============================================================================================================+=================+
 | *From Modelica to EnergyPlus*                                                                                                                             |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| T                         | Temperature of the zone air.                                                                                |   K             |
+| T                         | Temperature of the zone air.                                                                                |   degC          |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
 | X                         | Water vapor mass fraction per total air mass of the zone.                                                   |   kg/kg         |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
 | mInlets_flow              | Sum of positive mass flow rates into the zone for all air inlets (including infiltration).                  |   kg/s          |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| TInlet                    | Average of inlets medium temperatures carried by the mass flow rates.                                       |   K             |
+| TInlet                    | Average of inlets medium temperatures carried by the mass flow rates.                                       |   degC          |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
 | QGaiRad_flow              | Radiative sensible heat gain added to the zone.                                                             |   W             |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
@@ -439,11 +441,11 @@ for each thermal zone.
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
 | *From EnergyPlus to Modelica*                                                                                                                             |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| TRad                      | Average radiative temperature in the room.                                                                  |   K             |
+| TRad                      | Average radiative temperature in the room.                                                                  |   degC          |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| TSetCoo                   | Zone thermostat cooling set point.                                                                          |   K             |
+| TSetCoo                   | Zone thermostat cooling set point.                                                                          |   degC          |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| TSetHea                   | Zone thermostat heating set point.                                                                          |   K             |
+| TSetHea                   | Zone thermostat heating set point.                                                                          |   degC          |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
 | XSetCoo                   | Zone humidistat dehumidifying set point as a humidity ratio.                                                |   kg/kg         |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
@@ -915,8 +917,8 @@ Using this information, Spawn creates the FMU with the name specified by ``fmu.n
 The ``autosize`` entry is a JSON string whose value is ``"true"`` or ``"false"``.
 If any HVAC system has ``"autosize": "true"``, Spawn invokes the EnergyPlus zone
 sizing calculation. Spawn uses the results for each system whose value is ``"true"``
-and for the zones assigned to that system. Systems whose value is ``"false"`` retain
-default sizing values.
+and for the zones assigned to that system. Systems whose value is ``"false"`` receive
+the Spawn-supplied placeholder values described below.
 
 We will now describe how to the exchanged variables are configured.
 
@@ -1003,10 +1005,11 @@ peak represented by ``tHea``.
 
 If a zone in a system has no sizing information, Spawn omits that zone from the group
 aggregation and issues a warning. If none of the zones in the system have sizing
-information, the group sizing parameters retain their default values.
+information, the group sizing parameters use the Spawn-supplied placeholder values
+described below.
 The exchanged parameters include outdoor mass flow rates and outdoor condition to allow for fully automatic
 system sizing through Modelica parameter expressions.
-The units are ``W``, ``K``, ``kg/kg`` water vapor mass fraction per total air mass of the zone,
+The units are ``W``, ``degC``, ``kg/kg`` water vapor mass fraction per total air mass of the zone,
 ``s`` from the start of the sizing day, and ``kg/s``.
 
 Similarly, for each thermal zone, there will be parameters in the FMU as above,
@@ -1020,7 +1023,7 @@ FMU outputs:
 - ``xxx_XSetHea`` for the zone humidistat humidifying set point as a humidity ratio.
 
 In the above list and example, ``xxx`` would be ``Core_ZN``.
-The units are ``K`` and ``kg/kg`` water vapor mass fraction per total air mass of the zone.
+The units are ``degC`` and ``kg/kg`` water vapor mass fraction per total air mass of the zone.
 
 The entry ``hvacSystems`` is used to toggle autosizing for each group of zones defined in
 ``hvacZones``. The ``name`` of each ``hvacSystems`` entry must match the ``name`` of its
@@ -1041,8 +1044,9 @@ corresponding ``hvacZones`` entry. Its syntax is as follows:
 
 
 If ``autosize`` is ``"false"`` for a group, or if no corresponding ``hvacSystems`` entry
-exists, the FMU sizing parameters remain present but contain default values. Load,
-humidity-ratio, mass-flow, and time defaults are zero. Temperature defaults are
+exists, the FMU sizing parameters remain present. Spawn sets load, humidity-ratio,
+mass-flow, and time parameters to zero, and sets the cooling and heating outdoor
+drybulb temperature parameters to :math:`21\,\mathrm{degC}`. These are hard-coded Spawn
 placeholders and must not be used for sizing. The same applies to the ``hvacZones``
 group named ``none``.
 
