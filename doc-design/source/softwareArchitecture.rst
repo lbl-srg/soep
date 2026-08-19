@@ -281,11 +281,12 @@ For each connected zone, Spawn also exposes the zone temperature and humidity se
 points. These set points are continuous FMU outputs rather than calculated parameters,
 and no corresponding group-level setpoint variables are provided.
 
-For a ``SystemSizing`` object, Spawn determines sensible cooling, latent cooling, and
-heating peaks independently. Each peak is the largest coincident sum of its respective
-zone load sequences. Consequently, the latent cooling peak may occur at a different
-time than the sensible cooling peak. The group-level cooling outdoor conditions and
-``tCoo`` correspond to the sensible cooling peak.
+For both ``ThermalZone`` and ``SystemSizing`` objects, Spawn reports the latent cooling
+load at the sensible cooling peak. For a ``SystemSizing`` object, Spawn finds the largest
+coincident sum of the constituent zones' sensible cooling load sequences and then sums
+the zones' latent cooling loads at that same sizing day and time step. At the group level,
+the sensible and latent cooling loads, the cooling outdoor conditions, and ``tCoo`` all
+describe this sensible peak condition. The heating peak is determined independently.
 
 The latent cooling output is zero unless latent load sizing is enabled by the
 ``Zone Load Sizing Method`` field of ``Sizing:Zone``. Spawn applies the applicable
@@ -402,7 +403,7 @@ here are absolute temperatures and therefore use ``K`` rather than ``degC``.
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
 | QSen_flow                 | Design sensible load.                                                                                       |   W             |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| QLat_flow                 | Design latent cooling load. This value is zero in the heating sizing record.                                |   W             |
+| QLat_flow                 | Design latent cooling load at the sensible cooling peak. This value is zero in the heating sizing record.   |   W             |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
 | TOut                      | Outdoor drybulb temperature at the design load.                                                             |   K             |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
@@ -983,7 +984,7 @@ and for which autosizing is not performed.
 For the above example, the FMU must have the following parameters:
 
 - ``hvac_sizing_group_xxx_QCooSen_flow`` for peak coincident sensible design cooling load.
-- ``hvac_sizing_group_xxx_QCooLat_flow`` for peak coincident latent design cooling load.
+- ``hvac_sizing_group_xxx_QCooLat_flow`` for coincident latent design cooling load at the sensible cooling peak.
 - ``hvac_sizing_group_xxx_TOutCoo`` for outdoor drybulb temperature at the sensible cooling peak.
 - ``hvac_sizing_group_xxx_XOutCoo`` for outdoor humidity ratio at the sensible cooling peak.
 - ``hvac_sizing_group_xxx_mOutCoo_flow`` for minimum outdoor air flow rate during the cooling design load.
@@ -995,10 +996,10 @@ For the above example, the FMU must have the following parameters:
 - ``hvac_sizing_group_xxx_tHea`` for the time within the sizing day at the heating peak.
 
 In the above list and example, ``xxx`` is ``core`` and ``perimeter``, respectively.
-The sensible and latent cooling loads are each evaluated at their own peak. Therefore,
-``QCooLat_flow`` need not occur at ``tCoo``. The other ``*Coo*`` condition variables
-correspond to the sensible peak represented by ``tCoo``. The ``*Hea*`` condition
-variables correspond to the heating peak represented by ``tHea``.
+The sensible cooling load determines the cooling design condition. The latent cooling
+load and the other ``*Coo*`` condition variables are evaluated at the sensible peak
+represented by ``tCoo``. The ``*Hea*`` condition variables correspond to the heating
+peak represented by ``tHea``.
 
 If a zone in a system has no sizing information, Spawn omits that zone from the group
 aggregation and issues a warning. If none of the zones in the system have sizing
