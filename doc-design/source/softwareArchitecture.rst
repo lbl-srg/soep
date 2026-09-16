@@ -283,8 +283,11 @@ and ``SystemSizing`` object receives the sensible and latent cooling loads, sens
 heating load, outdoor air temperature and humidity at the design condition, minimum
 outdoor air mass flow rate, and time within the sizing day when the design load occurs.
 For each connected zone, Spawn also exposes the zone temperature and humidity set
-points. These set points are continuous FMU outputs rather than calculated parameters,
-and no corresponding group-level setpoint variables are provided.
+points at the corresponding design load as fixed, calculated FMU parameters. Cooling
+set points correspond to the sensible cooling peak; heating set points correspond to
+the heating peak. Their values are obtained during initialization and do not change
+with the annual simulation start date or subsequent operating schedules. No
+corresponding group-level setpoint variables are provided.
 
 For both ``ThermalZone`` and ``SystemSizing`` objects, Spawn reports the latent cooling
 load at the sensible cooling peak. For a ``SystemSizing`` object, Spawn finds the largest
@@ -407,6 +410,10 @@ Modelica will obtain their values during the initialization of the Modelica mode
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
 | QLat_flow                 | Design latent cooling load at the sensible cooling peak. This value is zero in the heating sizing record.   |   W             |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| TSet                      | Indoor temperature set point at the design load (ThermalZone only).                                         |   degC          |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
+| XSet                      | Indoor water vapor mass fraction per total air mass at the design load (ThermalZone only).                  |   kg/kg         |
++---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
 | TOut                      | Outdoor drybulb temperature at the design load.                                                             |   degC          |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
 | XOut                      | Outdoor humidity ratio at the design load per total air mass.                                               |   kg/kg         |
@@ -442,14 +449,6 @@ for each thermal zone.
 | *From EnergyPlus to Modelica*                                                                                                                             |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
 | TRad                      | Average radiative temperature in the room.                                                                  |   degC          |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| TSetCoo                   | Zone thermostat cooling set point.                                                                          |   degC          |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| TSetHea                   | Zone thermostat heating set point.                                                                          |   degC          |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| XSetCoo                   | Zone humidistat dehumidifying set point as a humidity ratio.                                                |   kg/kg         |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| XSetHea                   | Zone humidistat humidifying set point as a humidity ratio.                                                  |   kg/kg         |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
 | QConSen_flow              | Convective sensible heat added to the zone, e.g., from surface convection and from                          |   W             |
 |                           | the EnergyPlus' ``People`` or ``Equipment`` schedule.                                                       |                 |
@@ -1014,13 +1013,13 @@ The units are ``W``, ``degC``, ``kg/kg`` water vapor mass fraction per total air
 
 Similarly, for each thermal zone, there will be parameters in the FMU as above,
 but with ``hvac_sizing_group`` replaced by the zone name, such as in
-``Core_ZN_QCooSen_flow``. Furthermore, Spawn exposes the following continuous zone-level
-FMU outputs:
+``Core_ZN_QCooSen_flow``. Furthermore, Spawn exposes the following additional fixed,
+calculated zone-level sizing parameters:
 
-- ``xxx_TSetCoo`` for the zone thermostat cooling set point.
-- ``xxx_TSetHea`` for the zone thermostat heating set point.
-- ``xxx_XSetCoo`` for the zone humidistat dehumidifying set point as a humidity ratio.
-- ``xxx_XSetHea`` for the zone humidistat humidifying set point as a humidity ratio.
+- ``xxx_TSetCoo`` for the zone temperature set point at the sensible cooling design peak.
+- ``xxx_TSetHea`` for the zone temperature set point at the heating design peak.
+- ``xxx_XSetCoo`` for the zone dehumidifying set point at the sensible cooling design peak.
+- ``xxx_XSetHea`` for the zone humidifying set point at the heating design peak.
 
 In the above list and example, ``xxx`` would be ``Core_ZN``.
 The units are ``degC`` and ``kg/kg`` water vapor mass fraction per total air mass of the zone.
