@@ -200,13 +200,16 @@ HVAC or other component parameter values.
 During the EnergyPlus sizing calculations, no time-dependent data of Modelica is used.
 Thus, any supply air flow rate, infiltration, interzonal air exchange or
 internal loads modeled in Modelica
-are not taken into account in the sizing calculation, and users need to add such
-contributions to the results obtained by EnergyPlus.
+are not taken into account in the sizing calculation.
+Internal loads specified in the idf file are taken into account in the sizing calculation.
 Spawn removes interzonal air exchange objects from the idf file. It also removes
 infiltration objects for zones that are connected to Modelica and inserts zero-flow
 infiltration objects for these zones. Infiltration objects for zones that are used only
 for system sizing and are not connected to Modelica remain in the idf file.
-Internal loads specified in the idf file are taken into account in the sizing calculation.
+Users can still consider infiltration in the sizing by specifying the parameter ``airChaRatInf`` in the
+``ThermZone`` object, which assumes a constant mass flow rate of infiltration at the design
+indoor and outdoor conditions and adds the resulting sensible and latent loads to those 
+produced by EnergyPlus for zones and systems after the sizing run.
 
 Sizing configuration
 ^^^^^^^^^^^^^^^^^^^^^
