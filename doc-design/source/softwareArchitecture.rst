@@ -188,32 +188,39 @@ To implement the coupling, will make the following assumptions:
 Sizing calculations
 -------------------
 
-Spawn allows to invoke the EnergyPlus zone sizing calculations and to retrieve sizing data in
-Modelica for each thermal zone and for groups of thermal zones, the latter taking
-into account load diversity as needed for system sizing.
-The sizing data are sensible and latent cooling loads, heating loads, minimum
-outdoor air flow rates, corresponding outdoor conditions needed for sizing
-of central air handlers or central cooling and heating plants,
-and the times when the sizing conditions occur.
+Spawn allows for invoking the EnergyPlus zone sizing calculations to retrieve sizing data in
+Modelica in the form of parameters for each thermal zone, defined by a ``ThermalZone`` object,
+and for groups of thermal zones collected into systems, defined by a ``SystemSizing`` object.
+Spawn computes the system-level values from the EnergyPlus zone sizing sequences by summing
+the loads of the constituent zones at each time step and selecting the coincident peak.
+EnergyPlus system and plant sizing calculations are not invoked.
+The sizing parameter values can then be used in Modelica parameter expressions to assign
+HVAC or other component parameter values.
 
 During the EnergyPlus sizing calculations, no time-dependent data of Modelica is used.
 Thus, any supply air flow rate, infiltration, interzonal air exchange or
 internal loads modeled in Modelica
-is not taken into account in the sizing calculation, and users need to add such
-contributions to the results obtained by EnergyPlus.
-*To be discussed:* Infiltration, interzonal air exchange and internal loads that are
-specified in the EnergyPlus idf file is taken into account in the sizing calculation.
+are not taken into account in the sizing calculation.
+Internal loads specified in the idf file are taken into account in the sizing calculation.
+Spawn removes interzonal air exchange objects from the idf file. It also removes
+infiltration objects for zones that are connected to Modelica and inserts zero-flow
+infiltration objects for these zones. Infiltration objects for zones that are used only
+for system sizing and are not connected to Modelica remain in the idf file.
+Users can still consider infiltration in the sizing by specifying the parameter ``airChaRatInf`` in the
+``ThermZone`` object, which assumes a constant mass flow rate of infiltration at the design
+indoor and outdoor conditions and adds the resulting sensible and latent loads to those 
+produced by EnergyPlus for zones and systems after the sizing run.
 
-Sizing specifications
+Sizing configuration
 ^^^^^^^^^^^^^^^^^^^^^
 
-For the zone sizing calculations, EnergyPlus uses the sizing specified in the idf file.
+For configuring zone sizing calculations, EnergyPlus uses the sizing objects specified in the idf file.
 Thus, idf objects such as
+``Sizing:Zone``,
+``DesignSpecification:OutdoorAir``,
 ``SizingPeriod:DesignDay``,
-``Sizing:Parameter``,
-``SizingPeriod:WeatherFileDays``,
-``SizingPeriod:WeatherFileConditionType`` and
-``DesignSpecification:OutdoorAir``
+``SizingPeriod:WeatherFileDays``, and
+``SizingPeriod:WeatherFileConditionType``
 may be used.
 However, whether a sizing is performed is determined by a Modelica parameter.
 Note that
@@ -223,94 +230,79 @@ because EnergyPlus when coupled to Modelica is removing any HVAC system,
 the heating or cooling load does not include the heat needed to heat or cool that outside
 air to the zone air temperature.
 
-Spawn removes the HVAC system in the idf file, the idf objects
+Spawn removes the HVAC system in the idf file. It also removes the global
+``Sizing:Parameters`` object. Therefore, the idf objects
 ``DesignSpecification:ZoneHVAC:Sizing``,
 ``DesignSpecification:ZoneAirDistribution``, and
 ``DesignSpecification:AirTerminal:Sizing``
-are not taken into account, and also
-any sizing specification in
+are not taken into account. Also, any sizing specification in
 ``ZoneAirHeatBalanceAlgorithm`` is disregarded.
 
-EnergyPlus also has sizing specification in the idf object
-``SimulationControl``. These settings are ignored as only few of the settings
-are applicable, and those that are applicable are exposed as Modelica parameters.
+Spawn replaces the idf ``SimulationControl`` object. If at least one
+``SystemSizing`` object has ``autosizeHVAC=true``, Spawn enables the EnergyPlus zone
+sizing calculation and disables the system and plant sizing calculations.
+The ``run_simulation_for_sizing_periods`` setting is always set to ``No``.
+
+Each zone to be sized must be referenced by a ``Sizing:Zone`` object. A
+``Sizing:Zone`` object may reference a zone directly or reference a ``ZoneList``;
+Spawn resolves these references without regard to letter case. If autosizing is
+requested but the idf file has no ``Sizing:Zone`` objects, Spawn issues a warning and
+no EnergyPlus zone sizing results are available. Spawn still creates the FMU sizing
+parameters. It sets every zone-level calculated sizing parameter to zero. At the
+``SystemSizing`` level, it sets the load, humidity-ratio, mass-flow, and time parameters
+to zero and the cooling and heating outdoor drybulb temperature parameters to
+:math:`21\,\mathrm{degC}`. These hard-coded placeholder values are supplied by Spawn
+and must not be used for equipment sizing.
+
+When autosizing is enabled, Spawn replaces the EnergyPlus zone equipment with an
+ideal-loads system for each zone referenced by ``Sizing:Zone``. Spawn uses existing
+thermostat and humidistat controls. For any referenced zone without these controls,
+Spawn inserts a dual-setpoint thermostat with heating and cooling set points of
+:math:`20\,\mathrm{degC}` and :math:`22\,\mathrm{degC}`, respectively, and a
+humidistat with humidifying and dehumidifying relative humidity set points of
+:math:`45\,\%` and :math:`55\,\%`, respectively.
 
 Zone multipliers
 ^^^^^^^^^^^^^^^^
 
-Up to the Modelica Buildings Library version 11, the Spawn coupling does not support
-zone multipliers. If an idf file contains a ``Zone`` object with a multiplier that is
-not 1, the simulation stops with an error.
+The current version of Spawn does not support zone multipliers. If an idf file
+contains a ``Zone`` object whose ``Multiplier`` field is not 1, Spawn stops with
+an error that identifies the zone and multiplier.
 
-In later versions, EnergyPlus multipliers are supported. This allows for example
-authoring of the EnergyPlus envelope geometry, including adding multipliers for zones,
-in dedicated EnergyPlus envelope authoring tools such as OpenStudio.
-Spawn handles multipliers as follows:
-
-If idf file contains in the ``Zone`` object the entry ``Multiplier``,
-then EnergyPlus multiplies the zone volume, zone floor area and internal and external loads.
-EnergyPlus also takes the multiplier into account in the heat flow rates that are exchanged
-between Modelica and EnergyPlus.
-Hence, this allows through a specification in the idf file to multiply the size
-of thermal zones.
-Modelica will then use these multiplied values in its simulation.
-For example, suppose an idf file specifies a zone that
-has a volume of :math:`V=100 \, \mathrm{m^3}`,
-a design air flow rate of :math:`\dot m_0 = 1.0 \, \mathrm{kg/s}` and
-a zone multiplier of :math:`2`.
-Then, Modelica will obtain a zone volume of :math:`V=200 \, \mathrm{m^3}`,
-and users need to ensure that the design air mass flow rate
-in Modelica is :math:`\dot m_0 = 2.0 \, \mathrm{kg/s}`.
-
-EnergyPlus allows a zone to be added to a ``ZoneList``, and a ``ZoneList`` to
-be added to a ``Zone Group``.
-For example, a ``ZoneList`` allows all zones
-on a floor to be listed, and a ``Zone Group`` allows all zones to be multiplied
-such as to model a high-rise building.
-EnergyPlus takes the ``Zone Group`` into account.
-Thus, if the zone in the above example has a multiplier of :math:`2`,
-and it is added to an EnergyPlus ``Zone Group``
-which has a multiplier of :math:`3`, then EnergyPlus will send its
-surface, volume and load after multiplying it by a factor of :math:`6`.
-Therefore, users need to ensure that the design air mass flow rate
-in Modelica is :math:`\dot m_0 = 6.0 \, \mathrm{kg/s}`.
-
-In Modelica, thermal zones may be grouped to HVAC systems.
-As the HVAC system in the idf file is removed, Modelica has its own object to
-group thermal zones to an HVAC system for the purpose of taking into account
-the load diversity for system sizing. The corresponding Modelica class is
-called ``HVACZones``.
-Note that the Modelica ``HVACZones`` model has no entry for zone or group multipliers,
-as the values from the idf file are applied during the system sizing
-as described in the above two paragraphs.
-
+EnergyPlus also allows multiple zones to be collected in a ``ZoneList`` and allows
+a ``ZoneGroup`` to apply a multiplier to every zone in a ``ZoneList``. Spawn supports
+using a ``ZoneList`` without multiplication, including references from ``Sizing:Zone``,
+zone thermostat objects, and ``ZoneInfiltration:DesignFlowRate``. However, if a
+``ZoneGroup`` has a ``Zone List Multiplier`` other than 1, Spawn stops with an error
+that identifies the ``ZoneGroup``, referenced ``ZoneList``, multiplier, and affected
+zones.
 
 
 Sizing parameters obtained by Modelica
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If Modelica enabled the EnergyPlus sizing calculations,
-it will receive for each Modelica ``ThermalZone`` the
-sensible cooling load,
-latent cooling load,
-and the corresponding
-room air temperature set point,
-outdoor air temperature,
-humidity concentration, minimum outdoor air mass flow rate and the time
-when these loads occur.
-These quantities are assigned by the Spawn interface to Modelica parameters,
-and these values already take into account the ``Multiplier`` of both,
-the ``Zone`` object and the ``Zone Group`` object
-in the EnergyPlus idf file.
-The values can then be used in Modelica parameter expressions to assign
-component sizes.
+If Modelica enables the EnergyPlus sizing calculations, each Modelica ``ThermalZone``
+and ``SystemSizing`` object receives the sensible and latent cooling loads, sensible
+heating load, outdoor air temperature and humidity at the design condition, minimum
+outdoor air mass flow rate, and time within the sizing day when the design load occurs.
+For each connected zone, Spawn also exposes the zone temperature and humidity set
+points at the corresponding design load as fixed, calculated FMU parameters. Cooling
+set points correspond to the sensible cooling peak; heating set points correspond to
+the heating peak. Their values are obtained during initialization and do not change
+with the annual simulation start date or subsequent operating schedules. No
+corresponding group-level setpoint variables are provided.
 
-Modelica also allows ``ThermalZones`` to be grouped together through the Modelica
-``HVACZones`` object, which
-allows for sizing calculations to take into account the load diversity.
-For each group, the above quantities will be obtained, also as
-Modelica parameters.
+For both ``ThermalZone`` and ``SystemSizing`` objects, Spawn reports the latent cooling
+load at the sensible cooling peak. For a ``SystemSizing`` object, Spawn finds the largest
+coincident sum of the constituent zones' sensible cooling load sequences and then sums
+the zones' latent cooling loads at that same sizing day and time step. At the group level,
+the sensible and latent cooling loads, the cooling outdoor conditions, and ``tCoo`` all
+describe this sensible peak condition. The heating peak is determined independently.
 
+The latent cooling output is zero unless latent load sizing is enabled by the
+``Zone Load Sizing Method`` field of ``Sizing:Zone``. Spawn applies the applicable
+``Sizing:Zone`` cooling sizing factor, including the scaling implied by a user-entered
+design cooling airflow, to both sensible and latent cooling loads.
 
 
 .. _sec_uni_sys:
@@ -413,58 +405,25 @@ Modelica will obtain their values during the initialization of the Modelica mode
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
 | mSenFac                   | Factor for scaling the sensible thermal mass of the zone air volume.                                        |   1             |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| *Parameters obtained from EnergyPlus zone HVAC sizing. Note that* sizZon *is a Modelica record used to group sizing parameter*                            |
-| *If sizing is disabled, then these values are set to zero.*                                                                                               |
-| *All quantities are after applying all EnergyPlus zone and group multipliers.*                                                                            |
+| *Parameters obtained from EnergyPlus sizing. These parameters appear in the records* sizHea *and* sizCoo*.*                                               |
+| *The records* sizHea *and* sizCoo *are present in both the ThermalZone and SystemSizing objects.*                                                         |
+| *If sizing is disabled, Spawn supplies placeholder values that must not be used for equipment selection.*                                                 |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizZon.QCooSen_flow       | Design sensible cooling load.                                                                               |   W             |
+| QSen_flow                 | Design sensible load.                                                                                       |   W             |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizZon.QCooLat_flow       | Design latent cooling load.                                                                                 |   W             |
+| QLat_flow                 | Design latent cooling load at the sensible cooling peak. This value is zero in the heating sizing record.   |   W             |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizZon.TOutCoo            | Outdoor drybulb temperature at the cooling design load.                                                     |   degC          |
+| TSet                      | Indoor temperature set point at the design load (ThermalZone only).                                         |   degC          |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizZon.XOutCoo            | Outdoor humidity ratio at the cooling design load per total air mass of the zone.                           |   kg/kg         |
+| XSet                      | Indoor water vapor mass fraction per total air mass at the design load (ThermalZone only).                  |   kg/kg         |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizZon.tCoo               | Time at which these loads occurred.                                                                         |   s             |
+| TOut                      | Outdoor drybulb temperature at the design load.                                                             |   degC          |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizZon.QHea_flow          | Design heating load.                                                                                        |   W             |
+| XOut                      | Outdoor humidity ratio at the design load per total air mass.                                               |   kg/kg         |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizZon.TOutHea            | Outdoor drybulb temperature at the heating design load.                                                     |   degC          |
+| mOut_flow                 | Minimum outdoor air flow rate during the design load.                                                       |   kg/s          |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizZon.XOutHea            | Outdoor humidity ratio at the heating design load per total air mass of the zone.                           |   W             |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizZon.mOutCoo_flow       | Minimum outdoor air flow rate during the cooling design load.                                               |   kg/s          |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizZon.mOutHea_flow       | Minimum outdoor air flow rate during the heating design load.                                               |   kg/s          |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizZon.tHea               | Time at which these loads occurred.                                                                         |   s             |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| *Parameters obtained from EnergyPlus HVAC system sizing, taking into account the load diversity of thermal zones that are part of this HVAC system.*      |
-| *Note that* sizSys *is a Modelica record used to group sizing parameter.*                                                                                 |
-| *If sizing is disabled, then these values are set to zero.*                                                                                               |
-| *All quantities are after applying all EnergyPlus zone and group multipliers.*                                                                            |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizSys.QCooSen_flow       | Design sensible cooling load.                                                                               |   W             |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizSys.QCooLat_flow       | Design latent cooling load.                                                                                 |   W             |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizSys.TOutCoo            | Outdoor drybulb temperature at the cooling design load.                                                     |   degC          |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizSys.XOutCoo            | Outdoor humidity ratio at the cooling design load per total air mass of the zone.                           |   kg/kg         |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizSys.tCoo               | Time at which these loads occurred.                                                                         |   s             |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizSys.QHea_flow          | Design heating load.                                                                                        |   W             |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizSys.TOutHea            | Outdoor drybulb temperature at the heating design load.                                                     |   degC          |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizSys.XOutHea            | Outdoor humidity ratio at the heating design load per total air mass of the zone.                           |   W             |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizSys.mOutCoo_flow       | Minimum outdoor air flow rate during the cooling design load.                                               |   kg/s          |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizSys.mOutHea_flow       | Minimum outdoor air flow rate during the heating design load.                                               |   kg/s          |
-+---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| sizSys.tHea               | Time at which these loads occurred.                                                                         |   s             |
+| t                         | Time within the sizing day at which the design load occurred.                                               |   s             |
 +---------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
 
 
@@ -861,56 +820,107 @@ This is initiated by Modelica, which invokes a system command of the form
 
 where ``spawn`` is a program provided by EnergyPlus, and ``path_to_json``
 is the absolute path of the json file ``ModelicaBuildingsEnergyPlus.json`` that configures EnergyPlus.
-For the case of a model with one thermal zone, the content of this file looks as follows:
+For a model with six thermal zones and two HVAC systems, the content of this file looks as follows:
 
 .. code-block:: json
 
-   {
-    "version": "1.0",
-    "EnergyPlus": {
-      "idf": "/tmp/tmp-spawn/jm_tmpPVJfHP/resources/0/RefBldgSmallOfficeNew2004_Chicago.idf",
-      "idd": "/tmp/tmp-spawn/jm_tmpPVJfHP/resources/2/Energy+.idd",
-      "weather": "/tmp/tmp-spawn/jm_tmpPVJfHP/resources/1/USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.epw",
-      "autosize": true,
-      "runSimulationForSizingPeriods": true
-    },
-    "fmu": {
-        "name": "/mnt/shared/modelica-buildings/tmp-eplus-fmuName/fmuName.fmu",
-        "version": "2.0",
-        "kind"   : "ME"
-    },
-    "model": {
+    {
+      "version": "0.2",
+      "EnergyPlus": {
+        "idf": "buildings/modelica-buildings/Buildings/Resources/Data/ThermalZones/EnergyPlus_24_2_0/Examples/RefBldgSmallOffice/RefBldgSmallOfficeNew2004_Chicago.idf",
+        "weather": "buildings/modelica-buildings/Buildings/Resources/weatherdata/USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.epw",
+        "relativeSurfaceTolerance": 1.00e-06
+      },
+      "RunPeriod": {
+        "start_day_of_year": "Sunday",
+        "apply_weekend_holiday_rule": "No",
+        "use_weather_file_daylight_saving_period": "No",
+        "use_weather_file_holidays_and_special_days": "No",
+        "use_weather_file_rain_indicators": "Yes",
+        "use_weather_file_snow_indicators": "Yes"
+      },
+      "model": {
         "zones": [
-            { "name": "office" }
-        ],
-        "hvacZones":[
           {
-            "name": "office_and_core_zones",
-            "zones":
-            [
-              { "name": "office" },
-              { "name": "core" }
-            ]
+            "name": "Core_ZN"
           },
           {
-            "name": "south zones",
-            "zones":
-            [
-              { "name": "southWest" },
-              { "name": "southEast" }
-            ]
+            "name": "Attic"
+          },
+          {
+            "name": "Perimeter_ZN_2"
+          },
+          {
+            "name": "Perimeter_ZN_3"
+          },
+          {
+            "name": "Perimeter_ZN_1"
+          },
+          {
+            "name": "Perimeter_ZN_4"
+          }
+        ],
+        "hvacZones": [
+          {
+            "name": "core",
+              "zones": [
+                {
+                "name": "Core_ZN"
+                }
+              ]
+          },
+          {
+            "name": "none",
+              "zones": [
+                {
+                "name": "Attic"
+                }
+              ]
+          },
+          {
+            "name": "perimeter",
+              "zones": [
+                {
+                "name": "Perimeter_ZN_2"
+                },
+                {
+                "name": "Perimeter_ZN_3"
+                },
+                {
+                "name": "Perimeter_ZN_1"
+                },
+                {
+                "name": "Perimeter_ZN_4"
+                }
+              ]
+          }
+        ],
+        "hvacSystems": [
+          {
+            "name": "core",
+            "autosize": "false"
+          },
+          {
+            "name": "perimeter",
+            "autosize": "true"
           }
         ]
+      },
+      "fmu": {
+          "name": "buildings/modelica-buildings/spawn-IdealHeatingCoolingWinter_Autosizing.flo/EnergyPlus.fmu",
+          "version": "2.0",
+          "kind": "ME"
       }
     }
 
-Using this information, EnergyPlus creates the FMU with name
-``/mnt/shared/modelica-buildings/tmp-eplus-fmuName/fmuName.fmu``.
 
-Depending on the boolean entry ``autosize``, EnergyPlus will conduct an autosizing calculation.
-If ``autosize: true``, then ``runSimulationForSizingPeriods`` determines whether
-the simulation will be run on all the included ``SizingPeriod`` objects in the idf file
-(i.e., ``SizingPeriod:DesignDay``, ``SizingPeriod:WeatherFileDays``, and ``SizingPeriod:WeatherFileConditionType``).
+Using this information, Spawn creates the FMU with the name specified by ``fmu.name``.
+
+The ``autosize`` entry is a JSON string whose value is ``"true"`` or ``"false"``.
+If any HVAC system has ``"autosize": "true"``, Spawn invokes the EnergyPlus zone
+sizing calculation. Spawn uses the results for each system whose value is ``"true"``
+and for the zones assigned to that system. Systems whose value is ``"false"`` receive
+the Spawn-supplied placeholder values described below.
 
 We will now describe how to the exchanged variables are configured.
 
@@ -918,95 +928,129 @@ Envelope model
 """"""""""""""
 
 To configure the variables to be exchanged for the envelope model described in :numref:`sec_cou_env`,
-the following data structures will be used for a building with a zone called ``basement`` and a zone called ``office``.
+the following data structures will be used for a building with a zone called ``Core_ZN`` and a zone called ``Attic``.
 
 .. code-block:: c
 
    "zones": [
-      { "name": "basement" },
-      { "name": "office" }
+      { "name": "Core_ZN" },
+      { "name": "Attic" }
    ]
 
-In this case, the FMU must have parameters called ``basement_V``, ``office_V``, ``basement_AFlo`` etc.
-inputs called ``basement_T`` and ``office_T`` and outputs called
-``basement_QConSen_flow`` and ``office_QConSen_flow``.
+In this case, the FMU must have parameters called ``Core_ZN_V``, ``Attic_V``, ``Core_ZN_AFlo`` etc.
+inputs called ``Core_ZN_T`` and ``Attic_T`` and outputs called
+``Core_ZN_QConSen_flow`` and ``Attic_QConSen_flow``.
 
 HVAC zones used for auto-sizing
 """""""""""""""""""""""""""""""
 
-The entry ``hvacZones`` is used to group thermal zones for autosizing. Its syntax is
+The entry ``hvacZones`` is used to group thermal zones for autosizing. Each zone should
+belong to at most one group. Its syntax is
 
 .. code-block:: c
 
     "hvacZones":[
       {
-        "name": "office_and_core_zones",
-        "zones":
-        [
-          { "name": "office" },
-          { "name": "core" }
-        ]
+        "name": "core",
+          "zones": [
+            {
+            "name": "Core_ZN"
+            }
+          ]
       },
       {
-        "name": "south_zones",
-        "zones":
-        [
-          { "name": "southWest" },
-          { "name": "southEast" }
-        ]
+        "name": "perimeter",
+          "zones": [
+            {
+            "name": "Perimeter_ZN_2"
+            },
+            {
+            "name": "Perimeter_ZN_3"
+            },
+            {
+            "name": "Perimeter_ZN_1"
+            },
+            {
+            "name": "Perimeter_ZN_4"
+            }
+          ]
       }
     ]
-
 
 
 The length of ``hvacZones`` may be zero for the special case of
 the Modelica model having no ``ThermalZone`` specified.
 Modelica ensures that there is always a ``hvacZones`` entry.
+If a ``ThermalZone`` is not assigned to a ``SystemSizing`` object,
+it is added an ``hvacZones`` group with name ``none`` by default,
+and for which autosizing is not performed.
 
 For the above example, the FMU must have the following parameters:
 
-- ``hvac_sizing_group_xxx_SizingPeriodNameCoo`` for the name of the sizing period for the cooling load.
-- ``hvac_sizing_group_xxx_QCooSen_flow`` for sensible cooling load.
-- ``hvac_sizing_group_xxx_QCooLat_flow`` for latent cooling load.
-- ``hvac_sizing_group_xxx_TRooAirCoo`` for volume-weighted room air drybulb temperature at the cooling design load.
-  Note that if all zones in the HVAC sizing group have the same room air drybulb temperature,
-  which typically is the case if they all have the same set point and the set point is achieved, then this simply is
-  the set point; otherwise weighting it by the room volume is an approximation for the average room air temperature that
-  takes the size of the zone into account.)
-- ``hvac_sizing_group_xxx_TOutCoo`` for outdoor drybulb temperature at the cooling design load.
-- ``hvac_sizing_group_xxx_XOutCoo`` for outdoor humidity ratio at the cooling design load.
-- ``hvac_sizing_group_xxx_winSpeCoo`` for wind speed at the cooling design load.
-- ``hvac_sizing_group_xxx_winDirCoo`` for wind direction at the cooling design load.
-- ``hvac_sizing_group_xxx_tCoo`` time at which these loads occurred.
-- ``hvac_sizing_group_xxx_SizingPeriodNameHea`` for the name of the sizing period for the heating load.
-- ``hvac_sizing_group_xxx_QHea_flow`` for heating load.
-- ``hvac_sizing_group_xxx_TRooAirHea`` for volume-weighted room air drybulb temperature at the heating design load.
-  (See the note above at ``hvac_sizing_group_xxx_TRooAirCoo``).
+- ``hvac_sizing_group_xxx_QCooSen_flow`` for peak coincident sensible design cooling load.
+- ``hvac_sizing_group_xxx_QCooLat_flow`` for coincident latent design cooling load at the sensible cooling peak.
+- ``hvac_sizing_group_xxx_TOutCoo`` for outdoor drybulb temperature at the sensible cooling peak.
+- ``hvac_sizing_group_xxx_XOutCoo`` for outdoor humidity ratio at the sensible cooling peak.
+- ``hvac_sizing_group_xxx_mOutCoo_flow`` for minimum outdoor air flow rate during the cooling design load.
+- ``hvac_sizing_group_xxx_tCoo`` for the time within the sizing day at the sensible cooling peak.
+- ``hvac_sizing_group_xxx_QHea_flow`` for peak coincident heating design load.
 - ``hvac_sizing_group_xxx_TOutHea`` for outdoor drybulb temperature at the heating design load.
 - ``hvac_sizing_group_xxx_XOutHea`` for outdoor humidity ratio at the heating design load.
-- ``hvac_sizing_group_xxx_winSpeHea`` for wind speed at the heating design load.
-- ``hvac_sizing_group_xxx_winDirHea`` for wind direction at the heating design load.
-- ``hvac_sizing_group_xxx_mOutCoo_flow`` for minimum outdoor air flow rate during the cooling design load.
 - ``hvac_sizing_group_xxx_mOutHea_flow`` for minimum outdoor air flow rate during the heating design load.
-- ``hvac_sizing_group_xxx_tHea`` time at which these loads occurred.
+- ``hvac_sizing_group_xxx_tHea`` for the time within the sizing day at the heating peak.
 
-In the above list, ``xxx`` is ``office_and_core_zones`` and ``south_zones``, respectively.
-The quantities ``*Coo*`` and ``*Hea*`` are at the respective time step that determines
-the sizing as specified by ``*tCoo`` and ``*tHea``.
+In the above list and example, ``xxx`` is ``core`` and ``perimeter``, respectively.
+The sensible cooling load determines the cooling design condition. The latent cooling
+load and the other ``*Coo*`` condition variables are evaluated at the sensible peak
+represented by ``tCoo``. The ``*Hea*`` condition variables correspond to the heating
+peak represented by ``tHea``.
+
+If a zone in a system has no sizing information, Spawn omits that zone from the group
+aggregation and issues a warning. If none of the zones in the system have sizing
+information, the group sizing parameters use the Spawn-supplied placeholder values
+described below.
 The exchanged parameters include outdoor mass flow rates and outdoor condition to allow for fully automatic
 system sizing through Modelica parameter expressions.
-The units are ``[W]``, ``degC``,  ``kg/kg`` water vapor mass fraction per total air mass of the zone,
-``[m/s]`` for wind speed,
-``[rad]`` for wind direction as specified in the TMY3 weather file,
-``[s]`` since January 1 at 0:00:00, and ``kg/s``.
-All quantities are after applying all EnergyPlus zone and group multipliers.
-
+The units are ``W``, ``degC``, ``kg/kg`` water vapor mass fraction per total air mass of the zone,
+``s`` from the start of the sizing day, and ``kg/s``.
 
 Similarly, for each thermal zone, there will be parameters in the FMU as above,
-but with ``group`` replaced by ``zone`` and the zone name inserted, such as in
-``hvac_sizing_zone_office_QCooSen_flow``.
+but with ``hvac_sizing_group`` replaced by the zone name, such as in
+``Core_ZN_QCooSen_flow``. Furthermore, Spawn exposes the following additional fixed,
+calculated zone-level sizing parameters:
 
-If ``autosizing: false``, then these values must not be in the ``modelDescription.xml`` file.
+- ``xxx_TSetCoo`` for the zone temperature set point at the sensible cooling design peak.
+- ``xxx_TSetHea`` for the zone temperature set point at the heating design peak.
+- ``xxx_XSetCoo`` for the zone dehumidifying set point at the sensible cooling design peak.
+- ``xxx_XSetHea`` for the zone humidifying set point at the heating design peak.
+
+In the above list and example, ``xxx`` would be ``Core_ZN``.
+The units are ``degC`` and ``kg/kg`` water vapor mass fraction per total air mass of the zone.
+
+The entry ``hvacSystems`` is used to toggle autosizing for each group of zones defined in
+``hvacZones``. The ``name`` of each ``hvacSystems`` entry must match the ``name`` of its
+corresponding ``hvacZones`` entry. Its syntax is as follows:
+
+.. code-block:: c
+
+    "hvacSystems": [
+      {
+        "name": "core",
+        "autosize": "false"
+      },
+      {
+        "name": "perimeter",
+        "autosize": "true"
+      }
+    ]
+
+
+If ``autosize`` is ``"false"`` for a group, or if no corresponding ``hvacSystems`` entry
+exists, the FMU sizing parameters remain present. Spawn sets load, humidity-ratio,
+mass-flow, and time parameters to zero, and sets the cooling and heating outdoor
+drybulb temperature parameters to :math:`21\,\mathrm{degC}`. These are hard-coded Spawn
+placeholders and must not be used for sizing. The same applies to the ``hvacZones``
+group named ``none``.
 
 
 
